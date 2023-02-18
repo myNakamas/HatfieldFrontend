@@ -1,6 +1,12 @@
 import backendClient from './backendClient'
-import { User } from '../models/interfaces/user'
+import { LoginUserModel, User } from '../models/interfaces/user'
 
-export const useLogin = (params: { username: string; password: string }): Promise<User> => {
-    return backendClient.post('/login', {}, { params })
+export const useLogin = ({ username, password, remember }: LoginUserModel): Promise<User> => {
+    const rememberMe = remember ? 'on' : 'off'
+    const data = new URLSearchParams()
+    data.append('username', username)
+    data.append('password', password)
+    data.append('remember-me', rememberMe)
+
+    return backendClient.post('login', {}, { params: data })
 }

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-const baseURL = process.env.REACT_APP_API_URL
-const backendClient = axios.create({ baseURL })
+const baseURL = import.meta.env.VITE_API_URL
+const backendClient = axios.create({ baseURL: String(baseURL) })
 
 
 backendClient.interceptors.request.use((config) => {

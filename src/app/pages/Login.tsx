@@ -1,15 +1,14 @@
-import { UsernamePassword } from '../models/interfaces/user'
+import { LoginUserModel } from '../models/interfaces/user'
 import { LoginSchema } from '../models/validators/FormValidators'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useLogin } from '../axios/userRequests'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../contexts/AuthContext'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Controller, useForm } from 'react-hook-form'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import CssBaseline from '@mui/material/CssBaseline'
-import TextField from '@mui/material/TextField'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Checkbox from '@mui/material/Checkbox'
 import Link from '@mui/material/Link'
@@ -20,32 +19,39 @@ import Container from '@mui/material/Container'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
 import { Alert } from '@mui/material'
+import FormTextField from '../components/FormTextField'
 
 export const Login = () => {
-    const { setLoggedUser } = useContext(AuthContext)
+    const { loggedUser, saveLoggedUser } = useContext(AuthContext)
     const { state } = useLocation()
     const navigate = useNavigate()
 
     const [errorMsg, setErrorMsg] = useState('')
-    //todo:add RememberMe services
 
-    const {
-        control,
-        handleSubmit,
-    } = useForm<UsernamePassword>({ resolver: yupResolver(LoginSchema) })
+    const { control, handleSubmit } = useForm<LoginUserModel>({ resolver: yupResolver(LoginSchema) })
 
-    const onSubmit = (values: UsernamePassword) => {
-        const pageToRedirectTo: Location = state?.from ?? '/home'
-
-        useLogin(values)
+    const onSubmit = (formValues: LoginUserModel) => {
+        setErrorMsg('')
+        useLogin(formValues)
             .then((user) => {
-                setLoggedUser(user)
-                navigate(pageToRedirectTo, { replace: true })
+                if (loggedUser) {
+                    const pageToRedirectTo: Location = state?.from ?? '/welcome'
+                    navigate(pageToRedirectTo, { replace: true })
+                    saveLoggedUser(user)
+                }
             })
             .catch(() => {
                 setErrorMsg('Invalid credentials')
             })
     }
+
+    useEffect(() => {
+        if (loggedUser) {
+            const pageToRedirectTo: Location = state?.from ?? '/welcome'
+            navigate(pageToRedirectTo, { replace: true })
+        }
+    }, [])
+
 
     return (
         <Container component='main' maxWidth='xs'>
@@ -65,44 +71,21 @@ export const Login = () => {
                     Sign in
                 </Typography>
                 <Box component='form' onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 1 }}>
-                    <Controller control={control} name='username' render={({ field, fieldState }) =>
-                        <TextField
-                            margin='normal'
-                            required
-                            fullWidth
-                            id='username'
-                            label='Email Address'
-                            name='username'
-                            autoComplete='username'
-                            autoFocus
-                            error={fieldState.invalid}
-                            onChange={field.onChange}
-                        />
-                    } />
-                    <Controller control={control} name='password' render={({ field, fieldState }) =>
-                        <TextField
-                            margin='normal'
-                            required
-                            fullWidth
-                            name='password'
-                            label='Password'
-                            type='password'
-                            id='password'
-                            autoComplete='current-password'
-                            error={fieldState.invalid}
-                            onChange={field.onChange}
-                        />} />
+                    <FormTextField control={control} name='username' label='Username' />
+                    <FormTextField control={control} name='password' label='Password' type='password' />
                     {errorMsg.length > 0 && <Alert severity='error'>{errorMsg}</Alert>}
-                    <FormControlLabel
-                        control={<Checkbox value='remember' color='primary' />}
-                        label='Remember me'
+                    <Controller
+                        control={control}
+                        name='remember'
+                        render={({ field }) => (
+                            <FormControlLabel
+                                control={<Checkbox value='remember' color='primary' />}
+                                label='Remember me'
+                                onChange={(event, checked) => field.onChange(checked)}
+                            />
+                        )}
                     />
-                    <Button
-                        type='submit'
-                        fullWidth
-                        variant='contained'
-                        sx={{ mt: 3, mb: 2 }}
-                    >
+                    <Button type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
                         Sign In
                     </Button>
                     <Grid container>

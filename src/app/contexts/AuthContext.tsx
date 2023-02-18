@@ -3,7 +3,7 @@ import { User } from '../models/interfaces/user'
 
 export interface AuthContextData {
     loggedUser?: User
-    setLoggedUser: React.Dispatch<React.SetStateAction<User | undefined>>;
+    saveLoggedUser: (user: User) => void;
     logout: () => void
 }
 
@@ -14,5 +14,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = () => {
         setLoggedUser(undefined)
     }
-    return <AuthContext.Provider value={{ loggedUser, setLoggedUser, logout }}>{children}</AuthContext.Provider>
+    const saveLoggedUser = (user: User) => {
+        setLoggedUser(user)
+    }
+    return <AuthContext.Provider value={{ loggedUser, saveLoggedUser, logout }}>{children}</AuthContext.Provider>
 }
