@@ -1,0 +1,24 @@
+$primaryColor: "#000";
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  background-color: $primaryColor;
+  font-size: clamp(1rem, 0.95rem + 0.25vw, 1.05rem);
+}
+
+.iconWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+  width: 60px;
+  height: 60px;
+  background-color: #555;
+  border-radius: 50px;
+
+  .profileImage {
+    width: 30px;
+  }
+}

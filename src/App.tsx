@@ -1,16 +1,20 @@
-import './app/styles/App.css'
+import './app/styles/App.scss'
 import { Router } from './app/routes/Router'
-import { AuthProvider } from './app/contexts/AuthContext'
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { Toolbar } from './app/components/Toolbar'
+import { SideNavigation } from './app/components/navigation/SideNavigation'
+import { ThemeProvider } from './app/contexts/ThemeContext'
+import { QueryClient, QueryClientProvider } from 'react-query'
 
 export const App = () => {
-    const theme = createTheme({ palette: {} })
+    const client = new QueryClient()
 
     return (
-        <ThemeProvider theme={theme}>
-            <AuthProvider>
+        <QueryClientProvider client={client}>
+            <ThemeProvider>
+                <Toolbar />
+                <SideNavigation />
                 <Router />
-            </AuthProvider>
-        </ThemeProvider>
+            </ThemeProvider>
+        </QueryClientProvider>
     )
 }
