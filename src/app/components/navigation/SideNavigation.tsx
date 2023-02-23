@@ -7,11 +7,25 @@ import { faCommentDots } from '@fortawesome/free-solid-svg-icons/faCommentDots'
 import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket'
 import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs'
 import { faDashboard } from '@fortawesome/free-solid-svg-icons/faDashboard'
-import './SideNav.scss'
+import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
+import React from 'react'
 
-export const SideNavigation = () => {
+export const SideNavigation = ({
+    showNavigation,
+    setShowNav,
+    isSmallScreen,
+}: {
+    showNavigation?: boolean
+    setShowNav: React.Dispatch<React.SetStateAction<boolean>>
+    isSmallScreen: boolean
+}) => {
     return (
-        <div className='sidenav'>
+        <div className={`sidenav ${showNavigation ? 'visible' : 'invisible'}`}>
+            {isSmallScreen && (
+                <div className='icon-s clickable' onClick={() => setShowNav((prev) => !prev)}>
+                    <FontAwesomeIcon icon={faBars} />
+                </div>
+            )}
             <NavButton to={'/welcome'} icon={faHouse} label='Home' />
             <NavButton to={'/dashboard'} icon={faDashboard} label='Dashboard' />
             <NavButton to={'/users'} icon={faUsers} label='Clients' />

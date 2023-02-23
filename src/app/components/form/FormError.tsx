@@ -1,5 +1,5 @@
-import { GlobalError } from 'react-hook-form'
+import React from 'react'
 
-export const FormError = ({ error }: { error: (Record<string, GlobalError> & GlobalError) | undefined }) => {
-    return <div>{error?.message}</div>
+export const FormError = ({ error }: { error?: string }) => {
+    return error ? <div className='errorText'>{error}</div> : <></>
 }

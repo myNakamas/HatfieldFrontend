@@ -1,22 +1,41 @@
-$primaryColor: "#000";
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+:root {
+  padding: 0;
   text-align: center;
-  background-color: $primaryColor;
+  background-color: var(--backgroundColor);
+  color: var(--textPrimeary);
   font-size: clamp(1rem, 0.95rem + 0.25vw, 1.05rem);
 }
 
-.iconWrapper {
+body {
+  margin: 0;
+
+}
+
+.icon {
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 50px;
+  background-color: #555;
+  background-blend-mode: screen;
+}
+
+.icon-l {
+  @extend .icon;
   margin: 20px;
   width: 60px;
   height: 60px;
-  background-color: #555;
-  border-radius: 50px;
+
+  .profileImage {
+    width: 30px;
+  }
+}
+
+.icon-s {
+  @extend .icon;
+  margin: 15px;
+  width: 40px;
+  height: 40px;
 
   .profileImage {
     width: 30px;

@@ -1,11 +1,10 @@
-import React, { ReactNode, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { User } from '../models/interfaces/user'
 import { getLoggedUser } from '../axios/userRequests'
 
 export interface AuthContextData {
     loggedUser?: User
-    isLoggedIn: () => boolean
-    saveLoggedUser: (user: User) => void
+    saveLoggedUser: (user: User, token: string) => void
     logout: () => void
 }
 
@@ -17,20 +16,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoggedUser(undefined)
         localStorage.removeItem('token')
     }
-    window.addEventListener('session_expired', () => {
+    const saveLoggedUser = (user: User, token: string) => {
+        setLoggedUser(user)
+        localStorage.setItem('token', token)
+    }
+    document.addEventListener('session_expired', () => {
         logout()
     })
-    const saveLoggedUser = (user: User) => {
-        setLoggedUser(user)
-    }
-    const isLoggedIn = (): boolean => {
+    useEffect(() => {
         if (!loggedUser && localStorage.getItem('token')) getLoggedUser().then((user) => setLoggedUser(user))
-        return !!loggedUser || localStorage.getItem('token') != undefined
-    }
+    }, [loggedUser])
 
-    return (
-        <AuthContext.Provider value={{ loggedUser, isLoggedIn, saveLoggedUser, logout }}>
-            {children}
-        </AuthContext.Provider>
-    )
+    return <AuthContext.Provider value={{ loggedUser, saveLoggedUser, logout }}>{children}</AuthContext.Provider>
 }

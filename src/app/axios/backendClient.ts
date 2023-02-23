@@ -10,11 +10,11 @@ backendClient.interceptors.request.use((config) => {
 
 backendClient.interceptors.response.use(
     (config) => {
-        return config
+        return config.data
     },
     (error: AxiosError) => {
-        if (error.status == 401) {
-            window.dispatchEvent(new Event('session_expired'))
+        if (error.response?.status == 401) {
+            document.dispatchEvent(new Event('session_expired'))
         }
     }
 )

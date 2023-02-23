@@ -1,4 +1,4 @@
-import { LoginUserModel } from '../models/interfaces/user'
+import { UsernamePassword } from '../models/interfaces/user'
 import { LoginSchema } from '../models/validators/FormValidators'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useLogin } from '../axios/userRequests'
@@ -8,7 +8,6 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
-import '../components/form/form.scss'
 import { TextField } from '../components/form/TextField'
 import { FormError } from '../components/form/FormError'
 
@@ -18,29 +17,28 @@ export const Login = () => {
         handleSubmit,
         formState: { errors },
         setError,
-    } = useForm<LoginUserModel>({ resolver: yupResolver(LoginSchema) })
-    const { isLoggedIn, saveLoggedUser } = useContext(AuthContext)
+    } = useForm<UsernamePassword>({ resolver: yupResolver(LoginSchema) })
+    const { loggedUser, saveLoggedUser } = useContext(AuthContext)
     const { state } = useLocation()
 
     const pageToRedirectTo: Location = state?.from ?? '/welcome'
 
-    const onSubmit = (formValues: LoginUserModel) => {
+    const onSubmit = (formValues: UsernamePassword) => {
         useLogin(formValues)
             .then(({ user, token }) => {
-                saveLoggedUser(user)
-                localStorage.setItem('token', token)
+                saveLoggedUser(user, token)
             })
             .catch((error) => {
                 console.log(error)
                 setError('root', { type: 'value', message: 'Invalid credentials' })
             })
     }
-    if (isLoggedIn()) return <Navigate to={pageToRedirectTo} replace={true} />
+    if (loggedUser) return <Navigate to={pageToRedirectTo} replace={true} />
 
     return (
         <div className='formCenterWrapper'>
             <form className='form' onSubmit={handleSubmit(onSubmit)}>
-                <div className='iconWrapper'>
+                <div className='icon-l'>
                     <FontAwesomeIcon className='profileImage' icon={faUser} />
                 </div>
                 <h2>Sign in</h2>
@@ -52,10 +50,7 @@ export const Login = () => {
                     placeholder='Password*'
                     type='password'
                 />
-                <label className='left'>
-                    <input {...register('remember')} type='checkbox' /> Remember me
-                </label>
-                <FormError error={errors.root} />
+                <FormError error={errors?.root?.message} />
                 <button className='button' type='submit'>
                     SIGN IN
                 </button>

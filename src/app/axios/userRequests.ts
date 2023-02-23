@@ -1,21 +1,19 @@
 import backendClient from './backendClient'
-import { LoginUserModel, User } from '../models/interfaces/user'
-import { AxiosResponse } from 'axios'
+import { User, UsernamePassword } from '../models/interfaces/user'
+import axios, { AxiosResponse } from 'axios'
 
 const transformLoginResponse = ({ data: user, headers }: AxiosResponse) => {
     const token = 'Bearer ' + headers['authorization']
     return { user, token }
 }
 
-export const useLogin = ({ username, password, remember }: LoginUserModel): Promise<{ user: User; token: string }> => {
-    const rememberMe = remember ? 'on' : 'off'
+export const useLogin = ({ username, password }: UsernamePassword): Promise<{ user: User; token: string }> => {
+    const backendUrl = import.meta.env.VITE_API_URL
     const data = new URLSearchParams()
     data.append('username', username)
     data.append('password', password)
-    data.append('remember-me', rememberMe)
-
-    return backendClient
-        .post('login', {}, { params: data, responseType: 'json' })
+    return axios
+        .post(backendUrl + 'login', {}, { params: data, responseType: 'json' })
         .then((value) => transformLoginResponse(value))
 }
 

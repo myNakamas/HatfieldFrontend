@@ -1,9 +1,7 @@
-import './app/styles/App.scss'
 import { Router } from './app/routes/Router'
-import { Toolbar } from './app/components/Toolbar'
-import { SideNavigation } from './app/components/navigation/SideNavigation'
 import { ThemeProvider } from './app/contexts/ThemeContext'
 import { QueryClient, QueryClientProvider } from 'react-query'
+import './styles/main.sass'
 
 export const App = () => {
     const client = new QueryClient()
@@ -11,8 +9,6 @@ export const App = () => {
     return (
         <QueryClientProvider client={client}>
             <ThemeProvider>
-                <Toolbar />
-                <SideNavigation />
                 <Router />
             </ThemeProvider>
         </QueryClientProvider>
