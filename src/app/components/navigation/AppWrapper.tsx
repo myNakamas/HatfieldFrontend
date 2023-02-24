@@ -12,7 +12,7 @@ export const AppWrapper = ({ children }: { children: ReactNode }) => {
             <Toolbar setShowNav={setShowNav} />
             <div className='flex'>
                 <SideNavigation showNavigation={showNav} setShowNav={setShowNav} isSmallScreen={smallScreen} />
-                <div className='flex-grow'>{children}</div>
+                <div className='flex-grow mainScreen'>{children}</div>
             </div>
         </>
     )

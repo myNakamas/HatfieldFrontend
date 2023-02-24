@@ -9,6 +9,7 @@ import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs'
 import { faDashboard } from '@fortawesome/free-solid-svg-icons/faDashboard'
 import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
 import React from 'react'
+import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
 
 export const SideNavigation = ({
     showNavigation,
@@ -22,12 +23,16 @@ export const SideNavigation = ({
     return (
         <div className={`sidenav ${showNavigation ? 'visible' : 'invisible'}`}>
             {isSmallScreen && (
-                <div className='icon-s clickable' onClick={() => setShowNav((prev) => !prev)}>
-                    <FontAwesomeIcon icon={faBars} />
+                <div className='flex'>
+                    <div className='icon-s clickable' onClick={() => setShowNav((prev) => !prev)}>
+                        <FontAwesomeIcon icon={faBars} />
+                    </div>
+                    <h3>Hatfield</h3>
                 </div>
             )}
             <NavButton to={'/welcome'} icon={faHouse} label='Home' />
             <NavButton to={'/dashboard'} icon={faDashboard} label='Dashboard' />
+            <NavButton to={'/inventory'} icon={faStore} label='Inventory' />
             <NavButton to={'/users'} icon={faUsers} label='Clients' />
             <NavButton to={'/chats'} icon={faCommentDots} label='Chats' />
             <NavButton to={'/tickets'} icon={faTicket} label='Tickets' />

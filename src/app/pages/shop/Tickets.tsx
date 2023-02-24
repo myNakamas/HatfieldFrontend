@@ -1,3 +1,3 @@
 export const Tickets = () => {
-    return <></>
+    return <>Work work work work work</>
 }

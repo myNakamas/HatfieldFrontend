@@ -10,6 +10,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
             const root = document.documentElement
             root?.style.setProperty('--primaryColor', colors.primaryColor)
             root?.style.setProperty('--secondaryColor', colors.secondaryColor)
+            root?.style.setProperty('--secondaryLightColor', colors.secondaryLightColor)
+            root?.style.setProperty('--secondaryDarkColor', colors.secondaryDarkColor)
+            root?.style.setProperty('--textColor', colors.textColor)
         })
     }
 

@@ -1,14 +1,19 @@
 :root {
   padding: 0;
   text-align: center;
-  background-color: var(--backgroundColor);
-  color: var(--textPrimeary);
+  /*var(--backgroundColor);*/
+  color: var(--textColor);
   font-size: clamp(1rem, 0.95rem + 0.25vw, 1.05rem);
+  list-style-type: none;
 }
 
 body {
   margin: 0;
+}
 
+.mainScreen {
+  background-color: white;
+  color: var(--secondaryDarkColor);
 }
 
 .icon {
