@@ -1,6 +1,6 @@
-import backendClient from './backendClient'
-import { User, UsernamePassword } from '../models/interfaces/user'
-import axios, { AxiosResponse } from 'axios'
+import backendClient from "./backendClient";
+import { User, UsernamePassword } from "../models/interfaces/user";
+import axios, { AxiosResponse } from "axios";
 
 const transformLoginResponse = ({ data: user, headers }: AxiosResponse) => {
     const token = 'Bearer ' + headers['authorization']
@@ -19,4 +19,13 @@ export const useLogin = ({ username, password }: UsernamePassword): Promise<{ us
 
 export const getLoggedUser = (): Promise<User> => {
     return backendClient.get('user/profile')
+}
+export const getAllUsers = () : Promise<User[]> => {
+    return backendClient.get('user/all')
+}
+export const createWorkerUser = (user:User) : Promise<User> => {
+    return backendClient.post('user/admin/create',user)
+}
+export const createClient = (user:User) : Promise<User> => {
+    return backendClient.post('user/create/client',user)
 }

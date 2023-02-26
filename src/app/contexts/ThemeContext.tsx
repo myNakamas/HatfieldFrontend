@@ -1,20 +1,29 @@
-import React, { ReactNode, useContext } from 'react'
-import { AuthContext } from './AuthContext'
-import { getShopSettings } from '../axios/settingsRequests'
+import React, { ReactNode, useContext, useEffect, useState } from "react";
+import { AuthContext } from "./AuthContext";
+import { getShopSettings } from "../axios/settingsRequests";
+import { ShopSettingsModel } from "../models/interfaces/shop";
+
+export const ThemeContext: React.Context<ShopSettingsModel> = React.createContext({} as ShopSettingsModel)
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
+    const [colors, setColors] = useState<ShopSettingsModel>({} as ShopSettingsModel)
     const { loggedUser } = useContext(AuthContext)
 
-    if (loggedUser) {
-        getShopSettings().then((colors) => {
-            const root = document.documentElement
-            root?.style.setProperty('--primaryColor', colors.primaryColor)
-            root?.style.setProperty('--secondaryColor', colors.secondaryColor)
-            root?.style.setProperty('--secondaryLightColor', colors.secondaryLightColor)
-            root?.style.setProperty('--secondaryDarkColor', colors.secondaryDarkColor)
-            root?.style.setProperty('--textColor', colors.textColor)
-        })
-    }
+    useEffect(() => {
+        if (loggedUser) {
+            getShopSettings().then((response) => {
+                if(response) {
+                    const root = document.documentElement;
+                    root?.style.setProperty("--primaryColor", response.primaryColor);
+                    root?.style.setProperty("--secondaryColor", response.secondaryColor);
+                    root?.style.setProperty("--secondaryLightColor", response.secondaryLightColor);
+                    root?.style.setProperty("--secondaryDarkColor", response.secondaryDarkColor);
+                    root?.style.setProperty("--textColor", response.textColor);
+                    setColors(response);
+                }
+            })
+        }
+    }, [loggedUser])
 
-    return <>{children}</>
+    return <ThemeContext.Provider value={colors}>{children}</ThemeContext.Provider>
 }

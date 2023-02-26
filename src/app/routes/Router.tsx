@@ -1,10 +1,11 @@
-import { Route, Routes } from 'react-router-dom'
-import { PrivateRoute } from './PrivateRoute'
-import { Login } from '../pages/Login'
-import { Profile } from '../pages/Profile'
-import { Chats } from '../pages/shop/Chats'
-import { Tickets } from '../pages/shop/Tickets'
-import { Inventory } from '../pages/shop/Inventory'
+import { Route, Routes } from "react-router-dom";
+import { PrivateRoute } from "./PrivateRoute";
+import { Login } from "../pages/Login";
+import { Profile } from "../pages/users/Profile";
+import { Chats } from "../pages/shop/Chats";
+import { Tickets } from "../pages/shop/Tickets";
+import { Inventory } from "../pages/shop/Inventory";
+import { Users } from "../pages/users/Users";
 
 export const Router = () => {
     return (
@@ -15,7 +16,8 @@ export const Router = () => {
                 <Route path='/dashboard' element={<div>Dashy dash</div>} />
                 <Route path='/inventory' element={<Inventory />} />
                 <Route path='/profile/{id}' element={<Profile />} />
-                <Route path='/users' element={<div>whoa, lots of users</div>} />
+                <Route path='/users' element={<Users/>} />
+                <Route path='/clients' element={<div>moneh</div>} />
                 <Route path='/chats' element={<Chats />} />
                 <Route path='/tickets' element={<Tickets />} />
                 <Route path='/ticket/{id}' element={<div>single ticket info, can open chat</div>} />

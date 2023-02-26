@@ -1,15 +1,16 @@
-import { NavLink } from 'react-router-dom'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHouse } from '@fortawesome/free-solid-svg-icons/faHouse'
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
-import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
-import { faCommentDots } from '@fortawesome/free-solid-svg-icons/faCommentDots'
-import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket'
-import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs'
-import { faDashboard } from '@fortawesome/free-solid-svg-icons/faDashboard'
-import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
-import React from 'react'
-import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
+import { NavLink } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHouse } from "@fortawesome/free-solid-svg-icons/faHouse";
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { faUsers } from "@fortawesome/free-solid-svg-icons/faUsers";
+import { faCommentDots } from "@fortawesome/free-solid-svg-icons/faCommentDots";
+import { faTicket } from "@fortawesome/free-solid-svg-icons/faTicket";
+import { faCogs } from "@fortawesome/free-solid-svg-icons/faCogs";
+import { faDashboard } from "@fortawesome/free-solid-svg-icons/faDashboard";
+import { faBars } from "@fortawesome/free-solid-svg-icons/faBars";
+import React from "react";
+import { faStore } from "@fortawesome/free-solid-svg-icons/faStore";
+import { faUserShield } from "@fortawesome/free-solid-svg-icons/faUserShield";
 
 export const SideNavigation = ({
     showNavigation,
@@ -33,7 +34,8 @@ export const SideNavigation = ({
             <NavButton to={'/welcome'} icon={faHouse} label='Home' />
             <NavButton to={'/dashboard'} icon={faDashboard} label='Dashboard' />
             <NavButton to={'/inventory'} icon={faStore} label='Inventory' />
-            <NavButton to={'/users'} icon={faUsers} label='Clients' />
+            <NavButton to={'/users'} icon={faUserShield} label='Users' />
+            <NavButton to={'/clients'} icon={faUsers} label='Clients' />
             <NavButton to={'/chats'} icon={faCommentDots} label='Chats' />
             <NavButton to={'/tickets'} icon={faTicket} label='Tickets' />
             <NavButton to={'/settings'} icon={faCogs} label='Settings' />

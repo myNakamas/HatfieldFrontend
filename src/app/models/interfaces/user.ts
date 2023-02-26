@@ -1,4 +1,4 @@
-import { Entity } from './generalModels'
+import { Entity } from "./generalModels";
 
 export interface UsernamePassword {
     username: string
@@ -9,4 +9,5 @@ export interface User extends UsernamePassword, Entity {
     fullName: string
     role: string
     email: string
+    shopId: number
 }
