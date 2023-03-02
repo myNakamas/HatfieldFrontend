@@ -1,36 +1,32 @@
-import { NavLink } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHouse } from "@fortawesome/free-solid-svg-icons/faHouse";
-import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { faUsers } from "@fortawesome/free-solid-svg-icons/faUsers";
-import { faCommentDots } from "@fortawesome/free-solid-svg-icons/faCommentDots";
-import { faTicket } from "@fortawesome/free-solid-svg-icons/faTicket";
-import { faCogs } from "@fortawesome/free-solid-svg-icons/faCogs";
-import { faDashboard } from "@fortawesome/free-solid-svg-icons/faDashboard";
-import { faBars } from "@fortawesome/free-solid-svg-icons/faBars";
-import React from "react";
-import { faStore } from "@fortawesome/free-solid-svg-icons/faStore";
-import { faUserShield } from "@fortawesome/free-solid-svg-icons/faUserShield";
+import { NavLink } from 'react-router-dom'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faHouse } from '@fortawesome/free-solid-svg-icons/faHouse'
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
+import { faCommentDots } from '@fortawesome/free-solid-svg-icons/faCommentDots'
+import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket'
+import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs'
+import { faDashboard } from '@fortawesome/free-solid-svg-icons/faDashboard'
+import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
+import React from 'react'
+import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
+import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield'
 
 export const SideNavigation = ({
     showNavigation,
     setShowNav,
-    isSmallScreen,
 }: {
     showNavigation?: boolean
     setShowNav: React.Dispatch<React.SetStateAction<boolean>>
-    isSmallScreen: boolean
 }) => {
     return (
         <div className={`sidenav ${showNavigation ? 'visible' : 'invisible'}`}>
-            {isSmallScreen && (
-                <div className='flex'>
-                    <div className='icon-s clickable' onClick={() => setShowNav((prev) => !prev)}>
-                        <FontAwesomeIcon icon={faBars} />
-                    </div>
-                    <h3>Hatfield</h3>
+            <div className='flex'>
+                <div className='icon-s clickable' onClick={() => setShowNav((prev) => !prev)}>
+                    <FontAwesomeIcon icon={faBars} />
                 </div>
-            )}
+                <h3>Hatfield</h3>
+            </div>
             <NavButton to={'/welcome'} icon={faHouse} label='Home' />
             <NavButton to={'/dashboard'} icon={faDashboard} label='Dashboard' />
             <NavButton to={'/inventory'} icon={faStore} label='Inventory' />

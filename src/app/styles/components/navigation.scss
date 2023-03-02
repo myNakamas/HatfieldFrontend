@@ -13,11 +13,10 @@
   }
 }
 
-.visible {
-  display: block;
-  @media (max-width: 768px) {
-    position: fixed;
-  }
+.mainScreen {
+  background-color: var(--backgroundColor);
+  color: var(--textPrimary);
+  padding: 10px;
 }
 
 .invisible {
@@ -30,16 +29,21 @@
 
 .clickable {
   cursor: pointer;
+
+  &:hover {
+    mix-blend-mode: lighten;
+  }
 }
 
 .sidenav {
   top: 0;
   left: 0;
   width: 300px;
-  background-color: var(--secondaryDarkColor);
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  background-color: var(--backgroundColor);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
   z-index: 1;
   height: 100vh;
+  position: fixed;
 
   .nav-button {
     display: flex;
@@ -69,6 +73,11 @@
       color: #4caf50;
     }
   }
+}
+
+.fakeSideNav {
+  width: 300px;
+  display: block;
 }
 
 .ReactModal__Overlay {

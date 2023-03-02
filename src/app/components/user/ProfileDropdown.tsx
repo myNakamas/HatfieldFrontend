@@ -18,7 +18,7 @@ export const ProfileDropdown = () => {
                 </MenuHeader>
             }
         >
-            <MenuItem onClick={() => navigate(`/profile/${loggedUser?.id}`)}>Settings</MenuItem>
+            <MenuItem onClick={() => navigate(`/profile`)}>Settings</MenuItem>
             <MenuItem
                 onClick={() => {
                     logout()

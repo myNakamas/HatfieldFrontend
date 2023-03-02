@@ -1,11 +1,12 @@
-import { Route, Routes } from "react-router-dom";
-import { PrivateRoute } from "./PrivateRoute";
-import { Login } from "../pages/Login";
-import { Profile } from "../pages/users/Profile";
-import { Chats } from "../pages/shop/Chats";
-import { Tickets } from "../pages/shop/Tickets";
-import { Inventory } from "../pages/shop/Inventory";
-import { Users } from "../pages/users/Users";
+import { Route, Routes } from 'react-router-dom'
+import { PrivateRoute } from './PrivateRoute'
+import { Login } from '../pages/Login'
+import { Profile } from '../pages/users/Profile'
+import { Chats } from '../pages/shop/Chats'
+import { Tickets } from '../pages/shop/Tickets'
+import { Inventory } from '../pages/shop/Inventory'
+import { Users } from '../pages/users/Users'
+import { ChangePassword } from '../pages/users/ChangePassword'
 
 export const Router = () => {
     return (
@@ -15,8 +16,9 @@ export const Router = () => {
                 <Route path='/welcome' element={<div>WELCOME!</div>} />
                 <Route path='/dashboard' element={<div>Dashy dash</div>} />
                 <Route path='/inventory' element={<Inventory />} />
-                <Route path='/profile/{id}' element={<Profile />} />
-                <Route path='/users' element={<Users/>} />
+                <Route path='/profile' element={<Profile />} />
+                <Route path='/profile/change-password' element={<ChangePassword />} />
+                <Route path='/users' element={<Users />} />
                 <Route path='/clients' element={<div>moneh</div>} />
                 <Route path='/chats' element={<Chats />} />
                 <Route path='/tickets' element={<Tickets />} />

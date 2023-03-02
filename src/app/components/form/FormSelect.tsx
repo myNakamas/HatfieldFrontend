@@ -1,15 +1,16 @@
-import React from "react";
-import CreatableSelect from "react-select/creatable";
-import { SelectStyles, SelectTheme } from "../../styles/components/stylesTS";
-import { FormError } from "./FormError";
-import { Control, Controller } from "react-hook-form";
-import Select from "react-select";
+import React from 'react'
+import CreatableSelect from 'react-select/creatable'
+import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
+import { FormError } from './FormError'
+import { Control, Controller } from 'react-hook-form'
+import Select, { SingleValue } from 'react-select'
 
 export const FormSelect = <T,>({
     label,
     isCreatable,
     control,
     name,
+    transformResult,
     ...selectProps
 }: {
     label: string
@@ -20,8 +21,11 @@ export const FormSelect = <T,>({
     placeholder?: string
     getOptionLabel: (item: T) => string
     getOptionValue: (item: T) => string
+    transformResult?: (item: SingleValue<T>) => any
 }) => {
     const FormSelect = isCreatable ? CreatableSelect : Select
+    const transform = transformResult ? transformResult : (item: SingleValue<T>) => item
+
     return (
         <Controller
             control={control}
@@ -34,7 +38,7 @@ export const FormSelect = <T,>({
                             theme={SelectTheme}
                             styles={SelectStyles()}
                             isClearable
-                            onChange={(item) => field.onChange(item)}
+                            onChange={(item) => field.onChange(transform(item))}
                             onCreateOption={(value) => field.onChange({ id: -1, value })}
                             value={field.value as T}
                             {...selectProps}

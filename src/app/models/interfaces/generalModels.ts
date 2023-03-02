@@ -14,3 +14,14 @@ export interface Page<T> {
     pageCount: number
     content: T[]
 }
+
+export interface ButtonProps {
+    onAction: () => void
+    content: string
+    className?: string
+}
+
+export interface AppOption {
+    index: number
+    value: string
+}

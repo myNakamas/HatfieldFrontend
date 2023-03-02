@@ -9,20 +9,26 @@ body {
   margin: 0;
 }
 
-.mainScreen {
-  background-color: var(--backgroundColor);
-  color: var(--textPrimary);
-  padding: 10px;
-}
 
 .icon {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 50px;
+  border-radius: 50%;
   background-color: #555;
   background-blend-mode: screen;
   mix-blend-mode: hard-light;
+}
+
+.icon-xxl {
+  @extend .icon;
+  margin: 20px;
+  width: 120px;
+  height: 120px;
+
+  .profileImage {
+    width: 100px;
+  }
 }
 
 .icon-l {
@@ -47,13 +53,35 @@ body {
   }
 }
 
+.mw-350 {
+  min-width: 350px;
+}
+
 .flex {
   width: 100%;
   display: flex;
 }
+
 .justify-start {
   justify-content: flex-start;
 }
+
+.align-center {
+  align-items: center;
+}
+
+.align-start {
+  align-items: start;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
 .justify-end {
   justify-content: flex-end;
+}
+
+.p-2 {
+  padding: 20px;
 }
