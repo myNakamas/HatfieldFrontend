@@ -20,10 +20,11 @@
 
     .row {
       border-top: 1px solid #e7e7e7;
-      padding: 20px 15px;
-      width: 100%;
+      padding: 20px 10px;
+      width: auto;
 
       .name {
+        font-weight: bold;
         width: 25%;
       }
 
@@ -43,6 +44,11 @@
     .header {
       @extend .row;
       color: black;
+      align-items: center;
+      justify-content: space-between;
+      .button{
+        padding: 10px;
+      }
     }
   }
 

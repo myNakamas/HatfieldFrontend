@@ -18,9 +18,8 @@ export const Login = () => {
         formState: { errors },
         setError,
     } = useForm<UsernamePassword>({ resolver: yupResolver(LoginSchema) })
-    const { loggedUser, saveLoggedUser } = useContext(AuthContext)
+    const { saveLoggedUser, isLoggedIn } = useContext(AuthContext)
     const { state } = useLocation()
-
     const pageToRedirectTo: Location = state?.from ?? '/welcome'
 
     const onSubmit = (formValues: UsernamePassword) => {
@@ -28,12 +27,11 @@ export const Login = () => {
             .then(({ user, token }) => {
                 saveLoggedUser(user, token)
             })
-            .catch((error) => {
-                console.log(error)
+            .catch(() => {
                 setError('root', { type: 'value', message: 'Invalid credentials' })
             })
     }
-    if (loggedUser) return <Navigate to={pageToRedirectTo} replace={true} />
+    if (isLoggedIn()) return <Navigate to={pageToRedirectTo} replace={true} />
 
     return (
         <div className='formCenterWrapper'>

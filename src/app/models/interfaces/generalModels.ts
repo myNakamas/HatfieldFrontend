@@ -25,3 +25,11 @@ export interface AppOption {
     index: number
     value: string
 }
+
+export interface AppError {
+    detail:string
+    instance:string
+    status:number
+    title:string
+    type: string
+}

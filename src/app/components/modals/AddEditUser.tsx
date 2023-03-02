@@ -1,15 +1,16 @@
-import { AppModal } from './AppModal'
-import { User } from '../../models/interfaces/user'
-import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
-import { ObjectSchema } from 'yup'
-import { TextField } from '../form/TextField'
-import { FormSelect } from '../form/FormSelect'
-import { UserRolesArray } from '../../models/enums/userEnums'
-import { AppOption } from '../../models/interfaces/generalModels'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle'
-import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
+import { AppModal } from "./AppModal";
+import { User } from "../../models/interfaces/user";
+import { FieldError, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup/dist/yup";
+import { ObjectSchema } from "yup";
+import { TextField } from "../form/TextField";
+import { FormSelect } from "../form/FormSelect";
+import { UserRolesArray } from "../../models/enums/userEnums";
+import { AppOption } from "../../models/interfaces/generalModels";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlusCircle } from "@fortawesome/free-solid-svg-icons/faPlusCircle";
+import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash";
+import { FormError } from "../form/FormError";
 
 export const AddEditUser = ({
     isModalOpen,
@@ -22,7 +23,7 @@ export const AddEditUser = ({
     user?: User
     isModalOpen: boolean
     closeModal: () => void
-    onComplete: (result: User) => void
+    onComplete: (result: User) => Promise<void>
     variation: 'PARTIAL' | 'FULL'
     validateSchema: ObjectSchema<any, User>
 }) => {
@@ -34,15 +35,19 @@ export const AddEditUser = ({
         watch,
         setValue,
         getValues,
-    } = useForm<User>({ resolver: yupResolver(validateSchema), defaultValues: user })
+        setError,
+    } = useForm<User>({ resolver: yupResolver(validateSchema), defaultValues: { ...user,password:'' } })
 
     return (
         <AppModal isModalOpen={isModalOpen} closeModal={closeModal}>
+            <h3>User</h3>
             <form
                 className='modalForm'
-                onSubmit={() => {
-                    handleSubmit(onComplete)
-                }}
+                onSubmit={handleSubmit((data) =>
+                    onComplete(data).catch((message:string) => {
+                        setError('root', { message })
+                    })
+                )}
             >
                 <TextField register={register('username')} error={errors.username} label={'Username'} />
                 <TextField register={register('fullName')} error={errors.fullName} label={'FullName'} />
@@ -57,12 +62,14 @@ export const AddEditUser = ({
                         onClick={() => setValue('phones', [...getValues('phones'), ''])}
                     />
                 </label>
-                {watch('phones').map((phone, index) => {
+                {watch('phones')?.map((phone, index) => {
+                    const error = errors.phones && (errors.phones[index] as FieldError)
                     return (
                         <TextField
                             key={index}
                             register={register(`phones.${index}`)}
                             placeholder={'Add phone'}
+                            error={error}
                             button={
                                 <div className='icon-s clickable'>
                                     <FontAwesomeIcon
@@ -109,9 +116,10 @@ export const AddEditUser = ({
                         type='password'
                     />
                 )}
+                <FormError error={errors.root?.message} />
 
                 <div className='flex justify-end'>
-                    <button onClick={() => handleSubmit(onComplete)} className='successButton'>
+                    <button type='submit' className='successButton'>
                         Submit
                     </button>
                     <button className='cancelButton'>Cancel</button>

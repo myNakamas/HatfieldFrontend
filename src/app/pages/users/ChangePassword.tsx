@@ -1,21 +1,25 @@
-import React from 'react'
-import { SettingsCard } from './Profile'
-import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
-import { ResetPasswordSchema } from '../../models/validators/FormValidators'
-import { ResetPassword } from '../../models/interfaces/user'
-import { TextField } from '../../components/form/TextField'
-import { FormError } from '../../components/form/FormError'
+import React from "react";
+import { SettingsCard } from "./Profile";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup/dist/yup";
+import { ResetPasswordSchema } from "../../models/validators/FormValidators";
+import { ResetPassword } from "../../models/interfaces/user";
+import { TextField } from "../../components/form/TextField";
+import { FormError } from "../../components/form/FormError";
+import { changePassword } from "../../axios/userRequests";
 
 export const ChangePassword = () => {
     const {
         register,
         handleSubmit,
         formState: { errors },
+        setError,
     } = useForm<ResetPassword>({ resolver: yupResolver(ResetPasswordSchema) })
 
     const onSubmit = ({ password, oldPassword }: ResetPassword) => {
-        console.log(password, oldPassword)
+        changePassword({ password, oldPassword } as ResetPassword).catch((reason) =>
+            setError('root', { message: reason })
+        )
     }
 
     return (

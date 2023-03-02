@@ -1,35 +1,35 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React, { useContext, useState } from 'react'
-import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
-import { AuthContext } from '../../contexts/AuthContext'
-import { ButtonProps } from '../../models/interfaces/generalModels'
-import { Button } from '../../components/form/Button'
-import { useNavigate } from 'react-router-dom'
-import { AddEditUser } from '../../components/modals/AddEditUser'
-import { User } from '../../models/interfaces/user'
-import { SimpleUserSchema } from '../../models/validators/FormValidators'
-import { faUserLock } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useContext, useState } from "react";
+import { faUser } from "@fortawesome/free-solid-svg-icons/faUser";
+import { AuthContext } from "../../contexts/AuthContext";
+import { ButtonProps } from "../../models/interfaces/generalModels";
+import { Button } from "../../components/form/Button";
+import { useNavigate } from "react-router-dom";
+import { AddEditUser } from "../../components/modals/AddEditUser";
+import { User } from "../../models/interfaces/user";
+import { SimpleUserSchema } from "../../models/validators/FormValidators";
+import { faUserLock } from "@fortawesome/free-solid-svg-icons";
+import { updateYourProfile } from "../../axios/userRequests";
 
 export const Profile = () => {
-    const { loggedUser } = useContext(AuthContext)
+    const { loggedUser, setLoggedUser } = useContext(AuthContext)
     const [showModal, setShowModal] = useState(false)
     const navigate = useNavigate()
 
-    const userToEdit = loggedUser
-
-    const removePhone = (index: number) => {
-        console.log('todo: Delete phone number n' + index)
-    }
+    const userToEdit = { ...loggedUser } as User
 
     const onSubmit = (result: User) => {
-        console.log(result)
+        return updateYourProfile(result).then((updatedUser) => {
+            setLoggedUser(updatedUser)
+            setShowModal(false)
+        })
     }
 
     return (
         <div className='setting'>
             <AddEditUser
                 user={userToEdit}
-                onComplete={onSubmit}
+                onComplete={(result) => onSubmit(result)}
                 variation='PARTIAL'
                 validateSchema={SimpleUserSchema}
                 isModalOpen={showModal}
@@ -61,20 +61,15 @@ export const Profile = () => {
                 header='Account info'
                 headerNode={<Button content='Edit account' className='button' onAction={() => setShowModal(true)} />}
             >
+                <SettingsRow name={'Username'} value={loggedUser?.username} />
+
                 <SettingsRow name={'Email address'} value={loggedUser?.email} />
+
                 {loggedUser?.phones &&
                     loggedUser.phones.length > 0 &&
                     loggedUser.phones.map((phone, index) => (
-                        <SettingsRow
-                            key={'phone' + index}
-                            name={'Phone number'}
-                            value={phone}
-                            button={
-                                index > 0 ? { content: 'Remove phone', onAction: () => removePhone(index) } : undefined
-                            }
-                        />
+                        <SettingsRow key={'phone' + index} name={'Phone number'} value={phone} />
                     ))}
-                <SettingsRow name={'Full name'} value={loggedUser?.fullName} />
                 <SettingsRow name={'Full name'} value={loggedUser?.fullName} />
             </SettingsCard>
         </div>
@@ -92,9 +87,8 @@ export const SettingsCard = ({
     return (
         <div className='card'>
             {header && (
-                <div className='flex justify-between align-start'>
-                    <div className='header'>{header}</div>
-                    <div>{headerNode}</div>
+                <div className='flex header'>
+                    <div>{header}</div> {headerNode}
                 </div>
             )}
             {children}

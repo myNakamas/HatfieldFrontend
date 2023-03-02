@@ -2,11 +2,12 @@ import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./AuthContext";
 import { getShopSettings } from "../axios/settingsRequests";
 import { ShopSettingsModel } from "../models/interfaces/shop";
+import { InfinitySpin } from "react-loader-spinner";
 
 export const ThemeContext: React.Context<ShopSettingsModel> = React.createContext({} as ShopSettingsModel)
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-    const [colors, setColors] = useState<ShopSettingsModel>({} as ShopSettingsModel)
+    const [colors, setColors] = useState<ShopSettingsModel>()
     const { loggedUser } = useContext(AuthContext)
 
     useEffect(() => {
@@ -24,6 +25,6 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
             })
         }
     }, [loggedUser])
-
+    if(!colors) return <div className='fullPageLoading'><InfinitySpin  color='cyan'/></div>;
     return <ThemeContext.Provider value={colors}>{children}</ThemeContext.Provider>
 }

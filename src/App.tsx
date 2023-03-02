@@ -10,9 +10,9 @@ export const App = () => {
 
     return (
         <QueryClientProvider client={client}>
-            <ThemeProvider>
-                <Router />
-            </ThemeProvider>
+                <ThemeProvider>
+                    <Router />
+                </ThemeProvider>
         </QueryClientProvider>
     )
 }
