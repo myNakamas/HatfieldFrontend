@@ -1,7 +1,7 @@
 import { UsernamePassword } from "../models/interfaces/user";
 import { LoginSchema } from "../models/validators/FormValidators";
 import { Navigate, useLocation } from "react-router-dom";
-import { useLogin } from "../axios/userRequests";
+import { useLogin } from "../axios/http/userRequests";
 import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import { yupResolver } from "@hookform/resolvers/yup";

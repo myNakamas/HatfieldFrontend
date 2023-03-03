@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { User } from "../models/interfaces/user";
-import { getLoggedUser } from "../axios/userRequests";
+import { getLoggedUser } from "../axios/http/userRequests";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export interface AuthContextData {
@@ -24,7 +24,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         navigate('/login', { state: { from: location } })
     }
     const isLoggedIn = () => {
-        if (!loggedUser && localStorage.getItem('token')) getLoggedUser().then((user) => setLoggedUser(user))
+        if (!loggedUser && localStorage.getItem('token'))
+            getLoggedUser().then((user) => setLoggedUser(user))
         return !!loggedUser || !!localStorage.getItem('token')
     }
 

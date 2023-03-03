@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useQuery } from "react-query";
-import { useGetShopItems } from "../../axios/shopRequests";
+import { useGetShopItems } from "../../axios/http/shopRequests";
 import { PageRequest } from "../../models/interfaces/generalModels";
 import { CustomTable } from "../../components/table/CustomTable";
 import { NoDataComponent } from "../../components/table/NoDataComponent";

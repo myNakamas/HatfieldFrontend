@@ -1,5 +1,5 @@
-import backendClient from "./backendClient";
-import { ResetPassword, User, UsernamePassword } from "../models/interfaces/user";
+import backendClient from "../backendClient";
+import { ResetPassword, User, UsernamePassword } from "../../models/interfaces/user";
 import axios, { AxiosResponse } from "axios";
 
 const transformLoginResponse = ({ data: user, headers }: AxiosResponse) => {

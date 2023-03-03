@@ -25,7 +25,7 @@ export const AddEditUser = ({
     closeModal: () => void
     onComplete: (result: User) => Promise<void>
     variation: 'PARTIAL' | 'FULL'
-    validateSchema: ObjectSchema<any, User>
+    validateSchema?: ObjectSchema<any, User>
 }) => {
     const {
         register,

@@ -6,7 +6,7 @@ import { ResetPasswordSchema } from "../../models/validators/FormValidators";
 import { ResetPassword } from "../../models/interfaces/user";
 import { TextField } from "../../components/form/TextField";
 import { FormError } from "../../components/form/FormError";
-import { changePassword } from "../../axios/userRequests";
+import { changePassword } from "../../axios/http/userRequests";
 
 export const ChangePassword = () => {
     const {

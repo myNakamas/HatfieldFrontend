@@ -9,7 +9,7 @@ import { AddEditUser } from "../../components/modals/AddEditUser";
 import { User } from "../../models/interfaces/user";
 import { SimpleUserSchema } from "../../models/validators/FormValidators";
 import { faUserLock } from "@fortawesome/free-solid-svg-icons";
-import { updateYourProfile } from "../../axios/userRequests";
+import { updateYourProfile } from "../../axios/http/userRequests";
 
 export const Profile = () => {
     const { loggedUser, setLoggedUser } = useContext(AuthContext)

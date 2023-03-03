@@ -2,7 +2,7 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AddItemInventorySchema } from "../../models/validators/FormValidators";
 import { InventoryItem, ItemPropertyView } from "../../models/interfaces/shop";
-import { addNewItem, getAllBrands, getAllModels, getShopData } from "../../axios/shopRequests";
+import { addNewItem, getAllBrands, getAllModels, getShopData } from "../../axios/http/shopRequests";
 import { useQuery } from "react-query";
 import { TextField } from "../form/TextField";
 import { FormError } from "../form/FormError";

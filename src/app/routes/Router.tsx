@@ -1,12 +1,12 @@
-import { Route, Routes } from 'react-router-dom'
-import { PrivateRoute } from './PrivateRoute'
-import { Login } from '../pages/Login'
-import { Profile } from '../pages/users/Profile'
-import { Chats } from '../pages/shop/Chats'
-import { Tickets } from '../pages/shop/Tickets'
-import { Inventory } from '../pages/shop/Inventory'
-import { Users } from '../pages/users/Users'
-import { ChangePassword } from '../pages/users/ChangePassword'
+import { Route, Routes } from "react-router-dom";
+import { PrivateRoute } from "./PrivateRoute";
+import { Login } from "../pages/Login";
+import { Profile } from "../pages/users/Profile";
+import { Chats } from "../pages/shop/tickets/Chats";
+import { Tickets } from "../pages/shop/tickets/Tickets";
+import { Inventory } from "../pages/shop/Inventory";
+import { Users } from "../pages/users/Users";
+import { ChangePassword } from "../pages/users/ChangePassword";
 
 export const Router = () => {
     return (
