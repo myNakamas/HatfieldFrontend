@@ -1,7 +1,7 @@
-import { connectToWebsocket, stompClient } from "../../../axios/websocketClient";
-import { useState } from "react";
-import { Discuss } from "react-loader-spinner";
-import { registerToChat, sendMessage } from "../../../axios/websocket/chat";
+import { connectToWebsocket, stompClient } from '../../../axios/websocketClient';
+import { useState } from 'react';
+import { Discuss } from 'react-loader-spinner';
+import { registerToChat, sendMessage } from '../../../axios/websocket/chat';
 
 export const Chats = () => {
     const [connected, setConnected] = useState(false)
@@ -27,7 +27,7 @@ export const Chats = () => {
     return (
         <div className='mainScreen'>
             {loading && <Discuss />}
-            <div className='flex'>
+            <div className='flex-100'>
                 <button className='actionButton' disabled={connected} onClick={connect}>
                     Connect
                 </button>

@@ -65,13 +65,27 @@ body {
   min-width: 350px;
 }
 
+.w-100{
+  width: 100%;
+}
+
 .flex {
+  display: flex;
+}
+
+.flex-100 {
   width: 100%;
   display: flex;
 }
 
 .justify-start {
   justify-content: flex-start;
+}
+.justify-around {
+  justify-content: space-around;
+}
+.justify-around {
+  flex-wrap: wrap;
 }
 
 .align-center {
@@ -92,4 +106,12 @@ body {
 
 .p-2 {
   padding: 20px;
+}
+.width-m{
+  width:60%;
+  margin:auto;
+
+  @media (max-width:800px) {
+    min-width: 100%;
+  }
 }

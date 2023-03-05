@@ -3,7 +3,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { AddItemInventorySchema } from '../../models/validators/FormValidators';
 import { CreateInventoryItem } from '../../models/interfaces/shop';
 import { addNewItem, getAllBrands, getAllModels, getShopData } from '../../axios/http/shopRequests';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery } from 'react-query';
 import { TextField } from '../form/TextField';
 import { FormError } from '../form/FormError';
 import { AppModal } from './AppModal';
@@ -17,7 +17,6 @@ import { ItemPropertyView } from '../../models/interfaces/generalModels';
 import { toast } from 'react-toastify';
 
 export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
-    const queryClient = useQueryClient();
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: shop } = useQuery('shop', getShopData)
@@ -35,19 +34,14 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
         if (shop) {
             console.log('item: ', formValue)
             const item = { ...formValue, type: formValue.type.toUpperCase(), shopId: shop.id }
-
-            toast.promise(
-                addNewItem({ item })
-                    .then((value) => {
-                        closeModal()
-                        queryClient.invalidateQueries('shopItem').then();
-                    })
-                    .catch((error) => {
-                        setError('root', error)
-                    }),
-                { pending: 'Sending', success: 'Done', error: 'Failed to create a new item' },
-                { position: 'top-right' }
-            ).then();
+            const promise = addNewItem({ item })
+                .then((value) => {
+                    closeModal()
+                })
+                .catch((error) => {
+                    setError('root', error)
+                })
+            toast.promise(promise, { pending: 'Sending', success: 'Done', error: 'Failed to create a new item' })
         } else {
             setError('root', { type: 'shopId', message: 'You are not assigned to any shop' })
         }

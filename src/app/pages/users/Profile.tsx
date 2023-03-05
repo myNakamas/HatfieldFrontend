@@ -1,15 +1,15 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useContext, useState } from "react";
-import { faUser } from "@fortawesome/free-solid-svg-icons/faUser";
-import { AuthContext } from "../../contexts/AuthContext";
-import { ButtonProps } from "../../models/interfaces/generalModels";
-import { Button } from "../../components/form/Button";
-import { useNavigate } from "react-router-dom";
-import { AddEditUser } from "../../components/modals/AddEditUser";
-import { User } from "../../models/interfaces/user";
-import { SimpleUserSchema } from "../../models/validators/FormValidators";
-import { faUserLock } from "@fortawesome/free-solid-svg-icons";
-import { updateYourProfile } from "../../axios/http/userRequests";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useContext, useState } from 'react';
+import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
+import { AuthContext } from '../../contexts/AuthContext';
+import { ButtonProps } from '../../models/interfaces/generalModels';
+import { Button } from '../../components/form/Button';
+import { useNavigate } from 'react-router-dom';
+import { AddEditUser } from '../../components/modals/AddEditUser';
+import { User } from '../../models/interfaces/user';
+import { SimpleUserSchema } from '../../models/validators/FormValidators';
+import { faUserLock } from '@fortawesome/free-solid-svg-icons';
+import { updateYourProfile } from '../../axios/http/userRequests';
 
 export const Profile = () => {
     const { loggedUser, setLoggedUser } = useContext(AuthContext)
@@ -37,7 +37,7 @@ export const Profile = () => {
             />
             <h2>Your info</h2>
             <div className='card'>
-                <div className='flex justify-start '>
+                <div className='flex-100 justify-start '>
                     <div className='icon-xxl'>
                         <FontAwesomeIcon size='lg' icon={faUser} />
                     </div>
@@ -87,7 +87,7 @@ export const SettingsCard = ({
     return (
         <div className='card'>
             {header && (
-                <div className='flex header'>
+                <div className='flex-100 header'>
                     <div>{header}</div> {headerNode}
                 </div>
             )}
@@ -97,7 +97,7 @@ export const SettingsCard = ({
 }
 const SettingsRow = ({ button, name, value }: { button?: ButtonProps; name: string; value: string | undefined }) => {
     return (
-        <div className='flex row'>
+        <div className='flex-100 row'>
             <div className='name'>{name}</div>
             <div className='value'>{value}</div>
             <div>{button && <Button {...button} />}</div>

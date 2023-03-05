@@ -1,13 +1,13 @@
 .setting {
-  background-color: #e7e7e7;
-  color: #121212;
+  background-color: var(--backgroundColor);
   padding: 20px;
   flex-grow: 1;
   text-align: left;
 
   .card {
     border-radius: 5px;
-    background-color: white;
+    background-color: var(--backgroundColor10);
+    color: var(--textPrimary);
     width: 100%;
     margin-bottom: 20px;
 
@@ -19,7 +19,7 @@
     }
 
     .row {
-      border-top: 1px solid #e7e7e7;
+      border-top: 1px solid var(--textPrimary10);
       padding: 20px 10px;
       width: auto;
 
@@ -30,20 +30,20 @@
 
       .value {
         width: 25%;
-        color: black;
+        color: var(--textPrimary);
         flex-grow: 1;
       }
 
       .description {
         width: 40%;
-        color: black;
+        color: var(--backgroundColor20);
         flex-grow: 1;
       }
     }
 
     .header {
       @extend .row;
-      color: black;
+      color: var(--textPrimary);
       align-items: center;
       justify-content: space-between;
       .button{

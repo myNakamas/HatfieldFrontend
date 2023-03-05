@@ -1,24 +1,29 @@
-import React from "react";
+import React, { ReactNode } from 'react';
 
-interface CustomTableProps {
+interface CustomTableProps<T> {
+    headers: string[]
+    onClick?: (value: T) => void
     data: any[]
-    noDataComponent?: JSX.Element
 }
 
-export const CustomTable = <T,>({ data }: CustomTableProps) => {
+export const CustomTable = <T,>({ data, onClick }: CustomTableProps<T>) => {
     return (
-        <table>
+        <table className='table table-bordered'>
             <thead>
                 <tr>
-                    {Object.entries(data[0]).map(([key]) => (
-                        <th>{key}</th>
+                    {Object.entries(data[0]).map(([key], index) => (
+                        <th key={'key' + index}>{key}</th>
                     ))}
                 </tr>
             </thead>
             <tbody>
-                {data.map((row) => {
-                    return Object.entries(row).map(([, value]) => <td>{value as any}</td>)
-                })}
+                {data.map((row, rowIndex) => (
+                    <tr key={`row.${rowIndex}`} className={onClick && 'clickable'} onClick={() => onClick && onClick(row)}>
+                        {Object.entries(row).map(([, value], index) => (
+                            <td key={`cell.${rowIndex}.${index}`}>{value as ReactNode}</td>
+                        ))}
+                    </tr>
+                ))}
             </tbody>
         </table>
     )

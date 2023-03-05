@@ -6,6 +6,12 @@
   justify-content: center;
 }
 
+.card {
+  border-radius: 5px;
+  background-color: var(--backgroundColor10);
+  margin-bottom: 20px;
+  padding:30px;
+}
 .button{
   border-radius: 5px;
   border: none;
@@ -92,4 +98,12 @@
 }
 .textFormLabel{
   font-size: 18px;
+}
+
+.colorSample{
+  width: 60px;
+  height: 40px;
+  border: 1px solid var(--textPrimary);
+  border-radius: 10px;
+  margin: 10px auto;
 }

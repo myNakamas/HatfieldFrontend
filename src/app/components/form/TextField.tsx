@@ -1,6 +1,6 @@
-import { FieldError, UseFormRegisterReturn } from 'react-hook-form'
-import React, { ReactNode } from 'react'
-import { FormError } from './FormError'
+import { FieldError, UseFormRegisterReturn } from 'react-hook-form';
+import React, { ReactNode } from 'react';
+import { FormError } from './FormError';
 
 interface TextFieldProps {
     register: UseFormRegisterReturn
@@ -16,7 +16,7 @@ export const TextField = ({ label, error, button, register, ...rest }: TextField
         <div className='textField'>
             <label>
                 {label}
-                <div className='flex align-center'>
+                <div className='flex-100 align-center'>
                     <input className={`input ${error && 'error'}`} {...register} {...rest} /> {button}
                 </div>
                 <FormError error={error?.message} />

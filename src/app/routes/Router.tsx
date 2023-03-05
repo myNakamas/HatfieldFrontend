@@ -1,12 +1,14 @@
-import { Route, Routes } from "react-router-dom";
-import { PrivateRoute } from "./PrivateRoute";
-import { Login } from "../pages/Login";
-import { Profile } from "../pages/users/Profile";
-import { Chats } from "../pages/shop/tickets/Chats";
-import { Tickets } from "../pages/shop/tickets/Tickets";
-import { Inventory } from "../pages/shop/Inventory";
-import { Users } from "../pages/users/Users";
-import { ChangePassword } from "../pages/users/ChangePassword";
+import { Route, Routes } from 'react-router-dom';
+import { PrivateRoute } from './PrivateRoute';
+import { Login } from '../pages/Login';
+import { Profile } from '../pages/users/Profile';
+import { Chats } from '../pages/shop/tickets/Chats';
+import { Tickets } from '../pages/shop/tickets/Tickets';
+import { Inventory } from '../pages/shop/Inventory';
+import { Users } from '../pages/users/Users';
+import { ChangePassword } from '../pages/users/ChangePassword';
+import { Shops } from '../pages/shop/Shops';
+import { ShopView } from '../pages/shop/ShopView';
 
 export const Router = () => {
     return (
@@ -21,8 +23,10 @@ export const Router = () => {
                 <Route path='/users' element={<Users />} />
                 <Route path='/clients' element={<div>moneh</div>} />
                 <Route path='/chats' element={<Chats />} />
+                <Route path='/shops' element={<Shops />} />
+                <Route path='/shops/:id' element={<ShopView />} />
                 <Route path='/tickets' element={<Tickets />} />
-                <Route path='/ticket/{id}' element={<div>single ticket info, can open chat</div>} />
+                <Route path='/ticket/:id' element={<div>single ticket info, can open chat</div>} />
                 <Route path='/settings' element={<div>All settings for all shops?</div>} />
             </Route>
         </Routes>

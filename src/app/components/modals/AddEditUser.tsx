@@ -1,16 +1,16 @@
-import { AppModal } from "./AppModal";
-import { User } from "../../models/interfaces/user";
-import { FieldError, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup/dist/yup";
-import { ObjectSchema } from "yup";
-import { TextField } from "../form/TextField";
-import { FormSelect } from "../form/FormSelect";
-import { UserRolesArray } from "../../models/enums/userEnums";
-import { AppOption } from "../../models/interfaces/generalModels";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlusCircle } from "@fortawesome/free-solid-svg-icons/faPlusCircle";
-import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash";
-import { FormError } from "../form/FormError";
+import { AppModal } from './AppModal';
+import { User } from '../../models/interfaces/user';
+import { Controller, FieldError, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup/dist/yup';
+import { ObjectSchema } from 'yup';
+import { TextField } from '../form/TextField';
+import { UserRolesArray } from '../../models/enums/userEnums';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle';
+import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
+import { FormError } from '../form/FormError';
+import Select from 'react-select';
+import { FormField } from '../form/Field';
 
 export const AddEditUser = ({
     isModalOpen,
@@ -36,7 +36,7 @@ export const AddEditUser = ({
         setValue,
         getValues,
         setError,
-    } = useForm<User>({ resolver: yupResolver(validateSchema), defaultValues: { ...user,password:'' } })
+    } = useForm<User>({ resolver: yupResolver(validateSchema), defaultValues: { ...user, password: '' } })
 
     return (
         <AppModal isModalOpen={isModalOpen} closeModal={closeModal}>
@@ -44,7 +44,7 @@ export const AddEditUser = ({
             <form
                 className='modalForm'
                 onSubmit={handleSubmit((data) =>
-                    onComplete(data).catch((message:string) => {
+                    onComplete(data).catch((message: string) => {
                         setError('root', { message })
                     })
                 )}
@@ -97,14 +97,19 @@ export const AddEditUser = ({
                             placeholder='New Password'
                         />
                         <span>Leave password field blank to keep the old password</span>
-                        <FormSelect<AppOption>
-                            options={UserRolesArray}
-                            label='role'
+                        <Controller
                             control={control}
                             name='role'
-                            getOptionLabel={({ value }) => value}
-                            getOptionValue={({ value }) => value}
-                            transformResult={(item) => item?.value}
+                            render={({ field, fieldState }) => (
+                                <FormField error={fieldState.error} label='role'>
+                                    <Select
+                                        options={UserRolesArray}
+                                        getOptionLabel={({ value }) => value}
+                                        getOptionValue={({ value }) => value}
+                                        onChange={(item) => field.onChange(item?.value)}
+                                    />
+                                </FormField>
+                            )}
                         />
                     </>
                 ) : (
@@ -118,7 +123,7 @@ export const AddEditUser = ({
                 )}
                 <FormError error={errors.root?.message} />
 
-                <div className='flex justify-end'>
+                <div className='flex-100 justify-end'>
                     <button type='submit' className='successButton'>
                         Submit
                     </button>

@@ -14,12 +14,18 @@
 @media (prefers-color-scheme:dark){
     :root {
         --backgroundColor:#121212;
-        --textPrimary:#d9d9d9;
+        --backgroundColor10:#323232;
+        --backgroundColor20: #626262;
+        --textPrimary: #ffffff;
+        --textPrimary10: #a9a9a9;
     }
 }
 @media (prefers-color-scheme:light){
     :root {
         --backgroundColor:#d9d9d9;
+        --backgroundColor10: #a9a9a9;
+        --backgroundColor20: #727272;
         --textPrimary:#121212;
+        --textPrimary10:#323232;
     }
 }

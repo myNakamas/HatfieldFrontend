@@ -1,4 +1,4 @@
-import { Entity } from "./generalModels";
+import { Entity, ItemPropertyView } from './generalModels';
 
 export interface ThemeColors {
     primaryColor: string
@@ -23,7 +23,7 @@ export interface Shop extends Entity {
     email: string
     vatNumber: string
     regNumber: string
-    shopSettings: ShopSettingsModel
+    shopSettingsView: ShopSettingsModel
 }
 
 export interface InventoryItem extends Entity {
@@ -33,6 +33,10 @@ export interface InventoryItem extends Entity {
     shopId: number
     type: string
 }
-export interface ItemPropertyView extends Entity {
-    value: string
+export interface CreateInventoryItem {
+    count: number
+    shopId: number
+    type: string
+    model: ItemPropertyView,
+    brand: ItemPropertyView
 }

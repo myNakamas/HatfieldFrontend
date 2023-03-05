@@ -1,11 +1,11 @@
-import React, { useContext, useState } from "react";
-import { useQuery } from "react-query";
-import { CustomTable } from "../../components/table/CustomTable";
-import { NoDataComponent } from "../../components/table/NoDataComponent";
-import { getAllUsers } from "../../axios/http/userRequests";
-import { AddEditUser } from "../../components/modals/AddEditUser";
-import { AuthContext } from "../../contexts/AuthContext";
-import { User } from "../../models/interfaces/user";
+import React, { useContext, useState } from 'react';
+import { useQuery } from 'react-query';
+import { CustomTable } from '../../components/table/CustomTable';
+import { NoDataComponent } from '../../components/table/NoDataComponent';
+import { getAllUsers } from '../../axios/http/userRequests';
+import { AddEditUser } from '../../components/modals/AddEditUser';
+import { AuthContext } from '../../contexts/AuthContext';
+import { User } from '../../models/interfaces/user';
 
 export const Users = () => {
     const { loggedUser } = useContext(AuthContext)
@@ -26,7 +26,7 @@ export const Users = () => {
                 variation={loggedUser?.role === 'ADMIN' ? 'FULL' : 'PARTIAL'}
                 onComplete={onSubmit}
             />
-            <div className='flex'>
+            <div className='flex-100'>
                 <button className='actionButton' onClick={() => setModalIsOpen(true)}>
                     Add Worker
                 </button>
