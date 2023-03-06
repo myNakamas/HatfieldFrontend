@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import { User } from '../interfaces/user';
 import { UserRoles } from '../enums/userEnums';
-import { ItemTypes } from '../enums/shopEnums';
+import { InventoryItem } from '../interfaces/shop';
 
 export const LoginSchema = Yup.object().shape({
     username: Yup.string().min(5, 'Too Short!').max(50, 'Too Long!').required('Required'),
@@ -26,11 +26,10 @@ export const SimpleUserSchema = Yup.object<User>().shape({
     shopId: Yup.number().notRequired(),
 })
 
-export const AddItemInventorySchema = Yup.object().shape({
+export const AddItemInventorySchema = Yup.object<InventoryItem>().shape({
     model: Yup.object().notRequired(),
     brand: Yup.object().notRequired(),
     count: Yup.number().min(1, 'Invalid number').required('Required'),
-    type: Yup.string().oneOf(ItemTypes, 'Must be one of the types').required(),
 })
 export const CategorySchema = Yup.object().shape({
     name: Yup.string().required(),

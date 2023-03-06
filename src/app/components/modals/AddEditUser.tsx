@@ -11,6 +11,10 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { FormError } from '../form/FormError';
 import Select from 'react-select';
 import { FormField } from '../form/Field';
+import { SelectTheme } from '../../styles/components/stylesTS';
+import { useQuery } from 'react-query';
+import { getAllShops } from '../../axios/http/shopRequests';
+import { Shop } from '../../models/interfaces/shop';
 
 export const AddEditUser = ({
     isModalOpen,
@@ -24,7 +28,7 @@ export const AddEditUser = ({
     isModalOpen: boolean
     closeModal: () => void
     onComplete: (result: User) => Promise<void>
-    variation: 'PARTIAL' | 'FULL'
+    variation: 'PARTIAL' | 'CREATE' | 'FULL'
     validateSchema?: ObjectSchema<any, User>
 }) => {
     const {
@@ -37,6 +41,7 @@ export const AddEditUser = ({
         getValues,
         setError,
     } = useForm<User>({ resolver: yupResolver(validateSchema), defaultValues: { ...user, password: '' } })
+    const { data: shops } = useQuery('shops', getAllShops)
 
     return (
         <AppModal isModalOpen={isModalOpen} closeModal={closeModal}>
@@ -88,24 +93,41 @@ export const AddEditUser = ({
                     )
                 })}
                 {variation === 'FULL' ? (
-                    //todo: generate password button that generates it
                     <>
+                        <Controller
+                            control={control}
+                            name='shopId'
+                            render={({ field, fieldState }) => (
+                                <FormField error={fieldState.error} label='Shop'>
+                                    <Select<Shop, false>
+                                        theme={SelectTheme}
+                                        options={shops}
+                                        getOptionLabel={({ shopName }) => shopName}
+                                        getOptionValue={({ id }) => id + ''}
+                                        placeholder=''
+                                        onChange={(item) => field.onChange(item?.id)}
+                                    />
+                                </FormField>
+                            )}
+                        />
                         <TextField
                             register={register('password')}
                             error={errors.password}
                             label={'New Password'}
                             placeholder='New Password'
                         />
-                        <span>Leave password field blank to keep the old password</span>
+                        <span>* Leave password field blank to keep the old password</span>
                         <Controller
                             control={control}
                             name='role'
                             render={({ field, fieldState }) => (
-                                <FormField error={fieldState.error} label='role'>
+                                <FormField error={fieldState.error} label='Role'>
                                     <Select
+                                        theme={SelectTheme}
                                         options={UserRolesArray}
                                         getOptionLabel={({ value }) => value}
                                         getOptionValue={({ value }) => value}
+                                        placeholder=''
                                         onChange={(item) => field.onChange(item?.value)}
                                     />
                                 </FormField>

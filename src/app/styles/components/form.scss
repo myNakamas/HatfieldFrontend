@@ -11,6 +11,11 @@
   background-color: var(--backgroundColor10);
   margin-bottom: 20px;
   padding:30px;
+  .field{
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+  }
 }
 .button{
   border-radius: 5px;
@@ -22,6 +27,7 @@
   @extend .button;
   padding: 10px 20px;
   background-color: var(--secondaryColor);
+  margin-right: 10px;
 }
 .field {
   margin-bottom: 10px;

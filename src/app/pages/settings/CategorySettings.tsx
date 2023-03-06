@@ -9,6 +9,7 @@ import { useState } from 'react';
 export const CategorySettings = () => {
     const { data: allCategories, isLoading } = useQuery(['allCategories'], () => getAllCategories())
     const queryClient = useQueryClient()
+    //todo: Research the best way to invalidate the caches query client ( maybe pass the query client as a context )
     const [showModal, setShowModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     const [selectedCategory, setSelectedCategory] = useState<Category>()
@@ -46,7 +47,10 @@ export const CategorySettings = () => {
                     {allCategories && allCategories.length > 0 && (
                         <CustomTable<Category>
                             headers={['']}
-                            data={allCategories}
+                            data={allCategories.map(({ columns, ...rest }) => ({
+                                ...rest,
+                                columns: columns.join(', '),
+                            }))}
                             onClick={(value) => {
                                 setSelectedCategory(value)
                             }}

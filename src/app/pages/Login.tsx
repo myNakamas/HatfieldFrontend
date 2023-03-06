@@ -1,15 +1,15 @@
-import { UsernamePassword } from "../models/interfaces/user";
-import { LoginSchema } from "../models/validators/FormValidators";
-import { Navigate, useLocation } from "react-router-dom";
-import { useLogin } from "../axios/http/userRequests";
-import { useContext } from "react";
-import { AuthContext } from "../contexts/AuthContext";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser } from "@fortawesome/free-solid-svg-icons/faUser";
-import { TextField } from "../components/form/TextField";
-import { FormError } from "../components/form/FormError";
+import { UsernamePassword } from '../models/interfaces/user';
+import { LoginSchema } from '../models/validators/FormValidators';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useLogin } from '../axios/http/userRequests';
+import { useContext, useEffect } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
+import { TextField } from '../components/form/TextField';
+import { FormError } from '../components/form/FormError';
 
 export const Login = () => {
     const {
@@ -19,6 +19,7 @@ export const Login = () => {
         setError,
     } = useForm<UsernamePassword>({ resolver: yupResolver(LoginSchema) })
     const { saveLoggedUser, isLoggedIn } = useContext(AuthContext)
+    const navigate = useNavigate()
     const { state } = useLocation()
     const pageToRedirectTo: Location = state?.from ?? '/welcome'
 
@@ -26,12 +27,15 @@ export const Login = () => {
         useLogin(formValues)
             .then(({ user, token }) => {
                 saveLoggedUser(user, token)
+                navigate(pageToRedirectTo, { replace: true })
             })
             .catch(() => {
                 setError('root', { type: 'value', message: 'Invalid credentials' })
             })
     }
-    if (isLoggedIn()) return <Navigate to={pageToRedirectTo} replace={true} />
+    useEffect(() => {
+        if (isLoggedIn()) navigate(pageToRedirectTo, { replace: true })
+    }, [])
 
     return (
         <div className='formCenterWrapper'>

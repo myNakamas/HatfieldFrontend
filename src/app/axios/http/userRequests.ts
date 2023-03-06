@@ -1,6 +1,6 @@
-import backendClient from "../backendClient";
-import { ResetPassword, User, UsernamePassword } from "../../models/interfaces/user";
-import axios, { AxiosResponse } from "axios";
+import backendClient from '../backendClient';
+import { ResetPassword, User, UsernamePassword } from '../../models/interfaces/user';
+import axios, { AxiosResponse } from 'axios';
 
 const transformLoginResponse = ({ data: user, headers }: AxiosResponse) => {
     const token = 'Bearer ' + headers['authorization']
@@ -21,7 +21,7 @@ export const getLoggedUser = (): Promise<User> => {
     return backendClient.get('user/profile')
 }
 export const getAllUsers = () : Promise<User[]> => {
-    return backendClient.get('user/all')
+    return backendClient.get('user/all/workers')
 }
 export const updateYourProfile = (user:User) : Promise<User> => {
     return backendClient.put('user/profile/edit', user)

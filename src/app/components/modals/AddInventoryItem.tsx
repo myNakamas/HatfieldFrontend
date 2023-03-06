@@ -35,9 +35,7 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
     })
     const submit = (formValue: CreateInventoryItem) => {
         if (shop) {
-            console.log('item: ', formValue)
             const item = { ...formValue, shopId: shop.id }
-
             toast
                 .promise(
                     addNewItem({ item })
@@ -57,7 +55,6 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
         }
     }
     useEffect(() => {
-        console.log(watch('categoryId'))
         const c = categories?.find((category) => category.id === watch('categoryId'))
         setColumns(c?.columns)
     }, [watch('categoryId')])
