@@ -32,6 +32,11 @@ export const AddItemInventorySchema = Yup.object().shape({
     count: Yup.number().min(1, 'Invalid number').required('Required'),
     type: Yup.string().oneOf(ItemTypes, 'Must be one of the types').required(),
 })
+export const CategorySchema = Yup.object().shape({
+    name: Yup.string().required(),
+    itemType: Yup.string().required(),
+    phones: Yup.array().of(Yup.string().required()).notRequired(),
+})
 export const ShopSchema = Yup.object().shape({
     shopName: Yup.string().required(),
     address: Yup.string().required('Required field'),

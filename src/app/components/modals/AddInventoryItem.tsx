@@ -1,32 +1,34 @@
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { AddItemInventorySchema } from '../../models/validators/FormValidators';
-import { CreateInventoryItem } from '../../models/interfaces/shop';
-import { addNewItem, getAllBrands, getAllModels, getShopData } from '../../axios/http/shopRequests';
+import { Category, CreateInventoryItem } from '../../models/interfaces/shop';
+import { addNewItem, getAllBrands, getAllCategories, getAllModels, getShopData } from '../../axios/http/shopRequests';
 import { useQuery, useQueryClient } from 'react-query';
 import { TextField } from '../form/TextField';
 import { FormError } from '../form/FormError';
 import { AppModal } from './AppModal';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS';
-import { ItemTypesArray } from '../../models/enums/shopEnums';
 import CreatableSelect from 'react-select/creatable';
 import { FormField } from '../form/Field';
 import { ItemPropertyView } from '../../models/interfaces/generalModels';
 import { toast } from 'react-toastify';
 
 export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
-    const queryClient = useQueryClient();
+    const queryClient = useQueryClient()
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
+    const { data: categories } = useQuery('categories', getAllCategories)
     const { data: shop } = useQuery('shop', getShopData)
+    const [columns, setColumns] = useState<string[]>()
     const {
         control,
         register,
         handleSubmit,
         formState: { errors },
         setError,
+        watch,
     } = useForm<CreateInventoryItem>({
         resolver: yupResolver(AddItemInventorySchema),
         defaultValues: { shopId: shop?.id },
@@ -34,24 +36,31 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
     const submit = (formValue: CreateInventoryItem) => {
         if (shop) {
             console.log('item: ', formValue)
-            const item = { ...formValue, type: formValue.type.toUpperCase(), shopId: shop.id }
+            const item = { ...formValue, shopId: shop.id }
 
-            toast.promise(
-                addNewItem({ item })
-                    .then((value) => {
-                        closeModal()
-                        queryClient.invalidateQueries('shopItem').then();
-                    })
-                    .catch((error) => {
-                        setError('root', error)
-                    }),
-                { pending: 'Sending', success: 'Done', error: 'Failed to create a new item' },
-                { position: 'top-right' }
-            ).then();
+            toast
+                .promise(
+                    addNewItem({ item })
+                        .then((value) => {
+                            closeModal()
+                            queryClient.invalidateQueries('shopItem').then()
+                        })
+                        .catch((error) => {
+                            setError('root', error)
+                        }),
+                    { pending: 'Sending', success: 'Done', error: 'Failed to create a new item' },
+                    { position: 'top-right' }
+                )
+                .then()
         } else {
             setError('root', { type: 'shopId', message: 'You are not assigned to any shop' })
         }
     }
+    useEffect(() => {
+        console.log(watch('categoryId'))
+        const c = categories?.find((category) => category.id === watch('categoryId'))
+        setColumns(c?.columns)
+    }, [watch('categoryId')])
 
     return (
         <AppModal {...{ isModalOpen, closeModal }}>
@@ -101,28 +110,35 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                         </FormField>
                     )}
                 />
+                <TextField label='Count' register={register('count')} error={errors.count} type='number' />
+
                 <Controller
                     control={control}
-                    name='type'
+                    name='categoryId'
                     render={({ field, fieldState }) => {
                         return (
-                            <div className='field'>
-                                <div className='flex-100 justify-start textFormLabel'>Item type</div>
-                                <Select
+                            <FormField label={'Item Category'} error={fieldState.error}>
+                                <Select<Category>
+                                    isClearable
                                     theme={SelectTheme}
-                                    name='type'
-                                    options={ItemTypesArray}
-                                    placeholder='Select Item Type'
-                                    onChange={(type) => field.onChange(type?.value)}
-                                    getOptionLabel={(item) => item.value}
+                                    options={categories}
+                                    placeholder='Select Item Category'
+                                    onChange={(type) => {
+                                        field.onChange(type?.id)
+                                        setColumns(type?.columns)
+                                    }}
+                                    getOptionLabel={(item) => item.name}
                                     getOptionValue={(item) => String(item.id)}
                                 />
-                                <FormError error={fieldState.error?.message} />
-                            </div>
+                            </FormField>
                         )
                     }}
                 />
-                <TextField label='Count' register={register('count')} error={errors.count} type='number' />
+                {columns &&
+                    columns.map((key, index) => (
+                        <TextField register={register(`properties.${key}`)} label={key} key={key + index} />
+                    ))}
+
                 <FormError error={errors.root?.message} />
                 <div className='flex-100 justify-end'>
                     <button className='successButton' type='submit'>

@@ -31,7 +31,7 @@ export const Users = () => {
                     Add Worker
                 </button>
             </div>
-            {users && users.length > 0 ? <CustomTable data={users} /> : <NoDataComponent items='items in inventory' />}
+            {users && users.length > 0 ? <CustomTable data={users} headers={['']} /> : <NoDataComponent items='items in inventory' />}
         </div>
     )
 }

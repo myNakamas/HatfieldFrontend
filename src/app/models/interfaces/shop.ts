@@ -36,7 +36,19 @@ export interface InventoryItem extends Entity {
 export interface CreateInventoryItem {
     count: number
     shopId: number
-    type: string
+    // type: string
     model: ItemPropertyView,
     brand: ItemPropertyView
+    categoryId:number,
+    properties:CategoryProperties
+}
+
+export interface CategoryProperties{
+    [key:string]:string
+}
+
+export interface Category extends Entity {
+    name:string,
+    itemType:string,
+    columns: string[]
 }

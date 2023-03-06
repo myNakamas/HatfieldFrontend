@@ -9,6 +9,7 @@ import { Users } from '../pages/users/Users';
 import { ChangePassword } from '../pages/users/ChangePassword';
 import { Shops } from '../pages/shop/Shops';
 import { ShopView } from '../pages/shop/ShopView';
+import { CategorySettings } from '../pages/settings/CategorySettings';
 
 export const Router = () => {
     return (
@@ -28,6 +29,7 @@ export const Router = () => {
                 <Route path='/tickets' element={<Tickets />} />
                 <Route path='/ticket/:id' element={<div>single ticket info, can open chat</div>} />
                 <Route path='/settings' element={<div>All settings for all shops?</div>} />
+                <Route path='/categories' element={<CategorySettings/>} />
             </Route>
         </Routes>
     )
