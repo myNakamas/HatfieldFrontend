@@ -1,15 +1,15 @@
-import { UsernamePassword } from '../models/interfaces/user'
-import { LoginSchema } from '../models/validators/FormValidators'
-import { Navigate, useLocation } from 'react-router-dom'
-import { useLogin } from '../axios/userRequests'
-import { useContext } from 'react'
-import { AuthContext } from '../contexts/AuthContext'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { useForm } from 'react-hook-form'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
-import { TextField } from '../components/form/TextField'
-import { FormError } from '../components/form/FormError'
+import { UsernamePassword } from '../models/interfaces/user';
+import { LoginSchema } from '../models/validators/FormValidators';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useLogin } from '../axios/http/userRequests';
+import { useContext, useEffect } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
+import { TextField } from '../components/form/TextField';
+import { FormError } from '../components/form/FormError';
 
 export const Login = () => {
     const {
@@ -18,26 +18,28 @@ export const Login = () => {
         formState: { errors },
         setError,
     } = useForm<UsernamePassword>({ resolver: yupResolver(LoginSchema) })
-    const { loggedUser, saveLoggedUser } = useContext(AuthContext)
+    const { saveLoggedUser, isLoggedIn } = useContext(AuthContext)
+    const navigate = useNavigate()
     const { state } = useLocation()
-
     const pageToRedirectTo: Location = state?.from ?? '/welcome'
 
     const onSubmit = (formValues: UsernamePassword) => {
         useLogin(formValues)
             .then(({ user, token }) => {
                 saveLoggedUser(user, token)
+                navigate(pageToRedirectTo, { replace: true })
             })
-            .catch((error) => {
-                console.log(error)
+            .catch(() => {
                 setError('root', { type: 'value', message: 'Invalid credentials' })
             })
     }
-    if (loggedUser) return <Navigate to={pageToRedirectTo} replace={true} />
+    useEffect(() => {
+        if (isLoggedIn()) navigate(pageToRedirectTo, { replace: true })
+    }, [])
 
     return (
         <div className='formCenterWrapper'>
-            <form className='form' onSubmit={handleSubmit(onSubmit)}>
+            <form className='loginForm' onSubmit={handleSubmit(onSubmit)}>
                 <div className='icon-l'>
                     <FontAwesomeIcon className='profileImage' icon={faUser} />
                 </div>

@@ -1,0 +1,17 @@
+.noData{
+  margin:20px;
+
+}
+.tableWrapper{
+  .table{
+    thead {
+      background-color: var(--backgroundColor10);
+    }
+    .clickable:hover {
+      background-color: var(--backgroundColor20);
+    }
+  }
+}
+.button-bar{
+  margin: 20px 10px
+}

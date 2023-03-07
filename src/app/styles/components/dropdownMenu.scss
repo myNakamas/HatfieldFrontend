@@ -1,0 +1,63 @@
+.szh-menu {
+  font-family: sans-serif;
+  font-size: 0.925rem;
+  user-select: none;
+  background-color: var(--backgroundColor);
+  box-shadow: 1px 1px 20px 1px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  padding: 6px;
+  min-width: 10rem;
+  list-style-type: none;
+
+  &--state-opening {
+    animation: szh-menu-show 0.15s ease-out;
+  }
+
+  &--state-closing {
+    animation: szh-menu-hide 0.2s ease-out forwards;
+  }
+
+  &__item {
+    border-radius: 6px;
+    padding: 0.375rem 0.625rem;
+
+    &--hover {
+      color: #fff;
+      background-color: var(--secondaryLightColor);
+    }
+
+    &--submenu {
+      position: relative;
+
+      &::after {
+        position: absolute;
+        width: 7px;
+        right: 0.625rem;
+      }
+    }
+  }
+
+  &__divider {
+    margin: 0.5rem 0.625rem;
+  }
+}
+
+
+.menu {
+  min-width: 100px;
+
+  .role {
+    font-size: 15px;
+    text-align: right;
+    opacity: 50%;
+  }
+
+  .username {
+    font-size: 20px;
+    text-align: left;
+  }
+}
+
+.notificationBell {
+  padding: 10px 20px
+}

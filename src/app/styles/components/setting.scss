@@ -1,0 +1,55 @@
+.setting {
+  background-color: var(--backgroundColor);
+  padding: 20px;
+  flex-grow: 1;
+  text-align: left;
+
+  .card {
+    border-radius: 5px;
+    background-color: var(--backgroundColor10);
+    color: var(--textPrimary);
+    width: 100%;
+    margin-bottom: 20px;
+
+    .profileDesc {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: start;
+    }
+
+    .row {
+      border-top: 1px solid var(--textPrimary10);
+      padding: 20px 10px;
+      width: auto;
+
+      .name {
+        font-weight: bold;
+        width: 25%;
+      }
+
+      .value {
+        width: 25%;
+        color: var(--textPrimary);
+        flex-grow: 1;
+      }
+
+      .description {
+        width: 40%;
+        color: var(--backgroundColor20);
+        flex-grow: 1;
+      }
+    }
+
+    .header {
+      @extend .row;
+      color: var(--textPrimary);
+      align-items: center;
+      justify-content: space-between;
+      .button{
+        padding: 10px;
+      }
+    }
+  }
+
+}

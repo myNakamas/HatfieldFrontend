@@ -1,8 +1,11 @@
-import { Entity } from './generalModels'
+import { Entity, ItemPropertyView } from './generalModels';
 
 export interface ThemeColors {
     primaryColor: string
     secondaryColor: string
+    secondaryLightColor: string
+    secondaryDarkColor: string
+    textColor: string
 }
 
 export interface ShopSettingsModel extends Entity, ThemeColors {
@@ -14,7 +17,38 @@ export interface ShopSettingsModel extends Entity, ThemeColors {
 }
 
 export interface Shop extends Entity {
-    name: string
+    shopName: string
+    address: string
+    phone: string
+    email: string
+    vatNumber: string
+    regNumber: string
+    shopSettingsView: ShopSettingsModel
+}
 
-    shopSettings: ShopSettingsModel
+export interface InventoryItem extends Entity {
+    model: string
+    brand: string
+    count: number
+    shopId: number
+    categoryView: Category
+    columns: CategoryProperties
+}
+export interface CreateInventoryItem {
+    count: number
+    shopId: number
+    model: ItemPropertyView
+    brand: ItemPropertyView
+    categoryId: number
+    properties: CategoryProperties
+}
+
+export interface CategoryProperties {
+    [key: string]: string
+}
+
+export interface Category extends Entity {
+    name: string
+    itemType: string
+    columns: string[]
 }

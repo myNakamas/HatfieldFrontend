@@ -1,18 +1,17 @@
-import { SideNavigation } from './SideNavigation'
-import { Toolbar } from './Toolbar'
-import { ReactNode, useState } from 'react'
+import { SideNavigation } from './SideNavigation';
+import { Toolbar } from './Toolbar';
+import { ReactNode, useState } from 'react';
 
 export const AppWrapper = ({ children }: { children: ReactNode }) => {
-    const [smallScreen, setIfSmartScreen] = useState<boolean>(window.innerWidth < 768)
-    const [showNav, setShowNav] = useState(!smallScreen)
-    window.addEventListener('resize', () => setIfSmartScreen(window.innerWidth < 768))
+    const [showNav, setShowNav] = useState(false)
 
     return (
         <>
             <Toolbar setShowNav={setShowNav} />
-            <div className='flex'>
-                <SideNavigation showNavigation={showNav} setShowNav={setShowNav} isSmallScreen={smallScreen} />
-                <div className='flex-grow'>{children}</div>
+            <div className='flex-100'>
+                <SideNavigation showNavigation={showNav} setShowNav={setShowNav} />
+                <div className={`${showNav ? 'fakeSideNav' : 'invisible'}`} />
+                <div className={`flex-grow `}>{children}</div>
             </div>
         </>
     )
