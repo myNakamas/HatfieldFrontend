@@ -47,6 +47,22 @@
     border: none;
     box-sizing: border-box;
   }
+
+  .textArea {
+    @extend .input;
+    max-width: 100%;
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  }
+
+  .abs-icon {
+    position: absolute;
+    top: 0;
+    right: 30px;
+  }
+}
+
+.mic-on {
+  background-color: var(--primaryColor);
 }
 
 .loginForm {
@@ -60,6 +76,9 @@
   justify-content: center;
   justify-items: center;
   width: 30%;
+  @media (max-width: 700px) {
+    width: 100%;
+  }
 
   .button {
     @extend .button;
@@ -102,8 +121,17 @@
   background-color: #313131;
   color: #fff;
 }
-.textFormLabel{
+
+.textFormLabel {
   font-size: 18px;
+}
+
+.buttonFooter {
+  display: flex;
+  width: 100%;
+  justify-content: right;
+  align-items: center;
+  padding-bottom: 20px;
 }
 
 .colorSample{

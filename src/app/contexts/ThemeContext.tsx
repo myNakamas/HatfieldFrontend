@@ -1,7 +1,7 @@
-import React, { ReactNode, useContext, useEffect, useState } from "react";
-import { AuthContext } from "./AuthContext";
-import { getShopSettings } from "../axios/http/settingsRequests";
-import { ShopSettingsModel } from "../models/interfaces/shop";
+import React, { ReactNode, useContext, useEffect, useState } from 'react'
+import { AuthContext } from './AuthContext'
+import { getShopSettings } from '../axios/http/settingsRequests'
+import { ShopSettingsModel } from '../models/interfaces/shop'
 
 export interface ThemeContextData {
     colors?: ShopSettingsModel
@@ -20,9 +20,6 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
                     const root = document.documentElement
                     root?.style.setProperty('--primaryColor', response.primaryColor)
                     root?.style.setProperty('--secondaryColor', response.secondaryColor)
-                    root?.style.setProperty('--secondaryLightColor', response.secondaryLightColor)
-                    root?.style.setProperty('--secondaryDarkColor', response.secondaryDarkColor)
-                    root?.style.setProperty('--textColor', response.textColor)
                     setColors(response)
                 }
             })

@@ -1,12 +1,12 @@
-import { connectToWebsocket, stompClient } from '../../../axios/websocketClient';
-import { useState } from 'react';
-import { Discuss } from 'react-loader-spinner';
-import { registerToChat, sendMessage } from '../../../axios/websocket/chat';
+import { connectToWebsocket, stompClient } from '../../../axios/websocketClient'
+import { useState } from 'react'
+import { Discuss } from 'react-loader-spinner'
+import { registerToChat, sendMessage } from '../../../axios/websocket/chat'
 
 export const Chats = () => {
     const [messages, setMessages] = useState<string[]>([])
     const [loading, setLoading] = useState(false)
-    const [messageText,setMessageText] = useState('...');
+    const [messageText, setMessageText] = useState('...')
 
     const connect = async () => {
         setLoading(true)
@@ -39,7 +39,7 @@ export const Chats = () => {
                     Disconnect
                 </button>
             </div>
-            <input value={messageText} onChange={e => setMessageText(e.target.value)}/>
+            <input value={messageText} onChange={(e) => setMessageText(e.target.value)} />
             {messages.map((value, index) => (
                 <div key={index}>{value}</div>
             ))}

@@ -1,19 +1,19 @@
-import React, { useContext, useEffect } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
-import { getShopById, updateShop } from '../../axios/http/shopRequests';
-import { useParams } from 'react-router-dom';
-import { Shop, ShopSettingsModel } from '../../models/interfaces/shop';
-import { Controller, useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup';
-import { ShopSchema } from '../../models/validators/FormValidators';
-import { TextField } from '../../components/form/TextField';
-import { HexColorPicker } from 'react-colorful';
-import { FormField } from '../../components/form/Field';
-import { CustomSuspense } from '../../components/CustomSuspense';
-import { ThemeContext } from '../../contexts/ThemeContext';
-import { toast } from 'react-toastify';
-import { FormError } from '../../components/form/FormError';
-import { toastProps } from '../../components/modals/ToastProps';
+import React, { useContext, useEffect } from 'react'
+import { useQuery, useQueryClient } from 'react-query'
+import { getShopById, updateShop } from '../../axios/http/shopRequests'
+import { useParams } from 'react-router-dom'
+import { Shop, ShopSettingsModel } from '../../models/interfaces/shop'
+import { Controller, useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { ShopSchema } from '../../models/validators/FormValidators'
+import { TextField } from '../../components/form/TextField'
+import { HexColorPicker } from 'react-colorful'
+import { FormField } from '../../components/form/Field'
+import { CustomSuspense } from '../../components/CustomSuspense'
+import { ThemeContext } from '../../contexts/ThemeContext'
+import { toast } from 'react-toastify'
+import { FormError } from '../../components/form/FormError'
+import { toastProps } from '../../components/modals/ToastProps'
 
 export const ShopView = () => {
     const { id } = useParams()

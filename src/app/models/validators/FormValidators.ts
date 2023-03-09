@@ -1,7 +1,7 @@
-import * as Yup from 'yup';
-import { User } from '../interfaces/user';
-import { UserRoles } from '../enums/userEnums';
-import { InventoryItem } from '../interfaces/shop';
+import * as Yup from 'yup'
+import { User } from '../interfaces/user'
+import { UserRoles } from '../enums/userEnums'
+import { InventoryItem } from '../interfaces/shop'
 
 export const LoginSchema = Yup.object().shape({
     username: Yup.string().min(5, 'Too Short!').max(50, 'Too Long!').required('Required'),
