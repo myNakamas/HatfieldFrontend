@@ -20,7 +20,6 @@ export const Tickets = () => {
 
     const queryClient = useQueryClient()
     const { data, isSuccess } = useQuery(['tickets', page.page], () => fetchAllTickets({ page }))
-
     const onSubmit = (formValue: CreateTicket) => {
         return toast
             .promise(createTicket({ body: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)

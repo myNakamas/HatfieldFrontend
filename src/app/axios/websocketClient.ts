@@ -1,4 +1,4 @@
-import { Client } from "@stomp/stompjs";
+import { Client } from '@stomp/stompjs'
 
 const brokerURL = import.meta.env.VITE_API_WS_URL
 
@@ -11,11 +11,7 @@ export const connectToWebsocket = (onConnect: () => void) => {
         brokerURL,
         webSocketFactory: () => new WebSocket(brokerURL),
         connectHeaders: { Authorization: token },
-        debug: (log) => {
-            console.log(log)
-        },
         onConnect,
     })
     stompClient.activate()
 }
-

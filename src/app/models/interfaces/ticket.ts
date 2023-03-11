@@ -40,3 +40,36 @@ export interface CreateTicket {
     clientId: string
     priority: number
 }
+
+/**
+ * - sender: UUID of User that sends the message
+ * - receiver: UUID of User that receives the message
+ * - readByReceiver: The time of the message being read. Can be null (not read yet)
+ */
+export interface CreateChatMessage {
+    text: string
+    timestamp: Date
+    sender: string
+    receiver: string
+    ticketId: number
+}
+
+export interface ChatMessage extends Entity, CreateChatMessage {
+    readByReceiver: Date
+}
+
+export interface ChatMessages {
+    received: ChatMessage[]
+    sent: ChatMessage[]
+}
+
+export interface Chat {
+    chat: ChatMessage[]
+    receiver?: User
+    sender?: User
+    ticket: Ticket
+}
+
+export interface UserChats {
+    [key: string]: ChatMessages
+}

@@ -1,0 +1,76 @@
+.chatBox {
+  flex-grow: 1;
+  height: 89vh;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  padding: 5px
+}
+
+.ticketChatContainer {
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+}
+
+.message {
+  padding: 10px;
+}
+
+.user {
+  margin-bottom: 5px;
+}
+
+.message-sender {
+  display: flex;
+  width: 100%;
+  justify-content: right;
+  align-items: center;
+
+  .user {
+    text-align: right;
+  }
+
+  .message {
+    border-radius: 15px 15px 0 15px;
+    background-color: var(--primaryColor);
+  }
+}
+
+.message-receiver {
+  display: flex;
+  width: 100%;
+  justify-content: left;
+  align-items: center;
+
+  .user {
+    text-align: left;
+  }
+
+  .message {
+    border-radius: 15px 15px 15px 0;
+    background-color: var(--secondaryColor);
+  }
+}
+
+.messageField {
+  display: flex;
+  width: 100%;
+
+  .input {
+    width: 100%;
+    padding: 15px 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    border: none;
+    box-sizing: border-box;
+    flex-grow: 1;
+  }
+
+  .sendButton {
+    margin: 5px;
+    background-color: var(--primaryColor);
+  }
+}
