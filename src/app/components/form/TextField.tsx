@@ -1,6 +1,6 @@
-import { FieldError, UseFormRegisterReturn } from 'react-hook-form';
-import React, { ReactNode } from 'react';
-import { FormError } from './FormError';
+import { FieldError, UseFormRegisterReturn } from 'react-hook-form'
+import React, { ReactNode } from 'react'
+import { FormError } from './FormError'
 
 interface TextFieldProps {
     register: UseFormRegisterReturn
@@ -8,6 +8,7 @@ interface TextFieldProps {
     placeholder?: string
     error?: FieldError
     type?: string
+    defaultValue?: string
     button?: ReactNode
 }
 

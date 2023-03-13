@@ -52,15 +52,11 @@ export interface CreateChatMessage {
     sender: string
     receiver: string
     ticketId: number
+    randomId: number
 }
 
 export interface ChatMessage extends Entity, CreateChatMessage {
     readByReceiver: Date
-}
-
-export interface ChatMessages {
-    received: ChatMessage[]
-    sent: ChatMessage[]
 }
 
 export interface Chat {
@@ -71,5 +67,5 @@ export interface Chat {
 }
 
 export interface UserChats {
-    [key: string]: ChatMessages
+    [key: string]: ChatMessage[]
 }

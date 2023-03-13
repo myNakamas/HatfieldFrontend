@@ -16,6 +16,7 @@ import { useQuery } from 'react-query'
 import { getAllShops } from '../../axios/http/shopRequests'
 import { Shop } from '../../models/interfaces/shop'
 
+//todo: not implemented yet
 export const EditTicket = ({
     isModalOpen,
     closeModal,

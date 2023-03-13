@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { useQuery } from 'react-query';
-import { getAllShops } from '../../axios/http/shopRequests';
-import { CustomTable } from '../../components/table/CustomTable';
-import { NoDataComponent } from '../../components/table/NoDataComponent';
-import { AddInventoryItem } from '../../components/modals/AddInventoryItem';
-import { useNavigate } from 'react-router-dom';
-import { Shop } from '../../models/interfaces/shop';
-import { CustomSuspense } from '../../components/CustomSuspense';
+import React, { useState } from 'react'
+import { useQuery } from 'react-query'
+import { getAllShops } from '../../axios/http/shopRequests'
+import { CustomTable } from '../../components/table/CustomTable'
+import { NoDataComponent } from '../../components/table/NoDataComponent'
+import { useNavigate } from 'react-router-dom'
+import { Shop } from '../../models/interfaces/shop'
+import { CustomSuspense } from '../../components/CustomSuspense'
 
 export const Shops = () => {
     const navigate = useNavigate()
@@ -15,10 +14,10 @@ export const Shops = () => {
 
     return (
         <div className='mainScreen'>
-            <AddInventoryItem isModalOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)} />
-            <div className='flex-100 button-bar'>
+            {/*<AddInventoryItem isModalOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)} />*/}
+            <div className=' button-bar'>
                 <button className='actionButton' onClick={() => setModalIsOpen(true)}>
-                    Add Item
+                    Add a new Shop
                 </button>
             </div>
             <div className='tableWrapper'>

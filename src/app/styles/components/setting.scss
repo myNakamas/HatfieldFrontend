@@ -1,8 +1,9 @@
 .setting {
   background-color: var(--backgroundColor);
-  padding: 20px;
   flex-grow: 1;
   text-align: left;
+  max-width: 80%;
+  margin: auto;
 
   .card {
     border-radius: 5px;

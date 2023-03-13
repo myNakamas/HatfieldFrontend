@@ -20,3 +20,11 @@ export const toastCreatePromiseTemplate = (item: string) => {
         error: `${capitalizeFirst(itemLower)} creation failed`,
     }
 }
+export const toastUpdatePromiseTemplate = (item: string) => {
+    const itemLower = item.toLowerCase()
+    return {
+        pending: `Updating ${itemLower}, please wait`,
+        success: `Successfully updated the ${itemLower}`,
+        error: `${capitalizeFirst(itemLower)} update failed`,
+    }
+}

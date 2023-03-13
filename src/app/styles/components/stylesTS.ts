@@ -1,5 +1,5 @@
-import { Styles } from "react-modal";
-import { StylesConfig, Theme } from "react-select";
+import { Styles } from 'react-modal'
+import { StylesConfig, Theme } from 'react-select'
 
 export const getSystemMode = () => {
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -55,12 +55,17 @@ export const SelectTheme = (theme: Theme): Theme => {
             primary25: backgroundColor10,
             neutral80: color10,
             neutral0: backgroundColor,
-            neutral10: color10,
+            neutral10: backgroundColor10,
         },
     }
 }
 export const SelectStyles = <T>(): StylesConfig<T> => {
     return {
+        container: (styles) => ({
+            ...styles,
+            minWidth: 200,
+            textAlign: 'left',
+        }),
         menuPortal: (styles) => ({
             ...styles,
             zIndex: 10,

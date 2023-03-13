@@ -1,13 +1,10 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "../contexts/AuthContext";
-import { AppWrapper } from "../components/navigation/AppWrapper";
+import { Navigate, Outlet } from 'react-router-dom'
+import { AppWrapper } from '../components/navigation/AppWrapper'
 
 export const PrivateRoute = () => {
-    const { isLoggedIn } = useContext(AuthContext)
-    const location = useLocation()
+    const token = localStorage.getItem('token')
 
-    return !isLoggedIn ? (
+    return !token ? (
         <Navigate to='/login' state={{ from: location }} />
     ) : (
         <AppWrapper>

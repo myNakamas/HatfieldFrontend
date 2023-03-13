@@ -19,12 +19,12 @@ export const Tickets = () => {
     const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
 
     const queryClient = useQueryClient()
-    const { data, isSuccess } = useQuery(['tickets', page.page], () => fetchAllTickets({ page }))
+    const { data, isSuccess } = useQuery(['tickets', { page: page.page }], () => fetchAllTickets({ page }))
     const onSubmit = (formValue: CreateTicket) => {
         return toast
             .promise(createTicket({ body: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)
             .then(() => {
-                queryClient.invalidateQueries('tickets').then(() => setShowNewModal(false))
+                queryClient.invalidateQueries(['tickets']).then(() => setShowNewModal(false))
             })
     }
 
@@ -32,7 +32,7 @@ export const Tickets = () => {
         <div className='mainScreen'>
             {/*<EditTicket isModalOpen={!!selectedTicket} closeModal={() => setSelectedTicket(undefined)} />*/}
             <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} onComplete={onSubmit} />
-            <div className='flex-100 button-bar'>
+            <div className=' button-bar'>
                 <button className='actionButton' onClick={() => setShowNewModal(true)}>
                     Add Item
                 </button>

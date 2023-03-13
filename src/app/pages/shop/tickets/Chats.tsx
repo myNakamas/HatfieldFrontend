@@ -1,7 +1,7 @@
 import { stompClient } from '../../../axios/websocketClient'
 import { useContext, useEffect, useState } from 'react'
 import { Discuss } from 'react-loader-spinner'
-import { sendMessage } from '../../../axios/websocket/chat'
+import { sendMessage, sendMessageSeen } from '../../../axios/websocket/chat'
 import { Chat, ChatMessage, CreateChatMessage } from '../../../models/interfaces/ticket'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { User } from '../../../models/interfaces/user'
@@ -13,40 +13,53 @@ import { fetchChat } from '../../../axios/http/ticketRequests'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons/faPaperPlane'
 import dateFormat from 'dateformat'
+import { faArrowRight, faCheckDouble, faCircleCheck, faSpinner } from '@fortawesome/free-solid-svg-icons'
 
 export const Chats = () => {
     const { loggedUser } = useContext(AuthContext)
     const [selectedReceiver, setSelectedReceiver] = useState<User>()
-    const { data: users } = useQuery('users', getAllUsers)
+    const { data: users } = useQuery(['users'], () => getAllUsers({}))
     // const { data: tasks } = useQuery('tasks', fetchAllTickets)
 
-    const { messages, setMessages } = useContext(WebSocketContext)
+    const { userChats, setUserChats, unsentMessages, setUnsentMessages } = useContext(WebSocketContext)
     const [chat, setChat] = useState<Chat | undefined>()
-    useQuery(['messages', selectedReceiver?.userId], () => fetchChat({ userId: selectedReceiver?.userId ?? '' }), {
-        enabled: !!selectedReceiver?.userId,
-        onSuccess: (data) => {
-            if (selectedReceiver?.userId) {
-                setMessages((prevState) => {
-                    prevState[selectedReceiver?.userId] = data
-                    return { ...prevState }
-                })
-            }
-        },
-    })
-    const [messageText, setMessageText] = useState('...')
+    const { data: oldMessages } = useQuery(
+        ['messages', selectedReceiver?.userId],
+        () => fetchChat({ userId: selectedReceiver?.userId ?? '' }),
+        {
+            enabled: !!selectedReceiver?.userId,
+            onSuccess: (data) => {
+                if (selectedReceiver?.userId) {
+                    setUserChats((prevState) => {
+                        prevState[selectedReceiver?.userId] = []
+                        return { ...prevState }
+                    })
+                    setUnsentMessages((prevState) => {
+                        return [...prevState.filter((unsent) => !data.some((msg) => msg.randomId === unsent.randomId))]
+                    })
+                    const received = data.filter((msg) => msg.receiver === loggedUser?.userId)
+                    sendMessageSeen(received[received.length - 1])
+                }
+
+                //    todo: send the 'seen mark'
+                //     send the last read message and the backend can fill all before.
+                //     also subscribe to the seen websocket
+            },
+        }
+    )
+    const [messageText, setMessageText] = useState('')
 
     useEffect(() => {
         if (selectedReceiver) {
-            const userMessages = messages[selectedReceiver.userId]
-            if (userMessages) {
-                const messagesByUser = [...userMessages.received, ...userMessages.sent].sort(
-                    (a, b) => +new Date(a.timestamp) - +new Date(b.timestamp)
-                )
-                const receiver = users?.find((user) => user.userId === selectedReceiver.userId)
-                setChat({ chat: messagesByUser, receiver, sender: loggedUser } as Chat)
-            }
+            const userMessages = userChats[selectedReceiver.userId] ?? []
+            const old = oldMessages ?? []
+            const messagesByUser = [...old, ...userMessages, ...unsentMessages].sort(
+                (a, b) => +new Date(b.timestamp) - +new Date(a.timestamp)
+            )
+            const receiver = users?.find((user) => user.userId === selectedReceiver.userId)
+            setChat({ chat: messagesByUser, receiver, sender: loggedUser } as Chat)
         }
-    }, [selectedReceiver, messages])
+    }, [selectedReceiver, userChats, unsentMessages, oldMessages])
 
     const send = async (messageText: string, loggedUser: User, selectedReceiver: User) => {
         const message: CreateChatMessage = {
@@ -55,7 +68,10 @@ export const Chats = () => {
             text: messageText,
             ticketId: 1,
             receiver: selectedReceiver?.userId,
+            randomId: Math.floor(Math.random() * 1000000),
         }
+        setUnsentMessages((unsent) => [...unsent, message as ChatMessage])
+        setMessageText('')
         await sendMessage(message)
     }
     // const closeConnection = () => {
@@ -66,31 +82,23 @@ export const Chats = () => {
         <div className='mainScreen'>
             <div className='flex-100'>
                 <div className='chatBox'>
-                    {stompClient.connected && selectedReceiver?.userId ? (
-                        <div className='w-100'>
-                            {chat?.chat.map((value, index, array) => (
-                                <ChatMessageRow
-                                    receiver={chat?.receiver}
-                                    sender={chat?.sender}
-                                    key={index}
-                                    message={value}
-                                    showUser={!array[index - 1] || array[index - 1].receiver != value.receiver}
-                                />
-                            ))}
-                        </div>
-                    ) : (
-                        <>
-                            <div className='w-100'>
-                                <Discuss />
-                            </div>
-                            Loading messages
-                        </>
-                    )}
                     <div className='messageField'>
-                        <input className='input' value={messageText} onChange={(e) => setMessageText(e.target.value)} />
+                        <input
+                            className='input'
+                            value={messageText}
+                            onChange={(e) => setMessageText(e.target.value)}
+                            onKeyDown={(e) =>
+                                e.key === 'Enter' &&
+                                loggedUser &&
+                                selectedReceiver &&
+                                send(messageText, loggedUser, selectedReceiver)
+                            }
+                            disabled={!selectedReceiver?.userId}
+                            autoFocus
+                        />
                         <button
-                            className='sendButton icon-s clickable'
-                            disabled={!stompClient.connected}
+                            className={`sendButton icon-s ${selectedReceiver?.userId && 'clickable'}`}
+                            disabled={!stompClient.connected || !selectedReceiver?.userId}
                             onClick={() =>
                                 loggedUser && selectedReceiver && send(messageText, loggedUser, selectedReceiver)
                             }
@@ -98,6 +106,29 @@ export const Chats = () => {
                             <FontAwesomeIcon size='lg' icon={faPaperPlane} />
                         </button>
                     </div>
+                    {stompClient.connected && selectedReceiver?.userId ? (
+                        chat?.chat.map((value, index, array) => (
+                            <ChatMessageRow
+                                receiver={chat?.receiver}
+                                sender={chat?.sender}
+                                key={index}
+                                message={value}
+                                showUser={!array[index - 1] || array[index - 1].receiver != value.receiver}
+                            />
+                        ))
+                    ) : selectedReceiver?.userId ? (
+                        <>
+                            <div className='w-100'>
+                                <Discuss />
+                            </div>
+                            Loading messages
+                        </>
+                    ) : (
+                        <div className={'w-100'}>
+                            <FontAwesomeIcon icon={faArrowRight} size={'xl'} />
+                            <h4>Please select a ticket to see its chat</h4>
+                        </div>
+                    )}
                 </div>
                 <div className='ticketChatContainer'>
                     {users &&
@@ -129,6 +160,13 @@ const ChatMessageRow = ({
     const { loggedUser } = useContext(AuthContext)
     const isSenderLoggedUser = message.sender === loggedUser?.userId
     const user = isSenderLoggedUser ? sender : receiver
+    const Icon = !message.id ? (
+        <FontAwesomeIcon icon={faSpinner} title={'Sending'} />
+    ) : message.readByReceiver ? (
+        <FontAwesomeIcon icon={faCheckDouble} title={'Seen at ' + dateFormat(message.readByReceiver)} />
+    ) : (
+        <FontAwesomeIcon icon={faCircleCheck} title={'Sent'} />
+    )
     return (
         <>
             <div className={isSenderLoggedUser ? 'message-sender' : 'message-receiver'}>
@@ -140,6 +178,7 @@ const ChatMessageRow = ({
                         </div>
                     )}
                     <div className='message'>{message.text}</div>
+                    {Icon}
                 </div>
             </div>
         </>
