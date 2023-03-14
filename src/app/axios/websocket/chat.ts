@@ -10,7 +10,8 @@ export const sendMessageSeen = async (message: ChatMessage) => {
 export const registerToChat = (
     id: string | undefined,
     callBack: (message: ChatMessage) => void,
-    sentMessage: (message: ChatMessage) => void
+    sentMessage: (message: ChatMessage) => void,
+    markMessageSeen: (message: ChatMessage) => void
 ) => {
     stompClient.subscribe('/user/' + id + '/chat', (response) => {
         const message = JSON.parse(response.body)
@@ -21,8 +22,7 @@ export const registerToChat = (
         if (message) sentMessage(message)
     })
     stompClient.subscribe('/user/' + id + '/seen', (response) => {
-        console.log('Message seen')
         const message = JSON.parse(response.body)
-        if (message) sentMessage(message)
+        if (message) markMessageSeen(message)
     })
 }

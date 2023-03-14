@@ -18,6 +18,7 @@
 .message {
   padding: 10px;
   width: fit-content;
+  margin-top: 5px;
 }
 
 .user {
@@ -32,10 +33,16 @@
   align-items: center;
   text-align: right;
 
+  .message-wrapper {
+    display: flex;
+    align-items: end;
+  }
+
   .message {
     border-radius: 15px 15px 0 15px;
     background-color: var(--primaryColor);
     margin-left: auto;
+    margin-right: 5px;
   }
 }
 
@@ -45,7 +52,6 @@
   justify-content: left;
   align-items: center;
   text-align: left;
-
   .message {
     border-radius: 15px 15px 15px 0;
     background-color: var(--secondaryColor);
@@ -59,7 +65,7 @@
   .input {
     width: 100%;
     padding: 15px 10px;
-    margin-bottom: 5px;
+    margin: 5px 0;
     border-radius: 5px;
     border: none;
     box-sizing: border-box;

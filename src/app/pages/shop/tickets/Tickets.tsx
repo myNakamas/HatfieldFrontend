@@ -11,6 +11,7 @@ import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../../../components/modals/ToastProps'
 import dateFormat from 'dateformat'
 import { ViewTicket } from '../../../components/modals/ViewTicket'
+import { Pagination } from '../../../components/table/Pagination'
 
 export const Tickets = () => {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
@@ -18,7 +19,7 @@ export const Tickets = () => {
     const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
 
     const queryClient = useQueryClient()
-    const { data, isSuccess } = useQuery(['tickets', { page: page.page }], () => fetchAllTickets({ page }))
+    const { data, isSuccess } = useQuery(['tickets', page], () => fetchAllTickets({ page }))
     const onSubmit = (formValue: CreateTicket) => {
         return toast
             .promise(createTicket({ ticket: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)
@@ -36,32 +37,34 @@ export const Tickets = () => {
                     Add Item
                 </button>
             </div>
-            <div className='tableWrapper'>
-                <CustomSuspense isReady={isSuccess}>
-                    {data?.content && data.content.length > 0 ? (
-                        <CustomTable<Ticket>
-                            data={data.content.map(
-                                ({ id, timestamp, deadline, createdBy, client, status, totalPrice }) => ({
-                                    id,
-                                    'creation date': dateFormat(timestamp),
-                                    deadline: dateFormat(deadline),
-                                    status,
-                                    totalPrice,
-                                    createdBy: createdBy?.fullName,
-                                    client: client?.fullName,
-                                })
-                            )}
-                            headers={['']}
-                            onClick={({ id }) =>
-                                setSelectedTicket(data?.content.find(({ id: ticketId }) => id === ticketId))
-                            }
-                        />
-                    ) : (
-                        //  todo: Add pagination
-                        <NoDataComponent items='items in inventory' />
-                    )}
-                </CustomSuspense>
-            </div>
+
+            <CustomSuspense isReady={isSuccess}>
+                {data?.content && data.content.length > 0 ? (
+                    <>
+                        <div className='tableWrapper'>
+                            <CustomTable<Ticket>
+                                data={data.content.map(
+                                    ({ id, timestamp, deadline, createdBy, client, status, totalPrice }) => ({
+                                        id,
+                                        'creation date': dateFormat(timestamp),
+                                        deadline: deadline ? dateFormat(deadline) : '-',
+                                        status,
+                                        totalPrice,
+                                        createdBy: createdBy?.fullName,
+                                        client: client?.fullName,
+                                    })
+                                )}
+                                onClick={({ id }) =>
+                                    setSelectedTicket(data?.content.find(({ id: ticketId }) => id === ticketId))
+                                }
+                            />
+                        </div>
+                        <Pagination {...{ page, setPage }} pageCount={data.pageCount} />
+                    </>
+                ) : (
+                    <NoDataComponent items='items in inventory' />
+                )}
+            </CustomSuspense>
         </div>
     )
 }

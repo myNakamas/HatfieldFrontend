@@ -109,7 +109,6 @@ export const Users = () => {
                                 ),
                             }
                         })}
-                        headers={['']}
                     />
                 ) : (
                     <NoDataComponent items='items in inventory' />

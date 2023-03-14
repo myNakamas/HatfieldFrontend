@@ -91,8 +91,10 @@ export const Chats = () => {
                                 e.key === 'Enter' &&
                                 loggedUser &&
                                 selectedReceiver &&
+                                messageText.trim().length > 0 &&
                                 send(messageText, loggedUser, selectedReceiver)
                             }
+                            aria-autocomplete='none'
                             disabled={!selectedReceiver?.userId}
                             autoFocus
                         />
@@ -113,6 +115,7 @@ export const Chats = () => {
                                 sender={chat?.sender}
                                 key={index}
                                 message={value}
+                                isLastMessage={index === 0}
                                 showUser={!array[index - 1] || array[index - 1].receiver != value.receiver}
                             />
                         ))
@@ -149,11 +152,13 @@ export const Chats = () => {
 const ChatMessageRow = ({
     message,
     showUser,
+    isLastMessage,
     sender,
     receiver,
 }: {
     message: ChatMessage
     showUser: boolean
+    isLastMessage: boolean
     receiver?: User
     sender?: User
 }) => {
@@ -163,7 +168,11 @@ const ChatMessageRow = ({
     const Icon = !message.id ? (
         <FontAwesomeIcon icon={faSpinner} title={'Sending'} />
     ) : message.readByReceiver ? (
-        <FontAwesomeIcon icon={faCheckDouble} title={'Seen at ' + dateFormat(message.readByReceiver)} />
+        isSenderLoggedUser && isLastMessage ? (
+            <FontAwesomeIcon icon={faCheckDouble} title={'Seen at ' + dateFormat(message.readByReceiver)} />
+        ) : (
+            <></>
+        )
     ) : (
         <FontAwesomeIcon icon={faCircleCheck} title={'Sent'} />
     )
@@ -177,8 +186,12 @@ const ChatMessageRow = ({
                             <span>{dateFormat(message.timestamp)}</span>
                         </div>
                     )}
-                    <div className='message'>{message.text}</div>
-                    {Icon}
+                    <div className='message-wrapper'>
+                        <div className='message' title={dateFormat(message.timestamp)}>
+                            {message.text}
+                        </div>
+                        {Icon}
+                    </div>
                 </div>
             </div>
         </>

@@ -51,7 +51,6 @@ export const CategorySettings = () => {
                 <div className='width-m'>
                     {allCategories && allCategories.length > 0 && (
                         <CustomTable<Category>
-                            headers={['']}
                             data={allCategories.map(({ columns, ...rest }) => ({
                                 ...rest,
                                 columns: columns.join(', '),

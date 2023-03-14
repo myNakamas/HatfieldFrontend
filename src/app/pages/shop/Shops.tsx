@@ -33,11 +33,9 @@ export const Shops = () => {
                                 regNumber,
                                 vatNumber,
                             }))}
-                            headers={['']}
                             onClick={({ id }) => navigate('/shops/' + id)}
                         />
                     ) : (
-                        //  todo: Add pagination
                         <NoDataComponent items='items in inventory' />
                     )}
                 </CustomSuspense>

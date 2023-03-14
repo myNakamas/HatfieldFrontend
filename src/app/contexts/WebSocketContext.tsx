@@ -24,18 +24,29 @@ export const WebSocketContextProvider = ({ children }: { children: ReactNode }) 
                     loggedUser?.userId,
                     (message) => {
                         setUserChats((prev) => {
+                            // on received message, add it to the messages
                             prev[message.sender] = [...prev[message.sender], message]
                             return { ...prev }
                         })
                     },
                     (message) => {
                         setUnsentMessages((unsent) => {
+                            // remove the message from the unsent messages
                             const filtered = unsent.filter((msg) => msg.randomId !== message.randomId)
                             return [...filtered]
                         })
                         setUserChats((prev) => {
+                            //if message is missing, add it to the userChats
                             if (!prev[message.receiver].some((value) => value.randomId === message.randomId))
                                 prev[message.receiver] = [...(prev[message.receiver] ?? []), message]
+                            return { ...prev }
+                        })
+                    },
+                    (message) => {
+                        setUserChats((prev) => {
+                            //on message marked as seen, find it by id and mark it as seen
+                            const index = prev[message.receiver].findIndex((value) => value.id === message.id)
+                            prev[message.receiver][index] = message
                             return { ...prev }
                         })
                     }

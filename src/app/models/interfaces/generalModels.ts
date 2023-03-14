@@ -47,6 +47,15 @@ export interface UserFilter extends Filter {
     phone?: string
 }
 
+export interface InventoryFilter extends Filter {
+    searchBy?: string
+    modelId?: number
+    brandId?: number
+    shopId?: number
+    categoryId?: number
+    isNeeded?: boolean
+}
+
 export const toUserFilterView = (filter: UserFilter | undefined) => {
     return {
         shopId: filter?.shop?.id,
