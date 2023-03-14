@@ -180,7 +180,9 @@ export const AddEditUser = ({
                     <button type='submit' className='successButton'>
                         Submit
                     </button>
-                    <button className='cancelButton'>Cancel</button>
+                    <button className='cancelButton' type='button' onClick={closeModal}>
+                        Cancel
+                    </button>
                 </div>
             </form>
         </AppModal>

@@ -5,6 +5,7 @@ import { User } from './user'
 export interface Ticket extends Entity {
     deviceModel: string
     deviceBrand: string
+    deviceLocation: string
     customerRequest: string
     problemExplanation: string
     deviceCondition: string
@@ -32,7 +33,7 @@ export interface CreateTicket {
     devicePassword: string
     serialNumberOrImei: string
     accessories: string
-    deadline: Date
+    deadline: Date | string
     notes: string
     status: TicketStatus
     totalPrice: number

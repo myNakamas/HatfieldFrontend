@@ -1,5 +1,5 @@
-import { InventoryItem } from '../../models/interfaces/shop';
-import { AppModal } from './AppModal';
+import { InventoryItem } from '../../models/interfaces/shop'
+import { AppModal } from './AppModal'
 
 export const ViewInventoryItem = ({
     inventoryItem,
@@ -35,7 +35,7 @@ export const ViewInventoryItem = ({
         </AppModal>
     )
 }
-const Field = ({ name, value }: { name: string; value: string }) => {
+export const Field = ({ name, value }: { name: string; value: string | number }) => {
     return value ? (
         <div className='field'>
             <div>{name}</div>

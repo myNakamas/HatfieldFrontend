@@ -61,7 +61,7 @@ export const Profile = () => {
                     </div>
                     <div className='p-2 profileDesc'>
                         <p>Personalize your account with a photo:</p>
-                        <input type='file' className='iconButton' onChange={(e) => uploadPicture(e.target.files)} />
+                        <input type='file' className='actionButton' onChange={(e) => uploadPicture(e.target.files)} />
                     </div>
                 </div>
 

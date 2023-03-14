@@ -6,14 +6,13 @@ import { CreateTicket, Ticket } from '../../../models/interfaces/ticket'
 import { useQuery, useQueryClient } from 'react-query'
 import { PageRequest } from '../../../models/interfaces/generalModels'
 import { createTicket, fetchAllTickets } from '../../../axios/http/ticketRequests'
-import { useNavigate } from 'react-router-dom'
 import { AddTicket } from '../../../components/modals/AddTicket'
 import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../../../components/modals/ToastProps'
 import dateFormat from 'dateformat'
+import { ViewTicket } from '../../../components/modals/ViewTicket'
 
 export const Tickets = () => {
-    const navigate = useNavigate()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [showNewModal, setShowNewModal] = useState(false)
     const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
@@ -22,7 +21,7 @@ export const Tickets = () => {
     const { data, isSuccess } = useQuery(['tickets', { page: page.page }], () => fetchAllTickets({ page }))
     const onSubmit = (formValue: CreateTicket) => {
         return toast
-            .promise(createTicket({ body: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)
+            .promise(createTicket({ ticket: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)
             .then(() => {
                 queryClient.invalidateQueries(['tickets']).then(() => setShowNewModal(false))
             })
@@ -30,7 +29,7 @@ export const Tickets = () => {
 
     return (
         <div className='mainScreen'>
-            {/*<EditTicket isModalOpen={!!selectedTicket} closeModal={() => setSelectedTicket(undefined)} />*/}
+            <ViewTicket ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
             <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} onComplete={onSubmit} />
             <div className=' button-bar'>
                 <button className='actionButton' onClick={() => setShowNewModal(true)}>
@@ -44,8 +43,8 @@ export const Tickets = () => {
                             data={data.content.map(
                                 ({ id, timestamp, deadline, createdBy, client, status, totalPrice }) => ({
                                     id,
-                                    timestamp: dateFormat(timestamp),
-                                    deadline,
+                                    'creation date': dateFormat(timestamp),
+                                    deadline: dateFormat(deadline),
                                     status,
                                     totalPrice,
                                     createdBy: createdBy?.fullName,
@@ -53,7 +52,9 @@ export const Tickets = () => {
                                 })
                             )}
                             headers={['']}
-                            onClick={({ id }) => navigate('/chats/' + id)}
+                            onClick={({ id }) =>
+                                setSelectedTicket(data?.content.find(({ id: ticketId }) => id === ticketId))
+                            }
                         />
                     ) : (
                         //  todo: Add pagination

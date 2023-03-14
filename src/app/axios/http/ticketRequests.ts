@@ -6,7 +6,9 @@ export const fetchAllTickets = ({ page }: { page: PageRequest }): Promise<Page<T
     return backendClient.get('ticket/all', { params: page })
 }
 
-export const createTicket = ({ body }: { body: CreateTicket }): Promise<number> => {
+export const createTicket = ({ ticket }: { ticket: CreateTicket }): Promise<number> => {
+    const deadline = new Date(ticket.deadline).toISOString()
+    const body = { ...ticket, deadline }
     return backendClient.post('ticket', body)
 }
 

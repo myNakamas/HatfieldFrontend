@@ -142,7 +142,7 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                     <button className='successButton' type='submit'>
                         Create
                     </button>
-                    <button className='cancelButton' onClick={closeModal}>
+                    <button className='cancelButton' type='button' onClick={closeModal}>
                         Close
                     </button>
                 </div>

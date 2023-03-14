@@ -35,7 +35,8 @@
 
 .iconButton {
   @extend .button;
-  padding: 10px;
+  width: 40px;
+  height: 40px;
   background-color: var(--secondaryColor);
   border-radius: 5px;
 }
@@ -43,6 +44,23 @@
 .field {
   margin-bottom: 10px;
 }
+
+.viewModal {
+  text-align: left;
+
+  h4 {
+    margin-bottom: 5px;
+  }
+
+  .card {
+    border-radius: 5px;
+    background-color: var(--backgroundColor10);
+    color: var(--textPrimary);
+    margin-bottom: 20px;
+    padding: 10px;
+  }
+}
+
 
 .form {
   .textField {
@@ -183,3 +201,33 @@
     right: 30px;
   }
 }
+
+.rdt {
+  .form-control {
+    @extend .input
+  }
+
+  .rdtPicker {
+    background-color: var(--backgroundColor) !important;
+    color: var(--textPrimary) !important;
+
+    td.rdtDay:hover,
+    td.rdtHour:hover,
+    td.rdtMinute:hover,
+    td.rdtSecond:hover,
+    .rdtTimeToggle:hover,
+    .rdtBtn:hover,
+    thead tr:first-of-type th:hover,
+    td.rdtMonth:hover, td.rdtYear:hover {
+      background-color: var(--backgroundColor20) !important;
+
+    }
+  }
+}
+
+//.rdtCounter{
+//  {
+//  background-color: var(--backgroundColor20) !important;
+//
+//}
+//}

@@ -1,4 +1,5 @@
-export const DeviceLocation = ['IN_THE_FRONT', 'SENT_TO_ANOTHER_LOCATION', 'IN_STORAGE', 'IN_LAB']
+//Todo: get from the backend ( initial config )
+export const DeviceLocation = ['IN_THE_FRONT', 'IN_STORAGE', 'IN_LAB']
 export const DeviceLocationArray = DeviceLocation.map((value, index) => ({ id: index, value }))
 
 export type TicketStatus =
