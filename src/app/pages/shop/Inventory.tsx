@@ -20,7 +20,7 @@ export const Inventory = () => {
     const { loggedUser } = useContext(AuthContext)
     const [filter, setFilter] = useState<InventoryFilter>({ shopId: loggedUser?.shopId })
     const [createModalIsOpen, setCreateModalIsOpen] = useState(false)
-    const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
+    const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 0 })
     const { data } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), {
         keepPreviousData: true,
     })

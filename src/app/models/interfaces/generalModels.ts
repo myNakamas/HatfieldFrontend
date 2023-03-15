@@ -37,6 +37,8 @@ export interface ItemPropertyView extends Entity {
 
 export interface Filter {
     searchBy?: string
+    from?: string
+    to?: string
 }
 
 export interface UserFilter extends Filter {
@@ -48,7 +50,6 @@ export interface UserFilter extends Filter {
 }
 
 export interface InventoryFilter extends Filter {
-    searchBy?: string
     modelId?: number
     brandId?: number
     shopId?: number

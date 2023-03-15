@@ -15,7 +15,7 @@ export interface Ticket extends Entity {
     timestamp: Date
     deadline: Date
     notes: string
-    status: string
+    status: TicketStatus
     totalPrice: number
     deposit: number
     createdBy: User
@@ -40,6 +40,12 @@ export interface CreateTicket {
     deposit: number
     clientId: string
     priority: number
+}
+
+export const createTicketFromTicket = (t: Ticket): CreateTicket => {
+    const clientId = t.client?.userId
+    const deadline = new Date(t.deadline)
+    return { ...t, clientId, deadline }
 }
 
 /**

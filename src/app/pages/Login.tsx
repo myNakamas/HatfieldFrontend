@@ -12,10 +12,10 @@ import { TextField } from '../components/form/TextField'
 import { FormError } from '../components/form/FormError'
 
 export const Login = () => {
-    const { saveLoggedUser, token } = useContext(AuthContext)
+    const { login } = useContext(AuthContext)
     const navigate = useNavigate()
     const { state } = useLocation()
-    const pageToRedirectTo: Location = state?.from ?? '/welcome'
+    const pageToRedirectTo = state?.from ?? '/welcome'
     const {
         register,
         handleSubmit,
@@ -26,15 +26,15 @@ export const Login = () => {
     const onSubmit = (formValues: UsernamePassword) => {
         useLogin(formValues)
             .then(({ user, token }) => {
-                saveLoggedUser(user, token)
+                login(user, token, state?.from)
             })
             .catch(() => {
                 setError('root', { type: 'value', message: 'Invalid credentials' })
             })
     }
     useEffect(() => {
-        if (token) navigate(pageToRedirectTo, { replace: true })
-    }, [token])
+        if (localStorage.getItem('token')) navigate(pageToRedirectTo, { replace: true })
+    }, [])
 
     return (
         <div className='formCenterWrapper'>

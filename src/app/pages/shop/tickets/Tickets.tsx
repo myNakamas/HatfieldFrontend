@@ -6,20 +6,24 @@ import { CreateTicket, Ticket } from '../../../models/interfaces/ticket'
 import { useQuery, useQueryClient } from 'react-query'
 import { PageRequest } from '../../../models/interfaces/generalModels'
 import { createTicket, fetchAllTickets } from '../../../axios/http/ticketRequests'
-import { AddTicket } from '../../../components/modals/AddTicket'
+import { AddTicket } from '../../../components/modals/ticket/AddTicket'
 import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../../../components/modals/ToastProps'
 import dateFormat from 'dateformat'
-import { ViewTicket } from '../../../components/modals/ViewTicket'
+import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
 import { Pagination } from '../../../components/table/Pagination'
 
 export const Tickets = () => {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [showNewModal, setShowNewModal] = useState(false)
-    const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
+    const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 0 })
 
     const queryClient = useQueryClient()
-    const { data, isSuccess } = useQuery(['tickets', page], () => fetchAllTickets({ page }))
+    const { data, isSuccess } = useQuery(['tickets', page], () => fetchAllTickets({ page }), {
+        onSuccess: (data) => {
+            setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
+        },
+    })
     const onSubmit = (formValue: CreateTicket) => {
         return toast
             .promise(createTicket({ ticket: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)

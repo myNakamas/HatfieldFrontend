@@ -1,6 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useContext, useState } from 'react'
-import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
 import { AuthContext } from '../../contexts/AuthContext'
 import { ButtonProps } from '../../models/interfaces/generalModels'
 import { Button } from '../../components/form/Button'
@@ -13,6 +12,7 @@ import { changeProfilePicture, getProfilePicture, updateYourProfile } from '../.
 import { toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { toast } from 'react-toastify'
 import { useQuery, useQueryClient } from 'react-query'
+import { ProfileImage } from '../../components/user/ProfileImage'
 
 export const Profile = () => {
     const { loggedUser, setLoggedUser } = useContext(AuthContext)
@@ -33,7 +33,7 @@ export const Profile = () => {
             await queryClient.invalidateQueries(['profileImg', loggedUser?.userId])
         }
     }
-    let { data: profileImg } = useQuery(['profileImg', loggedUser?.userId], () =>
+    const { data: profileImg } = useQuery(['profileImg', loggedUser?.userId], () =>
         getProfilePicture({ id: loggedUser?.userId ?? '' })
     )
 
@@ -53,11 +53,7 @@ export const Profile = () => {
             <div className='card'>
                 <div className='flex-100 justify-start '>
                     <div className='icon-xxl'>
-                        {profileImg ? (
-                            <img alt='Profile image' src={URL.createObjectURL(profileImg)} />
-                        ) : (
-                            <FontAwesomeIcon size='lg' icon={faUser} />
-                        )}
+                        <ProfileImage profileImg={profileImg} />
                     </div>
                     <div className='p-2 profileDesc'>
                         <p>Personalize your account with a photo:</p>

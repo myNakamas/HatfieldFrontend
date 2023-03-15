@@ -13,8 +13,8 @@ export const Button = (button: ButtonProps) => {
 
 export const EditButton = ({ onClick }: { onClick: () => void }) => {
     return (
-        <button className='iconButton'>
-            <FontAwesomeIcon icon={faPenToSquare} size={'lg'} onClick={onClick} />
+        <button className='iconButton' onClick={onClick}>
+            <FontAwesomeIcon icon={faPenToSquare} size={'lg'} />
         </button>
     )
 }

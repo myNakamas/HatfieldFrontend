@@ -11,6 +11,11 @@ export const createTicket = ({ ticket }: { ticket: CreateTicket }): Promise<numb
     const body = { ...ticket, deadline }
     return backendClient.post('ticket', body)
 }
+export const updateTicket = ({ id, ticket }: { id: number; ticket: CreateTicket }): Promise<number> => {
+    const deadline = new Date(ticket.deadline).toISOString()
+    const body = { ...ticket, deadline }
+    return backendClient.put('ticket/update/' + id, body)
+}
 
 export const fetchChat = ({ userId }: { userId: string }): Promise<ChatMessage[]> => {
     return backendClient.get('chat/all', { params: { userId } })

@@ -7,7 +7,7 @@ export interface AuthContextData {
     loggedUser?: User
     token?: string
     setLoggedUser: React.Dispatch<React.SetStateAction<User | undefined>>
-    saveLoggedUser: (user: User, token: string) => void
+    login: (user: User, token: string, pageToRedirectTo?: string) => void
     isLoggedIn: () => boolean
     logout: () => void
 }
@@ -30,10 +30,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return !!localStorage.getItem('token')
     }
 
-    const saveLoggedUser = (user: User, token: string) => {
+    const login = (user: User, token: string, pageToRedirectTo?: string) => {
         setLoggedUser(user)
         setToken(token)
         localStorage.setItem('token', token)
+        navigate(pageToRedirectTo ?? '/welcome', { replace: true })
     }
 
     useEffect(() => {
@@ -47,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     document.addEventListener('session_expired', () => logout())
 
     return (
-        <AuthContext.Provider value={{ loggedUser, setLoggedUser, saveLoggedUser, isLoggedIn, logout, token }}>
+        <AuthContext.Provider value={{ loggedUser, setLoggedUser, login: login, isLoggedIn, logout, token }}>
             {children}
         </AuthContext.Provider>
     )

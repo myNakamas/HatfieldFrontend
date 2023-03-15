@@ -54,10 +54,29 @@
 
   .card {
     border-radius: 5px;
-    background-color: var(--backgroundColor10);
+    border: 2px solid var(--backgroundColor10);
+    background: none;
     color: var(--textPrimary);
     margin-bottom: 20px;
     padding: 10px;
+    margin-right: 5px;
+  }
+
+  .field {
+    margin: 5px;
+    justify-content: space-between;
+    width: auto;
+    border-bottom: 1px dashed var(--backgroundColor20);
+  }
+
+  .ticketActions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+
+    button {
+      margin-left: 10px;
+    }
   }
 }
 
@@ -160,7 +179,7 @@
   width: 100%;
   justify-content: right;
   align-items: center;
-  padding-bottom: 20px;
+  padding-bottom: 10px;
 }
 
 .colorSample {
@@ -179,6 +198,7 @@
   @media (max-width: 800px) {
     grid-template-columns: repeat(1, 90%);
   }
+  margin-bottom: 10px;
 
 }
 
@@ -210,6 +230,7 @@
   .rdtPicker {
     background-color: var(--backgroundColor) !important;
     color: var(--textPrimary) !important;
+    border-radius: 5px;
 
     td.rdtDay:hover,
     td.rdtHour:hover,
@@ -225,9 +246,22 @@
   }
 }
 
-//.rdtCounter{
-//  {
-//  background-color: var(--backgroundColor20) !important;
-//
-//}
-//}
+.dateTimeFilter {
+  text-align: left;
+  display: flex;
+  align-items: baseline;
+
+  .input {
+    width: 200px;
+    font-size: 1rem;
+    padding: 10px 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    border: none;
+    box-sizing: border-box;
+  }
+
+  .rdt {
+    margin: 0 10px;
+  }
+}
