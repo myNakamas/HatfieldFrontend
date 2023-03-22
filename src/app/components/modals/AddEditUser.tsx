@@ -1,20 +1,22 @@
-import { AppModal } from './AppModal';
-import { User } from '../../models/interfaces/user';
-import { Controller, FieldError, useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup';
-import { ObjectSchema } from 'yup';
-import { TextField } from '../form/TextField';
-import { UserRolesArray } from '../../models/enums/userEnums';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle';
-import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
-import { FormError } from '../form/FormError';
-import Select from 'react-select';
-import { FormField } from '../form/Field';
-import { SelectTheme } from '../../styles/components/stylesTS';
-import { useQuery } from 'react-query';
-import { getAllShops } from '../../axios/http/shopRequests';
-import { Shop } from '../../models/interfaces/shop';
+import { AppModal } from './AppModal'
+import { User } from '../../models/interfaces/user'
+import { Controller, FieldError, useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { ObjectSchema } from 'yup'
+import { TextField } from '../form/TextField'
+import { UserRolesArray } from '../../models/enums/userEnums'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle'
+import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
+import { FormError } from '../form/FormError'
+import Select from 'react-select'
+import { FormField } from '../form/Field'
+import { SelectTheme } from '../../styles/components/stylesTS'
+import { useQuery } from 'react-query'
+import { getAllShops } from '../../axios/http/shopRequests'
+import { Shop } from '../../models/interfaces/shop'
+import { useContext } from 'react'
+import { AuthContext } from '../../contexts/AuthContext'
 
 export const AddEditUser = ({
     isModalOpen,
@@ -40,7 +42,8 @@ export const AddEditUser = ({
         setValue,
         getValues,
         setError,
-    } = useForm<User>({ resolver: yupResolver(validateSchema), defaultValues: { ...user, password: '' } })
+    } = useForm<User>({ resolver: yupResolver(validateSchema), defaultValues: user })
+    const { loggedUser } = useContext(AuthContext)
     const { data: shops } = useQuery('shops', getAllShops)
 
     return (
@@ -92,7 +95,7 @@ export const AddEditUser = ({
                         />
                     )
                 })}
-                {variation === 'FULL' ? (
+                {variation === 'FULL' && (
                     <>
                         <Controller
                             control={control}
@@ -134,7 +137,35 @@ export const AddEditUser = ({
                             )}
                         />
                     </>
-                ) : (
+                )}
+                {variation === 'CREATE' && (
+                    <>
+                        <FormField label='Shop'>
+                            <input
+                                className='input'
+                                value={shops?.find((shop) => shop.id === loggedUser?.shopId)?.shopName}
+                                readOnly
+                            />
+                        </FormField>
+                        <Controller
+                            control={control}
+                            name='role'
+                            render={({ field, fieldState }) => (
+                                <FormField error={fieldState.error} label='Role'>
+                                    <Select
+                                        theme={SelectTheme}
+                                        options={UserRolesArray}
+                                        getOptionLabel={({ value }) => value}
+                                        getOptionValue={({ value }) => value}
+                                        placeholder=''
+                                        onChange={(item) => field.onChange(item?.value)}
+                                    />
+                                </FormField>
+                            )}
+                        />
+                    </>
+                )}
+                {variation === 'PARTIAL' && (
                     <TextField
                         register={register('password')}
                         error={errors.password}
@@ -149,7 +180,9 @@ export const AddEditUser = ({
                     <button type='submit' className='successButton'>
                         Submit
                     </button>
-                    <button className='cancelButton'>Cancel</button>
+                    <button className='cancelButton' type='button' onClick={closeModal}>
+                        Cancel
+                    </button>
                 </div>
             </form>
         </AppModal>

@@ -1,19 +1,19 @@
-import React, { useContext, useEffect } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
-import { getShopById, updateShop } from '../../axios/http/shopRequests';
-import { useParams } from 'react-router-dom';
-import { Shop, ShopSettingsModel } from '../../models/interfaces/shop';
-import { Controller, useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup';
-import { ShopSchema } from '../../models/validators/FormValidators';
-import { TextField } from '../../components/form/TextField';
-import { HexColorPicker } from 'react-colorful';
-import { FormField } from '../../components/form/Field';
-import { CustomSuspense } from '../../components/CustomSuspense';
-import { ThemeContext } from '../../contexts/ThemeContext';
-import { toast } from 'react-toastify';
-import { FormError } from '../../components/form/FormError';
-import { toastProps } from '../../components/modals/ToastProps';
+import React, { useContext, useEffect } from 'react'
+import { useQuery, useQueryClient } from 'react-query'
+import { getShopById, updateShop } from '../../axios/http/shopRequests'
+import { useParams } from 'react-router-dom'
+import { Shop, ShopSettingsModel } from '../../models/interfaces/shop'
+import { Controller, useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { ShopSchema } from '../../models/validators/FormValidators'
+import { TextField } from '../../components/form/TextField'
+import { HexColorPicker } from 'react-colorful'
+import { FormField } from '../../components/form/Field'
+import { CustomSuspense } from '../../components/CustomSuspense'
+import { ThemeContext } from '../../contexts/ThemeContext'
+import { toast } from 'react-toastify'
+import { FormError } from '../../components/form/FormError'
+import { toastProps } from '../../components/modals/ToastProps'
 
 export const ShopView = () => {
     const { id } = useParams()
@@ -85,40 +85,45 @@ export const ShopView = () => {
                     </div>
 
                     <h3>Shop Colors</h3>
-                    <div className='card flex justify-around'>
-                        <Controller
-                            control={control}
-                            name='shopSettingsView.primaryColor'
-                            render={({ field, fieldState }) => (
-                                <FormField label={'Primary color of the shop'} error={fieldState.error}>
-                                    <HexColorPicker
-                                        defaultValue={colors?.primaryColor}
-                                        color={field.value}
-                                        onChange={(color) => {
-                                            if (primaryColorSample) primaryColorSample.style.backgroundColor = color
-                                            field.onChange(color)
-                                        }}
-                                    />
-                                    <input className='input' onChange={field.onChange} value={field.value ?? ''} />
-                                </FormField>
-                            )}
-                        />
-                        <Controller
-                            control={control}
-                            name='shopSettingsView.secondaryColor'
-                            render={({ field, fieldState }) => (
-                                <FormField label={'Secondary color of the shop'} error={fieldState.error}>
-                                    <HexColorPicker
-                                        color={field.value}
-                                        onChange={(color) => {
-                                            if (secondaryColorSample) secondaryColorSample.style.backgroundColor = color
-                                            field.onChange(color)
-                                        }}
-                                    />
-                                    <input className='input' onChange={field.onChange} value={field.value ?? ''} />
-                                </FormField>
-                            )}
-                        />
+                    <div className='colors'>
+                        <div>
+                            <Controller
+                                control={control}
+                                name='shopSettingsView.primaryColor'
+                                render={({ field, fieldState }) => (
+                                    <FormField label={'Primary color of the shop'} error={fieldState.error}>
+                                        <HexColorPicker
+                                            color={field.value}
+                                            onChange={(color) => {
+                                                if (primaryColorSample) primaryColorSample.style.backgroundColor = color
+                                                field.onChange(color)
+                                            }}
+                                        />
+                                        <input className='input' onChange={field.onChange} value={field.value ?? ''} />
+                                    </FormField>
+                                )}
+                            />
+                        </div>
+                        <div>
+                            <Controller
+                                control={control}
+                                name='shopSettingsView.secondaryColor'
+                                render={({ field, fieldState }) => (
+                                    <FormField label={'Secondary color of the shop'} error={fieldState.error}>
+                                        <HexColorPicker
+                                            color={field.value}
+                                            onChange={(color) => {
+                                                if (secondaryColorSample)
+                                                    secondaryColorSample.style.backgroundColor = color
+                                                field.onChange(color)
+                                            }}
+                                        />
+                                        <input className='input' onChange={field.onChange} value={field.value ?? ''} />
+                                    </FormField>
+                                )}
+                            />
+                        </div>
+
                         <div>
                             <h4>Color sample:</h4>
                             <div id='primaryColorSample' className='colorSample' />

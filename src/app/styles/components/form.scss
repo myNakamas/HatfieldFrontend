@@ -10,28 +10,76 @@
   border-radius: 5px;
   background-color: var(--backgroundColor10);
   margin-bottom: 20px;
-  padding:30px;
-  .field{
+  padding: 30px;
+
+  .field {
     display: flex;
     justify-content: space-around;
     width: 100%;
   }
 }
-.button{
+
+.button {
   border-radius: 5px;
   border: none;
   font-weight: bold;
   cursor: pointer;
 }
-.actionButton{
+
+.actionButton {
   @extend .button;
   padding: 10px 20px;
   background-color: var(--secondaryColor);
   margin-right: 10px;
 }
+
+.iconButton {
+  @extend .button;
+  width: 40px;
+  height: 40px;
+  background-color: var(--secondaryColor);
+  border-radius: 5px;
+}
+
 .field {
   margin-bottom: 10px;
 }
+
+.viewModal {
+  text-align: left;
+
+  h4 {
+    margin-bottom: 5px;
+  }
+
+  .card {
+    border-radius: 5px;
+    border: 2px solid var(--backgroundColor10);
+    background: none;
+    color: var(--textPrimary);
+    margin-bottom: 20px;
+    padding: 10px;
+    margin-right: 5px;
+  }
+
+  .field {
+    margin: 5px;
+    justify-content: space-between;
+    width: auto;
+    border-bottom: 1px dashed var(--backgroundColor20);
+  }
+
+  .ticketActions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+
+    button {
+      margin-left: 10px;
+    }
+  }
+}
+
 
 .form {
   .textField {
@@ -47,6 +95,22 @@
     border: none;
     box-sizing: border-box;
   }
+
+  .textArea {
+    @extend .input;
+    max-width: 100%;
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  }
+
+  .abs-icon {
+    position: absolute;
+    top: 0;
+    right: 30px;
+  }
+}
+
+.mic-on {
+  background-color: var(--primaryColor);
 }
 
 .loginForm {
@@ -60,6 +124,9 @@
   justify-content: center;
   justify-items: center;
   width: 30%;
+  @media (max-width: 700px) {
+    width: 100%;
+  }
 
   .button {
     @extend .button;
@@ -102,14 +169,99 @@
   background-color: #313131;
   color: #fff;
 }
-.textFormLabel{
+
+.textFormLabel {
   font-size: 18px;
 }
 
-.colorSample{
+.buttonFooter {
+  display: flex;
+  width: 100%;
+  justify-content: right;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+.colorSample {
   width: 60px;
   height: 40px;
   border: 1px solid var(--textPrimary);
   border-radius: 10px;
   margin: 10px auto;
+}
+
+.filterRow {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(auto-fill, 300px);
+  width: 100%;
+  @media (max-width: 800px) {
+    grid-template-columns: repeat(1, 90%);
+  }
+  margin-bottom: 10px;
+
+}
+
+
+.search {
+  display: flex;
+  align-items: center;
+
+  input {
+    width: 300px;
+    font-size: 1rem;
+    padding: 10px 30px 10px 10px;
+    border-radius: 5px;
+    border: none;
+    box-sizing: border-box;
+  }
+
+  .icon {
+    position: relative;
+    right: 30px;
+  }
+}
+
+.rdt {
+  .form-control {
+    @extend .input
+  }
+
+  .rdtPicker {
+    background-color: var(--backgroundColor) !important;
+    color: var(--textPrimary) !important;
+    border-radius: 5px;
+
+    td.rdtDay:hover,
+    td.rdtHour:hover,
+    td.rdtMinute:hover,
+    td.rdtSecond:hover,
+    .rdtTimeToggle:hover,
+    .rdtBtn:hover,
+    thead tr:first-of-type th:hover,
+    td.rdtMonth:hover, td.rdtYear:hover {
+      background-color: var(--backgroundColor20) !important;
+
+    }
+  }
+}
+
+.dateTimeFilter {
+  text-align: left;
+  display: flex;
+  align-items: baseline;
+
+  .input {
+    width: 200px;
+    font-size: 1rem;
+    padding: 10px 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    border: none;
+    box-sizing: border-box;
+  }
+
+  .rdt {
+    margin: 0 10px;
+  }
 }

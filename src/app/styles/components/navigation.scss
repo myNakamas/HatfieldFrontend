@@ -80,12 +80,16 @@
   display: block;
 }
 
+.modalContainer {
+  max-height: 80vh;
+}
+
 .ReactModal__Overlay {
   opacity: 0;
   transition: opacity 200ms ease-in-out;
 }
 
-.ReactModal__Overlay--after-open{
+.ReactModal__Overlay--after-open {
   opacity: 1;
 }
 

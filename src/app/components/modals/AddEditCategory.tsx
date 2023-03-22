@@ -1,18 +1,18 @@
-import { Controller, FieldError, useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { CategorySchema } from '../../models/validators/FormValidators';
-import { Category } from '../../models/interfaces/shop';
-import { TextField } from '../form/TextField';
-import { AppModal } from './AppModal';
-import React from 'react';
-import Select from 'react-select';
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS';
-import { ItemTypesArray } from '../../models/enums/shopEnums';
-import { FormField } from '../form/Field';
-import { ItemPropertyView } from '../../models/interfaces/generalModels';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle';
+import { Controller, FieldError, useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { CategorySchema } from '../../models/validators/FormValidators'
+import { Category } from '../../models/interfaces/shop'
+import { TextField } from '../form/TextField'
+import { AppModal } from './AppModal'
+import React from 'react'
+import Select from 'react-select'
+import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
+import { ItemTypesArray } from '../../models/enums/shopEnums'
+import { FormField } from '../form/Field'
+import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle'
 
 export const AddInventoryCategory = ({
     isModalOpen,
@@ -98,12 +98,12 @@ export const AddInventoryCategory = ({
                             onClick={() => setValue('columns', [...getValues('columns'), ''])}
                         />
                     </label>
-                    {   properties?.map((value, index) => displayProperties(value, index))}
+                    {properties?.map((value, index) => displayProperties(value, index))}
                     <div className='flex-100 justify-end'>
                         <button className='successButton' type='submit'>
                             Save
                         </button>
-                        <button className='cancelButton' onClick={closeModal}>
+                        <button className='cancelButton' type='button' onClick={closeModal}>
                             Close
                         </button>
                     </div>

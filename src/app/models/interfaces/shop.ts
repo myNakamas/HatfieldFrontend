@@ -1,11 +1,8 @@
-import { Entity, ItemPropertyView } from './generalModels';
+import { Entity, ItemPropertyView } from './generalModels'
 
 export interface ThemeColors {
     primaryColor: string
     secondaryColor: string
-    secondaryLightColor: string
-    secondaryDarkColor: string
-    textColor: string
 }
 
 export interface ShopSettingsModel extends Entity, ThemeColors {

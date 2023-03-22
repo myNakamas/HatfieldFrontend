@@ -1,26 +1,27 @@
-import { Controller, useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { AddItemInventorySchema } from '../../models/validators/FormValidators';
-import { Category, CreateInventoryItem } from '../../models/interfaces/shop';
-import { addNewItem, getAllBrands, getAllCategories, getAllModels, getShopData } from '../../axios/http/shopRequests';
-import { useQuery, useQueryClient } from 'react-query';
-import { TextField } from '../form/TextField';
-import { FormError } from '../form/FormError';
-import { AppModal } from './AppModal';
-import React, { useEffect, useState } from 'react';
-import Select from 'react-select';
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS';
-import CreatableSelect from 'react-select/creatable';
-import { FormField } from '../form/Field';
-import { ItemPropertyView } from '../../models/interfaces/generalModels';
-import { toast } from 'react-toastify';
+import { Controller, useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { AddItemInventorySchema } from '../../models/validators/FormValidators'
+import { Category, CreateInventoryItem } from '../../models/interfaces/shop'
+import { addNewItem, getAllBrands, getAllCategories, getAllModels, getShopData } from '../../axios/http/shopRequests'
+import { useQuery, useQueryClient } from 'react-query'
+import { TextField } from '../form/TextField'
+import { FormError } from '../form/FormError'
+import { AppModal } from './AppModal'
+import React, { useEffect, useState } from 'react'
+import Select from 'react-select'
+import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
+import CreatableSelect from 'react-select/creatable'
+import { FormField } from '../form/Field'
+import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { toast } from 'react-toastify'
+import { toastProps } from './ToastProps'
 
 export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
     const queryClient = useQueryClient()
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: categories } = useQuery('categories', getAllCategories)
-    const { data: shop } = useQuery('shop', getShopData)
+    const { data: shop } = useQuery(['shopItems'], getShopData)
     const [columns, setColumns] = useState<string[]>()
     const {
         control,
@@ -41,13 +42,13 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                     addNewItem({ item })
                         .then((value) => {
                             closeModal()
-                            queryClient.invalidateQueries('shopItem').then()
+                            queryClient.invalidateQueries(['shopItems']).then()
                         })
                         .catch((error) => {
                             setError('root', error)
                         }),
                     { pending: 'Sending', success: 'Done', error: 'Failed to create a new item' },
-                    { position: 'top-right' }
+                    toastProps
                 )
                 .then()
         } else {
@@ -141,7 +142,7 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                     <button className='successButton' type='submit'>
                         Create
                     </button>
-                    <button className='cancelButton' onClick={closeModal}>
+                    <button className='cancelButton' type='button' onClick={closeModal}>
                         Close
                     </button>
                 </div>

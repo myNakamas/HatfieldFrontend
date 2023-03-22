@@ -1,7 +1,7 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode } from 'react'
 
 interface CustomTableProps<T> {
-    headers: string[]
+    headers?: string[]
     onClick?: (value: T) => void
     data: any[]
 }
@@ -18,7 +18,11 @@ export const CustomTable = <T,>({ data, onClick }: CustomTableProps<T>) => {
             </thead>
             <tbody>
                 {data.map((row, rowIndex) => (
-                    <tr key={`row.${rowIndex}`} className={onClick && 'clickable'} onClick={() => onClick && onClick(row)}>
+                    <tr
+                        key={`row.${rowIndex}`}
+                        className={onClick && 'clickable'}
+                        onClick={() => onClick && onClick(row)}
+                    >
                         {Object.entries(row).map(([, value], index) => (
                             <td key={`cell.${rowIndex}.${index}`}>{value as ReactNode}</td>
                         ))}

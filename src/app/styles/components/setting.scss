@@ -1,8 +1,9 @@
 .setting {
   background-color: var(--backgroundColor);
-  padding: 20px;
   flex-grow: 1;
   text-align: left;
+  max-width: 80%;
+  margin: auto;
 
   .card {
     border-radius: 5px;
@@ -46,10 +47,32 @@
       color: var(--textPrimary);
       align-items: center;
       justify-content: space-between;
-      .button{
+
+      .button {
         padding: 10px;
       }
     }
+
   }
 
+}
+
+.colors {
+  @extend .card;
+  place-content: center;
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(auto-fill, 300px);
+  width: 100%;
+
+  .input {
+    max-width: 200px;
+  }
+
+  .w-100 {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+  }
 }
