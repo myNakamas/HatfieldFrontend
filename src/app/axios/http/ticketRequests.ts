@@ -1,9 +1,11 @@
-import { Page, PageRequest } from '../../models/interfaces/generalModels'
-import backendClient from '../backendClient'
-import { ChatMessage, CreateTicket, Ticket } from '../../models/interfaces/ticket'
+import { Page, PageRequest } from '../../models/interfaces/generalModels';
+import backendClient from '../backendClient';
+import { ChatMessage, CreateTicket, Ticket } from '../../models/interfaces/ticket';
+import { TicketFilter } from '../../models/interfaces/filters';
 
-export const fetchAllTickets = ({ page }: { page: PageRequest }): Promise<Page<Ticket>> => {
-    return backendClient.get('ticket/all', { params: page })
+export const fetchAllTickets = ({ page,filter }: { page: PageRequest,filter:TicketFilter }): Promise<Page<Ticket>> => {
+    const ticketFilter = {...filter, ticketStatuses:filter.ticketStatuses?.join(',')}
+    return backendClient.get('ticket/all', { params: { ...page,...ticketFilter } })
 }
 
 export const createTicket = ({ ticket }: { ticket: CreateTicket }): Promise<number> => {

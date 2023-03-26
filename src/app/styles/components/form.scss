@@ -199,7 +199,6 @@
     grid-template-columns: repeat(1, 90%);
   }
   margin-bottom: 10px;
-
 }
 
 
@@ -250,9 +249,11 @@
   text-align: left;
   display: flex;
   align-items: baseline;
+  flex-wrap: wrap;
+  flex-direction: row;
 
   .input {
-    width: 200px;
+    min-width: 200px;
     font-size: 1rem;
     padding: 10px 10px;
     margin-bottom: 5px;
@@ -263,5 +264,22 @@
 
   .rdt {
     margin: 0 10px;
+  }
+}
+
+.ticketFilter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.filterColumn{
+  display:grid;
+  grid-gap: 5px;
+  min-width: 300px;
+  h4{
+    margin:5px;
   }
 }

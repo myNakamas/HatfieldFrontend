@@ -1,6 +1,6 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass'
-import { Filter } from '../../models/interfaces/generalModels'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass';
+import { Filter } from '../../models/interfaces/filters';
 
 export const SearchComponent = ({ filter, setFilter }: { filter: Filter; setFilter: (value: Filter) => void }) => {
     const onChange = (value: string) => {

@@ -1,12 +1,12 @@
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
-import { InventoryFilter } from '../../models/interfaces/generalModels'
-import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
-import { Shop } from '../../models/interfaces/shop'
-import React, { useState } from 'react'
-import { useQuery } from 'react-query'
-import { getAllShops } from '../../axios/http/shopRequests'
-import { DateTimeFilter } from '../../components/filters/DateTimeFilter'
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
+import { InventoryFilter } from '../../models/interfaces/filters';
+import Select from 'react-select';
+import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS';
+import { Shop } from '../../models/interfaces/shop';
+import React, { useState } from 'react';
+import { useQuery } from 'react-query';
+import { getAllShops } from '../../axios/http/shopRequests';
+import { DateTimeFilter } from '../../components/filters/DateTimeFilter';
 
 export const Dashboard = () => {
     const [filter, setFilter] = useState<InventoryFilter>({})

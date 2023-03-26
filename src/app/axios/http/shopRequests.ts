@@ -1,6 +1,7 @@
-import backendClient from '../backendClient'
-import { InventoryFilter, ItemPropertyView, Page, PageRequest } from '../../models/interfaces/generalModels'
-import { Category, CreateInventoryItem, InventoryItem, Shop } from '../../models/interfaces/shop'
+import backendClient from '../backendClient';
+import { ItemPropertyView, Page, PageRequest } from '../../models/interfaces/generalModels';
+import { InventoryFilter } from '../../models/interfaces/filters';
+import { Category, CreateInventoryItem, InventoryItem, Shop } from '../../models/interfaces/shop';
 
 export const getAllShops = (): Promise<Shop[]> => {
     return backendClient.get('shop/admin/all')

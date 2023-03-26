@@ -1,18 +1,19 @@
-import React, { useContext, useState } from 'react'
-import { useQuery } from 'react-query'
-import { getAllBrands, getAllCategories, getAllModels, useGetShopItems } from '../../axios/http/shopRequests'
-import { InventoryFilter, ItemPropertyView, PageRequest } from '../../models/interfaces/generalModels'
-import { CustomTable } from '../../components/table/CustomTable'
-import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { AddInventoryItem } from '../../components/modals/AddInventoryItem'
-import { Category, InventoryItem } from '../../models/interfaces/shop'
-import { ViewInventoryItem } from '../../components/modals/ViewInventoryItem'
-import { useNavigate } from 'react-router-dom'
-import { Pagination } from '../../components/table/Pagination'
-import { SearchComponent } from '../../components/filters/SearchComponent'
-import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
-import { AuthContext } from '../../contexts/AuthContext'
+import React, { useContext, useState } from 'react';
+import { useQuery } from 'react-query';
+import { getAllBrands, getAllCategories, getAllModels, useGetShopItems } from '../../axios/http/shopRequests';
+import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalModels';
+import { InventoryFilter } from '../../models/interfaces/filters';
+import { CustomTable } from '../../components/table/CustomTable';
+import { NoDataComponent } from '../../components/table/NoDataComponent';
+import { AddInventoryItem } from '../../components/modals/AddInventoryItem';
+import { Category, InventoryItem } from '../../models/interfaces/shop';
+import { ViewInventoryItem } from '../../components/modals/ViewInventoryItem';
+import { useNavigate } from 'react-router-dom';
+import { Pagination } from '../../components/table/Pagination';
+import { SearchComponent } from '../../components/filters/SearchComponent';
+import Select from 'react-select';
+import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS';
+import { AuthContext } from '../../contexts/AuthContext';
 
 export const Inventory = () => {
     const [selectedItem, setSelectedItem] = useState<InventoryItem>()
