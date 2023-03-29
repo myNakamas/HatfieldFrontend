@@ -2,36 +2,39 @@ import { stompClient } from '../../../axios/websocketClient'
 import { useContext, useEffect, useState } from 'react'
 import { Discuss } from 'react-loader-spinner'
 import { sendMessage, sendMessageSeen } from '../../../axios/websocket/chat'
-import { Chat, ChatMessage, CreateChatMessage } from '../../../models/interfaces/ticket'
+import { Chat, ChatMessage, CreateChatMessage, Ticket } from '../../../models/interfaces/ticket'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { User } from '../../../models/interfaces/user'
 import { useQuery } from 'react-query'
 import { getAllUsers } from '../../../axios/http/userRequests'
 import { MenuHeader } from '@szhsin/react-menu'
 import { WebSocketContext } from '../../../contexts/WebSocketContext'
-import { fetchChat } from '../../../axios/http/ticketRequests'
+import { fetchAllTickets, fetchChat } from '../../../axios/http/ticketRequests'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons/faPaperPlane'
 import dateFormat from 'dateformat'
 import { faArrowRight, faCheckDouble, faCircleCheck, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { dateTimeMask } from '../../../models/enums/appEnums'
 
 export const Chats = () => {
     const { loggedUser } = useContext(AuthContext)
-    const [selectedReceiver, setSelectedReceiver] = useState<User>()
+    const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const { data: users } = useQuery(['users'], () => getAllUsers({}))
+    const page = { page: 0, pageSize: 10 }
+    const { data: tickets } = useQuery(['tickets', page], () => fetchAllTickets({ page, filter: {} }))
     // const { data: tasks } = useQuery('tasks', fetchAllTickets)
 
     const { userChats, setUserChats, unsentMessages, setUnsentMessages } = useContext(WebSocketContext)
     const [chat, setChat] = useState<Chat | undefined>()
     const { data: oldMessages } = useQuery(
-        ['messages', selectedReceiver?.userId],
-        () => fetchChat({ userId: selectedReceiver?.userId ?? '' }),
+        ['messages', selectedTicket?.client],
+        () => fetchChat({ userId: selectedTicket?.client?.userId ?? '' }),
         {
-            enabled: !!selectedReceiver?.userId,
+            enabled: !!selectedTicket?.client?.userId,
             onSuccess: (data) => {
-                if (selectedReceiver?.userId) {
+                if (selectedTicket?.client?.userId) {
                     setUserChats((prevState) => {
-                        prevState[selectedReceiver?.userId] = []
+                        prevState[selectedTicket?.client?.userId] = []
                         return { ...prevState }
                     })
                     setUnsentMessages((prevState) => {
@@ -50,16 +53,16 @@ export const Chats = () => {
     const [messageText, setMessageText] = useState('')
 
     useEffect(() => {
-        if (selectedReceiver) {
-            const userMessages = userChats[selectedReceiver.userId] ?? []
+        if (selectedTicket) {
+            const userMessages = selectedTicket?.client?.userId ? userChats[selectedTicket.client.userId] ?? [] : []
             const old = oldMessages ?? []
             const messagesByUser = [...old, ...userMessages, ...unsentMessages].sort(
                 (a, b) => +new Date(b.timestamp) - +new Date(a.timestamp)
             )
-            const receiver = users?.find((user) => user.userId === selectedReceiver.userId)
+            const receiver = users?.find((user) => user.userId === selectedTicket?.client?.userId)
             setChat({ chat: messagesByUser, receiver, sender: loggedUser } as Chat)
         }
-    }, [selectedReceiver, userChats, unsentMessages, oldMessages])
+    }, [selectedTicket, userChats, unsentMessages, oldMessages])
 
     const send = async (messageText: string, loggedUser: User, selectedReceiver: User) => {
         const message: CreateChatMessage = {
@@ -81,7 +84,36 @@ export const Chats = () => {
     return (
         <div className='mainScreen'>
             <div className='flex-100'>
-                <div className='chatBox'>
+                <div className={'chatContainer'}>
+                    <div className='ticketInfo'>
+                        <TicketChatInfo ticket={selectedTicket} />
+                    </div>
+                    <div className='chatBox'>
+                        {stompClient.connected && selectedTicket?.client?.userId ? (
+                            chat?.chat.map((value, index, array) => (
+                                <ChatMessageRow
+                                    receiver={chat?.receiver}
+                                    sender={chat?.sender}
+                                    key={index}
+                                    message={value}
+                                    isLastMessage={index === 0}
+                                    showUser={!array[index - 1] || array[index - 1].receiver != value.receiver}
+                                />
+                            ))
+                        ) : selectedTicket?.client?.userId ? (
+                            <>
+                                <div className='w-100'>
+                                    <Discuss />
+                                </div>
+                                Loading messages
+                            </>
+                        ) : (
+                            <div className={'w-100'}>
+                                <FontAwesomeIcon icon={faArrowRight} size={'xl'} />
+                                <h4>Please select a ticket to see its chat</h4>
+                            </div>
+                        )}
+                    </div>
                     <div className='messageField'>
                         <input
                             className='input'
@@ -90,60 +122,119 @@ export const Chats = () => {
                             onKeyDown={(e) =>
                                 e.key === 'Enter' &&
                                 loggedUser &&
-                                selectedReceiver &&
+                                selectedTicket &&
                                 messageText.trim().length > 0 &&
-                                send(messageText, loggedUser, selectedReceiver)
+                                send(messageText, loggedUser, selectedTicket.client)
                             }
                             aria-autocomplete='none'
-                            disabled={!selectedReceiver?.userId}
+                            disabled={!selectedTicket?.client?.userId}
                             autoFocus
                         />
                         <button
-                            className={`sendButton icon-s ${selectedReceiver?.userId && 'clickable'}`}
-                            disabled={!stompClient.connected || !selectedReceiver?.userId}
+                            className={`sendButton icon-s ${selectedTicket?.client?.userId && 'clickable'}`}
+                            disabled={!stompClient.connected || !selectedTicket?.client?.userId}
                             onClick={() =>
-                                loggedUser && selectedReceiver && send(messageText, loggedUser, selectedReceiver)
+                                loggedUser && selectedTicket && send(messageText, loggedUser, selectedTicket.client)
                             }
                         >
                             <FontAwesomeIcon size='lg' icon={faPaperPlane} />
                         </button>
                     </div>
-                    {stompClient.connected && selectedReceiver?.userId ? (
-                        chat?.chat.map((value, index, array) => (
-                            <ChatMessageRow
-                                receiver={chat?.receiver}
-                                sender={chat?.sender}
-                                key={index}
-                                message={value}
-                                isLastMessage={index === 0}
-                                showUser={!array[index - 1] || array[index - 1].receiver != value.receiver}
-                            />
-                        ))
-                    ) : selectedReceiver?.userId ? (
-                        <>
-                            <div className='w-100'>
-                                <Discuss />
-                            </div>
-                            Loading messages
-                        </>
-                    ) : (
-                        <div className={'w-100'}>
-                            <FontAwesomeIcon icon={faArrowRight} size={'xl'} />
-                            <h4>Please select a ticket to see its chat</h4>
-                        </div>
-                    )}
                 </div>
+
                 <div className='ticketChatContainer'>
-                    {users &&
-                        users?.map((user, index) => (
-                            <div key={'user' + index} className='clickable ' onClick={() => setSelectedReceiver(user)}>
+                    {tickets &&
+                        tickets?.content.map((ticket, index) => (
+                            <div
+                                key={'user' + index}
+                                className={`clickable ticketThumb ${
+                                    selectedTicket?.id === ticket.id && 'selectedTicket'
+                                } `}
+                                onClick={() => setSelectedTicket(ticket)}
+                            >
                                 <MenuHeader className='menu '>
-                                    <div className='username'>{user?.username}</div>
-                                    <div className='role'>{user?.role}</div>
+                                    <div className='username'>Ticket#{ticket.id}</div>
+                                    <div className='role'>
+                                        {ticket.deviceModel} : {ticket.deviceBrand}
+                                    </div>
+                                    <div className='role'>
+                                        {ticket.client?.username} , {ticket.client?.email}
+                                    </div>
                                 </MenuHeader>
                             </div>
                         ))}
                 </div>
+            </div>
+        </div>
+    )
+}
+
+const TicketChatInfo = ({ ticket }: { ticket: Ticket | undefined }) => {
+    if (!ticket) return <></>
+    //todo: keep only the important information and add a button to open the full modal
+    return (
+        <div className='flex-100'>
+            <div className='column'>
+                <div>
+                    <h2>Ticket #{ticket.id}</h2>
+                </div>
+                <div>
+                    <b>Ticket status</b> {ticket.status}
+                </div>
+                <div>
+                    <b>Current Location</b> {ticket.deviceLocation}
+                </div>
+
+                <div>
+                    <b>Created at:</b>
+                    {dateFormat(ticket.timestamp, dateTimeMask)}
+                </div>
+                <div>
+                    <b>Deadline</b>
+                    {dateFormat(ticket.deadline, dateTimeMask)}
+                </div>
+                {ticket.client && (
+                    <div>
+                        <p>
+                            <b>Client</b> {ticket.client.fullName + ' ' + ticket.client.email}
+                        </p>
+                    </div>
+                )}
+                <div className='flex-grow'>
+                    <h3>Device details</h3>
+
+                    <p>
+                        <b>Brand</b> {ticket.deviceBrand}
+                    </p>
+                    <p>
+                        <b>Model</b> {ticket.deviceModel}
+                    </p>
+                    <p>
+                        <b>Serial number / IMEI</b> {ticket.serialNumberOrImei}
+                    </p>
+                    <p>
+                        <b>Device password</b> {ticket.devicePassword}
+                    </p>
+                    <p>
+                        <b>Device condition</b> {ticket.deviceCondition}
+                    </p>
+                </div>
+            </div>
+            <div className='column'>
+                <b>Problem explanation</b>
+                <p>{ticket.problemExplanation}</p>
+                <h3>Payment</h3>
+                <b>Deposit</b>
+                <p>{ticket.deposit?.toFixed(2)}</p>
+                <b>Total price</b>
+                <p>{ticket.totalPrice?.toFixed(2)}</p>
+                <h3>Other information</h3>
+                <b>Customer request</b>
+                <p>{ticket.customerRequest}</p>
+                <b>Additional accessories</b>
+                <p>{ticket.accessories}</p>
+                <b>Notes</b>
+                <p>{ticket.notes}</p>
             </div>
         </div>
     )

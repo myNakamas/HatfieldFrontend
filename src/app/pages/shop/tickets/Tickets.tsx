@@ -1,27 +1,27 @@
-import { CustomSuspense } from '../../../components/CustomSuspense';
-import { CustomTable } from '../../../components/table/CustomTable';
-import { NoDataComponent } from '../../../components/table/NoDataComponent';
-import React, { useState } from 'react';
-import { CreateTicket, Ticket } from '../../../models/interfaces/ticket';
-import { useQuery, useQueryClient } from 'react-query';
-import { ItemPropertyView, PageRequest } from '../../../models/interfaces/generalModels';
-import { createTicket, fetchAllTickets } from '../../../axios/http/ticketRequests';
-import { AddTicket } from '../../../components/modals/ticket/AddTicket';
-import { toast } from 'react-toastify';
-import { toastCreatePromiseTemplate, toastProps } from '../../../components/modals/ToastProps';
-import dateFormat from 'dateformat';
-import { ViewTicket } from '../../../components/modals/ticket/ViewTicket';
-import { Pagination } from '../../../components/table/Pagination';
-import { TicketFilter } from '../../../models/interfaces/filters';
-import { getAllBrands, getAllModels, getAllShops } from '../../../axios/http/shopRequests';
-import { SearchComponent } from '../../../components/filters/SearchComponent';
-import Select from 'react-select';
-import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS';
-import { Shop } from '../../../models/interfaces/shop';
-import { User } from '../../../models/interfaces/user';
-import { getAllClients, getAllWorkers } from '../../../axios/http/userRequests';
-import { DateTimeFilter } from '../../../components/filters/DateTimeFilter';
-import { TicketStatus, TicketStatusesArray } from '../../../models/enums/ticketEnums';
+import { CustomSuspense } from '../../../components/CustomSuspense'
+import { CustomTable } from '../../../components/table/CustomTable'
+import { NoDataComponent } from '../../../components/table/NoDataComponent'
+import React, { useState } from 'react'
+import { CreateTicket, Ticket } from '../../../models/interfaces/ticket'
+import { useQuery, useQueryClient } from 'react-query'
+import { ItemPropertyView, Page, PageRequest } from '../../../models/interfaces/generalModels'
+import { createTicket, fetchAllTickets } from '../../../axios/http/ticketRequests'
+import { AddTicket } from '../../../components/modals/ticket/AddTicket'
+import { toast } from 'react-toastify'
+import { toastCreatePromiseTemplate, toastProps } from '../../../components/modals/ToastProps'
+import dateFormat from 'dateformat'
+import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
+import { Pagination } from '../../../components/table/Pagination'
+import { TicketFilter } from '../../../models/interfaces/filters'
+import { getAllBrands, getAllModels, getAllShops } from '../../../axios/http/shopRequests'
+import { SearchComponent } from '../../../components/filters/SearchComponent'
+import Select from 'react-select'
+import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
+import { Shop } from '../../../models/interfaces/shop'
+import { User } from '../../../models/interfaces/user'
+import { getAllClients, getAllWorkers } from '../../../axios/http/userRequests'
+import { DateTimeFilter } from '../../../components/filters/DateTimeFilter'
+import { Tab, TabList, TabPanel, Tabs } from 'react-tabs'
 
 export const Tickets = () => {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
@@ -30,11 +30,24 @@ export const Tickets = () => {
     const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 0 })
 
     const queryClient = useQueryClient()
-    const { data, isSuccess } = useQuery(['tickets', filter, page], () => fetchAllTickets({ page, filter }), {
-        onSuccess: (data) => {
-            setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
-        },
-    })
+    const active = useQuery(
+        ['tickets', { ...filter, ticketStatuses: [] }, page],
+        () => fetchAllTickets({ page, filter }),
+        {
+            onSuccess: (data) => {
+                setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
+            },
+        }
+    )
+    const completed = useQuery(
+        ['tickets', { ...filter, ticketStatuses: [] }, page],
+        () => fetchAllTickets({ page, filter }),
+        {
+            onSuccess: (data) => {
+                setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
+            },
+        }
+    )
     const onSubmit = (formValue: CreateTicket) => {
         return toast
             .promise(createTicket({ ticket: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)
@@ -55,38 +68,65 @@ export const Tickets = () => {
             </div>
 
             {/*todo: display all currently-active tickets on top without pagination*/}
+            <Tabs>
+                <TabList>
+                    <Tab>Active tickets</Tab>
+                    <Tab>Completed tickets</Tab>
+                </TabList>
 
-            <CustomSuspense isReady={isSuccess}>
-                {data?.content && data.content.length > 0 ? (
-                    <>
-                        {/*todo: and display all non-active tickets in the following table with pagination*/}
-                        <div className='tableWrapper'>
-                            <CustomTable<Ticket>
-                                data={data.content.map(
-                                    ({ id, timestamp, deadline, createdBy, client, status, totalPrice }) => ({
-                                        id,
-                                        'creation date': dateFormat(timestamp),
-                                        deadline: deadline ? dateFormat(deadline) : '-',
-                                        status,
-                                        totalPrice,
-                                        createdBy: createdBy?.fullName,
-                                        client: client?.fullName,
-                                    })
-                                )}
-                                onClick={({ id }) =>
-                                    setSelectedTicket(data?.content.find(({ id: ticketId }) => id === ticketId))
-                                }
-                            />
-                        </div>
-                        <Pagination {...{ page, setPage }} pageCount={data.pageCount} />
-                    </>
-                ) : (
-                    <NoDataComponent items='items in inventory' />
-                )}
-            </CustomSuspense>
+                <TabPanel>
+                    <TicketsTab {...{ ...active, setSelectedTicket, page, setPage }} />
+                </TabPanel>
+                <TabPanel>
+                    <TicketsTab {...{ ...completed, setSelectedTicket, page, setPage }} />
+                </TabPanel>
+            </Tabs>
         </div>
     )
 }
+
+const TicketsTab = ({
+    isSuccess,
+    data,
+    setSelectedTicket,
+    page,
+    setPage,
+}: {
+    isSuccess: boolean
+    data?: Page<Ticket>
+    setSelectedTicket: React.Dispatch<React.SetStateAction<Ticket | undefined>>
+    page: PageRequest
+    setPage: React.Dispatch<React.SetStateAction<PageRequest>>
+}) => (
+    <CustomSuspense isReady={isSuccess}>
+        {data?.content && data.content.length > 0 ? (
+            <>
+                {/*todo: and display all non-active tickets in the following table with pagination*/}
+                <div className='tableWrapper'>
+                    <CustomTable<Ticket>
+                        data={data.content.map(
+                            ({ id, timestamp, deadline, createdBy, client, status, totalPrice }) => ({
+                                id,
+                                'creation date': dateFormat(timestamp),
+                                deadline: deadline ? dateFormat(deadline) : '-',
+                                status,
+                                totalPrice,
+                                createdBy: createdBy?.fullName,
+                                client: client?.fullName,
+                            })
+                        )}
+                        onClick={({ id }) =>
+                            setSelectedTicket(data?.content.find(({ id: ticketId }) => id === ticketId))
+                        }
+                    />
+                </div>
+                <Pagination {...{ page, setPage }} pageCount={data.pageCount} />
+            </>
+        ) : (
+            <NoDataComponent items='items in inventory' />
+        )}
+    </CustomSuspense>
+)
 
 const TicketFilters = ({
     filter,
@@ -108,7 +148,7 @@ const TicketFilters = ({
             <div className='filterColumn'>
                 <h4>Filters</h4>
                 <SearchComponent {...{ filter, setFilter }} />
-                <Select<ItemPropertyView, true>
+                {/*                <Select<ItemPropertyView, true>
                     theme={SelectTheme}
                     styles={SelectStyles()}
                     value={filter.ticketStatuses?.map(
@@ -123,7 +163,7 @@ const TicketFilters = ({
                     }
                     getOptionLabel={(status) => status.value}
                     getOptionValue={(status) => String(status.id)}
-                />
+                />*/}
             </div>
             <div className='filterColumn' title={'Device filters'}>
                 <h4>Device filters</h4>
@@ -195,7 +235,7 @@ const TicketFilters = ({
                             ...oldVal,
                             createdAfter: from?.slice(0, 10) ?? oldVal.createdAfter,
                             createdBefore: to?.slice(0, 10) ?? oldVal.createdBefore,
-                        }));
+                        }))
                     }}
                     placeholder={'Created'}
                 />
@@ -206,7 +246,7 @@ const TicketFilters = ({
                             ...oldVal,
                             deadlineAfter: from?.slice(0, 10) ?? oldVal.deadlineAfter,
                             deadlineBefore: to?.slice(0, 10) ?? oldVal.deadlineBefore,
-                        }));
+                        }))
                     }}
                     placeholder={'Deadline'}
                 />

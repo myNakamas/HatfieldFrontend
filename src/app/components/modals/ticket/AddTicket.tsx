@@ -2,6 +2,7 @@ import { AppModal } from '../AppModal'
 import { CreateTicket } from '../../../models/interfaces/ticket'
 import React from 'react'
 import { EditTicketForm } from './EditTicketForm'
+import { defaultTicket } from '../../../models/enums/defaultValues'
 
 export const AddTicket = ({
     isModalOpen,
@@ -16,7 +17,7 @@ export const AddTicket = ({
         <AppModal isModalOpen={isModalOpen} closeModal={closeModal}>
             <h3>Create Ticket</h3>
             <EditTicketForm
-                ticket={{} as CreateTicket}
+                ticket={defaultTicket}
                 onComplete={onComplete}
                 onCancel={() => {
                     closeModal()

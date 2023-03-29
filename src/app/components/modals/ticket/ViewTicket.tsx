@@ -5,19 +5,51 @@ import React, { useState } from 'react'
 import dateFormat from 'dateformat'
 import { EditButton } from '../../form/Button'
 import { EditTicketForm } from './EditTicketForm'
-import { updateTicket } from '../../../axios/http/ticketRequests'
+import { postCompleteTicket, updateTicket } from '../../../axios/http/ticketRequests'
 import { useQueryClient } from 'react-query'
 import { dateTimeMask } from '../../../models/enums/appEnums'
+import CreatableSelect from 'react-select/creatable'
+import { ItemPropertyView } from '../../../models/interfaces/generalModels'
+import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
+import { DeviceLocationArray } from '../../../models/enums/ticketEnums'
+import { toast } from 'react-toastify'
+import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
+import { FormError } from '../../form/FormError'
+import { CollectTicketForm } from './CollectTicketForm'
 
 export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal: () => void }) => {
     const [mode, setMode] = useState('view')
+    const [deviceLocation, setDeviceLocation] = useState('')
+    const [deviceLocationError, setDeviceLocationError] = useState('')
     const queryClient = useQueryClient()
 
     const editTicket = (formValue: CreateTicket) => {
         return updateTicket({ id: ticket?.id ?? -1, ticket: formValue }).then(() => {
-            queryClient.invalidateQueries(['tickets'])
+            queryClient.invalidateQueries(['tickets']).then()
             setMode('view')
         })
+    }
+
+    const completeTicket = (id: number) => {
+        if (!deviceLocation || deviceLocation.trim().length == 0) setDeviceLocationError('New location is required')
+        else {
+            toast
+                .promise(
+                    postCompleteTicket({ id, location: deviceLocation }),
+                    toastUpdatePromiseTemplate('ticket'),
+                    toastProps
+                )
+                .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
+        }
+    }
+    const collectTicket = (invoice: {}, id: number) => {
+        return toast
+            .promise(
+                postCompleteTicket({ id, location: deviceLocation }),
+                toastUpdatePromiseTemplate('ticket'),
+                toastProps
+            )
+            .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
     }
 
     return (
@@ -41,6 +73,13 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                             onCancel={() => setMode('view')}
                         />
                     )}
+                    {mode === 'collect' && (
+                        <CollectTicketForm
+                            onComplete={collectTicket}
+                            ticket={ticket}
+                            onCancel={() => setMode('view')}
+                        />
+                    )}
                     {mode === 'view' && (
                         <div className='viewModal'>
                             <div className='flex-100 justify-around'>
@@ -59,6 +98,12 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                             <div className='card'>
                                 <p>{ticket.problemExplanation}</p>
                             </div>
+                            {ticket.client && (
+                                <div className='card'>
+                                    <h4>Client</h4>
+                                    <p>{ticket.client.fullName + ' ' + ticket.client.email}</p>
+                                </div>
+                            )}
 
                             <div className='flex-100 justify-around'>
                                 <div className='field'>
@@ -107,20 +152,48 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                         <div>Start the repair</div>
                                         <button className='actionButton'>Start repair</button>
                                     </div>
+                                    <div>Complete the repair</div>
                                     <div className='ticketActions'>
-                                        <div>Complete the repair</div>
-                                        <button className='actionButton'>Complete repair</button>
+                                        <CreatableSelect<ItemPropertyView, false>
+                                            isClearable
+                                            theme={SelectTheme}
+                                            styles={SelectStyles<ItemPropertyView>()}
+                                            options={DeviceLocationArray}
+                                            formatCreateLabel={(value) => 'Add a new location: ' + value}
+                                            placeholder='New location'
+                                            value={
+                                                DeviceLocationArray.find(({ value }) => deviceLocation === value) ?? {
+                                                    value: deviceLocation,
+                                                    id: -1,
+                                                }
+                                            }
+                                            onCreateOption={(item) => setDeviceLocation(item)}
+                                            onChange={(newValue) => setDeviceLocation(newValue?.value ?? '')}
+                                            getOptionLabel={(item) => item.value}
+                                            getOptionValue={(item) => item.id + item.value}
+                                        />
+                                        <button className='actionButton' onClick={() => completeTicket(ticket.id)}>
+                                            Complete repair
+                                        </button>
+                                    </div>
+                                    <div className='ticketActions'>
+                                        <FormError error={deviceLocationError} />
+                                    </div>
+                                    <div className='ticketActions'>
+                                        <div>Mark as collected</div>
+                                        <button className='actionButton'>Collected</button>
                                     </div>
                                 </div>
+
                                 <div className='card'>
-                                    <h3>Ticket status</h3>
+                                    <h3>Other actions</h3>
                                     <div className='ticketActions'>
-                                        <div>Start the repair</div>
-                                        <button className='actionButton'>Start repair</button>
+                                        <div>Open the chat with the customer</div>
+                                        <button className='actionButton'>Chat</button>
                                     </div>
                                     <div className='ticketActions'>
-                                        <div>Complete the repair</div>
-                                        <button className='actionButton'>Complete repair</button>
+                                        <div>Show as pdf</div>
+                                        <button className='actionButton'>Print invoice</button>
                                     </div>
                                 </div>
                             </div>

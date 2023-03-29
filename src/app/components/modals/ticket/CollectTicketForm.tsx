@@ -10,20 +10,17 @@ import CreatableSelect from 'react-select/creatable'
 import DateTime from 'react-datetime'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
-import { CreateTicket } from '../../../models/interfaces/ticket'
+import { CreateTicket, Ticket } from '../../../models/interfaces/ticket'
 import { useQuery } from 'react-query'
 import { getAllBrands, getAllModels } from '../../../axios/http/shopRequests'
-import { User } from '../../../models/interfaces/user'
-import { getAllClients } from '../../../axios/http/userRequests'
-import moment from 'moment/moment'
 
-export const EditTicketForm = ({
+export const CollectTicketForm = ({
     ticket,
     onComplete,
     onCancel,
 }: {
-    ticket: CreateTicket
-    onComplete: (ticket: CreateTicket) => Promise<void>
+    ticket: Ticket
+    onComplete: (createInvoice: {}, ticketId: number) => Promise<void>
     onCancel: () => void
 }) => {
     const {
@@ -36,13 +33,12 @@ export const EditTicketForm = ({
     } = useForm<CreateTicket>({ defaultValues: ticket })
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
-    const { data: clients } = useQuery('clients', () => getAllClients({}))
     const [tempText, setTempText] = useState('')
     return (
         <form
             className='modalForm'
             onSubmit={handleSubmit((data) =>
-                onComplete(data).catch((message: string) => {
+                onComplete(data, ticket.id).catch((message: string) => {
                     setError('root', { message })
                 })
             )}
@@ -68,25 +64,6 @@ export const EditTicketForm = ({
                     )}
                 />
 
-                <Controller
-                    control={control}
-                    name={'clientId'}
-                    render={({ field, fieldState }) => (
-                        <FormField label='Client' error={fieldState.error}>
-                            <Select<User, false>
-                                isClearable
-                                theme={SelectTheme}
-                                styles={SelectStyles<User>()}
-                                options={clients}
-                                placeholder='Client'
-                                value={clients?.find(({ userId }) => field.value === userId)}
-                                onChange={(newValue) => field.onChange(newValue?.userId)}
-                                getOptionLabel={(item) => [item.fullName, item.email].join(' ')}
-                                getOptionValue={(item) => item.userId}
-                            />
-                        </FormField>
-                    )}
-                />
                 <Controller
                     control={control}
                     name={'status'}
@@ -143,37 +120,12 @@ export const EditTicketForm = ({
                             render={({ field, fieldState }) => (
                                 <FormField label='Deadline' error={fieldState.error}>
                                     <DateTime
-                                        locale={'uk'}
                                         value={field.value}
                                         onChange={(value) => {
-                                            if (moment.isMoment(value)) field.onChange(value.toDate())
+                                            field.onChange(String(value))
                                         }}
-                                        dateFormat={'DD/MM/yyyy'}
-                                        timeFormat={'HH:mm:s'}
-                                        isValidDate={(currentDate) =>
-                                            currentDate >= moment().subtract(1, 'day').toDate()
-                                        }
+                                        isValidDate={(currentDate) => currentDate > new Date()}
                                     />
-                                    <div className='flex-100 justify-between'>
-                                        <button
-                                            type='button'
-                                            onClick={() => field.onChange(moment().add(30, 'minutes').toDate())}
-                                        >
-                                            30 minutes
-                                        </button>
-                                        <button
-                                            type='button'
-                                            onClick={() => field.onChange(moment().add(1, 'hour').toDate())}
-                                        >
-                                            1 hour
-                                        </button>
-                                        <button
-                                            type='button'
-                                            onClick={() => field.onChange(moment().add(2, 'hours').toDate())}
-                                        >
-                                            2 hours
-                                        </button>
-                                    </div>
                                 </FormField>
                             )}
                         />

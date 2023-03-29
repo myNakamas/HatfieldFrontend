@@ -1,11 +1,9 @@
 .chatBox {
-  flex-grow: 1;
-  height: 89vh;
   overflow-y: scroll;
   display: flex;
   flex-direction: column-reverse;
   padding-right: 10px;
-
+  width: 100%;
 }
 
 .ticketChatContainer {
@@ -76,4 +74,35 @@
     margin: 5px;
     background-color: var(--primaryColor);
   }
+}
+
+.ticketThumb {
+  border-bottom: 1px solid var(--primaryColor);
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.selectedTicket {
+  background-color: var(--primaryColor);
+  opacity: 50%;
+}
+
+.ticketInfo {
+  width: 100%;
+  text-align: left;
+
+  .column {
+    width: 45%;
+    margin-left: 10px;
+  }
+
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.chatContainer {
+  flex-grow: 1;
+  max-height: 89vh;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
