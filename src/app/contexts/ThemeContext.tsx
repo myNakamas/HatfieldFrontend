@@ -35,7 +35,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
             theme={{
                 token: {
                     colorPrimary: colors?.primaryColor ?? 'cyan',
-                    colorFillAlter: colors?.secondaryColor ?? '#5258B1',
+                    colorFill: colors?.secondaryColor ?? '#5258B1',
                 },
                 algorithm: prefersDark ? darkAlgorithm : defaultAlgorithm,
             }}

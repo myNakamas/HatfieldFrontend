@@ -64,8 +64,7 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
         >
             {ticket && (
                 <>
-                    <div className='flex-100 justify-between align-center'>
-                        <h2>Ticket</h2>
+                    <div className='flex-100 justify-end '>
                         {mode !== 'edit' ? (
                             <Button
                                 icon={<FontAwesomeIcon icon={faPenToSquare} size={'lg'} />}
@@ -155,7 +154,7 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
 
 export const TicketDescription = ({ ticket }: { ticket: Ticket }) => {
     return (
-        <Descriptions size='middle' layout='vertical' title={`Ticket#${ticket.id} Info`}>
+        <Descriptions bordered size='small' layout='vertical' title={`Ticket#${ticket.id} Info`}>
             <Descriptions.Item label='Created at'>{dateFormat(ticket.timestamp, dateTimeMask)}</Descriptions.Item>
             <Descriptions.Item label='Deadline'>{dateFormat(ticket.deadline, dateTimeMask)}</Descriptions.Item>
             <Descriptions.Item label='Status'>{ticket.status}</Descriptions.Item>

@@ -7,22 +7,6 @@ thead {
   text-transform: capitalize;
 }
 
-.tableWrapper {
-  overflow-x: auto;
-  max-width: 100vw;
-
-  .table {
-    thead {
-      text-transform: capitalize;
-      background-color: var(--backgroundColor10);
-    }
-
-    .clickable:hover {
-      background-color: var(--backgroundColor20);
-      mix-blend-mode: normal;
-    }
-  }
-}
 
 .button-bar {
   display: flex;

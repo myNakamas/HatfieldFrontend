@@ -1,32 +1,38 @@
-import { useContext } from 'react'
+import React, { useContext } from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { Menu, MenuHeader, MenuItem } from '@szhsin/react-menu'
 import { capitalizeFirst } from '../../utils/helperFunctions'
+import { Dropdown, MenuProps } from 'antd'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCogs, faSignOut } from '@fortawesome/free-solid-svg-icons'
 
 export const ProfileDropdown = () => {
     const { loggedUser, logout } = useContext(AuthContext)
     const navigate = useNavigate()
 
+    const items: MenuProps['items'] = [
+        {
+            label: 'Settings',
+            key: '/settings',
+            icon: <FontAwesomeIcon icon={faCogs} />,
+            onClick: () => navigate('/settings'),
+        },
+        {
+            label: 'Sign out',
+            key: '/logout',
+            icon: <FontAwesomeIcon icon={faSignOut} />,
+            onClick: () => {
+                logout()
+                navigate('/logout')
+            },
+        },
+    ]
     return (
-        <Menu
-            transition
-            menuButton={
-                <MenuHeader className='menu '>
-                    <div className='username'>{capitalizeFirst(loggedUser?.username)}</div>
-                    <div className='role'>{loggedUser?.role}</div>
-                </MenuHeader>
-            }
-        >
-            <MenuItem onClick={() => navigate(`/profile`)}>Settings</MenuItem>
-            <MenuItem
-                onClick={() => {
-                    logout()
-                    navigate(`/login`)
-                }}
-            >
-                Logout
-            </MenuItem>
-        </Menu>
+        <Dropdown menu={{ items }} arrow>
+            <div className='menu '>
+                <div className='username'>{capitalizeFirst(loggedUser?.username)}</div>
+                <div className='role'>{loggedUser?.role}</div>
+            </div>
+        </Dropdown>
     )
 }

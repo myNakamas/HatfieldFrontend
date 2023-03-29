@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHouse } from '@fortawesome/free-solid-svg-icons/faHouse'
 import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
@@ -12,6 +12,8 @@ import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield'
 import { faBuildingUser } from '@fortawesome/free-solid-svg-icons'
 import { Drawer, Menu, MenuProps } from 'antd'
 
+export type MenuItem = Required<MenuProps>['items'][number]
+
 export const SideNavigation = ({
     showNavigation,
     setShowNav,
@@ -20,7 +22,7 @@ export const SideNavigation = ({
     setShowNav: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
     const navigate = useNavigate()
-    type MenuItem = Required<MenuProps>['items'][number]
+    const { pathname } = useLocation()
 
     const items: MenuItem[] = [
         { label: 'Home', key: '/welcome', icon: <FontAwesomeIcon icon={faHouse} /> },
@@ -29,9 +31,9 @@ export const SideNavigation = ({
         { label: 'Users', key: '/users', icon: <FontAwesomeIcon icon={faUserShield} /> },
         { label: 'Shops', key: '/shops', icon: <FontAwesomeIcon icon={faBuildingUser} /> },
         { label: 'Clients', key: '/clients', icon: <FontAwesomeIcon icon={faUsers} /> },
-        { label: 'Chats', key: '/chats', icon: <FontAwesomeIcon icon={faCommentDots} /> },
         { label: 'Tickets', key: '/tickets', icon: <FontAwesomeIcon icon={faTicket} /> },
-        { label: 'Home', key: '/', icon: <FontAwesomeIcon icon={faTicket} /> },
+        { label: 'Invoices', key: '/invoices', icon: <FontAwesomeIcon icon={faTicket} /> },
+        { label: 'Chats', key: '/chats', icon: <FontAwesomeIcon icon={faCommentDots} /> },
         { label: 'Settings', key: '/settings', icon: <FontAwesomeIcon icon={faCogs} /> },
     ]
 
@@ -45,6 +47,7 @@ export const SideNavigation = ({
             open={showNavigation}
         >
             <Menu
+                defaultSelectedKeys={[pathname]}
                 onSelect={(item) => {
                     navigate(item.key)
                 }}

@@ -11,6 +11,7 @@ import { Shops } from '../pages/shop/Shops'
 import { ShopView } from '../pages/shop/ShopView'
 import { CategorySettings } from '../pages/settings/CategorySettings'
 import { Dashboard } from '../pages/dashboard/Dashboard'
+import { Invoices } from '../pages/shop/Invoices'
 
 export const Router = () => {
     return (
@@ -28,8 +29,8 @@ export const Router = () => {
                 <Route path='/shops' element={<Shops />} />
                 <Route path='/shops/:id' element={<ShopView />} />
                 <Route path='/tickets' element={<Tickets />} />
-                <Route path='/ticket/:id' element={<div>single ticket info, can open chat</div>} />
-                <Route path='/settings' element={<div>All settings for all shops?</div>} />
+                <Route path='/invoices' element={<Invoices />} />
+                {/*<Route path='/settings' element={<div>All settings for all shops?</div>} />*/}
                 <Route path='/categories' element={<CategorySettings />} />
             </Route>
         </Routes>

@@ -19,7 +19,7 @@ export const AppModal = ({
             onCancel={closeModal}
             closable
             title={title}
-            width={'clamp(300px,80%,900px)'}
+            width={'clamp(400px,80%,900px)'}
             footer={<></>}
         >
             {children}

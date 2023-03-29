@@ -9,12 +9,14 @@ import { AddInventoryItem } from '../../components/modals/AddInventoryItem'
 import { Category, InventoryItem } from '../../models/interfaces/shop'
 import { ViewInventoryItem } from '../../components/modals/ViewInventoryItem'
 import { useNavigate } from 'react-router-dom'
-import { Pagination } from '../../components/table/Pagination'
 import { SearchComponent } from '../../components/filters/SearchComponent'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { AuthContext } from '../../contexts/AuthContext'
 import { Button } from 'antd'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
+import { faFileEdit, faPlus } from '@fortawesome/free-solid-svg-icons'
 
 export const Inventory = () => {
     const [selectedItem, setSelectedItem] = useState<InventoryItem>()
@@ -22,7 +24,7 @@ export const Inventory = () => {
     const { loggedUser } = useContext(AuthContext)
     const [filter, setFilter] = useState<InventoryFilter>({ shopId: loggedUser?.shopId })
     const [createModalIsOpen, setCreateModalIsOpen] = useState(false)
-    const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 0 })
+    const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
     const { data } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), {
         keepPreviousData: true,
     })
@@ -37,11 +39,29 @@ export const Inventory = () => {
             <AddInventoryItem isModalOpen={createModalIsOpen} closeModal={() => setCreateModalIsOpen(false)} />
             <ViewInventoryItem inventoryItem={selectedItem} closeModal={() => setSelectedItem(undefined)} />
             <div className='button-bar'>
-                <Button type='primary' onClick={() => setCreateModalIsOpen(true)}>
+                <Button
+                    icon={<FontAwesomeIcon icon={faPlus} />}
+                    type='primary'
+                    onClick={() => setCreateModalIsOpen(true)}
+                >
                     Add Item
                 </Button>
-                <Button type='primary' onClick={() => navigate('/categories')}>
+                <Button
+                    icon={<FontAwesomeIcon icon={faFileEdit} />}
+                    type='primary'
+                    onClick={() => navigate('/categories')}
+                >
                     Edit categories
+                </Button>
+                <Button
+                    icon={<FontAwesomeIcon icon={faShoppingCart} />}
+                    type='primary'
+                    onClick={() => navigate('/categories')}
+                >
+                    Shopping List
+                </Button>
+                <Button disabled type='primary' onClick={() => navigate('/categories')}>
+                    Return List
                 </Button>
             </div>
             <div className='tableWrapper'>
@@ -56,6 +76,8 @@ export const Inventory = () => {
                             count,
                         }))}
                         onClick={({ id }) => setSelectedItem(data?.content.find((row) => row.id === id))}
+                        pagination={page}
+                        onPageChange={setPage}
                     />
                 ) : (
                     <NoDataComponent items='items in inventory'>
@@ -65,7 +87,6 @@ export const Inventory = () => {
                     </NoDataComponent>
                 )}
             </div>
-            <Pagination pageCount={data?.pageCount} page={page} setPage={setPage} />
         </div>
     )
 }

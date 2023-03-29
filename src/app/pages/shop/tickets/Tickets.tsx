@@ -32,7 +32,8 @@ export const Tickets = () => {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [showNewModal, setShowNewModal] = useState(false)
     const [filter, setFilter] = useState<TicketFilter>({ ticketStatuses: activeTicketStatuses })
-    const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 0 })
+    const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
+    console.log(page)
 
     const queryClient = useQueryClient()
     const onSelectedTicketUpdate = (data: Page<Ticket>) => {
@@ -94,42 +95,34 @@ export const Tickets = () => {
 }
 
 const TicketsTab = ({
-    isSuccess,
+    isLoading,
     data,
     setSelectedTicket,
     page,
     setPage,
 }: {
-    isSuccess: boolean
+    isLoading: boolean
     data?: Page<Ticket>
     setSelectedTicket: React.Dispatch<React.SetStateAction<Ticket | undefined>>
     page: PageRequest
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
 }) => (
-    <CustomSuspense isReady={isSuccess}>
-        {data?.content && data.content.length > 0 ? (
-            <>
-                {/*todo: and display all non-active tickets in the following table with pagination*/}
-                <div className='tableWrapper'>
-                    <CustomTable<Ticket>
-                        data={data.content.map(
-                            ({ id, timestamp, deadline, createdBy, client, status, totalPrice }) => ({
-                                id,
-                                'creation date': dateFormat(timestamp),
-                                deadline: deadline ? dateFormat(deadline) : '-',
-                                status,
-                                totalPrice,
-                                createdBy: createdBy?.fullName,
-                                client: client?.fullName,
-                            })
-                        )}
-                        onClick={({ id }) =>
-                            setSelectedTicket(data?.content.find(({ id: ticketId }) => id === ticketId))
-                        }
-                    />
-                </div>
-                {/*<Pagination {...{ page, setPage }} pageCount={data.pageCount} />*/}
-            </>
+    <CustomSuspense isReady={!isLoading}>
+        {data && data.content.length > 0 ? (
+            <CustomTable<Ticket>
+                data={data.content.map(({ id, timestamp, deadline, createdBy, client, status, totalPrice }) => ({
+                    id,
+                    'creation date': dateFormat(timestamp),
+                    deadline: deadline ? dateFormat(deadline) : '-',
+                    status,
+                    totalPrice,
+                    createdBy: createdBy?.fullName,
+                    client: client?.fullName,
+                }))}
+                onClick={({ id }) => setSelectedTicket(data?.content.find(({ id: ticketId }) => id === ticketId))}
+                pagination={page}
+                onPageChange={setPage}
+            />
         ) : (
             <NoDataComponent items='tickets' />
         )}

@@ -11,7 +11,7 @@ import { toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { toast } from 'react-toastify'
 import { useQuery, useQueryClient } from 'react-query'
 import { ProfileImage } from '../../components/user/ProfileImage'
-import { Button } from 'antd'
+import { Button, Card } from 'antd'
 
 export const Profile = () => {
     const { loggedUser, setLoggedUser } = useContext(AuthContext)
@@ -49,7 +49,7 @@ export const Profile = () => {
                 />
             )}
             <h2>Your info</h2>
-            <div className='card'>
+            <Card className='card'>
                 <div className='flex-100 justify-start '>
                     <div className='icon-xxl'>
                         <ProfileImage profileImg={profileImg} />
@@ -61,7 +61,7 @@ export const Profile = () => {
                 </div>
 
                 <SettingsRow name={'Full name'} value={loggedUser?.fullName} />
-            </div>
+            </Card>
             <SettingsCard
                 header='Security'
                 headerNode={
@@ -101,15 +101,9 @@ export const SettingsCard = ({
     children?: React.ReactNode
 }) => {
     return (
-        <div className='card'>
-            {header && (
-                <div className='flex-100 header'>
-                    <div>{header}</div>
-                    {headerNode}
-                </div>
-            )}
+        <Card title={header} className='card' extra={headerNode}>
             {children}
-        </div>
+        </Card>
     )
 }
 const SettingsRow = ({ name, value }: { name: string; value: string | undefined }) => {

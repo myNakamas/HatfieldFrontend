@@ -7,7 +7,6 @@ import { AuthContext } from '../../../contexts/AuthContext'
 import { User } from '../../../models/interfaces/user'
 import { useQuery } from 'react-query'
 import { getAllUsers } from '../../../axios/http/userRequests'
-import { MenuHeader } from '@szhsin/react-menu'
 import { WebSocketContext } from '../../../contexts/WebSocketContext'
 import { fetchAllTickets, fetchChat } from '../../../axios/http/ticketRequests'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -15,7 +14,7 @@ import { faPaperPlane } from '@fortawesome/free-solid-svg-icons/faPaperPlane'
 import dateFormat from 'dateformat'
 import { faArrowRight, faCheckDouble, faCircleCheck, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { dateTimeMask } from '../../../models/enums/appEnums'
-import { Button, Descriptions } from 'antd'
+import { Button, Card, Descriptions, Menu, Skeleton } from 'antd'
 import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
 
 export const Chats = () => {
@@ -128,39 +127,34 @@ export const Chats = () => {
                             disabled={!selectedTicket}
                             autoFocus
                         />
-                        <button
-                            className={`sendButton icon-s ${selectedTicket?.client?.userId && 'clickable'}`}
+                        <Button
+                            type='primary'
+                            className={`sendButton icon-s`}
                             disabled={!stompClient.connected || !selectedTicket?.client?.userId}
                             onClick={() =>
                                 loggedUser && selectedTicket && send(messageText, loggedUser, selectedTicket)
                             }
                         >
-                            <FontAwesomeIcon size='lg' icon={faPaperPlane} />
-                        </button>
+                            <FontAwesomeIcon color='white' size='lg' icon={faPaperPlane} />
+                        </Button>
                     </div>
                 </div>
 
                 <div className='ticketChatContainer'>
-                    {tickets &&
-                        tickets?.content.map((ticket, index) => (
-                            <div
-                                key={'user' + index}
-                                className={`clickable ticketThumb ${
-                                    selectedTicket?.id === ticket.id && 'selectedTicket'
-                                } `}
-                                onClick={() => setSelectedTicket(ticket)}
-                            >
-                                <MenuHeader className='menu '>
-                                    <div className='username'>Ticket#{ticket.id}</div>
-                                    <div className='role'>
-                                        {ticket.deviceModel} : {ticket.deviceBrand}
-                                    </div>
-                                    <div className='role'>
-                                        {ticket.client?.username} , {ticket.client?.email}
-                                    </div>
-                                </MenuHeader>
-                            </div>
-                        ))}
+                    {tickets && tickets.content.length > 0 ? (
+                        <Menu
+                            onSelect={(item) => {
+                                setSelectedTicket(tickets?.content.find((ticket) => ticket.id === +item.key))
+                            }}
+                            mode='inline'
+                            items={tickets.content.map((ticket) => ({
+                                label: `Ticket#${ticket.id}`,
+                                key: ticket.id,
+                            }))}
+                        />
+                    ) : (
+                        <Skeleton loading={true} />
+                    )}
                 </div>
             </div>
         </div>
@@ -172,9 +166,12 @@ const TicketChatInfo = ({ ticket }: { ticket: Ticket | undefined }) => {
     if (!ticket) return <></>
     //todo: keep only the important information and add a button to open the full modal
     return (
-        <>
+        <Card
+            title={`Ticket#${ticket.id} Info`}
+            extra={<Button onClick={() => setShowModal(true)}>Show full ticket</Button>}
+        >
             <ViewTicket ticket={showModal ? ticket : undefined} closeModal={() => setShowModal(false)} />
-            <Descriptions size='small' layout='vertical' title={`Ticket#${ticket.id} Info`}>
+            <Descriptions size='small' layout='vertical'>
                 <Descriptions.Item label='Created at'>{dateFormat(ticket.timestamp, dateTimeMask)}</Descriptions.Item>
                 <Descriptions.Item label='Deadline'>{dateFormat(ticket.deadline, dateTimeMask)}</Descriptions.Item>
                 <Descriptions.Item label='Status'>{ticket.status}</Descriptions.Item>
@@ -187,11 +184,8 @@ const TicketChatInfo = ({ ticket }: { ticket: Ticket | undefined }) => {
                 <Descriptions.Item label='Created by'>{ticket.createdBy.fullName}</Descriptions.Item>
                 <Descriptions.Item label='Problem'>{ticket.problemExplanation}</Descriptions.Item>
                 <Descriptions.Item label='Notes'>{ticket.notes}</Descriptions.Item>
-                <Descriptions.Item label='More info'>
-                    <Button onClick={() => setShowModal(true)}>Show full ticket</Button>
-                </Descriptions.Item>
             </Descriptions>
-        </>
+        </Card>
     )
 }
 
