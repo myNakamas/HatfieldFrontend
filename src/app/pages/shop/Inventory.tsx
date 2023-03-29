@@ -1,19 +1,20 @@
-import React, { useContext, useState } from 'react';
-import { useQuery } from 'react-query';
-import { getAllBrands, getAllCategories, getAllModels, useGetShopItems } from '../../axios/http/shopRequests';
-import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalModels';
-import { InventoryFilter } from '../../models/interfaces/filters';
-import { CustomTable } from '../../components/table/CustomTable';
-import { NoDataComponent } from '../../components/table/NoDataComponent';
-import { AddInventoryItem } from '../../components/modals/AddInventoryItem';
-import { Category, InventoryItem } from '../../models/interfaces/shop';
-import { ViewInventoryItem } from '../../components/modals/ViewInventoryItem';
-import { useNavigate } from 'react-router-dom';
-import { Pagination } from '../../components/table/Pagination';
-import { SearchComponent } from '../../components/filters/SearchComponent';
-import Select from 'react-select';
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS';
-import { AuthContext } from '../../contexts/AuthContext';
+import React, { useContext, useState } from 'react'
+import { useQuery } from 'react-query'
+import { getAllBrands, getAllCategories, getAllModels, useGetShopItems } from '../../axios/http/shopRequests'
+import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalModels'
+import { InventoryFilter } from '../../models/interfaces/filters'
+import { CustomTable } from '../../components/table/CustomTable'
+import { NoDataComponent } from '../../components/table/NoDataComponent'
+import { AddInventoryItem } from '../../components/modals/AddInventoryItem'
+import { Category, InventoryItem } from '../../models/interfaces/shop'
+import { ViewInventoryItem } from '../../components/modals/ViewInventoryItem'
+import { useNavigate } from 'react-router-dom'
+import { Pagination } from '../../components/table/Pagination'
+import { SearchComponent } from '../../components/filters/SearchComponent'
+import Select from 'react-select'
+import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
+import { AuthContext } from '../../contexts/AuthContext'
+import { Button } from 'antd'
 
 export const Inventory = () => {
     const [selectedItem, setSelectedItem] = useState<InventoryItem>()
@@ -35,13 +36,13 @@ export const Inventory = () => {
             <InventoryFilters {...{ filter, setFilter }} />
             <AddInventoryItem isModalOpen={createModalIsOpen} closeModal={() => setCreateModalIsOpen(false)} />
             <ViewInventoryItem inventoryItem={selectedItem} closeModal={() => setSelectedItem(undefined)} />
-            <div className=' button-bar'>
-                <button className='actionButton' onClick={() => setCreateModalIsOpen(true)}>
+            <div className='button-bar'>
+                <Button type='primary' onClick={() => setCreateModalIsOpen(true)}>
                     Add Item
-                </button>
-                <button className='actionButton' onClick={() => navigate('/categories')}>
+                </Button>
+                <Button type='primary' onClick={() => navigate('/categories')}>
                     Edit categories
-                </button>
+                </Button>
             </div>
             <div className='tableWrapper'>
                 {data && data.content.length > 0 ? (
@@ -57,7 +58,11 @@ export const Inventory = () => {
                         onClick={({ id }) => setSelectedItem(data?.content.find((row) => row.id === id))}
                     />
                 ) : (
-                    <NoDataComponent items='items in inventory' />
+                    <NoDataComponent items='items in inventory'>
+                        <Button type='primary' onClick={() => setCreateModalIsOpen(true)}>
+                            Create Now
+                        </Button>
+                    </NoDataComponent>
                 )}
             </div>
             <Pagination pageCount={data?.pageCount} page={page} setPage={setPage} />

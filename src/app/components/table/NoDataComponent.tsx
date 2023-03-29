@@ -1,11 +1,6 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
+import { Empty } from 'antd'
+import { ReactNode } from 'react'
 
-export const NoDataComponent = ({ items }: { items: string }) => {
-    return (
-        <div className='noData'>
-            <FontAwesomeIcon size='3x' icon={faXmarkCircle} />
-            <h3>No {items} found</h3>
-        </div>
-    )
+export const NoDataComponent = ({ items, children }: { items: string; children?: ReactNode }) => {
+    return <Empty description={<h3>No {items} found</h3>}>{children}</Empty>
 }

@@ -26,3 +26,5 @@ export const TicketStatuses = [
     'COLLECTED',
 ]
 export const TicketStatusesArray = TicketStatuses.map((value, index) => ({ id: index, value }))
+export const activeTicketStatuses: TicketStatus[] = ['STARTED', 'PENDING', 'DIAGNOSED']
+export const completedTicketStatuses: TicketStatus[] = ['FINISHED', 'UNFIXABLE', 'SHIPPED_TO_CUSTOMER', 'COLLECTED']

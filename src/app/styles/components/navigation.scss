@@ -35,53 +35,9 @@
   }
 }
 
-.sidenav {
-  top: 0;
-  left: 0;
-  width: 300px;
-  background-color: var(--backgroundColor);
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-  z-index: 1;
-  height: 100vh;
-  position: fixed;
-
-  .nav-button {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 48px;
-    padding: 5px 20px;
-    font-size: 16px;
-    color: var(--textColor);
-    text-decoration: none;
-
-    &:hover {
-      backdrop-filter: brightness(150%);
-    }
-
-    .icon {
-      margin-right: 16px;
-      font-size: 18px;
-    }
-  }
-
-  .active {
-    background-color: var(--secondaryColor);
-    font-weight: bold;
-
-    .icon {
-      color: #4caf50;
-    }
-  }
-}
-
-.fakeSideNav {
-  width: 300px;
-  display: block;
-}
-
 .modalContainer {
-  max-height: 80vh;
+  max-height: 70vh;
+  overflow-y: scroll;
 }
 
 .ReactModal__Overlay {

@@ -1,8 +1,8 @@
-import { AppModal } from '../AppModal'
 import { CreateTicket } from '../../../models/interfaces/ticket'
 import React from 'react'
 import { EditTicketForm } from './EditTicketForm'
 import { defaultTicket } from '../../../models/enums/defaultValues'
+import { Modal } from 'antd'
 
 export const AddTicket = ({
     isModalOpen,
@@ -14,8 +14,7 @@ export const AddTicket = ({
     onComplete: (result: CreateTicket) => Promise<void>
 }) => {
     return (
-        <AppModal isModalOpen={isModalOpen} closeModal={closeModal}>
-            <h3>Create Ticket</h3>
+        <Modal title='Create Ticket' open={isModalOpen} closable footer={<></>} width={'50%'}>
             <EditTicketForm
                 ticket={defaultTicket}
                 onComplete={onComplete}
@@ -23,6 +22,6 @@ export const AddTicket = ({
                     closeModal()
                 }}
             />
-        </AppModal>
+        </Modal>
     )
 }

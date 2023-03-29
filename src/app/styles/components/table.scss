@@ -28,7 +28,11 @@ thead {
   display: flex;
   flex-wrap: wrap;
   width: 100%;
-  margin: 20px 10px
+  margin: 20px 10px;
+
+  button {
+    margin-right: 10px;
+  }
 }
 
 .pagination {

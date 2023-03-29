@@ -47,240 +47,246 @@ export const EditTicketForm = ({
                 })
             )}
         >
-            <div className='card'>
-                <Controller
-                    name={'problemExplanation'}
-                    control={control}
-                    defaultValue={''}
-                    render={({ field, fieldState }) => (
-                        <FormField label='Problem explanation' error={fieldState.error}>
-                            <textarea
-                                className='textArea'
-                                onChange={field.onChange}
-                                value={'' + field.value + tempText}
-                            />
-                            <Dictaphone
-                                className='abs-icon'
-                                setText={(text) => field.onChange(field.value + ' ' + text)}
-                                setTempText={setTempText}
-                            />
-                        </FormField>
-                    )}
-                />
+            <div className='modalContainer'>
+                <div className='card'>
+                    <Controller
+                        name={'problemExplanation'}
+                        control={control}
+                        defaultValue={''}
+                        render={({ field, fieldState }) => (
+                            <FormField label='Problem explanation' error={fieldState.error}>
+                                <textarea
+                                    className='textArea'
+                                    onChange={field.onChange}
+                                    value={'' + field.value + tempText}
+                                />
+                                <Dictaphone
+                                    className='abs-icon'
+                                    setText={(text) => field.onChange(field.value + ' ' + text)}
+                                    setTempText={setTempText}
+                                />
+                            </FormField>
+                        )}
+                    />
 
-                <Controller
-                    control={control}
-                    name={'clientId'}
-                    render={({ field, fieldState }) => (
-                        <FormField label='Client' error={fieldState.error}>
-                            <Select<User, false>
-                                isClearable
-                                theme={SelectTheme}
-                                styles={SelectStyles<User>()}
-                                options={clients}
-                                placeholder='Client'
-                                value={clients?.find(({ userId }) => field.value === userId)}
-                                onChange={(newValue) => field.onChange(newValue?.userId)}
-                                getOptionLabel={(item) => [item.fullName, item.email].join(' ')}
-                                getOptionValue={(item) => item.userId}
-                            />
-                        </FormField>
-                    )}
-                />
-                <Controller
-                    control={control}
-                    name={'status'}
-                    render={({ field, fieldState }) => (
-                        <FormField label='Ticket status' error={fieldState.error}>
-                            <Select<ItemPropertyView, false>
-                                isClearable
-                                theme={SelectTheme}
-                                styles={SelectStyles<ItemPropertyView>()}
-                                options={TicketStatusesArray}
-                                placeholder='Fill in the ticket status'
-                                value={TicketStatusesArray.find(({ value }) => field.value === value)}
-                                onChange={(newValue) => field.onChange(newValue?.value)}
-                                getOptionLabel={(item) => item.value}
-                                getOptionValue={(item) => item.id + item.value}
-                            />
-                        </FormField>
-                    )}
-                />
-                <div className='flex-100 justify-between'>
-                    <div>
-                        <Controller
-                            control={control}
-                            name={'deviceLocation'}
-                            render={({ field, fieldState }) => (
-                                <FormField label='Device Location' error={fieldState.error}>
-                                    <CreatableSelect<ItemPropertyView, false>
-                                        isClearable
-                                        theme={SelectTheme}
-                                        styles={SelectStyles<ItemPropertyView>()}
-                                        options={DeviceLocationArray}
-                                        formatCreateLabel={(value) => 'Add a new location: ' + value}
-                                        placeholder='Where is the location of the device?'
-                                        value={
-                                            DeviceLocationArray.find(({ value }) => field.value === value) ?? {
-                                                value: field.value,
-                                                id: -1,
+                    <Controller
+                        control={control}
+                        name={'clientId'}
+                        render={({ field, fieldState }) => (
+                            <FormField label='Client' error={fieldState.error}>
+                                <Select<User, false>
+                                    isClearable
+                                    theme={SelectTheme}
+                                    styles={SelectStyles<User>()}
+                                    options={clients}
+                                    placeholder='Client'
+                                    value={clients?.find(({ userId }) => field.value === userId)}
+                                    onChange={(newValue) => field.onChange(newValue?.userId)}
+                                    getOptionLabel={(item) => [item.fullName, item.email].join(' ')}
+                                    getOptionValue={(item) => item.userId}
+                                />
+                            </FormField>
+                        )}
+                    />
+                    <Controller
+                        control={control}
+                        name={'status'}
+                        render={({ field, fieldState }) => (
+                            <FormField label='Ticket status' error={fieldState.error}>
+                                <Select<ItemPropertyView, false>
+                                    isClearable
+                                    theme={SelectTheme}
+                                    styles={SelectStyles<ItemPropertyView>()}
+                                    options={TicketStatusesArray}
+                                    placeholder='Fill in the ticket status'
+                                    value={TicketStatusesArray.find(({ value }) => field.value === value)}
+                                    onChange={(newValue) => field.onChange(newValue?.value)}
+                                    getOptionLabel={(item) => item.value}
+                                    getOptionValue={(item) => item.id + item.value}
+                                />
+                            </FormField>
+                        )}
+                    />
+                    <div className='flex-100 justify-between'>
+                        <div>
+                            <Controller
+                                control={control}
+                                name={'deviceLocation'}
+                                render={({ field, fieldState }) => (
+                                    <FormField label='Device Location' error={fieldState.error}>
+                                        <CreatableSelect<ItemPropertyView, false>
+                                            isClearable
+                                            theme={SelectTheme}
+                                            styles={SelectStyles<ItemPropertyView>()}
+                                            options={DeviceLocationArray}
+                                            formatCreateLabel={(value) => 'Add a new location: ' + value}
+                                            placeholder='Where is the location of the device?'
+                                            value={
+                                                DeviceLocationArray.find(({ value }) => field.value === value) ?? {
+                                                    value: field.value,
+                                                    id: -1,
+                                                }
                                             }
-                                        }
-                                        onCreateOption={(item) => field.onChange(item)}
-                                        onChange={(newValue) => field.onChange(newValue?.value)}
-                                        getOptionLabel={(item) => item.value}
-                                        getOptionValue={(item) => item.id + item.value}
-                                    />
-                                </FormField>
-                            )}
-                        />
-                    </div>
+                                            onCreateOption={(item) => field.onChange(item)}
+                                            onChange={(newValue) => field.onChange(newValue?.value)}
+                                            getOptionLabel={(item) => item.value}
+                                            getOptionValue={(item) => item.id + item.value}
+                                        />
+                                    </FormField>
+                                )}
+                            />
+                        </div>
 
-                    <div>
-                        <Controller
-                            control={control}
-                            name={'deadline'}
-                            render={({ field, fieldState }) => (
-                                <FormField label='Deadline' error={fieldState.error}>
-                                    <DateTime
-                                        locale={'uk'}
-                                        value={field.value}
-                                        onChange={(value) => {
-                                            if (moment.isMoment(value)) field.onChange(value.toDate())
-                                        }}
-                                        dateFormat={'DD/MM/yyyy'}
-                                        timeFormat={'HH:mm:s'}
-                                        isValidDate={(currentDate) =>
-                                            currentDate >= moment().subtract(1, 'day').toDate()
-                                        }
-                                    />
-                                    <div className='flex-100 justify-between'>
-                                        <button
-                                            type='button'
-                                            onClick={() => field.onChange(moment().add(30, 'minutes').toDate())}
-                                        >
-                                            30 minutes
-                                        </button>
-                                        <button
-                                            type='button'
-                                            onClick={() => field.onChange(moment().add(1, 'hour').toDate())}
-                                        >
-                                            1 hour
-                                        </button>
-                                        <button
-                                            type='button'
-                                            onClick={() => field.onChange(moment().add(2, 'hours').toDate())}
-                                        >
-                                            2 hours
-                                        </button>
-                                    </div>
-                                </FormField>
-                            )}
-                        />
+                        <div>
+                            <Controller
+                                control={control}
+                                name={'deadline'}
+                                render={({ field, fieldState }) => (
+                                    <FormField label='Deadline' error={fieldState.error}>
+                                        <DateTime
+                                            locale={'uk'}
+                                            value={field.value}
+                                            onChange={(value) => {
+                                                if (moment.isMoment(value)) field.onChange(value.toDate())
+                                            }}
+                                            dateFormat={'DD/MM/yyyy'}
+                                            timeFormat={'HH:mm:s'}
+                                            isValidDate={(currentDate) =>
+                                                currentDate >= moment().subtract(1, 'day').toDate()
+                                            }
+                                        />
+                                        <div className='flex-100 justify-between'>
+                                            <button
+                                                type='button'
+                                                onClick={() => field.onChange(moment().add(30, 'minutes').toDate())}
+                                            >
+                                                30 minutes
+                                            </button>
+                                            <button
+                                                type='button'
+                                                onClick={() => field.onChange(moment().add(1, 'hour').toDate())}
+                                            >
+                                                1 hour
+                                            </button>
+                                            <button
+                                                type='button'
+                                                onClick={() => field.onChange(moment().add(2, 'hours').toDate())}
+                                            >
+                                                2 hours
+                                            </button>
+                                        </div>
+                                    </FormField>
+                                )}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div className='card'>
-                <h3>Price</h3>
-                <TextField register={register('deposit')} error={errors.deposit} label={'Deposit'} type='currency' />
-                <TextField
-                    register={register('totalPrice')}
-                    error={errors.totalPrice}
-                    label={'Total price'}
-                    type='currency'
-                />
-            </div>
-            <div className='card'>
-                <h3>Device details</h3>
-                <div className='flex-100 justify-between'>
-                    <div>
-                        <Controller
-                            control={control}
-                            name={'deviceBrand'}
-                            render={({ field, fieldState }) => (
-                                <FormField label='Brand' error={fieldState.error}>
-                                    <CreatableSelect<ItemPropertyView, false>
-                                        isClearable
-                                        theme={SelectTheme}
-                                        styles={SelectStyles<ItemPropertyView>()}
-                                        options={brands}
-                                        formatCreateLabel={(value) => 'Create new brand ' + value}
-                                        placeholder='Select or add a new brand'
-                                        value={
-                                            brands?.find(({ value }) => field.value === value) ?? {
-                                                value: field.value,
-                                                id: -1,
-                                            }
-                                        }
-                                        onCreateOption={(item) => field.onChange(item)}
-                                        onChange={(newValue) => field.onChange(newValue?.value)}
-                                        getOptionLabel={(item) => item.value}
-                                        getOptionValue={(item) => item.id + item.value}
-                                    />
-                                </FormField>
-                            )}
-                        />
-                    </div>
-                    <div>
-                        <Controller
-                            control={control}
-                            name={'deviceModel'}
-                            render={({ field, fieldState }) => (
-                                <FormField label='Model' error={fieldState.error}>
-                                    <CreatableSelect<ItemPropertyView, false>
-                                        isClearable
-                                        theme={SelectTheme}
-                                        styles={SelectStyles<ItemPropertyView>()}
-                                        options={models}
-                                        placeholder='Select or add a new brand'
-                                        formatCreateLabel={(value) => 'Create new model ' + value}
-                                        value={
-                                            models?.find(({ value }) => field.value === value) ?? {
-                                                value: field.value,
-                                                id: -1,
-                                            }
-                                        }
-                                        onCreateOption={(item) => field.onChange(item)}
-                                        onChange={(newValue) => field.onChange(newValue?.value)}
-                                        getOptionLabel={(item) => item.value}
-                                        getOptionValue={(item) => item.id + item.value}
-                                    />
-                                </FormField>
-                            )}
-                        />
-                    </div>
+                <div className='card'>
+                    <h3>Price</h3>
+                    <TextField
+                        register={register('deposit')}
+                        error={errors.deposit}
+                        label={'Deposit'}
+                        type='currency'
+                    />
+                    <TextField
+                        register={register('totalPrice')}
+                        error={errors.totalPrice}
+                        label={'Total price'}
+                        type='currency'
+                    />
                 </div>
-                <TextField
-                    register={register('serialNumberOrImei')}
-                    error={errors.serialNumberOrImei}
-                    label={'Serial number or Imei'}
-                />
-                <TextField
-                    register={register('devicePassword')}
-                    error={errors.devicePassword}
-                    label={'Device password'}
-                />
-                <TextField
-                    register={register('deviceCondition')}
-                    error={errors.deviceCondition}
-                    label={'Device condition'}
-                />
+                <div className='card'>
+                    <h3>Device details</h3>
+                    <div className='flex-100 justify-between'>
+                        <div>
+                            <Controller
+                                control={control}
+                                name={'deviceBrand'}
+                                render={({ field, fieldState }) => (
+                                    <FormField label='Brand' error={fieldState.error}>
+                                        <CreatableSelect<ItemPropertyView, false>
+                                            isClearable
+                                            theme={SelectTheme}
+                                            styles={SelectStyles<ItemPropertyView>()}
+                                            options={brands}
+                                            formatCreateLabel={(value) => 'Create new brand ' + value}
+                                            placeholder='Select or add a new brand'
+                                            value={
+                                                brands?.find(({ value }) => field.value === value) ?? {
+                                                    value: field.value,
+                                                    id: -1,
+                                                }
+                                            }
+                                            onCreateOption={(item) => field.onChange(item)}
+                                            onChange={(newValue) => field.onChange(newValue?.value)}
+                                            getOptionLabel={(item) => item.value}
+                                            getOptionValue={(item) => item.id + item.value}
+                                        />
+                                    </FormField>
+                                )}
+                            />
+                        </div>
+                        <div>
+                            <Controller
+                                control={control}
+                                name={'deviceModel'}
+                                render={({ field, fieldState }) => (
+                                    <FormField label='Model' error={fieldState.error}>
+                                        <CreatableSelect<ItemPropertyView, false>
+                                            isClearable
+                                            theme={SelectTheme}
+                                            styles={SelectStyles<ItemPropertyView>()}
+                                            options={models}
+                                            placeholder='Select or add a new brand'
+                                            formatCreateLabel={(value) => 'Create new model ' + value}
+                                            value={
+                                                models?.find(({ value }) => field.value === value) ?? {
+                                                    value: field.value,
+                                                    id: -1,
+                                                }
+                                            }
+                                            onCreateOption={(item) => field.onChange(item)}
+                                            onChange={(newValue) => field.onChange(newValue?.value)}
+                                            getOptionLabel={(item) => item.value}
+                                            getOptionValue={(item) => item.id + item.value}
+                                        />
+                                    </FormField>
+                                )}
+                            />
+                        </div>
+                    </div>
+                    <TextField
+                        register={register('serialNumberOrImei')}
+                        error={errors.serialNumberOrImei}
+                        label={'Serial number or Imei'}
+                    />
+                    <TextField
+                        register={register('devicePassword')}
+                        error={errors.devicePassword}
+                        label={'Device password'}
+                    />
+                    <TextField
+                        register={register('deviceCondition')}
+                        error={errors.deviceCondition}
+                        label={'Device condition'}
+                    />
+                </div>
+                <div className='card'>
+                    <h3>Other information</h3>
+                    <TextField
+                        register={register('customerRequest')}
+                        error={errors.customerRequest}
+                        label={'Additional request from customer'}
+                    />
+                    <TextField register={register('accessories')} error={errors.accessories} label={'Accessories'} />
+                    <FormField label='Notes' error={errors.notes}>
+                        <textarea className='textArea' {...register('notes')} />
+                    </FormField>
+                </div>
+                <FormError error={errors.root?.message} />
             </div>
-            <div className='card'>
-                <h3>Other information</h3>
-                <TextField
-                    register={register('customerRequest')}
-                    error={errors.customerRequest}
-                    label={'Additional request from customer'}
-                />
-                <TextField register={register('accessories')} error={errors.accessories} label={'Accessories'} />
-                <FormField label='Notes' error={errors.notes}>
-                    <textarea className='textArea' {...register('notes')} />
-                </FormField>
-            </div>
-            <FormError error={errors.root?.message} />
-
             <div className='buttonFooter'>
                 <button type='submit' className='successButton'>
                     Submit

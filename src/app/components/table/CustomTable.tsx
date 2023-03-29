@@ -1,34 +1,29 @@
-import React, { ReactNode } from 'react'
+import React from 'react'
+import { Table } from 'antd'
+import { PageRequest } from '../../models/interfaces/generalModels'
 
 interface CustomTableProps<T> {
     headers?: string[]
     onClick?: (value: T) => void
+    pagination?: PageRequest
     data: any[]
 }
 
-export const CustomTable = <T,>({ data, onClick }: CustomTableProps<T>) => {
+export const CustomTable = <T extends object>({ data, onClick, pagination }: CustomTableProps<T>) => {
+    const columns = Object.entries(data[0]).map(([key], index) => ({ title: key, dataIndex: key, key: index + key }))
+    const getComponentProps = (record: T) => ({
+        onClick: () => {
+            if (onClick) {
+                onClick(record)
+            }
+        },
+    })
     return (
-        <table className='table table-bordered'>
-            <thead>
-                <tr>
-                    {Object.entries(data[0]).map(([key], index) => (
-                        <th key={'key' + index}>{key}</th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody>
-                {data.map((row, rowIndex) => (
-                    <tr
-                        key={`row.${rowIndex}`}
-                        className={onClick && 'clickable'}
-                        onClick={() => onClick && onClick(row)}
-                    >
-                        {Object.entries(row).map(([, value], index) => (
-                            <td key={`cell.${rowIndex}.${index}`}>{value as ReactNode}</td>
-                        ))}
-                    </tr>
-                ))}
-            </tbody>
-        </table>
+        <Table<T>
+            dataSource={data}
+            columns={columns}
+            onRow={getComponentProps}
+            pagination={{ pageSize: pagination?.pageSize, current: pagination?.page }}
+        />
     )
 }

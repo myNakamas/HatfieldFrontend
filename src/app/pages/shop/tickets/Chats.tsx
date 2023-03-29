@@ -1,5 +1,5 @@
 import { stompClient } from '../../../axios/websocketClient'
-import { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Discuss } from 'react-loader-spinner'
 import { sendMessage, sendMessageSeen } from '../../../axios/websocket/chat'
 import { Chat, ChatMessage, CreateChatMessage, Ticket } from '../../../models/interfaces/ticket'
@@ -15,6 +15,8 @@ import { faPaperPlane } from '@fortawesome/free-solid-svg-icons/faPaperPlane'
 import dateFormat from 'dateformat'
 import { faArrowRight, faCheckDouble, faCircleCheck, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { dateTimeMask } from '../../../models/enums/appEnums'
+import { Button, Descriptions } from 'antd'
+import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
 
 export const Chats = () => {
     const { loggedUser } = useContext(AuthContext)
@@ -41,12 +43,8 @@ export const Chats = () => {
                         return [...prevState.filter((unsent) => !data.some((msg) => msg.randomId === unsent.randomId))]
                     })
                     const received = data.filter((msg) => msg.receiver === loggedUser?.userId)
-                    sendMessageSeen(received[received.length - 1])
+                    sendMessageSeen(received[received.length - 1]).then()
                 }
-
-                //    todo: send the 'seen mark'
-                //     send the last read message and the backend can fill all before.
-                //     also subscribe to the seen websocket
             },
         }
     )
@@ -64,13 +62,13 @@ export const Chats = () => {
         }
     }, [selectedTicket, userChats, unsentMessages, oldMessages])
 
-    const send = async (messageText: string, loggedUser: User, selectedReceiver: User) => {
+    const send = async (messageText: string, loggedUser: User, ticket: Ticket) => {
         const message: CreateChatMessage = {
             timestamp: new Date(),
             sender: loggedUser.userId,
             text: messageText,
-            ticketId: 1,
-            receiver: selectedReceiver?.userId,
+            ticketId: ticket?.id,
+            receiver: ticket?.client?.userId,
             randomId: Math.floor(Math.random() * 1000000),
         }
         setUnsentMessages((unsent) => [...unsent, message as ChatMessage])
@@ -89,7 +87,7 @@ export const Chats = () => {
                         <TicketChatInfo ticket={selectedTicket} />
                     </div>
                     <div className='chatBox'>
-                        {stompClient.connected && selectedTicket?.client?.userId ? (
+                        {stompClient.connected && selectedTicket ? (
                             chat?.chat.map((value, index, array) => (
                                 <ChatMessageRow
                                     receiver={chat?.receiver}
@@ -124,17 +122,17 @@ export const Chats = () => {
                                 loggedUser &&
                                 selectedTicket &&
                                 messageText.trim().length > 0 &&
-                                send(messageText, loggedUser, selectedTicket.client)
+                                send(messageText, loggedUser, selectedTicket)
                             }
                             aria-autocomplete='none'
-                            disabled={!selectedTicket?.client?.userId}
+                            disabled={!selectedTicket}
                             autoFocus
                         />
                         <button
                             className={`sendButton icon-s ${selectedTicket?.client?.userId && 'clickable'}`}
                             disabled={!stompClient.connected || !selectedTicket?.client?.userId}
                             onClick={() =>
-                                loggedUser && selectedTicket && send(messageText, loggedUser, selectedTicket.client)
+                                loggedUser && selectedTicket && send(messageText, loggedUser, selectedTicket)
                             }
                         >
                             <FontAwesomeIcon size='lg' icon={faPaperPlane} />
@@ -170,73 +168,30 @@ export const Chats = () => {
 }
 
 const TicketChatInfo = ({ ticket }: { ticket: Ticket | undefined }) => {
+    const [showModal, setShowModal] = useState(false)
     if (!ticket) return <></>
     //todo: keep only the important information and add a button to open the full modal
     return (
-        <div className='flex-100'>
-            <div className='column'>
-                <div>
-                    <h2>Ticket #{ticket.id}</h2>
-                </div>
-                <div>
-                    <b>Ticket status</b> {ticket.status}
-                </div>
-                <div>
-                    <b>Current Location</b> {ticket.deviceLocation}
-                </div>
-
-                <div>
-                    <b>Created at:</b>
-                    {dateFormat(ticket.timestamp, dateTimeMask)}
-                </div>
-                <div>
-                    <b>Deadline</b>
-                    {dateFormat(ticket.deadline, dateTimeMask)}
-                </div>
-                {ticket.client && (
-                    <div>
-                        <p>
-                            <b>Client</b> {ticket.client.fullName + ' ' + ticket.client.email}
-                        </p>
-                    </div>
+        <>
+            <ViewTicket ticket={showModal ? ticket : undefined} closeModal={() => setShowModal(false)} />
+            <Descriptions size='small' layout='vertical' title={`Ticket#${ticket.id} Info`}>
+                <Descriptions.Item label='Created at'>{dateFormat(ticket.timestamp, dateTimeMask)}</Descriptions.Item>
+                <Descriptions.Item label='Deadline'>{dateFormat(ticket.deadline, dateTimeMask)}</Descriptions.Item>
+                <Descriptions.Item label='Status'>{ticket.status}</Descriptions.Item>
+                {ticket?.client && (
+                    <Descriptions.Item label='Client'>
+                        {ticket.client.fullName} {ticket.client.email}
+                    </Descriptions.Item>
                 )}
-                <div className='flex-grow'>
-                    <h3>Device details</h3>
-
-                    <p>
-                        <b>Brand</b> {ticket.deviceBrand}
-                    </p>
-                    <p>
-                        <b>Model</b> {ticket.deviceModel}
-                    </p>
-                    <p>
-                        <b>Serial number / IMEI</b> {ticket.serialNumberOrImei}
-                    </p>
-                    <p>
-                        <b>Device password</b> {ticket.devicePassword}
-                    </p>
-                    <p>
-                        <b>Device condition</b> {ticket.deviceCondition}
-                    </p>
-                </div>
-            </div>
-            <div className='column'>
-                <b>Problem explanation</b>
-                <p>{ticket.problemExplanation}</p>
-                <h3>Payment</h3>
-                <b>Deposit</b>
-                <p>{ticket.deposit?.toFixed(2)}</p>
-                <b>Total price</b>
-                <p>{ticket.totalPrice?.toFixed(2)}</p>
-                <h3>Other information</h3>
-                <b>Customer request</b>
-                <p>{ticket.customerRequest}</p>
-                <b>Additional accessories</b>
-                <p>{ticket.accessories}</p>
-                <b>Notes</b>
-                <p>{ticket.notes}</p>
-            </div>
-        </div>
+                <Descriptions.Item label='Customer Request'>{ticket.customerRequest}</Descriptions.Item>
+                <Descriptions.Item label='Created by'>{ticket.createdBy.fullName}</Descriptions.Item>
+                <Descriptions.Item label='Problem'>{ticket.problemExplanation}</Descriptions.Item>
+                <Descriptions.Item label='Notes'>{ticket.notes}</Descriptions.Item>
+                <Descriptions.Item label='More info'>
+                    <Button onClick={() => setShowModal(true)}>Show full ticket</Button>
+                </Descriptions.Item>
+            </Descriptions>
+        </>
     )
 }
 

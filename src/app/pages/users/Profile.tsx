@@ -1,8 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useContext, useState } from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
-import { ButtonProps } from '../../models/interfaces/generalModels'
-import { Button } from '../../components/form/Button'
 import { useNavigate } from 'react-router-dom'
 import { AddEditUser } from '../../components/modals/AddEditUser'
 import { User } from '../../models/interfaces/user'
@@ -13,6 +11,7 @@ import { toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { toast } from 'react-toastify'
 import { useQuery, useQueryClient } from 'react-query'
 import { ProfileImage } from '../../components/user/ProfileImage'
+import { Button } from 'antd'
 
 export const Profile = () => {
     const { loggedUser, setLoggedUser } = useContext(AuthContext)
@@ -66,14 +65,17 @@ export const Profile = () => {
             <SettingsCard
                 header='Security'
                 headerNode={
-                    <button className='button' onClick={() => navigate('/profile/change-password')}>
-                        <FontAwesomeIcon icon={faUserLock} /> Change password
-                    </button>
+                    <Button
+                        icon={<FontAwesomeIcon icon={faUserLock} />}
+                        onClick={() => navigate('/profile/change-password')}
+                    >
+                        Change password
+                    </Button>
                 }
             />
             <SettingsCard
                 header='Account info'
-                headerNode={<Button content='Edit account' className='button' onAction={() => setShowModal(true)} />}
+                headerNode={<Button onClick={() => setShowModal(true)}>Edit account</Button>}
             >
                 <SettingsRow name={'Username'} value={loggedUser?.username} />
 
@@ -102,19 +104,19 @@ export const SettingsCard = ({
         <div className='card'>
             {header && (
                 <div className='flex-100 header'>
-                    <div>{header}</div> {headerNode}
+                    <div>{header}</div>
+                    {headerNode}
                 </div>
             )}
             {children}
         </div>
     )
 }
-const SettingsRow = ({ button, name, value }: { button?: ButtonProps; name: string; value: string | undefined }) => {
+const SettingsRow = ({ name, value }: { name: string; value: string | undefined }) => {
     return (
         <div className='flex-100 row'>
             <div className='name'>{name}</div>
             <div className='value'>{value}</div>
-            <div>{button && <Button {...button} />}</div>
         </div>
     )
 }

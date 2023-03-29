@@ -11,7 +11,6 @@ import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../../../components/modals/ToastProps'
 import dateFormat from 'dateformat'
 import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
-import { Pagination } from '../../../components/table/Pagination'
 import { TicketFilter } from '../../../models/interfaces/filters'
 import { getAllBrands, getAllModels, getAllShops } from '../../../axios/http/shopRequests'
 import { SearchComponent } from '../../../components/filters/SearchComponent'
@@ -21,33 +20,28 @@ import { Shop } from '../../../models/interfaces/shop'
 import { User } from '../../../models/interfaces/user'
 import { getAllClients, getAllWorkers } from '../../../axios/http/userRequests'
 import { DateTimeFilter } from '../../../components/filters/DateTimeFilter'
-import { Tab, TabList, TabPanel, Tabs } from 'react-tabs'
+import { Button, Tabs, TabsProps } from 'antd'
+import {
+    activeTicketStatuses,
+    completedTicketStatuses,
+    TicketStatus,
+    TicketStatusesArray,
+} from '../../../models/enums/ticketEnums'
 
 export const Tickets = () => {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [showNewModal, setShowNewModal] = useState(false)
-    const [filter, setFilter] = useState({})
+    const [filter, setFilter] = useState<TicketFilter>({ ticketStatuses: activeTicketStatuses })
     const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 0 })
 
     const queryClient = useQueryClient()
-    const active = useQuery(
-        ['tickets', { ...filter, ticketStatuses: [] }, page],
-        () => fetchAllTickets({ page, filter }),
-        {
-            onSuccess: (data) => {
-                setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
-            },
-        }
-    )
-    const completed = useQuery(
-        ['tickets', { ...filter, ticketStatuses: [] }, page],
-        () => fetchAllTickets({ page, filter }),
-        {
-            onSuccess: (data) => {
-                setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
-            },
-        }
-    )
+    const onSelectedTicketUpdate = (data: Page<Ticket>) => {
+        setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
+    }
+    const tickets = useQuery(['tickets', filter, page], () => fetchAllTickets({ page, filter }), {
+        onSuccess: onSelectedTicketUpdate,
+    })
+
     const onSubmit = (formValue: CreateTicket) => {
         return toast
             .promise(createTicket({ ticket: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)
@@ -55,6 +49,24 @@ export const Tickets = () => {
                 queryClient.invalidateQueries(['tickets']).then(() => setShowNewModal(false))
             })
     }
+    const tabs: TabsProps['items'] = [
+        {
+            key: '1',
+            label: 'Active tickets',
+            //todo: display the active tickets without pagination
+            children: <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} />,
+        },
+        {
+            key: '2',
+            label: 'Completed tickets',
+            children: <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} />,
+        },
+        {
+            key: '3',
+            label: 'All tickets',
+            children: <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} />,
+        },
+    ]
 
     return (
         <div className='mainScreen'>
@@ -62,25 +74,21 @@ export const Tickets = () => {
             <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} onComplete={onSubmit} />
             <TicketFilters {...{ filter, setFilter }} />
             <div className=' button-bar'>
-                <button className='actionButton' onClick={() => setShowNewModal(true)}>
-                    Add Item
-                </button>
+                <Button type={'primary'} onClick={() => setShowNewModal(true)}>
+                    Add Ticket
+                </Button>
             </div>
-
-            {/*todo: display all currently-active tickets on top without pagination*/}
-            <Tabs>
-                <TabList>
-                    <Tab>Active tickets</Tab>
-                    <Tab>Completed tickets</Tab>
-                </TabList>
-
-                <TabPanel>
-                    <TicketsTab {...{ ...active, setSelectedTicket, page, setPage }} />
-                </TabPanel>
-                <TabPanel>
-                    <TicketsTab {...{ ...completed, setSelectedTicket, page, setPage }} />
-                </TabPanel>
-            </Tabs>
+            <Tabs
+                animated
+                defaultActiveKey='active'
+                items={tabs}
+                onChange={(key) => {
+                    setFilter((old) => ({
+                        ...old,
+                        ticketStatuses: key === '1' ? activeTicketStatuses : key === '2' ? completedTicketStatuses : [],
+                    }))
+                }}
+            ></Tabs>
         </div>
     )
 }
@@ -120,10 +128,10 @@ const TicketsTab = ({
                         }
                     />
                 </div>
-                <Pagination {...{ page, setPage }} pageCount={data.pageCount} />
+                {/*<Pagination {...{ page, setPage }} pageCount={data.pageCount} />*/}
             </>
         ) : (
-            <NoDataComponent items='items in inventory' />
+            <NoDataComponent items='tickets' />
         )}
     </CustomSuspense>
 )
@@ -135,6 +143,7 @@ const TicketFilters = ({
     filter: TicketFilter
     setFilter: (value: ((prevState: TicketFilter) => TicketFilter) | TicketFilter) => void
 }) => {
+    const [advanced, setAdvanced] = useState(false)
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     // const { data: locations } = useQuery('locations', getAllLocations)
@@ -142,13 +151,12 @@ const TicketFilters = ({
     const { data: clients } = useQuery('clients', () => getAllClients({}))
     const { data: users } = useQuery('workers', () => getAllWorkers({}))
     const { data: shops } = useQuery('shops', getAllShops)
-
-    return (
+    return advanced ? (
         <div className='ticketFilter'>
             <div className='filterColumn'>
                 <h4>Filters</h4>
                 <SearchComponent {...{ filter, setFilter }} />
-                {/*                <Select<ItemPropertyView, true>
+                <Select<ItemPropertyView, true>
                     theme={SelectTheme}
                     styles={SelectStyles()}
                     value={filter.ticketStatuses?.map(
@@ -163,7 +171,7 @@ const TicketFilters = ({
                     }
                     getOptionLabel={(status) => status.value}
                     getOptionValue={(status) => String(status.id)}
-                />*/}
+                />
             </div>
             <div className='filterColumn' title={'Device filters'}>
                 <h4>Device filters</h4>
@@ -251,6 +259,13 @@ const TicketFilters = ({
                     placeholder={'Deadline'}
                 />
             </div>
+        </div>
+    ) : (
+        <div className='flex'>
+            <SearchComponent {...{ filter, setFilter }} />
+            <Button type={'link'} onClick={() => setAdvanced(true)}>
+                Advanced search
+            </Button>
         </div>
     )
 }
