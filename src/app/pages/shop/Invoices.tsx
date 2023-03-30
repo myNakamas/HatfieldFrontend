@@ -4,13 +4,13 @@ import { useNavigate } from 'react-router-dom'
 import { Filter } from '../../models/interfaces/filters'
 import { PageRequest } from '../../models/interfaces/generalModels'
 import { useQuery } from 'react-query'
-import { Button } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { CustomTable } from '../../components/table/CustomTable'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { getAllInvoices } from '../../axios/http/invoiceRequests'
 import { Invoice } from '../../models/interfaces/invoice'
+import dateFormat from 'dateformat'
+import { invoiceTypeIcon, paymentMethodIcon } from '../../models/enums/invoiceEnums'
 
 export const Invoices = () => {
     const [selectedItem, setSelectedItem] = useState<Invoice>()
@@ -20,31 +20,37 @@ export const Invoices = () => {
     const { data } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }), {
         keepPreviousData: true,
     })
-    // const table = useReactTable({
-    //     data:data?.content,
-    //     columns:[],
-    //     getCoreRowModel: getCoreRowModel(),
-    // })
     return (
         <div className='mainScreen'>
             {/*<InvoiceFilters {...{ filter, setFilter }} />*/}
-            <div className='button-bar'>
-                <Button icon={<FontAwesomeIcon icon={faPlus} />} type='primary'>
-                    Add Item
-                </Button>
-            </div>
             <div className='tableWrapper'>
                 {data && data.length > 0 ? (
                     <CustomTable<InventoryItem>
-                        data={data}
+                        data={data.map((invoice) => ({
+                            id: invoice.id,
+                            type: (
+                                <>
+                                    <FontAwesomeIcon icon={invoiceTypeIcon[invoice.type]} /> invoice.type
+                                </>
+                            ),
+                            'created at': dateFormat(invoice.timestamp),
+                            'total price': invoice.totalPrice.toFixed(2),
+                            'created by': invoice.createdBy.fullName,
+                            client: invoice.client.fullName,
+                            'payment method': (
+                                <>
+                                    <FontAwesomeIcon icon={paymentMethodIcon[invoice.paymentMethod]} />{' '}
+                                    invoice.paymentMethod
+                                </>
+                            ),
+                            warranty: invoice.warrantyPeriod,
+                        }))}
                         onClick={({ id }) => setSelectedItem(data?.find((row) => row.id === id))}
                         pagination={page}
                         onPageChange={setPage}
                     />
                 ) : (
-                    <NoDataComponent items='items in inventory'>
-                        <Button type='primary'>Create Now</Button>
-                    </NoDataComponent>
+                    <NoDataComponent items='items in inventory' />
                 )}
             </div>
         </div>

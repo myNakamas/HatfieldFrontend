@@ -29,6 +29,7 @@ export const Chats = () => {
     const [chat, setChat] = useState<Chat | undefined>()
     const { data: oldMessages } = useQuery(
         ['messages', selectedTicket?.client],
+        //todo: add ticket Id
         () => fetchChat({ userId: selectedTicket?.client?.userId ?? '' }),
         {
             enabled: !!selectedTicket?.client?.userId,

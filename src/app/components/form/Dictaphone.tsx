@@ -3,13 +3,14 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMicrophone } from '@fortawesome/free-solid-svg-icons/faMicrophone'
 import { faMicrophoneSlash } from '@fortawesome/free-solid-svg-icons/faMicrophoneSlash'
+import { Button } from 'antd'
 
 export const Dictaphone = ({
     setText,
     setTempText,
     className,
 }: {
-    className: string
+    className?: string
     setText: (value: string) => void
     setTempText: (value: string) => void
 }) => {
@@ -26,8 +27,8 @@ export const Dictaphone = ({
     }, [transcript])
 
     return (
-        <div
-            className={`icon-l clickable ${listening ? 'mic-on' : 'mic-off'} ${className}`}
+        <Button
+            className={`${listening ? 'mic-on' : 'mic-off'} ${className}`}
             onClick={() => {
                 if (listening) {
                     SpeechRecognition.stopListening()
@@ -35,8 +36,7 @@ export const Dictaphone = ({
                     SpeechRecognition.startListening().then()
                 }
             }}
-        >
-            <FontAwesomeIcon icon={listening ? faMicrophone : faMicrophoneSlash} />
-        </div>
+            icon={<FontAwesomeIcon icon={listening ? faMicrophone : faMicrophoneSlash} />}
+        />
     )
 }

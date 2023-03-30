@@ -3,16 +3,20 @@ import React from 'react'
 import { EditTicketForm } from './EditTicketForm'
 import { defaultTicket } from '../../../models/enums/defaultValues'
 import { Modal } from 'antd'
+import { useQueryClient } from 'react-query'
+import { toast } from 'react-toastify'
+import { createTicket } from '../../../axios/http/ticketRequests'
+import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
 
-export const AddTicket = ({
-    isModalOpen,
-    closeModal,
-    onComplete,
-}: {
-    isModalOpen: boolean
-    closeModal: () => void
-    onComplete: (result: CreateTicket) => Promise<void>
-}) => {
+export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
+    const queryClient = useQueryClient()
+    const onSubmit = (formValue: CreateTicket) => {
+        return toast
+            .promise(createTicket({ ticket: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)
+            .then(() => {
+                queryClient.invalidateQueries(['tickets']).then(() => closeModal())
+            })
+    }
     return (
         <Modal
             title='Create Ticket'
@@ -24,7 +28,7 @@ export const AddTicket = ({
         >
             <EditTicketForm
                 ticket={defaultTicket}
-                onComplete={onComplete}
+                onComplete={onSubmit}
                 onCancel={() => {
                     closeModal()
                 }}

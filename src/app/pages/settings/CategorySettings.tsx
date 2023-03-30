@@ -59,7 +59,11 @@ export const CategorySettings = () => {
                                 <Popconfirm
                                     title='Delete the category'
                                     description='Are you sure to delete this category?'
-                                    onConfirm={() => deleteCategory(rest.id)}
+                                    onConfirm={() =>
+                                        deleteCategory(rest.id).then(() =>
+                                            queryClient.invalidateQueries(['allCategories']).then()
+                                        )
+                                    }
                                     okText='Yes'
                                     cancelText='No'
                                 >

@@ -16,7 +16,7 @@ import { getAllBrands, getAllModels } from '../../../axios/http/shopRequests'
 import { User } from '../../../models/interfaces/user'
 import { getAllClients } from '../../../axios/http/userRequests'
 import moment from 'moment/moment'
-import { Button } from 'antd'
+import { Button, Space } from 'antd'
 
 export const EditTicketForm = ({
     ticket,
@@ -62,7 +62,6 @@ export const EditTicketForm = ({
                                     value={'' + field.value + tempText}
                                 />
                                 <Dictaphone
-                                    className='abs-icon'
                                     setText={(text) => field.onChange(field.value + ' ' + text)}
                                     setTempText={setTempText}
                                 />
@@ -288,21 +287,21 @@ export const EditTicketForm = ({
                 </div>
                 <FormError error={errors.root?.message} />
             </div>
-            <div className='buttonFooter'>
-                <button type='submit' className='successButton'>
+            <Space className='buttonFooter'>
+                <Button htmlType='submit' type='primary'>
                     Submit
-                </button>
-                <button
-                    className='cancelButton'
-                    type='button'
+                </Button>
+                <Button
+                    type='text'
+                    htmlType='button'
                     onClick={() => {
                         reset()
                         onCancel()
                     }}
                 >
                     Cancel
-                </button>
-            </div>
+                </Button>
+            </Space>
         </form>
     )
 }

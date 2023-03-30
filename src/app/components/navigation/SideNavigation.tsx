@@ -37,6 +37,7 @@ export const SideNavigation = ({
         { label: 'Settings', key: '/settings', icon: <FontAwesomeIcon icon={faCogs} /> },
     ]
 
+    //todo: when navigating with back button, the menu does not rerender
     return (
         <Drawer
             title='Hatfield'

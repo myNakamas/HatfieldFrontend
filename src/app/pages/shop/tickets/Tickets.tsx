@@ -2,13 +2,11 @@ import { CustomSuspense } from '../../../components/CustomSuspense'
 import { CustomTable } from '../../../components/table/CustomTable'
 import { NoDataComponent } from '../../../components/table/NoDataComponent'
 import React, { useState } from 'react'
-import { CreateTicket, Ticket } from '../../../models/interfaces/ticket'
-import { useQuery, useQueryClient } from 'react-query'
+import { Ticket } from '../../../models/interfaces/ticket'
+import { useQuery } from 'react-query'
 import { ItemPropertyView, Page, PageRequest } from '../../../models/interfaces/generalModels'
-import { createTicket, fetchAllTickets } from '../../../axios/http/ticketRequests'
+import { fetchAllTickets } from '../../../axios/http/ticketRequests'
 import { AddTicket } from '../../../components/modals/ticket/AddTicket'
-import { toast } from 'react-toastify'
-import { toastCreatePromiseTemplate, toastProps } from '../../../components/modals/ToastProps'
 import dateFormat from 'dateformat'
 import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
 import { TicketFilter } from '../../../models/interfaces/filters'
@@ -34,7 +32,6 @@ export const Tickets = () => {
     const [filter, setFilter] = useState<TicketFilter>({ ticketStatuses: activeTicketStatuses })
     const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
 
-    const queryClient = useQueryClient()
     const onSelectedTicketUpdate = (data: Page<Ticket>) => {
         setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
     }
@@ -42,13 +39,6 @@ export const Tickets = () => {
         onSuccess: onSelectedTicketUpdate,
     })
 
-    const onSubmit = (formValue: CreateTicket) => {
-        return toast
-            .promise(createTicket({ ticket: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)
-            .then(() => {
-                queryClient.invalidateQueries(['tickets']).then(() => setShowNewModal(false))
-            })
-    }
     const tabs: TabsProps['items'] = [
         {
             key: '1',
@@ -71,7 +61,7 @@ export const Tickets = () => {
     return (
         <div className='mainScreen'>
             <ViewTicket ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
-            <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} onComplete={onSubmit} />
+            <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} />
             <TicketFilters {...{ filter, setFilter }} />
             <div className=' button-bar'>
                 <Button type={'primary'} onClick={() => setShowNewModal(true)}>
