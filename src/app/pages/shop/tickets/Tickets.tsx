@@ -33,7 +33,6 @@ export const Tickets = () => {
     const [showNewModal, setShowNewModal] = useState(false)
     const [filter, setFilter] = useState<TicketFilter>({ ticketStatuses: activeTicketStatuses })
     const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
-    console.log(page)
 
     const queryClient = useQueryClient()
     const onSelectedTicketUpdate = (data: Page<Ticket>) => {

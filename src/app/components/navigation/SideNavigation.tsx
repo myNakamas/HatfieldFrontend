@@ -9,7 +9,7 @@ import { faDashboard } from '@fortawesome/free-solid-svg-icons/faDashboard'
 import React from 'react'
 import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
 import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield'
-import { faBuildingUser } from '@fortawesome/free-solid-svg-icons'
+import { faBuildingUser, faFileInvoice } from '@fortawesome/free-solid-svg-icons'
 import { Drawer, Menu, MenuProps } from 'antd'
 
 export type MenuItem = Required<MenuProps>['items'][number]
@@ -32,7 +32,7 @@ export const SideNavigation = ({
         { label: 'Shops', key: '/shops', icon: <FontAwesomeIcon icon={faBuildingUser} /> },
         { label: 'Clients', key: '/clients', icon: <FontAwesomeIcon icon={faUsers} /> },
         { label: 'Tickets', key: '/tickets', icon: <FontAwesomeIcon icon={faTicket} /> },
-        { label: 'Invoices', key: '/invoices', icon: <FontAwesomeIcon icon={faTicket} /> },
+        { label: 'Invoices', key: '/invoices', icon: <FontAwesomeIcon icon={faFileInvoice} /> },
         { label: 'Chats', key: '/chats', icon: <FontAwesomeIcon icon={faCommentDots} /> },
         { label: 'Settings', key: '/settings', icon: <FontAwesomeIcon icon={faCogs} /> },
     ]

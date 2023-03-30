@@ -3,7 +3,7 @@ import { CreateTicket, createTicketFromTicket, Ticket } from '../../../models/in
 import React, { useState } from 'react'
 import dateFormat from 'dateformat'
 import { EditTicketForm } from './EditTicketForm'
-import { postCompleteTicket, updateTicket } from '../../../axios/http/ticketRequests'
+import { postCompleteTicket, postStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
 import { useQueryClient } from 'react-query'
 import { dateTimeMask } from '../../../models/enums/appEnums'
 import CreatableSelect from 'react-select/creatable'
@@ -14,7 +14,7 @@ import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { FormError } from '../../form/FormError'
 import { CollectTicketForm } from './CollectTicketForm'
-import { Button, Descriptions } from 'antd'
+import { Button, Descriptions, Space } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
 
@@ -31,6 +31,12 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
         })
     }
 
+    const startTicket = (id: number) => {
+        toast
+            .promise(postStartTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps)
+            .then(() => queryClient.invalidateQueries(['tickets']).then())
+    }
+
     const completeTicket = (id: number) => {
         if (!deviceLocation || deviceLocation.trim().length == 0) setDeviceLocationError('New location is required')
         else {
@@ -43,6 +49,7 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                 .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
         }
     }
+
     const collectTicket = (invoice: {}, id: number) => {
         return toast
             .promise(
@@ -97,10 +104,15 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                     <h3>Ticket status</h3>
                                     <div className='ticketActions'>
                                         <div>Start the repair</div>
-                                        <button className='actionButton'>Start repair</button>
+                                        <Button
+                                            onClick={() => startTicket(ticket.id)}
+                                            disabled={ticket.status !== 'PENDING'}
+                                        >
+                                            Start repair
+                                        </Button>
                                     </div>
                                     <div>Complete the repair</div>
-                                    <div className='ticketActions'>
+                                    <Space>
                                         <CreatableSelect<ItemPropertyView, false>
                                             isClearable
                                             theme={SelectTheme}
@@ -119,16 +131,14 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                             getOptionLabel={(item) => item.value}
                                             getOptionValue={(item) => item.id + item.value}
                                         />
-                                        <button className='actionButton' onClick={() => completeTicket(ticket.id)}>
-                                            Complete repair
-                                        </button>
-                                    </div>
+                                        <Button onClick={() => completeTicket(ticket.id)}>Finish repair</Button>
+                                    </Space>
                                     <div className='ticketActions'>
                                         <FormError error={deviceLocationError} />
                                     </div>
                                     <div className='ticketActions'>
                                         <div>Mark as collected</div>
-                                        <button className='actionButton'>Collected</button>
+                                        <Button>Collected</Button>
                                     </div>
                                 </div>
 
@@ -136,11 +146,11 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                     <h3>Other actions</h3>
                                     <div className='ticketActions'>
                                         <div>Open the chat with the customer</div>
-                                        <button className='actionButton'>Chat</button>
+                                        <Button>Chat</Button>
                                     </div>
                                     <div className='ticketActions'>
                                         <div>Show as pdf</div>
-                                        <button className='actionButton'>Print invoice</button>
+                                        <Button>Print invoice</Button>
                                     </div>
                                 </div>
                             </div>
@@ -158,6 +168,7 @@ export const TicketDescription = ({ ticket }: { ticket: Ticket }) => {
             <Descriptions.Item label='Created at'>{dateFormat(ticket.timestamp, dateTimeMask)}</Descriptions.Item>
             <Descriptions.Item label='Deadline'>{dateFormat(ticket.deadline, dateTimeMask)}</Descriptions.Item>
             <Descriptions.Item label='Status'>{ticket.status}</Descriptions.Item>
+            <Descriptions.Item label='Location'>{ticket.deviceLocation}</Descriptions.Item>
             <Descriptions.Item label='Client'>
                 {ticket.client.fullName} {ticket.client.email}
             </Descriptions.Item>

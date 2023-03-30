@@ -16,6 +16,7 @@ import { getAllBrands, getAllModels } from '../../../axios/http/shopRequests'
 import { User } from '../../../models/interfaces/user'
 import { getAllClients } from '../../../axios/http/userRequests'
 import moment from 'moment/moment'
+import { Button } from 'antd'
 
 export const EditTicketForm = ({
     ticket,
@@ -107,7 +108,7 @@ export const EditTicketForm = ({
                             </FormField>
                         )}
                     />
-                    <div className='flex-100 justify-between'>
+                    <div className='flex-100 justify-between flex-wrap'>
                         <div>
                             <Controller
                                 control={control}
@@ -156,24 +157,24 @@ export const EditTicketForm = ({
                                             }
                                         />
                                         <div className='flex-100 justify-between'>
-                                            <button
-                                                type='button'
+                                            <Button
+                                                htmlType='button'
                                                 onClick={() => field.onChange(moment().add(30, 'minutes').toDate())}
                                             >
                                                 30 minutes
-                                            </button>
-                                            <button
-                                                type='button'
+                                            </Button>
+                                            <Button
+                                                htmlType='button'
                                                 onClick={() => field.onChange(moment().add(1, 'hour').toDate())}
                                             >
                                                 1 hour
-                                            </button>
-                                            <button
-                                                type='button'
+                                            </Button>
+                                            <Button
+                                                htmlType='button'
                                                 onClick={() => field.onChange(moment().add(2, 'hours').toDate())}
                                             >
                                                 2 hours
-                                            </button>
+                                            </Button>
                                         </div>
                                     </FormField>
                                 )}
@@ -199,7 +200,7 @@ export const EditTicketForm = ({
                 </div>
                 <div className='card'>
                     <h3>Device details</h3>
-                    <div className='flex-100 justify-between'>
+                    <div className='flex-100 justify-between flex-wrap'>
                         <div>
                             <Controller
                                 control={control}

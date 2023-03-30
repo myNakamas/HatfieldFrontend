@@ -14,7 +14,14 @@ export const AddTicket = ({
     onComplete: (result: CreateTicket) => Promise<void>
 }) => {
     return (
-        <Modal title='Create Ticket' open={isModalOpen} closable footer={<></>} width={'50%'}>
+        <Modal
+            title='Create Ticket'
+            open={isModalOpen}
+            closable
+            footer={<></>}
+            width={'clamp(400px,80%,900px)'}
+            onCancel={closeModal}
+        >
             <EditTicketForm
                 ticket={defaultTicket}
                 onComplete={onComplete}

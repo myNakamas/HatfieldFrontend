@@ -28,11 +28,12 @@ export const updateTicket = ({ id, ticket }: { id: number; ticket: CreateTicket 
 export const postCompleteTicket = (params: { id: number; location: string }): Promise<number> => {
     return backendClient.put('ticket/complete', {}, { params })
 }
-export const postUpdateTicket = (params: { id: number }): Promise<number> => {
+export const postStartTicket = (params: { id: number }): Promise<number> => {
     return backendClient.put('ticket/start', {}, { params })
 }
+//todo: modal
 export const postCollectTicket = (params: { id: number }): Promise<number> => {
-    return backendClient.put('ticket/start', {}, { params })
+    return backendClient.put('ticket/collected', {}, { params })
 }
 
 export const fetchChat = ({ userId }: { userId: string }): Promise<ChatMessage[]> => {

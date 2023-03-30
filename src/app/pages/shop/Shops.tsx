@@ -14,7 +14,6 @@ export const Shops = () => {
 
     return (
         <div className='mainScreen'>
-            {/*<AddInventoryItem isModalOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)} />*/}
             <div className=' button-bar'>
                 <button className='actionButton' onClick={() => setModalIsOpen(true)}>
                     Add a new Shop

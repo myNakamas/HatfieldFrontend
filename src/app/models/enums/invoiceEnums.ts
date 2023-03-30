@@ -1,0 +1,13 @@
+export type InvoiceType = 'TICKET' | 'BUY' | 'SELL' | 'ACCESSORIES'
+export type PaymentMethod = 'CASH' | 'CARD' | 'COMBINED'
+export type WarrantyPeriod =
+    | 'NONE'
+    | 'ONE_DAY'
+    | 'THREE_DAYS'
+    | 'ONE_WEEK'
+    | 'TWO_WEEKS'
+    | 'ONE_MONTH'
+    | 'THREE_MONTHS'
+    | 'SIX_MONTHS'
+    | 'ONE_YEAR'
+    | 'TWO_YEARS'
