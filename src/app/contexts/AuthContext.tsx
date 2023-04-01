@@ -30,11 +30,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return !!localStorage.getItem('token')
     }
 
-    const login = (user: User, token: string, pageToRedirectTo?: string) => {
+    const login = (user: User, token: string) => {
         setLoggedUser(user)
         setToken(token)
         localStorage.setItem('token', token)
-        navigate(pageToRedirectTo ?? '/welcome', { replace: true })
     }
 
     useEffect(() => {

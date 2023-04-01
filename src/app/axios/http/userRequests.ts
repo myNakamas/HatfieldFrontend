@@ -1,7 +1,7 @@
-import backendClient from '../backendClient';
-import { ResetPassword, User, UsernamePassword } from '../../models/interfaces/user';
-import axios, { AxiosResponse } from 'axios';
-import { toUserFilterView, UserFilter } from '../../models/interfaces/filters';
+import backendClient from '../backendClient'
+import { ResetPassword, User, UsernamePassword } from '../../models/interfaces/user'
+import axios, { AxiosResponse } from 'axios'
+import { toUserFilterView, UserFilter } from '../../models/interfaces/filters'
 
 const transformLoginResponse = ({ data: user, headers }: AxiosResponse) => {
     const token = 'Bearer ' + headers['authorization']
@@ -25,20 +25,11 @@ export const getAllUsers = ({ filter }: { filter?: UserFilter }): Promise<User[]
     const userFilter = toUserFilterView(filter)
     return backendClient.get('user/worker/all', { params: userFilter })
 }
-export const getAllWorkers = ({ filter }: { filter?: UserFilter }): Promise<User[]> => {
-    const userFilter = toUserFilterView(filter)
-    return backendClient.get('user/worker/all', {
-        params: {
-            ...userFilter,
-            roles: 'ENGINEER,SALESMAN',
-        },
-    })
+export const getAllWorkers = (): Promise<User[]> => {
+    return backendClient.get('user/worker/all/workers')
 }
-export const getAllClients = ({ filter }: { filter?: UserFilter }): Promise<User[]> => {
-    const userFilter = toUserFilterView(filter)
-    return backendClient.get('user/worker/all', {
-        params: { ...userFilter, roles: 'CLIENT' },
-    })
+export const getAllClients = (): Promise<User[]> => {
+    return backendClient.get('user/worker/all/clients')
 }
 export const updateYourProfile = (user: User): Promise<User> => {
     return backendClient.put('user/profile/edit', user)

@@ -26,7 +26,8 @@ export const Login = () => {
     const onSubmit = (formValues: UsernamePassword) => {
         useLogin(formValues)
             .then(({ user, token }) => {
-                login(user, token, state?.from)
+                login(user, token)
+                navigate(pageToRedirectTo, { replace: true })
             })
             .catch(() => {
                 setError('root', { type: 'value', message: 'Invalid credentials' })

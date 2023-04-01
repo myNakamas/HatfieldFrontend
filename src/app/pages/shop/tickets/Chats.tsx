@@ -165,7 +165,6 @@ export const Chats = () => {
 const TicketChatInfo = ({ ticket }: { ticket: Ticket | undefined }) => {
     const [showModal, setShowModal] = useState(false)
     if (!ticket) return <></>
-    //todo: keep only the important information and add a button to open the full modal
     return (
         <Card
             title={`Ticket#${ticket.id} Info`}

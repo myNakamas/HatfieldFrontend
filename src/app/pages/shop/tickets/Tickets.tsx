@@ -43,7 +43,6 @@ export const Tickets = () => {
         {
             key: '1',
             label: 'Active tickets',
-            //todo: display the active tickets without pagination
             children: <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} />,
         },
         {
@@ -129,9 +128,8 @@ const TicketFilters = ({
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     // const { data: locations } = useQuery('locations', getAllLocations)
-    //todo create get all clients and all users
-    const { data: clients } = useQuery('clients', () => getAllClients({}))
-    const { data: users } = useQuery('workers', () => getAllWorkers({}))
+    const { data: clients } = useQuery('clients', () => getAllClients())
+    const { data: users } = useQuery('workers', () => getAllWorkers())
     const { data: shops } = useQuery('shops', getAllShops)
     return advanced ? (
         <div className='ticketFilter'>
