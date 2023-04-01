@@ -28,23 +28,23 @@ export const ShortTicketTable = ({
     const columns = ['creation date', 'deadline', 'status', 'client'].map((string, index) => ({
         title: string,
         dataIndex: string,
-        key: index + string,
+        key: 'column' + index + string,
     })) as ColumnsType<Ticket>
     const getComponentProps = (record: Ticket) => ({
         onClick: () => {
-            if (onClick) {
-                onClick(record)
-            }
+            onClick(record)
         },
     })
     return (
         <Table
             dataSource={
-                data.content.map(({ timestamp, deadline, client, status }) => ({
+                data.content.map(({ timestamp, deadline, client, status,...rest }, index) => ({
+                    key: 'ticket' + index,
                     'creation date': dateFormat(timestamp),
                     deadline: deadline ? <Deadline deadline={deadline} /> : '-',
                     status,
                     client: client?.fullName,
+                    ...rest
                 })) as unknown as Ticket[]
             }
             columns={columns}

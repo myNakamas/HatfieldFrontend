@@ -11,7 +11,11 @@ interface CustomTableProps<T> {
 }
 
 export const CustomTable = <T extends object>({ data, onClick, pagination, onPageChange }: CustomTableProps<T>) => {
-    const columns = Object.entries(data[0]).map(([key], index) => ({ title: key, dataIndex: key, key: index + key }))
+    const columns = Object.entries(data[0]).map(([key], index) => ({
+        title: key,
+        dataIndex: key,
+        key: 'column' + index + key,
+    }))
     const getComponentProps = (record: T) => ({
         onClick: () => {
             if (onClick) {
@@ -21,7 +25,7 @@ export const CustomTable = <T extends object>({ data, onClick, pagination, onPag
     })
     return (
         <Table<T>
-            dataSource={data}
+            dataSource={data.map((value, index) => ({ key: 'dataKey' + index, ...value }))}
             columns={columns}
             onRow={getComponentProps}
             pagination={{

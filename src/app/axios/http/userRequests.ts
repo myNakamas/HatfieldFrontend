@@ -34,7 +34,8 @@ export const getAllClients = (): Promise<User[]> => {
 export const updateYourProfile = (user: User): Promise<User> => {
     return backendClient.put('user/profile/edit', user)
 }
-export const getProfilePicture = ({ id }: { id: string }): Promise<Blob> => {
+export const getProfilePicture = ({ id }: { id?: string }): Promise<Blob> => {
+    if(!id) return new Promise(() => new Blob());
     return backendClient.get('user/profile/image', { params: { id }, responseType: 'blob' })
 }
 export const changeProfilePicture = ({ picture }: { picture: File }) => {

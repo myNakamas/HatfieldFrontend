@@ -9,6 +9,7 @@ import { Button, Popconfirm } from 'antd'
 import { faTrashCan } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { deleteCategory } from '../../axios/http/settingsRequests'
+import { NoDataComponent } from '../../components/table/NoDataComponent'
 
 export const CategorySettings = () => {
     const { data: allCategories, isLoading } = useQuery(['allCategories'], () => getAllCategories())
@@ -33,9 +34,9 @@ export const CategorySettings = () => {
     return (
         <div className='mainScreen'>
             <div className='button-bar'>
-                <button className='actionButton' onClick={() => setShowModal(true)}>
+                <Button onClick={() => setShowModal(true)}>
                     Add new category
-                </button>
+                </Button>
             </div>
             <AddInventoryCategory
                 closeModal={() => setShowEditModal(false)}
@@ -50,7 +51,7 @@ export const CategorySettings = () => {
                 category={{} as Category}
             />
             <CustomSuspense isReady={!isLoading}>
-                {allCategories && (
+                {allCategories && allCategories.length > 0 ? (
                     <CustomTable<Category>
                         data={allCategories.map(({ columns, ...rest }) => ({
                             ...rest,
@@ -75,7 +76,12 @@ export const CategorySettings = () => {
                             setSelectedCategory(value)
                         }}
                     />
-                )}
+                ):
+                    <NoDataComponent items={'categories'}>
+                        <Button type={'primary'} onClick={() => setShowModal(true)}>
+                            Add new category
+                        </Button>
+                    </NoDataComponent>}
             </CustomSuspense>
         </div>
     )

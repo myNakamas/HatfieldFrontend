@@ -13,7 +13,7 @@ export const Toolbar = ({ setShowNav }: { setShowNav: React.Dispatch<React.SetSt
     const { loggedUser } = useContext(AuthContext)
     const navigate = useNavigate()
     const { data: profileImg } = useQuery(['profileImg', loggedUser?.userId], () =>
-        getProfilePicture({ id: loggedUser?.userId ?? '' })
+        getProfilePicture({ id: loggedUser?.userId })
     )
     const title = 'Hatfield'
     return (

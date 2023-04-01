@@ -1,24 +1,25 @@
-import React, { useContext, useState } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
-import { CustomTable } from '../../components/table/CustomTable';
-import { NoDataComponent } from '../../components/table/NoDataComponent';
-import { banClient, createClient, createWorkerUser, getAllUsers } from '../../axios/http/userRequests';
-import { AddEditUser } from '../../components/modals/AddEditUser';
-import { AuthContext } from '../../contexts/AuthContext';
-import { User } from '../../models/interfaces/user';
-import { SimpleUserSchema } from '../../models/validators/FormValidators';
-import { toast } from 'react-toastify';
-import { toastProps } from '../../components/modals/ToastProps';
-import { getAllShops } from '../../axios/http/shopRequests';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
-import { SearchComponent } from '../../components/filters/SearchComponent';
-import { ItemPropertyView } from '../../models/interfaces/generalModels';
-import { UserFilter } from '../../models/interfaces/filters';
-import { UserRolesArray } from '../../models/enums/userEnums';
-import { Shop } from '../../models/interfaces/shop';
-import Select from 'react-select';
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS';
+import React, { useContext, useState } from 'react'
+import { useQuery, useQueryClient } from 'react-query'
+import { CustomTable } from '../../components/table/CustomTable'
+import { NoDataComponent } from '../../components/table/NoDataComponent'
+import { banClient, createClient, createWorkerUser, getAllUsers } from '../../axios/http/userRequests'
+import { AddEditUser } from '../../components/modals/AddEditUser'
+import { AuthContext } from '../../contexts/AuthContext'
+import { User } from '../../models/interfaces/user'
+import { SimpleUserSchema } from '../../models/validators/FormValidators'
+import { toast } from 'react-toastify'
+import { toastProps } from '../../components/modals/ToastProps'
+import { getAllShops } from '../../axios/http/shopRequests'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faBan } from '@fortawesome/free-solid-svg-icons/faBan'
+import { SearchComponent } from '../../components/filters/SearchComponent'
+import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { UserFilter } from '../../models/interfaces/filters'
+import { UserRolesArray } from '../../models/enums/userEnums'
+import { Shop } from '../../models/interfaces/shop'
+import Select from 'react-select'
+import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
+import { Button } from 'antd'
 
 export const Users = () => {
     const { loggedUser } = useContext(AuthContext)
@@ -89,9 +90,9 @@ export const Users = () => {
                 </div>
             </div>
             <div className='align-center button-bar'>
-                <button className='actionButton' onClick={() => setSelectedUser({} as User)}>
+                <Button onClick={() => setSelectedUser({} as User)}>
                     Add a new user
-                </button>
+                </Button>
             </div>
             <div className='tableWrapper'>
                 {users && users.length > 0 ? (

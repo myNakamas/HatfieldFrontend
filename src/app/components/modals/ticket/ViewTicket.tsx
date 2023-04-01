@@ -169,10 +169,10 @@ export const TicketDescription = ({ ticket }: { ticket: Ticket }) => {
             <Descriptions.Item label='Deadline'>{dateFormat(ticket.deadline, dateTimeMask)}</Descriptions.Item>
             <Descriptions.Item label='Status'>{ticket.status}</Descriptions.Item>
             <Descriptions.Item label='Location'>{ticket.deviceLocation}</Descriptions.Item>
-            <Descriptions.Item label='Client'>
+            {ticket.client && <Descriptions.Item label='Client'>
                 {ticket.client.fullName} {ticket.client.email}
             </Descriptions.Item>
-
+            }
             <Descriptions.Item label='Problem'>{ticket.problemExplanation}</Descriptions.Item>
             <Descriptions.Item label='Customer Request'>{ticket.customerRequest}</Descriptions.Item>
             <Descriptions.Item label='Created by'>{ticket.createdBy.fullName}</Descriptions.Item>

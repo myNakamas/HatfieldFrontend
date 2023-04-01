@@ -33,7 +33,7 @@ export const Profile = () => {
         }
     }
     const { data: profileImg } = useQuery(['profileImg', loggedUser?.userId], () =>
-        getProfilePicture({ id: loggedUser?.userId ?? '' })
+        getProfilePicture({ id: loggedUser?.userId })
     )
 
     return (

@@ -30,12 +30,6 @@ export const Dashboard = () => {
     const { data: tickets, isLoading } = useQuery(['tickets', { filter: activeTicketStatuses }, page], () =>
         fetchAllTickets({ page, filter: { ticketStatuses: activeTicketStatuses } })
     )
-    const data = [
-        { uv: 1, pv: 2 },
-        { uv: 5, pv: 2 },
-        { uv: 3, pv: 1 },
-        { uv: 6, pv: 2 },
-    ]
 
     return (
         <Space direction='vertical'>
@@ -44,7 +38,8 @@ export const Dashboard = () => {
             <DashboardFilters {...{ filter, setFilter }} />
             <Space>
                 <Card
-                    title={`Active Tickets: ${tickets?.totalCount}`}
+                    style={{minWidth:350}}
+                    title={`Active Tickets: ${tickets?.totalCount} `}
                     extra={
                         <Space>
                             <Button

@@ -67,12 +67,12 @@ export const Inventory = () => {
             <div className='tableWrapper'>
                 {data && data.content.length > 0 ? (
                     <CustomTable<InventoryItem>
-                        data={data.content.map(({ id, brand, categoryView: { itemType, name }, model, count }) => ({
+                        data={data.content.map(({ id, brand, categoryView, model, count }) => ({
                             id,
                             brand,
-                            itemType,
-                            name,
                             model,
+                            type: categoryView?.itemType ?? '-',
+                            category: categoryView?.name ?? '-',
                             count,
                         }))}
                         onClick={({ id }) => setSelectedItem(data?.content.find((row) => row.id === id))}

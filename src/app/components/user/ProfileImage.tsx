@@ -3,7 +3,7 @@ import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
 import React from 'react'
 
 export const ProfileImage = ({ profileImg }: { profileImg?: Blob }) => {
-    return profileImg ? (
+    return profileImg && profileImg.size>0 ? (
         <img alt='Profile image' src={URL.createObjectURL(profileImg)} />
     ) : (
         <FontAwesomeIcon size='lg' icon={faUser} />

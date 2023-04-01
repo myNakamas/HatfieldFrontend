@@ -205,7 +205,7 @@ const TicketFilters = ({
                 <Select<Shop, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter.modelId === id)}
+                    value={shops?.find(({ id }) => filter.shopId === id)}
                     options={shops ?? []}
                     placeholder='Filter by shop'
                     isClearable

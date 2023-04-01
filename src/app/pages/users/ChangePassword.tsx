@@ -1,12 +1,13 @@
-import React from "react";
-import { SettingsCard } from "./Profile";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup/dist/yup";
-import { ResetPasswordSchema } from "../../models/validators/FormValidators";
-import { ResetPassword } from "../../models/interfaces/user";
-import { TextField } from "../../components/form/TextField";
-import { FormError } from "../../components/form/FormError";
-import { changePassword } from "../../axios/http/userRequests";
+import React from 'react'
+import { SettingsCard } from './Profile'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { ResetPasswordSchema } from '../../models/validators/FormValidators'
+import { ResetPassword } from '../../models/interfaces/user'
+import { TextField } from '../../components/form/TextField'
+import { FormError } from '../../components/form/FormError'
+import { changePassword } from '../../axios/http/userRequests'
+import { Button } from 'antd'
 
 export const ChangePassword = () => {
     const {
@@ -49,9 +50,9 @@ export const ChangePassword = () => {
                         />
                         <FormError error={errors.root?.message} />
 
-                        <button className='actionButton' type='submit'>
+                        <Button type='primary' htmlType='submit'>
                             Change password
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </SettingsCard>

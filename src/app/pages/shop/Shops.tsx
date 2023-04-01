@@ -6,6 +6,7 @@ import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { useNavigate } from 'react-router-dom'
 import { Shop } from '../../models/interfaces/shop'
 import { CustomSuspense } from '../../components/CustomSuspense'
+import { Button } from 'antd'
 
 export const Shops = () => {
     const navigate = useNavigate()
@@ -15,9 +16,9 @@ export const Shops = () => {
     return (
         <div className='mainScreen'>
             <div className=' button-bar'>
-                <button className='actionButton' onClick={() => setModalIsOpen(true)}>
+                <Button onClick={() => setModalIsOpen(true)}>
                     Add a new Shop
-                </button>
+                </Button>
             </div>
             <div className='tableWrapper'>
                 <CustomSuspense isReady={isSuccess}>
