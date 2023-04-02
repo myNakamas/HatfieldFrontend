@@ -6,7 +6,6 @@ import { ObjectSchema } from 'yup'
 import { TextField } from '../form/TextField'
 import { UserRolesArray } from '../../models/enums/userEnums'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle'
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
 import { FormError } from '../form/FormError'
 import Select from 'react-select'
@@ -15,8 +14,10 @@ import { SelectTheme } from '../../styles/components/stylesTS'
 import { useQuery } from 'react-query'
 import { getAllShops } from '../../axios/http/shopRequests'
 import { Shop } from '../../models/interfaces/shop'
-import { useContext } from 'react'
+import React, { useContext } from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
+import { Button, Typography } from 'antd'
+import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 
 export const AddEditUser = ({
     isModalOpen,
@@ -42,7 +43,7 @@ export const AddEditUser = ({
         setValue,
         getValues,
         setError,
-    } = useForm<User>({ resolver: yupResolver(validateSchema), defaultValues: user })
+    } = useForm<User>({ resolver: yupResolver(validateSchema), defaultValues: { ...user, phones: user?.phones || [] } })
     const { loggedUser } = useContext(AuthContext)
     const { data: shops } = useQuery('shops', getAllShops)
 
@@ -60,16 +61,11 @@ export const AddEditUser = ({
                 <TextField register={register('username')} error={errors.username} label={'Username'} />
                 <TextField register={register('fullName')} error={errors.fullName} label={'FullName'} />
                 <TextField register={register('email')} error={errors.email} label={'Email'} type='email' />
-                <label>
-                    Phones{' '}
-                    <FontAwesomeIcon
-                        size='lg'
-                        color='green'
-                        className=' clickable'
-                        icon={faPlusCircle}
-                        onClick={() => setValue('phones', [...getValues('phones'), ''])}
-                    />
-                </label>
+                <Typography>Phones</Typography>
+                <Button
+                    onClick={() => setValue('phones', [...getValues('phones'), ''])}
+                    icon={<FontAwesomeIcon size='lg' icon={faPlus} />}
+                />
                 {watch('phones')?.map((phone, index) => {
                     const error = errors.phones && (errors.phones[index] as FieldError)
                     return (
@@ -79,18 +75,15 @@ export const AddEditUser = ({
                             placeholder={'Add phone'}
                             error={error}
                             button={
-                                <div className='icon-s clickable'>
-                                    <FontAwesomeIcon
-                                        color='red'
-                                        icon={faTrash}
-                                        onClick={() =>
-                                            setValue(
-                                                'phones',
-                                                getValues('phones').filter((value, i) => i !== index)
-                                            )
-                                        }
-                                    />
-                                </div>
+                                <Button
+                                    onClick={() =>
+                                        setValue(
+                                            'phones',
+                                            getValues('phones').filter((value, i) => i !== index)
+                                        )
+                                    }
+                                    icon={<FontAwesomeIcon color='red' icon={faTrash} />}
+                                />
                             }
                         />
                     )

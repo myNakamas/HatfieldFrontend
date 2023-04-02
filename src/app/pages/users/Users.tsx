@@ -1,28 +1,43 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { CustomTable } from '../../components/table/CustomTable'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { banClient, createClient, createWorkerUser, getAllUsers } from '../../axios/http/userRequests'
+import {
+    banClient,
+    createClient,
+    createWorkerUser,
+    getAllUsers,
+    updateClient,
+    updateUser,
+} from '../../axios/http/userRequests'
 import { AddEditUser } from '../../components/modals/AddEditUser'
 import { AuthContext } from '../../contexts/AuthContext'
 import { User } from '../../models/interfaces/user'
 import { SimpleUserSchema } from '../../models/validators/FormValidators'
 import { toast } from 'react-toastify'
-import { toastProps } from '../../components/modals/ToastProps'
+import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { getAllShops } from '../../axios/http/shopRequests'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan'
 import { SearchComponent } from '../../components/filters/SearchComponent'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
 import { UserFilter } from '../../models/interfaces/filters'
-import { UserRolesArray } from '../../models/enums/userEnums'
+import { UserRolesArray, userTourSteps } from '../../models/enums/userEnums'
 import { Shop } from '../../models/interfaces/shop'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
-import { Button } from 'antd'
+import { Button, FloatButton, Popconfirm, Space, Tour } from 'antd'
+import { faPen, faQuestion } from '@fortawesome/free-solid-svg-icons'
+import { ViewUser } from '../../components/modals/ViewUser'
 
 export const Users = () => {
+    const [tourIsOpen, setTourIsOpen] = useState(false)
+    const tourRef1 = useRef(null)
+    const tourRef2 = useRef(null)
+    const tourRef3 = useRef(null)
+
     const { loggedUser } = useContext(AuthContext)
+    const [viewUser, setViewUser] = useState<User | undefined>()
     const [selectedUser, setSelectedUser] = useState<User | undefined>()
     const [filter, setFilter] = useState<UserFilter>({})
 
@@ -30,12 +45,16 @@ export const Users = () => {
     const { data: shops } = useQuery('shops', getAllShops)
     const queryClient = useQueryClient()
 
-    const onSubmit = (value: User) => {
-        const user = loggedUser?.role === 'ADMIN' ? value : ({ ...value, shopId: loggedUser?.shopId } as User)
-        const promise = user.role === 'CLIENT' ? createClient(user) : createWorkerUser(user)
+    const onSubmit = (formValue: User) => {
+        if (formValue.userId !== undefined) return onEdit(formValue)
+        else return onSaveNew(formValue)
+    }
+
+    const onSaveNew = (formValue: User) => {
+        const user = loggedUser?.role === 'ADMIN' ? formValue : ({ ...formValue, shopId: loggedUser?.shopId } as User)
         return toast
             .promise(
-                promise,
+                user.role === 'CLIENT' ? createClient(user) : createWorkerUser(user),
                 { pending: 'Sending', success: 'User successfully created', error: 'User creation failed' },
                 toastProps
             )
@@ -45,7 +64,16 @@ export const Users = () => {
             })
     }
     const onEdit = (value: User) => {
-        //not done yet
+        return toast
+            .promise(
+                value.role === 'CLIENT' ? updateClient(value) : updateUser(value),
+                toastUpdatePromiseTemplate('user'),
+                toastProps
+            )
+            .then(() => {
+                setSelectedUser(undefined)
+                queryClient.invalidateQueries(['users']).then()
+            })
     }
 
     return (
@@ -58,6 +86,7 @@ export const Users = () => {
                 onComplete={onSubmit}
                 validateSchema={SimpleUserSchema}
             />
+            <ViewUser user={viewUser} closeModal={() => setViewUser(undefined)} />
             <div className='filterRow'>
                 <SearchComponent {...{ filter, setFilter }} />
                 <div className='filterField'>
@@ -90,32 +119,57 @@ export const Users = () => {
                 </div>
             </div>
             <div className='align-center button-bar'>
-                <Button onClick={() => setSelectedUser({} as User)}>
+                <Button ref={tourRef1} onClick={() => setSelectedUser({} as User)}>
                     Add a new user
                 </Button>
             </div>
-            <div className='tableWrapper'>
+            <div className='tableWrapper' ref={tourRef2}>
                 {users && users.length > 0 ? (
-                    <CustomTable
-                        data={users.map(({ userId, username, role, fullName, email, shopId }) => {
+                    <CustomTable<User>
+                        data={users.map((user) => {
                             return {
-                                username,
-                                fullName,
-                                role,
-                                email,
-                                shop: shops?.find(({ id }) => shopId === id)?.shopName,
+                                userId: user.userId,
+                                username: user.username,
+                                fullName: user.fullName,
+                                role: user.role,
+                                email: user.email,
+                                shop: shops?.find(({ id }) => user.shopId === id)?.shopName,
                                 actions: (
-                                    <button className='iconButton' onClick={() => banClient(userId, true)}>
-                                        <FontAwesomeIcon icon={faBan} />
-                                    </button>
+                                    <Space>
+                                        <Button
+                                            ref={tourRef3}
+                                            onClick={() => setSelectedUser(user)}
+                                            icon={<FontAwesomeIcon icon={faPen} />}
+                                        />
+
+                                        <Popconfirm
+                                            title='Ban user'
+                                            description='Are you sure to ban this user?'
+                                            onConfirm={() => banClient(user.userId, true)}
+                                        >
+                                            <Button icon={<FontAwesomeIcon icon={faBan} />} />
+                                        </Popconfirm>
+                                    </Space>
                                 ),
                             }
                         })}
+                        onClick={({ userId }) => setViewUser(users?.find((user) => user.userId === userId))}
                     />
                 ) : (
                     <NoDataComponent items='items in inventory' />
                 )}
             </div>
+            <Tour
+                type={'primary'}
+                open={tourIsOpen}
+                onClose={() => setTourIsOpen(false)}
+                steps={userTourSteps([tourRef1, tourRef2, tourRef3])}
+            />
+            <FloatButton
+                tooltip={'Take a tour!'}
+                onClick={() => setTourIsOpen(true)}
+                icon={<FontAwesomeIcon icon={faQuestion} />}
+            />
         </div>
     )
 }

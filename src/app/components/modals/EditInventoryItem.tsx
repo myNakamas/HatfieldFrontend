@@ -1,8 +1,15 @@
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { AddItemInventorySchema } from '../../models/validators/FormValidators'
-import { Category, CreateInventoryItem } from '../../models/interfaces/shop'
-import { addNewItem, getAllBrands, getAllCategories, getAllModels, getShopData } from '../../axios/http/shopRequests'
+import { EditItemInventorySchema } from '../../models/validators/FormValidators'
+import { Category, InventoryItem } from '../../models/interfaces/shop'
+import {
+    addCategory,
+    getAllBrands,
+    getAllCategories,
+    getAllModels,
+    getShopData,
+    putUpdateItem,
+} from '../../axios/http/shopRequests'
 import { useQuery, useQueryClient } from 'react-query'
 import { TextField } from '../form/TextField'
 import { FormError } from '../form/FormError'
@@ -15,14 +22,25 @@ import { FormField } from '../form/Field'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
 import { toastProps } from './ToastProps'
+import { Button, Space } from 'antd'
+import { AddInventoryCategory } from './AddEditCategory'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
-export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
+export const EditInventoryItem = ({
+    isModalOpen,
+    closeModal,
+    item,
+}: {
+    isModalOpen: boolean
+    closeModal: () => void
+    item?: InventoryItem
+}) => {
     const queryClient = useQueryClient()
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: categories } = useQuery(['allCategories'], getAllCategories)
     const { data: shop } = useQuery(['currentShop'], getShopData)
-    const [columns, setColumns] = useState<string[]>()
     const {
         control,
         register,
@@ -30,16 +48,17 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
         formState: { errors },
         setError,
         watch,
-    } = useForm<CreateInventoryItem>({
-        resolver: yupResolver(AddItemInventorySchema),
-        defaultValues: { shopId: shop?.id },
+        reset,
+    } = useForm<InventoryItem>({
+        resolver: yupResolver(EditItemInventorySchema),
+        defaultValues: item,
     })
-    const submit = (formValue: CreateInventoryItem) => {
+    const submit = (formValue: InventoryItem) => {
         if (shop) {
-            const item = { ...formValue, shopId: shop.id }
+            const item = { ...formValue, categoryId: formValue.categoryView.id, shopId: shop.id }
             toast
                 .promise(
-                    addNewItem({ item })
+                    putUpdateItem({ item })
                         .then(() => {
                             closeModal()
                             queryClient.invalidateQueries(['shopItems']).then()
@@ -55,14 +74,13 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
             setError('root', { type: 'shopId', message: 'You are not assigned to any shop' })
         }
     }
+
     useEffect(() => {
-        const c = categories?.find((category) => category.id === watch('categoryId'))
-        setColumns(c?.columns)
-    }, [watch('categoryId')])
+        if (item) reset(item)
+    }, [item])
 
     return (
-        <AppModal {...{ isModalOpen, closeModal }}>
-            <h2>Add inventory item</h2>
+        <AppModal {...{ isModalOpen, closeModal }} title={'Edit item #' + item?.id}>
             <form className='modalForm' onSubmit={handleSubmit(submit)}>
                 <div className='textFormLabel'>Adding item to shop:</div>
                 <input readOnly className='input' disabled defaultValue={shop?.shopName} />
@@ -78,9 +96,14 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                                 options={brands}
                                 formatCreateLabel={(value) => 'Create new brand ' + value}
                                 placeholder='Select or add a new brand'
-                                value={field.value as unknown as ItemPropertyView}
-                                onCreateOption={(item) => field.onChange({ value: item })}
-                                onChange={(newValue) => field.onChange(newValue)}
+                                value={
+                                    brands?.find((brand) => brand.value === field.value) || {
+                                        id: -1,
+                                        value: field.value,
+                                    }
+                                }
+                                onCreateOption={(item) => field.onChange(item)}
+                                onChange={(newValue) => field.onChange(newValue?.value)}
                                 getOptionLabel={(item) => item.value}
                                 getOptionValue={(item) => item.id + item.value}
                             />
@@ -99,9 +122,14 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                                 options={models}
                                 placeholder='Select or add a new brand'
                                 formatCreateLabel={(value) => 'Create new model ' + value}
-                                value={field.value as unknown as ItemPropertyView}
-                                onCreateOption={(item) => field.onChange({ value: item })}
-                                onChange={(newValue) => field.onChange(newValue)}
+                                value={
+                                    models?.find((model) => model.value === field.value) || {
+                                        id: -1,
+                                        value: field.value,
+                                    }
+                                }
+                                onCreateOption={(item) => field.onChange(item)}
+                                onChange={(newValue) => field.onChange(newValue?.value)}
                                 getOptionLabel={(item) => item.value}
                                 getOptionValue={(item) => item.id + item.value}
                             />
@@ -112,41 +140,74 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
 
                 <Controller
                     control={control}
-                    name='categoryId'
+                    name='categoryView'
                     render={({ field, fieldState }) => {
                         return (
                             <FormField label={'Item Category'} error={fieldState.error}>
-                                <Select<Category>
-                                    isClearable
-                                    theme={SelectTheme}
-                                    options={categories}
-                                    placeholder='Select Item Category'
-                                    onChange={(type) => {
-                                        field.onChange(type?.id)
-                                        setColumns(type?.columns)
-                                    }}
-                                    getOptionLabel={(item) => item.name}
-                                    getOptionValue={(item) => String(item.id)}
-                                />
+                                <Space>
+                                    <Select<Category>
+                                        isClearable
+                                        theme={SelectTheme}
+                                        options={categories}
+                                        placeholder='Select Item Category'
+                                        onChange={(type) => {
+                                            field.onChange(type)
+                                        }}
+                                        getOptionLabel={(item) => item.name}
+                                        getOptionValue={(item) => String(item.id)}
+                                    />
+                                    <InlineAddInventoryCategory />
+                                </Space>
                             </FormField>
                         )
                     }}
                 />
-                {columns &&
-                    columns.map((key, index) => (
-                        <TextField register={register(`properties.${key}`)} label={key} key={key + index} />
+                {watch('categoryView') &&
+                    watch('categoryView.columns').map((key, index) => (
+                        <TextField register={register(`columns.${key}`)} label={key} key={key + index} />
                     ))}
 
                 <FormError error={errors.root?.message} />
-                <div className='flex-100 justify-end'>
-                    <button className='successButton' type='submit'>
+                <Space className={'flex-100 justify-end'}>
+                    <Button type='primary' htmlType='submit'>
                         Create
-                    </button>
-                    <button className='cancelButton' type='button' onClick={closeModal}>
+                    </Button>
+                    <Button htmlType='button' onClick={closeModal}>
                         Close
-                    </button>
-                </div>
+                    </Button>
+                </Space>
             </form>
         </AppModal>
+    )
+}
+
+const InlineAddInventoryCategory = () => {
+    const [showModal, setShowModal] = useState(false)
+    const queryClient = useQueryClient()
+
+    const onCreate = (formValue: Category) => {
+        return addCategory(formValue).then(() => {
+            setShowModal(false)
+            queryClient.invalidateQueries(['allCategories']).then()
+        })
+    }
+
+    return (
+        <>
+            <AddInventoryCategory
+                closeModal={() => setShowModal(false)}
+                isModalOpen={showModal}
+                onComplete={onCreate}
+                category={{} as Category}
+            />
+            <Button
+                onClick={() => {
+                    setShowModal(true)
+                }}
+                icon={<FontAwesomeIcon icon={faPlus} />}
+            >
+                Add a new category
+            </Button>
+        </>
     )
 }

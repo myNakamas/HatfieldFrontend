@@ -16,8 +16,9 @@ export const CustomTable = <T extends object>({ data, onClick, pagination, onPag
         dataIndex: key,
         key: 'column' + index + key,
     }))
+    // noinspection JSUnusedGlobalSymbols
     const getComponentProps = (record: T) => ({
-        onClick: () => {
+        onDoubleClick: () => {
             if (onClick) {
                 onClick(record)
             }

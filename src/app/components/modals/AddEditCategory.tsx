@@ -56,7 +56,7 @@ export const AddInventoryCategory = ({
                                 getValues('columns').filter((value, i) => i !== index)
                             )
                         }
-                    icon={                    <FontAwesomeIcon color='red' icon={faTrash} />}
+                        icon={<FontAwesomeIcon color='red' icon={faTrash} />}
                     />
                 }
             />

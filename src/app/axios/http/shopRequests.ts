@@ -1,7 +1,7 @@
-import backendClient from '../backendClient';
-import { ItemPropertyView, Page, PageRequest } from '../../models/interfaces/generalModels';
-import { InventoryFilter } from '../../models/interfaces/filters';
-import { Category, CreateInventoryItem, InventoryItem, Shop } from '../../models/interfaces/shop';
+import backendClient from '../backendClient'
+import { ItemPropertyView, Page, PageRequest } from '../../models/interfaces/generalModels'
+import { InventoryFilter } from '../../models/interfaces/filters'
+import { Category, CreateInventoryItem, InventoryItem, Shop } from '../../models/interfaces/shop'
 
 export const getAllShops = (): Promise<Shop[]> => {
     return backendClient.get('shop/admin/all')
@@ -40,6 +40,9 @@ export const addNewItem = ({
 }): Promise<InventoryItem> => {
     const body = { ...rest, modelId: model?.id, model: model?.value, brandId: brand?.id, brand: brand?.value }
     return backendClient.post('inventory/item/create', body)
+}
+export const putUpdateItem = ({ item }: { item: InventoryItem }) => {
+    return backendClient.post('inventory/item/create', item)
 }
 
 export const getAllCategories = (): Promise<Category[]> => {

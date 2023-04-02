@@ -16,9 +16,11 @@ import { AuthContext } from '../../contexts/AuthContext'
 import { Button } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
-import { faFileEdit, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faFileEdit, faPen, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { EditInventoryItem } from '../../components/modals/EditInventoryItem'
 
 export const Inventory = () => {
+    const [editItem, setEditItem] = useState<InventoryItem>()
     const [selectedItem, setSelectedItem] = useState<InventoryItem>()
     const navigate = useNavigate()
     const { loggedUser } = useContext(AuthContext)
@@ -28,16 +30,16 @@ export const Inventory = () => {
     const { data } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), {
         keepPreviousData: true,
     })
-    // const table = useReactTable({
-    //     data:data?.content,
-    //     columns:[],
-    //     getCoreRowModel: getCoreRowModel(),
-    // })
     return (
         <div className='mainScreen'>
             <InventoryFilters {...{ filter, setFilter }} />
             <AddInventoryItem isModalOpen={createModalIsOpen} closeModal={() => setCreateModalIsOpen(false)} />
-            <ViewInventoryItem inventoryItem={selectedItem} closeModal={() => setSelectedItem(undefined)} />
+            <EditInventoryItem isModalOpen={!!editItem} item={editItem} closeModal={() => setEditItem(undefined)} />
+            <ViewInventoryItem
+                inventoryItem={selectedItem}
+                closeModal={() => setSelectedItem(undefined)}
+                openEditModal={(item) => setEditItem(item)}
+            />
             <div className='button-bar'>
                 <Button
                     icon={<FontAwesomeIcon icon={faPlus} />}
@@ -67,13 +69,16 @@ export const Inventory = () => {
             <div className='tableWrapper'>
                 {data && data.content.length > 0 ? (
                     <CustomTable<InventoryItem>
-                        data={data.content.map(({ id, brand, categoryView, model, count }) => ({
-                            id,
-                            brand,
-                            model,
-                            type: categoryView?.itemType ?? '-',
-                            category: categoryView?.name ?? '-',
-                            count,
+                        data={data.content.map((item) => ({
+                            id: item.id,
+                            brand: item.brand,
+                            model: item.model,
+                            type: item.categoryView?.itemType ?? '-',
+                            category: item.categoryView?.name ?? '-',
+                            count: item.count,
+                            actions: (
+                                <Button onClick={() => setEditItem(item)} icon={<FontAwesomeIcon icon={faPen} />} />
+                            ),
                         }))}
                         onClick={({ id }) => setSelectedItem(data?.content.find((row) => row.id === id))}
                         pagination={page}
@@ -100,7 +105,7 @@ const InventoryFilters = ({
 }) => {
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
-    const { data: categories } = useQuery('categories', getAllCategories)
+    const { data: categories } = useQuery('allCategories', getAllCategories)
 
     return (
         <div className='filterRow'>
