@@ -6,6 +6,7 @@ import { faPen } from '@fortawesome/free-solid-svg-icons'
 import React from 'react'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
+import { postPrintItemLabel } from '../../axios/http/documentRequests'
 
 export const ViewInventoryItem = ({
     inventoryItem,
@@ -16,6 +17,14 @@ export const ViewInventoryItem = ({
     closeModal: () => void
     openEditModal: (item: InventoryItem) => void
 }) => {
+    const printSellDocument = async () => {
+        const blob = await postPrintItemLabel(inventoryItem?.id)
+        if (blob) {
+            const fileUrl = URL.createObjectURL(blob)
+            window.open(fileUrl)
+        }
+    }
+
     return (
         <AppModal isModalOpen={!!inventoryItem} closeModal={closeModal} title={'Inventory Item'}>
             {inventoryItem && (
@@ -60,7 +69,9 @@ export const ViewInventoryItem = ({
                         <Card title={'Actions'}>
                             <Space>
                                 <Typography>Print the label for the item</Typography>
-                                <Button icon={<FontAwesomeIcon icon={faPrint} />}>Print</Button>
+                                <Button onClick={printSellDocument} icon={<FontAwesomeIcon icon={faPrint} />}>
+                                    Print
+                                </Button>
                             </Space>
                             <Divider />
                             <Space>
