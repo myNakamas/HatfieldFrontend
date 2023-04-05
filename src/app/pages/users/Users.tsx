@@ -13,7 +13,7 @@ import {
 import { AddEditUser } from '../../components/modals/AddEditUser'
 import { AuthContext } from '../../contexts/AuthContext'
 import { User } from '../../models/interfaces/user'
-import { SimpleUserSchema } from '../../models/validators/FormValidators'
+import { EditUserSchema, SimpleUserSchema } from '../../models/validators/FormValidators'
 import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { getAllShops } from '../../axios/http/shopRequests'
@@ -78,13 +78,14 @@ export const Users = () => {
 
     return (
         <div className='mainScreen'>
+            {/*todo:separate to Create modal and edit modal maybe*/}
             <AddEditUser
                 isModalOpen={!!selectedUser}
                 user={selectedUser}
                 closeModal={() => setSelectedUser(undefined)}
                 variation={loggedUser?.role === 'ADMIN' ? 'FULL' : 'CREATE'}
                 onComplete={onSubmit}
-                validateSchema={SimpleUserSchema}
+                validateSchema={loggedUser?.role === 'ADMIN' ? EditUserSchema : SimpleUserSchema}
             />
             <ViewUser user={viewUser} closeModal={() => setViewUser(undefined)} />
             <div className='filterRow'>

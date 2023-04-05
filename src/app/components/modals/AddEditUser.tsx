@@ -14,9 +14,9 @@ import { SelectTheme } from '../../styles/components/stylesTS'
 import { useQuery } from 'react-query'
 import { getAllShops } from '../../axios/http/shopRequests'
 import { Shop } from '../../models/interfaces/shop'
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useRef } from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
-import { Button, Typography } from 'antd'
+import { Button, Switch, Typography } from 'antd'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 
 export const AddEditUser = ({
@@ -34,6 +34,7 @@ export const AddEditUser = ({
     variation: 'PARTIAL' | 'CREATE' | 'FULL'
     validateSchema?: ObjectSchema<any, User>
 }) => {
+    const formRef = useRef<HTMLFormElement>(null)
     const {
         register,
         handleSubmit,
@@ -43,14 +44,22 @@ export const AddEditUser = ({
         setValue,
         getValues,
         setError,
-    } = useForm<User>({ resolver: yupResolver(validateSchema), defaultValues: { ...user, phones: user?.phones || [] } })
+        reset,
+    } = useForm<User>({ resolver: yupResolver(validateSchema) })
     const { loggedUser } = useContext(AuthContext)
+    useEffect(() => {
+        const defaultValue = { ...user, phones: user?.phones || [] }
+        reset(defaultValue)
+        formRef.current?.reset()
+    }, [isModalOpen, variation])
+
     const { data: shops } = useQuery('shops', getAllShops)
 
     return (
         <AppModal isModalOpen={isModalOpen} closeModal={closeModal}>
             <h3>User</h3>
             <form
+                ref={formRef}
                 className='modalForm'
                 onSubmit={handleSubmit((data) =>
                     onComplete(data).catch((message: string) => {
@@ -58,9 +67,25 @@ export const AddEditUser = ({
                     })
                 )}
             >
-                <TextField register={register('username')} error={errors.username} label={'Username'} />
-                <TextField register={register('fullName')} error={errors.fullName} label={'FullName'} />
-                <TextField register={register('email')} error={errors.email} label={'Email'} type='email' />
+                <TextField
+                    defaultValue={''}
+                    register={register('username')}
+                    error={errors.username}
+                    label={'Username'}
+                />
+                <TextField
+                    defaultValue={''}
+                    register={register('fullName')}
+                    error={errors.fullName}
+                    label={'FullName'}
+                />
+                <TextField
+                    defaultValue={''}
+                    register={register('email')}
+                    error={errors.email}
+                    label={'Email'}
+                    type='email'
+                />
                 <Typography>Phones</Typography>
                 <Button
                     onClick={() => setValue('phones', [...getValues('phones'), ''])}
@@ -88,6 +113,34 @@ export const AddEditUser = ({
                         />
                     )
                 })}
+                <Controller
+                    control={control}
+                    name={'smsPermission'}
+                    render={({ field, fieldState }) => (
+                        <FormField label={'Receive sms notifications'} error={fieldState.error}>
+                            <Switch checked={field.value} onChange={field.onChange} />
+                        </FormField>
+                    )}
+                />
+                <Controller
+                    control={control}
+                    name={'emailPermission'}
+                    render={({ field, fieldState }) => (
+                        <FormField label={'Receive email notifications'} error={fieldState.error}>
+                            <Switch checked={field.value} onChange={field.onChange} />
+                        </FormField>
+                    )}
+                />
+                <Controller
+                    control={control}
+                    name={'isBanned'}
+                    render={({ field, fieldState }) => (
+                        <FormField label={'Ban status'} error={fieldState.error}>
+                            <Switch checked={field.value} onChange={field.onChange} />
+                        </FormField>
+                    )}
+                />
+
                 {variation === 'FULL' && (
                     <>
                         <Controller
@@ -98,6 +151,7 @@ export const AddEditUser = ({
                                     <Select<Shop, false>
                                         theme={SelectTheme}
                                         options={shops}
+                                        value={shops?.find((shop) => shop.id === field.value)}
                                         getOptionLabel={({ shopName }) => shopName}
                                         getOptionValue={({ id }) => id + ''}
                                         placeholder=''
@@ -121,9 +175,10 @@ export const AddEditUser = ({
                                     <Select
                                         theme={SelectTheme}
                                         options={UserRolesArray}
+                                        value={UserRolesArray.find((role) => role.value === field.value)}
                                         getOptionLabel={({ value }) => value}
                                         getOptionValue={({ value }) => value}
-                                        placeholder=''
+                                        placeholder='Select a role for the user'
                                         onChange={(item) => field.onChange(item?.value)}
                                     />
                                 </FormField>
@@ -170,12 +225,12 @@ export const AddEditUser = ({
                 <FormError error={errors.root?.message} />
 
                 <div className='flex-100 justify-end'>
-                    <button type='submit' className='successButton'>
-                        Submit
-                    </button>
-                    <button className='cancelButton' type='button' onClick={closeModal}>
-                        Cancel
-                    </button>
+                    <Button type='primary' htmlType='submit'>
+                        Save
+                    </Button>
+                    <Button htmlType='button' onClick={closeModal}>
+                        Close
+                    </Button>
                 </div>
             </form>
         </AppModal>

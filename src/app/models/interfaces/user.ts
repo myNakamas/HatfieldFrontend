@@ -18,5 +18,9 @@ export interface User extends UsernamePassword {
     email: string
     phones: string[]
     shopId: number
-    //    todo:more fields
+    shopName: string
+    isActive: boolean
+    isBanned: boolean
+    smsPermission: boolean
+    emailPermission: boolean
 }

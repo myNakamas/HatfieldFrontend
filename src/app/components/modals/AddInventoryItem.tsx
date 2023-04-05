@@ -15,6 +15,7 @@ import { FormField } from '../form/Field'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
 import { toastProps } from './ToastProps'
+import { Button } from 'antd'
 
 export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
     const queryClient = useQueryClient()
@@ -139,12 +140,12 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
 
                 <FormError error={errors.root?.message} />
                 <div className='flex-100 justify-end'>
-                    <button className='successButton' type='submit'>
-                        Create
-                    </button>
-                    <button className='cancelButton' type='button' onClick={closeModal}>
+                    <Button type='primary' htmlType='submit'>
+                        Save
+                    </Button>
+                    <Button htmlType='button' onClick={closeModal}>
                         Close
-                    </button>
+                    </Button>
                 </div>
             </form>
         </AppModal>
