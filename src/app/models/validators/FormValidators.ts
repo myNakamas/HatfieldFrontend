@@ -56,3 +56,8 @@ export const ShopSchema = Yup.object().shape({
         smsApiKey: Yup.string().notRequired(),
     }),
 })
+export const UsedItemSchema = Yup.object().shape({
+    itemId: Yup.number().required(),
+    ticketId: Yup.number().required(),
+    count: Yup.number().min(1, 'Must be over 0').required(),
+})

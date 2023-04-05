@@ -16,6 +16,10 @@ export const useGetShopItems = ({
 }): Promise<Page<InventoryItem>> => {
     return backendClient.get('inventory/item/all', { params: { ...page, ...filter } })
 }
+export const getAllShopItems = (shopId?: number): Promise<InventoryItem[]> => {
+    const filter: InventoryFilter = { shopId }
+    return backendClient.get('inventory/item/short', { params: { ...filter } })
+}
 
 export const getShopData = (): Promise<Shop> => {
     return backendClient.get('shop/myShop')

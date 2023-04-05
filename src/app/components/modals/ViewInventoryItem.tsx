@@ -3,10 +3,12 @@ import { AppModal } from './AppModal'
 import { Button, Card, Descriptions, Divider, Space, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons'
-import React from 'react'
+import React, { useState } from 'react'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
 import { postPrintItemLabel } from '../../axios/http/documentRequests'
+import { AddUsedItem } from './ticket/AddUsedItem'
+import { UsedItemModel } from '../../models/interfaces/ticket'
 
 export const ViewInventoryItem = ({
     inventoryItem,
@@ -17,6 +19,8 @@ export const ViewInventoryItem = ({
     closeModal: () => void
     openEditModal: (item: InventoryItem) => void
 }) => {
+    // const [sellModalOpen, setSellModalOpen] = useState(false)
+    const [isUseModalOpen, setIsUseModalOpen] = useState(false)
     const printSellDocument = async () => {
         const blob = await postPrintItemLabel(inventoryItem?.id)
         if (blob) {
@@ -27,6 +31,17 @@ export const ViewInventoryItem = ({
 
     return (
         <AppModal isModalOpen={!!inventoryItem} closeModal={closeModal} title={'Inventory Item'}>
+            <AddUsedItem
+                usedItem={{ itemId: inventoryItem?.id, count: 1, ticketId: undefined } as unknown as UsedItemModel}
+                closeModal={() => setIsUseModalOpen(false)}
+                show={isUseModalOpen}
+            />
+            {
+                //todo:Display sell item modal
+                /*inventoryItem && (
+                <SellItem usedItem={inventoryItem} closeModal={() => setSellModalOpen(false)} show={sellModalOpen} />
+            )*/
+            }
             {inventoryItem && (
                 <Space direction='vertical' style={{ width: '100%' }}>
                     <Descriptions
@@ -81,7 +96,9 @@ export const ViewInventoryItem = ({
                             <Divider />
                             <Space>
                                 <Typography>Use in a ticket</Typography>
-                                <Button type={'primary'}>Use</Button>
+                                <Button onClick={() => setIsUseModalOpen(true)} type={'primary'}>
+                                    Add to ticket
+                                </Button>
                             </Space>
                         </Card>
                         <Card title={'Modify item quantity'}>
