@@ -12,6 +12,7 @@ import { ShopView } from '../pages/shop/ShopView'
 import { CategorySettings } from '../pages/settings/CategorySettings'
 import { Dashboard } from '../pages/dashboard/Dashboard'
 import { Invoices } from '../pages/shop/Invoices'
+import { Clients } from '../pages/users/Clients'
 
 export const Router = () => {
     return (
@@ -24,7 +25,7 @@ export const Router = () => {
                 <Route path='/profile' element={<Profile />} />
                 <Route path='/profile/change-password' element={<ChangePassword />} />
                 <Route path='/users' element={<Users />} />
-                <Route path='/clients' element={<div>moneh</div>} />
+                <Route path='/clients' element={<Clients />} />
                 <Route path='/chats' element={<Chats />} />
                 <Route path='/shops' element={<Shops />} />
                 <Route path='/shops/:id' element={<ShopView />} />
