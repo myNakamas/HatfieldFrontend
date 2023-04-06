@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { Shop } from '../../models/interfaces/shop'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import { Button } from 'antd'
+import { AddShop } from '../../components/modals/AddShop'
 
 export const Shops = () => {
     const navigate = useNavigate()
@@ -15,10 +16,9 @@ export const Shops = () => {
 
     return (
         <div className='mainScreen'>
+            <AddShop isModalOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)} />
             <div className=' button-bar'>
-                <Button onClick={() => setModalIsOpen(true)}>
-                    Add a new Shop
-                </Button>
+                <Button onClick={() => setModalIsOpen(true)}>Add a new Shop</Button>
             </div>
             <div className='tableWrapper'>
                 <CustomSuspense isReady={isSuccess}>

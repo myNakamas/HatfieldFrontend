@@ -30,6 +30,9 @@ export const getShopById = (shopId: number): Promise<Shop> => {
 export const updateShop = (value: Shop): Promise<Shop> => {
     return backendClient.put('shop/admin/update', value)
 }
+export const createShop = (value: Shop): Promise<Shop> => {
+    return backendClient.post('shop/admin/create', value)
+}
 
 export const getAllModels = (): Promise<ItemPropertyView[]> => {
     return backendClient.get('inventory/model/all')
