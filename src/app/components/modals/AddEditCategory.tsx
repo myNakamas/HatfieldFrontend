@@ -12,7 +12,8 @@ import { FormField } from '../form/Field'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle'
+import { Button, Typography } from 'antd'
+import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 
 export const AddInventoryCategory = ({
     isModalOpen,
@@ -48,17 +49,15 @@ export const AddInventoryCategory = ({
                 error={error}
                 label={`Column ${index + 1}`}
                 button={
-                    <div
-                        className='icon-s clickable'
+                    <Button
                         onClick={() =>
                             setValue(
                                 'columns',
                                 getValues('columns').filter((value, i) => i !== index)
                             )
                         }
-                    >
-                        <FontAwesomeIcon color='red' icon={faTrash} />
-                    </div>
+                        icon={<FontAwesomeIcon color='red' icon={faTrash} />}
+                    />
                 }
             />
         )
@@ -88,24 +87,19 @@ export const AddInventoryCategory = ({
                         )}
                         name={'itemType'}
                     />
-                    <label>
-                        Properties{' '}
-                        <FontAwesomeIcon
-                            size='lg'
-                            color='green'
-                            className=' clickable'
-                            icon={faPlusCircle}
-                            onClick={() => setValue('columns', [...getValues('columns'), ''])}
-                        />
-                    </label>
+                    <Typography>Properties</Typography>
+                    <Button
+                        onClick={() => setValue('columns', [...getValues('columns'), ''])}
+                        icon={<FontAwesomeIcon size='lg' icon={faPlus} />}
+                    />
                     {properties?.map((value, index) => displayProperties(value, index))}
                     <div className='flex-100 justify-end'>
-                        <button className='successButton' type='submit'>
+                        <Button type='primary' htmlType='submit'>
                             Save
-                        </button>
-                        <button className='cancelButton' type='button' onClick={closeModal}>
+                        </Button>
+                        <Button htmlType='button' onClick={closeModal}>
                             Close
-                        </button>
+                        </Button>
                     </div>
                 </form>
             )}

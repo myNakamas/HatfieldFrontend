@@ -1,17 +1,18 @@
-import { NavLink } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse } from '@fortawesome/free-solid-svg-icons/faHouse';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers';
-import { faCommentDots } from '@fortawesome/free-solid-svg-icons/faCommentDots';
-import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket';
-import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs';
-import { faDashboard } from '@fortawesome/free-solid-svg-icons/faDashboard';
-import { faBars } from '@fortawesome/free-solid-svg-icons/faBars';
-import React from 'react';
-import { faStore } from '@fortawesome/free-solid-svg-icons/faStore';
-import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield';
-import { faBuildingUser } from '@fortawesome/free-solid-svg-icons';
+import { useLocation, useNavigate } from 'react-router-dom'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faHouse } from '@fortawesome/free-solid-svg-icons/faHouse'
+import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
+import { faCommentDots } from '@fortawesome/free-solid-svg-icons/faCommentDots'
+import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket'
+import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs'
+import { faDashboard } from '@fortawesome/free-solid-svg-icons/faDashboard'
+import React from 'react'
+import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
+import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield'
+import { faBuildingUser, faFileInvoice } from '@fortawesome/free-solid-svg-icons'
+import { Drawer, Menu, MenuProps } from 'antd'
+
+export type MenuItem = Required<MenuProps>['items'][number]
 
 export const SideNavigation = ({
     showNavigation,
@@ -20,32 +21,40 @@ export const SideNavigation = ({
     showNavigation?: boolean
     setShowNav: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
-    return (
-        <div className={`sidenav ${showNavigation ? 'visible' : 'invisible'}`}>
-            <div className='flex-100'>
-                <div className='icon-s clickable' onClick={() => setShowNav((prev) => !prev)}>
-                    <FontAwesomeIcon icon={faBars} />
-                </div>
-                <h3>Hatfield</h3>
-            </div>
-            <NavButton to={'/welcome'} icon={faHouse} label='Home' />
-            <NavButton to={'/dashboard'} icon={faDashboard} label='Dashboard' />
-            <NavButton to={'/inventory'} icon={faStore} label='Inventory' />
-            <NavButton to={'/users'} icon={faUserShield} label='Users' />
-            <NavButton to={'/shops'} icon={faBuildingUser} label='Shops' />
-            <NavButton to={'/clients'} icon={faUsers} label='Clients' />
-            <NavButton to={'/chats'} icon={faCommentDots} label='Chats' />
-            <NavButton to={'/tickets'} icon={faTicket} label='Tickets' />
-            <NavButton to={'/settings'} icon={faCogs} label='Settings' />
-        </div>
-    )
-}
+    const navigate = useNavigate()
+    const { pathname } = useLocation()
 
-const NavButton = ({ to, icon, label }: { to: string; icon: IconDefinition; label: string }) => {
+    const items: MenuItem[] = [
+        { label: 'Home', key: '/welcome', icon: <FontAwesomeIcon icon={faHouse} /> },
+        { label: 'Dashboard', key: '/dashboard', icon: <FontAwesomeIcon icon={faDashboard} /> },
+        { label: 'Inventory', key: '/inventory', icon: <FontAwesomeIcon icon={faStore} /> },
+        { label: 'Users', key: '/users', icon: <FontAwesomeIcon icon={faUserShield} /> },
+        { label: 'Shops', key: '/shops', icon: <FontAwesomeIcon icon={faBuildingUser} /> },
+        { label: 'Clients', key: '/clients', icon: <FontAwesomeIcon icon={faUsers} /> },
+        { label: 'Tickets', key: '/tickets', icon: <FontAwesomeIcon icon={faTicket} /> },
+        { label: 'Invoices', key: '/invoices', icon: <FontAwesomeIcon icon={faFileInvoice} /> },
+        { label: 'Chats', key: '/chats', icon: <FontAwesomeIcon icon={faCommentDots} /> },
+        { label: 'Settings', key: '/settings', icon: <FontAwesomeIcon icon={faCogs} /> },
+    ]
+
+    //todo: when navigating with back button, the menu does not rerender
     return (
-        <NavLink to={to} className='nav-button'>
-            <FontAwesomeIcon size='lg' icon={icon} />
-            <h3>{label}</h3>
-        </NavLink>
+        <Drawer
+            title='Hatfield'
+            placement={'left'}
+            closable={true}
+            bodyStyle={{ padding: 0 }}
+            onClose={() => setShowNav(false)}
+            open={showNavigation}
+        >
+            <Menu
+                defaultSelectedKeys={[pathname]}
+                onSelect={(item) => {
+                    navigate(item.key)
+                }}
+                mode='inline'
+                items={items}
+            />
+        </Drawer>
     )
 }

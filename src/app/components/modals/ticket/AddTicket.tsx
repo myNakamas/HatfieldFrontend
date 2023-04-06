@@ -1,27 +1,38 @@
-import { AppModal } from '../AppModal'
 import { CreateTicket } from '../../../models/interfaces/ticket'
 import React from 'react'
 import { EditTicketForm } from './EditTicketForm'
+import { defaultTicket } from '../../../models/enums/defaultValues'
+import { Modal } from 'antd'
+import { useQueryClient } from 'react-query'
+import { toast } from 'react-toastify'
+import { createTicket } from '../../../axios/http/ticketRequests'
+import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
 
-export const AddTicket = ({
-    isModalOpen,
-    closeModal,
-    onComplete,
-}: {
-    isModalOpen: boolean
-    closeModal: () => void
-    onComplete: (result: CreateTicket) => Promise<void>
-}) => {
+export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
+    const queryClient = useQueryClient()
+    const onSubmit = (formValue: CreateTicket) => {
+        return toast
+            .promise(createTicket({ ticket: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)
+            .then(() => {
+                queryClient.invalidateQueries(['tickets']).then(() => closeModal())
+            })
+    }
     return (
-        <AppModal isModalOpen={isModalOpen} closeModal={closeModal}>
-            <h3>Create Ticket</h3>
+        <Modal
+            title='Create Ticket'
+            open={isModalOpen}
+            closable
+            footer={<></>}
+            width={'clamp(400px,80%,900px)'}
+            onCancel={closeModal}
+        >
             <EditTicketForm
-                ticket={{} as CreateTicket}
-                onComplete={onComplete}
+                ticket={defaultTicket}
+                onComplete={onSubmit}
                 onCancel={() => {
                     closeModal()
                 }}
             />
-        </AppModal>
+        </Modal>
     )
 }

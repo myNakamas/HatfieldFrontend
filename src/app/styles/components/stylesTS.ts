@@ -1,4 +1,3 @@
-import { Styles } from 'react-modal'
 import { StylesConfig, Theme } from 'react-select'
 
 export const getSystemMode = () => {
@@ -25,23 +24,6 @@ export const getColorsPerSystem = () => {
         backgroundColor: '#fff',
         backgroundColor10: '#E7E7E7FF',
         backgroundTransparent: 'rgba(255,255,255,0.8)',
-    }
-}
-
-export const ModalStyles = (): Styles => {
-    const colorsPerSystem = getColorsPerSystem()
-    return {
-        overlay: {
-            zIndex: 3,
-            backgroundColor: colorsPerSystem.backgroundTransparent,
-        },
-        content: {
-            height: 'max-content',
-            maxWidth: '800px',
-            margin: 'auto',
-            width: '60%',
-            ...colorsPerSystem,
-        },
     }
 }
 

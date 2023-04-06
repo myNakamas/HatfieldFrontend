@@ -1,7 +1,7 @@
 import backendClient from '../backendClient'
 import { ResetPassword, User, UsernamePassword } from '../../models/interfaces/user'
 import axios, { AxiosResponse } from 'axios'
-import { toUserFilterView, UserFilter } from '../../models/interfaces/generalModels'
+import { toUserFilterView, UserFilter } from '../../models/interfaces/filters'
 
 const transformLoginResponse = ({ data: user, headers }: AxiosResponse) => {
     const token = 'Bearer ' + headers['authorization']
@@ -25,10 +25,17 @@ export const getAllUsers = ({ filter }: { filter?: UserFilter }): Promise<User[]
     const userFilter = toUserFilterView(filter)
     return backendClient.get('user/worker/all', { params: userFilter })
 }
+export const getAllWorkers = ({ filter }: { filter?: UserFilter }): Promise<User[]> => {
+    return backendClient.get('user/worker/all/workers', { params: filter })
+}
+export const getAllClients = ({ filter }: { filter?: UserFilter }): Promise<User[]> => {
+    return backendClient.get('user/worker/all/clients', { params: filter })
+}
 export const updateYourProfile = (user: User): Promise<User> => {
     return backendClient.put('user/profile/edit', user)
 }
-export const getProfilePicture = ({ id }: { id: string }): Promise<Blob> => {
+export const getProfilePicture = ({ id }: { id?: string }): Promise<Blob> => {
+    if (!id) return new Promise(() => new Blob())
     return backendClient.get('user/profile/image', { params: { id }, responseType: 'blob' })
 }
 export const changeProfilePicture = ({ picture }: { picture: File }) => {
@@ -43,7 +50,13 @@ export const createWorkerUser = (user: User): Promise<User> => {
     return backendClient.post('user/admin/create', user)
 }
 export const createClient = (user: User): Promise<User> => {
-    return backendClient.post('user/create/client', user)
+    return backendClient.post('user/worker/client', user)
+}
+export const updateClient = (user: User): Promise<User> => {
+    return backendClient.put('user/worker/client', user)
+}
+export const updateUser = (user: User): Promise<User> => {
+    return backendClient.put('user/admin/update', user)
 }
 export const banClient = (id: string, status: boolean) => {
     return backendClient.put('user/admin/updateBan', {}, { params: { id, status } })

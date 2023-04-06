@@ -5,12 +5,15 @@ import { CustomSuspense } from '../../components/CustomSuspense'
 import { CustomTable } from '../../components/table/CustomTable'
 import { AddInventoryCategory } from '../../components/modals/AddEditCategory'
 import { useState } from 'react'
+import { Button, Popconfirm } from 'antd'
+import { faTrashCan } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { deleteCategory } from '../../axios/http/settingsRequests'
+import { NoDataComponent } from '../../components/table/NoDataComponent'
 
 export const CategorySettings = () => {
-    //todo: add edit button
     const { data: allCategories, isLoading } = useQuery(['allCategories'], () => getAllCategories())
     const queryClient = useQueryClient()
-    //todo: Research the best way to invalidate the caches query client ( maybe pass the query client as a context )
     const [showModal, setShowModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     const [selectedCategory, setSelectedCategory] = useState<Category>()
@@ -31,9 +34,9 @@ export const CategorySettings = () => {
     return (
         <div className='mainScreen'>
             <div className='button-bar'>
-                <button className='actionButton' onClick={() => setShowModal(true)}>
+                <Button onClick={() => setShowModal(true)}>
                     Add new category
-                </button>
+                </Button>
             </div>
             <AddInventoryCategory
                 closeModal={() => setShowEditModal(false)}
@@ -48,19 +51,37 @@ export const CategorySettings = () => {
                 category={{} as Category}
             />
             <CustomSuspense isReady={!isLoading}>
-                <div className='width-m'>
-                    {allCategories && allCategories.length > 0 && (
-                        <CustomTable<Category>
-                            data={allCategories.map(({ columns, ...rest }) => ({
-                                ...rest,
-                                columns: columns.join(', '),
-                            }))}
-                            onClick={(value) => {
-                                setSelectedCategory(value)
-                            }}
-                        />
-                    )}
-                </div>
+                {allCategories && allCategories.length > 0 ? (
+                    <CustomTable<Category>
+                        data={allCategories.map(({ columns, ...rest }) => ({
+                            ...rest,
+                            columns: columns.join(', '),
+                            actions: (
+                                <Popconfirm
+                                    title='Delete the category'
+                                    description='Are you sure to delete this category?'
+                                    onConfirm={() =>
+                                        deleteCategory(rest.id).then(() =>
+                                            queryClient.invalidateQueries(['allCategories']).then()
+                                        )
+                                    }
+                                    okText='Yes'
+                                    cancelText='No'
+                                >
+                                    <Button icon={<FontAwesomeIcon icon={faTrashCan} />} />
+                                </Popconfirm>
+                            ),
+                        }))}
+                        onClick={(value) => {
+                            setSelectedCategory(value)
+                        }}
+                    />
+                ):
+                    <NoDataComponent items={'categories'}>
+                        <Button type={'primary'} onClick={() => setShowModal(true)}>
+                            Add new category
+                        </Button>
+                    </NoDataComponent>}
             </CustomSuspense>
         </div>
     )

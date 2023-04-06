@@ -1,5 +1,6 @@
 import backendClient from '../backendClient'
-import { InventoryFilter, ItemPropertyView, Page, PageRequest } from '../../models/interfaces/generalModels'
+import { ItemPropertyView, Page, PageRequest } from '../../models/interfaces/generalModels'
+import { InventoryFilter } from '../../models/interfaces/filters'
 import { Category, CreateInventoryItem, InventoryItem, Shop } from '../../models/interfaces/shop'
 
 export const getAllShops = (): Promise<Shop[]> => {
@@ -14,6 +15,10 @@ export const useGetShopItems = ({
     filter: InventoryFilter
 }): Promise<Page<InventoryItem>> => {
     return backendClient.get('inventory/item/all', { params: { ...page, ...filter } })
+}
+export const getAllShopItems = (shopId?: number): Promise<InventoryItem[]> => {
+    const filter: InventoryFilter = { shopId }
+    return backendClient.get('inventory/item/short', { params: { ...filter } })
 }
 
 export const getShopData = (): Promise<Shop> => {
@@ -39,6 +44,9 @@ export const addNewItem = ({
 }): Promise<InventoryItem> => {
     const body = { ...rest, modelId: model?.id, model: model?.value, brandId: brand?.id, brand: brand?.value }
     return backendClient.post('inventory/item/create', body)
+}
+export const putUpdateItem = ({ item }: { item: InventoryItem }) => {
+    return backendClient.post('inventory/item/create', item)
 }
 
 export const getAllCategories = (): Promise<Category[]> => {

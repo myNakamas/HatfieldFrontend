@@ -1,82 +1,19 @@
-.noData {
-  margin: 20px;
-
-}
-
 thead {
   text-transform: capitalize;
 }
 
-.tableWrapper {
-  overflow-x: auto;
-  max-width: 100vw;
-
-  .table {
-    thead {
-      text-transform: capitalize;
-      background-color: var(--backgroundColor10);
-    }
-
-    .clickable:hover {
-      background-color: var(--backgroundColor20);
-      mix-blend-mode: normal;
-    }
-  }
-}
 
 .button-bar {
   display: flex;
   flex-wrap: wrap;
   width: 100%;
-  margin: 20px 10px
+  margin: 20px 10px;
+
+  button {
+    margin-right: 10px;
+  }
 }
 
-.pagination {
-  display: flex;
-  width: 100%;
-  align-items: baseline;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.itemsPerPage {
-  padding-right: 10px;
-}
-
-ul.react-paginate {
-  margin-bottom: 2rem;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  list-style-type: none;
-  padding: 0 5rem;
-}
-
-ul.react-paginate li a {
-  border-radius: 7px;
-  padding: 0.5rem 1rem;
-  border: gray 1px solid;
-  cursor: pointer;
-}
-
-ul.react-paginate li.previous a,
-ul.react-paginate li.next a,
-ul.react-paginate li.break a {
-  border-color: transparent;
-}
-
-ul.react-paginate li.selected a {
-  background-color: var(--primaryColor);
-  border-color: transparent;
-  color: white;
-  min-width: 32px;
-}
-
-ul.react-paginate li.disabled a {
-  color: grey;
-}
-
-ul.react-paginate li.disable,
-ul.react-paginate li.disabled a {
-  cursor: default;
+.dangerBg {
+  background-color: rgba(183, 0, 0, 0.5);
 }

@@ -18,7 +18,8 @@ export const TextField = ({ label, error, button, register, ...rest }: TextField
             <label>
                 {label}
                 <div className='flex-100 align-center'>
-                    <input className={`input ${error && 'error'}`} {...register} {...rest} /> {button}
+                    <input className={`input ${error && 'error'}`} {...register} {...rest} />
+                    {button}
                 </div>
                 <FormError error={error?.message} />
             </label>

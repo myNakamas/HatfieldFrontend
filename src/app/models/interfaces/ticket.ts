@@ -76,3 +76,9 @@ export interface Chat {
 export interface UserChats {
     [key: string]: ChatMessage[]
 }
+
+export interface UsedItemModel {
+    itemId: number
+    ticketId: number
+    count: number
+}

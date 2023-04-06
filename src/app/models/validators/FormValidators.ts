@@ -25,11 +25,25 @@ export const SimpleUserSchema = Yup.object<User>().shape({
     phones: Yup.array().of(Yup.string().min(10, 'Not a valid phone number')).notRequired(),
     shopId: Yup.number().notRequired(),
 })
+export const EditUserSchema = Yup.object<User>().shape({
+    userId: Yup.string().notRequired(),
+    username: Yup.string().min(5, 'Minimum of 5 characters required!').max(50, 'Too Long!').required('Required'),
+    fullName: Yup.string().notRequired(),
+    email: Yup.string().email('Invalid email').required('Required'),
+    role: Yup.string().oneOf(UserRoles).required(),
+    phones: Yup.array().of(Yup.string().min(10, 'Not a valid phone number')).notRequired(),
+    shopId: Yup.number().notRequired(),
+})
 
 export const AddItemInventorySchema = Yup.object<InventoryItem>().shape({
     model: Yup.object().notRequired(),
     brand: Yup.object().notRequired(),
-    count: Yup.number().min(1, 'Invalid number').required('Required'),
+    count: Yup.number().min(1, 'Invalid count').required('Item count is required'),
+})
+export const EditItemInventorySchema = Yup.object<InventoryItem>().shape({
+    model: Yup.string().notRequired(),
+    brand: Yup.string().notRequired(),
+    count: Yup.number().min(1, 'Invalid count').required('Item count is required'),
 })
 export const CategorySchema = Yup.object().shape({
     name: Yup.string().required(),
@@ -50,4 +64,9 @@ export const ShopSchema = Yup.object().shape({
         gmailPassword: Yup.string().notRequired(),
         smsApiKey: Yup.string().notRequired(),
     }),
+})
+export const UsedItemSchema = Yup.object().shape({
+    itemId: Yup.number().required(),
+    ticketId: Yup.number().required(),
+    count: Yup.number().min(1, 'Must be over 0').required(),
 })

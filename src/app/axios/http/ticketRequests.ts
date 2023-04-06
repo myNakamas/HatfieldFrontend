@@ -1,9 +1,20 @@
 import { Page, PageRequest } from '../../models/interfaces/generalModels'
 import backendClient from '../backendClient'
-import { ChatMessage, CreateTicket, Ticket } from '../../models/interfaces/ticket'
+import { ChatMessage, CreateTicket, Ticket, UsedItemModel } from '../../models/interfaces/ticket'
+import { TicketFilter } from '../../models/interfaces/filters'
 
-export const fetchAllTickets = ({ page }: { page: PageRequest }): Promise<Page<Ticket>> => {
-    return backendClient.get('ticket/all', { params: page })
+export const fetchAllTickets = ({
+    page,
+    filter,
+}: {
+    page: PageRequest
+    filter: TicketFilter
+}): Promise<Page<Ticket>> => {
+    const ticketFilter = { ...filter, ticketStatuses: filter.ticketStatuses?.join(',') }
+    return backendClient.get('ticket/all', { params: { ...page, ...ticketFilter } })
+}
+export const fetchAllActiveTickets = (): Promise<Ticket[]> => {
+    return backendClient.get('ticket/active')
 }
 
 export const createTicket = ({ ticket }: { ticket: CreateTicket }): Promise<number> => {
@@ -17,6 +28,21 @@ export const updateTicket = ({ id, ticket }: { id: number; ticket: CreateTicket 
     return backendClient.put('ticket/update/' + id, body)
 }
 
+export const postCompleteTicket = (params: { id: number; location: string }): Promise<number> => {
+    return backendClient.put('ticket/complete', {}, { params })
+}
+export const postStartTicket = (params: { id: number }): Promise<number> => {
+    return backendClient.put('ticket/start', {}, { params })
+}
+//todo: modal
+export const postCollectTicket = (params: { id: number }): Promise<number> => {
+    return backendClient.put('ticket/collected', {}, { params })
+}
+
 export const fetchChat = ({ userId }: { userId: string }): Promise<ChatMessage[]> => {
     return backendClient.get('chat/all', { params: { userId } })
+}
+
+export const createUsedItems = (usedItem: UsedItemModel) => {
+    return backendClient.post('ticket/part/use', usedItem)
 }

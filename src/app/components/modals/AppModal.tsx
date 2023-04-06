@@ -1,25 +1,28 @@
 import React from 'react'
-import ReactModal from 'react-modal'
-import { ModalStyles } from '../../styles/components/stylesTS'
+import { Modal } from 'antd'
 
 export const AppModal = ({
     children,
     isModalOpen,
     closeModal,
+    title,
 }: {
     children: React.ReactNode
     isModalOpen: boolean
     closeModal: () => void
+    title?: string
 }) => {
+    //todo: remove component and replace with the antd modal
     return (
-        <ReactModal
-            closeTimeoutMS={200}
-            style={ModalStyles()}
-            isOpen={isModalOpen}
-            onRequestClose={closeModal}
-            contentLabel='Add inventory item'
+        <Modal
+            open={isModalOpen}
+            onCancel={closeModal}
+            closable
+            title={title}
+            width={'clamp(400px,80%,900px)'}
+            footer={<></>}
         >
-            <div className='modalContainer'>{children}</div>
-        </ReactModal>
+            {children}
+        </Modal>
     )
 }

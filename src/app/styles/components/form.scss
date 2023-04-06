@@ -10,12 +10,16 @@
   border-radius: 5px;
   background-color: var(--backgroundColor10);
   margin-bottom: 20px;
-  padding: 30px;
+  padding: 20px;
 
   .field {
     display: flex;
     justify-content: space-around;
     width: 100%;
+  }
+
+  h3 {
+    margin: 0 0 10px;
   }
 }
 
@@ -33,13 +37,6 @@
   margin-right: 10px;
 }
 
-.iconButton {
-  @extend .button;
-  width: 40px;
-  height: 40px;
-  background-color: var(--secondaryColor);
-  border-radius: 5px;
-}
 
 .field {
   margin-bottom: 10px;
@@ -71,6 +68,7 @@
 
   .ticketActions {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     margin-bottom: 10px;
 
@@ -93,6 +91,7 @@
     margin-bottom: 5px;
     border-radius: 5px;
     border: none;
+    margin-right: 5px;
     box-sizing: border-box;
   }
 
@@ -104,8 +103,8 @@
 
   .abs-icon {
     position: absolute;
-    top: 0;
-    right: 30px;
+    top: 10px;
+    right: 60px;
   }
 }
 
@@ -179,7 +178,7 @@
   width: 100%;
   justify-content: right;
   align-items: center;
-  padding-bottom: 10px;
+  margin-top: 10px;
 }
 
 .colorSample {
@@ -199,7 +198,6 @@
     grid-template-columns: repeat(1, 90%);
   }
   margin-bottom: 10px;
-
 }
 
 
@@ -250,12 +248,15 @@
   text-align: left;
   display: flex;
   align-items: baseline;
+  flex-wrap: wrap;
+  flex-direction: row;
 
   .input {
-    width: 200px;
+    min-width: 200px;
     font-size: 1rem;
     padding: 10px 10px;
     margin-bottom: 5px;
+    margin-right: 5px;
     border-radius: 5px;
     border: none;
     box-sizing: border-box;
@@ -263,5 +264,22 @@
 
   .rdt {
     margin: 0 10px;
+  }
+}
+
+.ticketFilter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.filterColumn{
+  display:grid;
+  grid-gap: 5px;
+  min-width: 300px;
+  h4{
+    margin:5px;
   }
 }
