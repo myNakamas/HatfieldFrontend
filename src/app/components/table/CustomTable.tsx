@@ -29,13 +29,17 @@ export const CustomTable = <T extends object>({ data, onClick, pagination, onPag
             dataSource={data.map((value, index) => ({ key: 'dataKey' + index, ...value }))}
             columns={columns}
             onRow={getComponentProps}
-            pagination={{
-                pageSize: pagination?.pageSize,
-                current: pagination?.page,
-                onChange: (page, pageSize) => onPageChange && onPageChange({ page, pageSize }),
-                pageSizeOptions: [5, 10, 15, 20, 50],
-                showSizeChanger: true,
-            }}
+            pagination={
+                pagination
+                    ? {
+                          pageSize: pagination?.pageSize,
+                          current: pagination?.page,
+                          onChange: (page, pageSize) => onPageChange && onPageChange({ page, pageSize }),
+                          pageSizeOptions: [5, 10, 15, 20, 50],
+                          showSizeChanger: true,
+                      }
+                    : false
+            }
         />
     )
 }

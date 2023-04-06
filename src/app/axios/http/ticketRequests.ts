@@ -1,6 +1,6 @@
 import { Page, PageRequest } from '../../models/interfaces/generalModels'
 import backendClient from '../backendClient'
-import { ChatMessage, CreateTicket, Ticket, UsedItemModel } from '../../models/interfaces/ticket'
+import { ChatMessage, CreateTicket, CreateUsedItem, Ticket } from '../../models/interfaces/ticket'
 import { TicketFilter } from '../../models/interfaces/filters'
 
 export const fetchAllTickets = ({
@@ -43,6 +43,6 @@ export const fetchChat = ({ userId }: { userId: string }): Promise<ChatMessage[]
     return backendClient.get('chat/all', { params: { userId } })
 }
 
-export const createUsedItems = (usedItem: UsedItemModel) => {
+export const createUsedItems = (usedItem: CreateUsedItem) => {
     return backendClient.post('ticket/part/use', usedItem)
 }

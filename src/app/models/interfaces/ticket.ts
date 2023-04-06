@@ -1,6 +1,7 @@
 import { Entity } from './generalModels'
 import { TicketStatus } from '../enums/ticketEnums'
 import { User } from './user'
+import { InventoryItem } from './shop'
 
 export interface Ticket extends Entity {
     deviceModel: string
@@ -21,6 +22,7 @@ export interface Ticket extends Entity {
     createdBy: User
     client: User
     priority: number
+    usedParts: UsedItemView[]
 }
 
 export interface CreateTicket {
@@ -77,8 +79,15 @@ export interface UserChats {
     [key: string]: ChatMessage[]
 }
 
-export interface UsedItemModel {
+export interface CreateUsedItem {
     itemId: number
     ticketId: number
     count: number
+}
+
+export interface UsedItemView {
+    ticketId: number
+    item: InventoryItem
+    usedCount: number
+    timestamp: Date
 }

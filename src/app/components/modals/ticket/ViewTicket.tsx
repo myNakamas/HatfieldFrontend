@@ -1,5 +1,11 @@
 import { AppModal } from '../AppModal'
-import { CreateTicket, createTicketFromTicket, Ticket } from '../../../models/interfaces/ticket'
+import {
+    CreateTicket,
+    createTicketFromTicket,
+    CreateUsedItem,
+    Ticket,
+    UsedItemView,
+} from '../../../models/interfaces/ticket'
 import React, { useState } from 'react'
 import dateFormat from 'dateformat'
 import { EditTicketForm } from './EditTicketForm'
@@ -14,14 +20,18 @@ import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { FormError } from '../../form/FormError'
 import { CollectTicketForm } from './CollectTicketForm'
-import { Button, Descriptions, Space } from 'antd'
+import { Button, Card, Descriptions, Space } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
+import { CustomTable } from '../../table/CustomTable'
+import { NoDataComponent } from '../../table/NoDataComponent'
+import { AddUsedItem } from './AddUsedItem'
 
 export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal: () => void }) => {
     const [mode, setMode] = useState('view')
     const [deviceLocation, setDeviceLocation] = useState('')
     const [deviceLocationError, setDeviceLocationError] = useState('')
+    const [isUseModalOpen, setIsUseModalOpen] = useState(false)
     const queryClient = useQueryClient()
 
     const editTicket = (formValue: CreateTicket) => {
@@ -71,6 +81,11 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
         >
             {ticket && (
                 <>
+                    <AddUsedItem
+                        usedItem={{ itemId: undefined, count: 1, ticketId: ticket.id } as unknown as CreateUsedItem}
+                        closeModal={() => setIsUseModalOpen(false)}
+                        show={isUseModalOpen}
+                    />
                     <div className='flex-100 justify-end '>
                         {mode !== 'edit' ? (
                             <Button
@@ -98,8 +113,27 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                     {mode === 'view' && (
                         <div className='viewModal'>
                             <TicketDescription ticket={ticket} />
+                            <Card title='Used items'>
+                                {ticket.usedParts.length > 0 ? (
+                                    <CustomTable<UsedItemView>
+                                        data={ticket.usedParts.map((part) => ({
+                                            item: `${part.item.brand} ${part.item.model}`,
+                                            'Used count': part.usedCount,
+                                            'Used at': dateFormat(part.timestamp),
+                                        }))}
+                                        onClick={() => console.log('todo:Display Used item data')}
+                                    />
+                                ) : (
+                                    <NoDataComponent items={'used items'}>
+                                        <Button type='primary' onClick={() => setIsUseModalOpen(true)}>
+                                            Add an item
+                                        </Button>
+                                    </NoDataComponent>
+                                )}
+                            </Card>
+
                             {/*Actions with ticket*/}
-                            <div className='ticketActions'>
+                            <Space wrap>
                                 <div className='card'>
                                     <h3>Ticket status</h3>
                                     <div className='ticketActions'>
@@ -152,8 +186,14 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                         <div>Show as pdf</div>
                                         <Button>Print invoice</Button>
                                     </div>
+                                    <div className='ticketActions'>
+                                        <div>Use an item for ticket</div>
+                                        <Button type='primary' onClick={() => setIsUseModalOpen(true)}>
+                                            Add an item from inventory
+                                        </Button>
+                                    </div>
                                 </div>
-                            </div>
+                            </Space>
                         </div>
                     )}
                 </>
@@ -169,10 +209,11 @@ export const TicketDescription = ({ ticket }: { ticket: Ticket }) => {
             <Descriptions.Item label='Deadline'>{dateFormat(ticket.deadline, dateTimeMask)}</Descriptions.Item>
             <Descriptions.Item label='Status'>{ticket.status}</Descriptions.Item>
             <Descriptions.Item label='Location'>{ticket.deviceLocation}</Descriptions.Item>
-            {ticket.client && <Descriptions.Item label='Client'>
-                {ticket.client.fullName} {ticket.client.email}
-            </Descriptions.Item>
-            }
+            {ticket.client && (
+                <Descriptions.Item label='Client'>
+                    {ticket.client.fullName} {ticket.client.email}
+                </Descriptions.Item>
+            )}
             <Descriptions.Item label='Problem'>{ticket.problemExplanation}</Descriptions.Item>
             <Descriptions.Item label='Customer Request'>{ticket.customerRequest}</Descriptions.Item>
             <Descriptions.Item label='Created by'>{ticket.createdBy.fullName}</Descriptions.Item>
@@ -184,18 +225,36 @@ export const TicketDescription = ({ ticket }: { ticket: Ticket }) => {
             <Descriptions.Item label='Notes'>{ticket.notes}</Descriptions.Item>
 
             <Descriptions.Item label='Device Info'>
-                {ticket.deviceModel && `Device model: ${ticket.deviceModel}`}
-                <br />
-                {ticket.deviceBrand && `Device brand: ${ticket.deviceBrand}`}
-                <br />
-                {ticket.deviceCondition && `Condition: ${ticket.deviceCondition}`}
-                <br />
-                {ticket.devicePassword && `Password: ${ticket.devicePassword}`}
-                <br />
-                {ticket.serialNumberOrImei && `Serial number / Imei: ${ticket.serialNumberOrImei}`}
-                <br />
-                {ticket.accessories && `Accessories: ${ticket.accessories}`}
-                <br />
+                {ticket.deviceModel && (
+                    <>
+                        `Device model: ${ticket.deviceModel}`<br />
+                    </>
+                )}
+                {ticket.deviceBrand && (
+                    <>
+                        `Device brand: ${ticket.deviceBrand}` <br />
+                    </>
+                )}
+                {ticket.deviceCondition && (
+                    <>
+                        `Condition: ${ticket.deviceCondition}` <br />
+                    </>
+                )}
+                {ticket.devicePassword && (
+                    <>
+                        `Password: ${ticket.devicePassword}`<br />
+                    </>
+                )}
+                {ticket.serialNumberOrImei && (
+                    <>
+                        `Serial number / Imei: ${ticket.serialNumberOrImei}`<br />
+                    </>
+                )}
+                {ticket.accessories && (
+                    <>
+                        `Accessories: ${ticket.accessories}` <br />
+                    </>
+                )}
             </Descriptions.Item>
         </Descriptions>
     )

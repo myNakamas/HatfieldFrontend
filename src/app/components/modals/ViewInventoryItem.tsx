@@ -8,7 +8,7 @@ import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart
 import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
 import { postPrintItemLabel } from '../../axios/http/documentRequests'
 import { AddUsedItem } from './ticket/AddUsedItem'
-import { UsedItemModel } from '../../models/interfaces/ticket'
+import { CreateUsedItem } from '../../models/interfaces/ticket'
 
 export const ViewInventoryItem = ({
     inventoryItem,
@@ -32,7 +32,7 @@ export const ViewInventoryItem = ({
     return (
         <AppModal isModalOpen={!!inventoryItem} closeModal={closeModal} title={'Inventory Item'}>
             <AddUsedItem
-                usedItem={{ itemId: inventoryItem?.id, count: 1, ticketId: undefined } as unknown as UsedItemModel}
+                usedItem={{ itemId: inventoryItem?.id, count: 1, ticketId: undefined } as unknown as CreateUsedItem}
                 closeModal={() => setIsUseModalOpen(false)}
                 show={isUseModalOpen}
             />
