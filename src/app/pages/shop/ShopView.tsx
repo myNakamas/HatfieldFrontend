@@ -14,6 +14,7 @@ import { ThemeContext } from '../../contexts/ThemeContext'
 import { toast } from 'react-toastify'
 import { FormError } from '../../components/form/FormError'
 import { toastProps } from '../../components/modals/ToastProps'
+import { Button, Space } from 'antd'
 
 export const ShopView = () => {
     const { id } = useParams()
@@ -126,11 +127,11 @@ export const ShopView = () => {
                             />
                         </div>
 
-                        <div>
+                        <Space>
                             <h4>Color sample:</h4>
                             <div id='primaryColorSample' className='colorSample' />
                             <div id='secondaryColorSample' className='colorSample' />
-                        </div>
+                        </Space>
                     </div>
 
                     <h3>Shop Settings</h3>
@@ -155,12 +156,12 @@ export const ShopView = () => {
                     </div>
                     <FormError error={errors.root?.message} />
                     <div className='flex-100 justify-end'>
-                        <button className='successButton' onClick={handleSubmit(submitShop)}>
+                        <Button type='primary' onClick={handleSubmit(submitShop)}>
                             Save
-                        </button>
-                        <button className='cancelButton' type='button' onClick={() => resetForm(shop)}>
+                        </Button>
+                        <Button htmlType='button' onClick={() => resetForm(shop)}>
                             Reset
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </CustomSuspense>
