@@ -77,7 +77,7 @@ export const Tickets = () => {
                         ticketStatuses: key === '1' ? activeTicketStatuses : key === '2' ? completedTicketStatuses : [],
                     }))
                 }}
-            ></Tabs>
+            />
         </div>
     )
 }
@@ -128,9 +128,9 @@ const TicketFilters = ({
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     // const { data: locations } = useQuery('locations', getAllLocations)
-    const { data: clients } = useQuery('clients', () => getAllClients())
-    const { data: users } = useQuery('workers', () => getAllWorkers())
-    const { data: shops } = useQuery('shops', getAllShops)
+    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}))
+    const { data: users } = useQuery(['users', 'workers'], () => getAllWorkers({}))
+    const { data: shops } = useQuery(['shops'], getAllShops)
     return advanced ? (
         <div className='ticketFilter'>
             <div className='filterColumn'>
