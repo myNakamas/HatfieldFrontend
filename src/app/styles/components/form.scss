@@ -44,6 +44,8 @@
 
 .viewModal {
   text-align: left;
+  display: grid;
+  grid-gap: 10px;
 
   h4 {
     margin-bottom: 5px;
@@ -275,11 +277,16 @@
   width: 100%;
 }
 
-.filterColumn{
-  display:grid;
+.filterColumn {
+  display: grid;
   grid-gap: 5px;
   min-width: 300px;
-  h4{
-    margin:5px;
+
+  h4 {
+    margin: 5px;
   }
+}
+
+.svg-inline--fa {
+  margin-right: 5px;
 }

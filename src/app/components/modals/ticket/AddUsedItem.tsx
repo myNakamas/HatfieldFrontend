@@ -1,4 +1,4 @@
-import { Ticket, UsedItemModel } from '../../../models/interfaces/ticket'
+import { CreateUsedItem, Ticket } from '../../../models/interfaces/ticket'
 import { AppModal } from '../AppModal'
 import { Button, Form, Space } from 'antd'
 import Select from 'react-select'
@@ -26,7 +26,7 @@ export const AddUsedItem = ({
 }: {
     show: boolean
     closeModal: () => void
-    usedItem: UsedItemModel
+    usedItem: CreateUsedItem
 }) => {
     const { loggedUser } = useContext(AuthContext)
     const { data: tickets } = useQuery(['tickets', { filter: activeTicketStatuses }], () => fetchAllActiveTickets())
@@ -39,11 +39,11 @@ export const AddUsedItem = ({
         formState: { errors },
         handleSubmit,
         reset,
-    } = useForm<UsedItemModel>({ resolver: yupResolver(UsedItemSchema) })
+    } = useForm<CreateUsedItem>({ resolver: yupResolver(UsedItemSchema), defaultValues: usedItem })
     const queryClient = useQueryClient()
     useEffect(() => reset(usedItem), [show])
 
-    const createUsedItem = (usedItem: UsedItemModel) => {
+    const createUsedItem = (usedItem: CreateUsedItem) => {
         toast
             .promise(
                 createUsedItems(usedItem),
@@ -62,7 +62,7 @@ export const AddUsedItem = ({
     }
 
     return (
-        <AppModal isModalOpen={show} closeModal={closeModal} title={'Use item for ticket'}>
+        <AppModal isModalOpen={show} closeModal={closeModal} title={'Use item for ticket'} size='S'>
             <Space direction='vertical' style={{ width: '100%' }}>
                 <CustomSuspense isReady={!!tickets && !!items}>
                     <Form className='modalForm' onSubmitCapture={handleSubmit(createUsedItem)}>
