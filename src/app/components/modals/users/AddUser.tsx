@@ -67,6 +67,12 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
         <AppModal isModalOpen={isModalOpen} closeModal={closeModal}>
             <h3>User</h3>
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit((data) => onSaveNew(data))}>
+                <TextField
+                    defaultValue={''}
+                    register={register('username')}
+                    error={errors.username}
+                    label={'Username'}
+                />
                 <UserForm {...{ register, control, watch, setValue, getValues, errors }} />
                 {isLoggedUserAdmin ? (
                     <Controller

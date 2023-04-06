@@ -101,7 +101,7 @@ const UsersTab = ({
     tourRef: React.MutableRefObject<null>
     showBan?: boolean
 }) => {
-    const { data: shops } = useQuery('shops', getAllShops)
+    const { data: shops } = useQuery(['shops'], getAllShops)
     const queryClient = useQueryClient()
     return users && users.length > 0 ? (
         <CustomTable<User>
@@ -140,18 +140,18 @@ const UsersTab = ({
             onClick={({ userId }) => setViewUser(users?.find((user) => user.userId === userId))}
         />
     ) : (
-        <NoDataComponent items='items in inventory' />
+        <NoDataComponent items='users' />
     )
 }
 
-function UserFilters({
+const UserFilters = ({
     filter,
     setFilter,
 }: {
     filter: UserFilter
     setFilter: (value: ((prevState: UserFilter) => UserFilter) | UserFilter) => void
-}) {
-    const { data: shops } = useQuery('shops', getAllShops)
+}) => {
+    const { data: shops } = useQuery(['shops'], getAllShops)
 
     return (
         <div className='filterRow'>

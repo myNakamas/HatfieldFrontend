@@ -26,10 +26,12 @@ export const getAllUsers = ({ filter }: { filter?: UserFilter }): Promise<User[]
     return backendClient.get('user/worker/all', { params: userFilter })
 }
 export const getAllWorkers = ({ filter }: { filter?: UserFilter }): Promise<User[]> => {
-    return backendClient.get('user/worker/all/workers', { params: filter })
+    const userFilter = toUserFilterView(filter)
+    return backendClient.get('user/worker/all/workers', { params: userFilter })
 }
 export const getAllClients = ({ filter }: { filter?: UserFilter }): Promise<User[]> => {
-    return backendClient.get('user/worker/all/clients', { params: filter })
+    const userFilter = toUserFilterView(filter)
+    return backendClient.get('user/worker/all/clients', { params: userFilter })
 }
 export const updateYourProfile = (user: User): Promise<User> => {
     return backendClient.put('user/profile/edit', user)

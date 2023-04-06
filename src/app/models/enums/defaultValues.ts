@@ -13,3 +13,5 @@ export const defaultUser = {
     isActive: true,
     isBanned: false,
 } as User
+
+export const getDefaultClient = (shopId?: number) => ({ ...defaultUser, role: 'CLIENT', shopId: shopId } as User)
