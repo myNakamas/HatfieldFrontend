@@ -17,6 +17,9 @@ import { User } from '../../../models/interfaces/user'
 import { getAllClients } from '../../../axios/http/userRequests'
 import moment from 'moment/moment'
 import { Button, Space } from 'antd'
+import { AddClient } from '../users/AddClient'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
 export const EditTicketForm = ({
     ticket,
@@ -37,7 +40,8 @@ export const EditTicketForm = ({
     } = useForm<CreateTicket>({ defaultValues: ticket })
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
-    const { data: clients } = useQuery('clients', () => getAllClients({}))
+    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}))
+    const [showCreateModal, setShowCreateModal] = useState(false)
     const [tempText, setTempText] = useState('')
     return (
         <form
@@ -50,6 +54,7 @@ export const EditTicketForm = ({
         >
             <div className='modalContainer'>
                 <div className='card'>
+                    <AddClient isModalOpen={showCreateModal} closeModal={() => setShowCreateModal(false)} />
                     <Controller
                         name={'problemExplanation'}
                         control={control}
@@ -68,7 +73,11 @@ export const EditTicketForm = ({
                             </FormField>
                         )}
                     />
-
+                    <TextField
+                        register={register('customerRequest')}
+                        error={errors.customerRequest}
+                        label={'Additional request from customer'}
+                    />
                     <Controller
                         control={control}
                         name={'clientId'}
@@ -88,6 +97,9 @@ export const EditTicketForm = ({
                             </FormField>
                         )}
                     />
+                    <Button icon={<FontAwesomeIcon icon={faPlus} />} onClick={() => setShowCreateModal(true)}>
+                        Create client
+                    </Button>
                     <Controller
                         control={control}
                         name={'status'}
@@ -275,11 +287,7 @@ export const EditTicketForm = ({
                 </div>
                 <div className='card'>
                     <h3>Other information</h3>
-                    <TextField
-                        register={register('customerRequest')}
-                        error={errors.customerRequest}
-                        label={'Additional request from customer'}
-                    />
+
                     <TextField register={register('accessories')} error={errors.accessories} label={'Accessories'} />
                     <FormField label='Notes' error={errors.notes}>
                         <textarea className='textArea' {...register('notes')} />
