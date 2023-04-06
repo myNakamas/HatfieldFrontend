@@ -2,30 +2,23 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useContext, useState } from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { AddEditUser } from '../../components/modals/AddEditUser'
 import { User } from '../../models/interfaces/user'
-import { SimpleUserSchema } from '../../models/validators/FormValidators'
 import { faUserLock } from '@fortawesome/free-solid-svg-icons'
-import { changeProfilePicture, getProfilePicture, updateYourProfile } from '../../axios/http/userRequests'
+import { changeProfilePicture, getProfilePicture } from '../../axios/http/userRequests'
 import { toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { toast } from 'react-toastify'
 import { useQuery, useQueryClient } from 'react-query'
 import { ProfileImage } from '../../components/user/ProfileImage'
 import { Button, Card } from 'antd'
+import { EditUser } from '../../components/modals/users/EditUser'
 
 export const Profile = () => {
-    const { loggedUser, setLoggedUser } = useContext(AuthContext)
+    const { loggedUser } = useContext(AuthContext)
     const queryClient = useQueryClient()
     const [showModal, setShowModal] = useState(false)
     const navigate = useNavigate()
 
     const userToEdit = { ...loggedUser, password: '' } as User
-    const onSubmit = (result: User) => {
-        return updateYourProfile(result).then((updatedUser) => {
-            setLoggedUser(updatedUser)
-            setShowModal(false)
-        })
-    }
     const uploadPicture = async (files: FileList | null) => {
         if (files && files.length > 0) {
             await toast.promise(changeProfilePicture({ picture: files[0] }), toastUpdatePromiseTemplate('picture'))
@@ -39,14 +32,7 @@ export const Profile = () => {
     return (
         <div className='setting'>
             {userToEdit && (
-                <AddEditUser
-                    user={userToEdit}
-                    isModalOpen={showModal}
-                    onComplete={(result) => onSubmit(result)}
-                    variation='PARTIAL'
-                    validateSchema={SimpleUserSchema}
-                    closeModal={() => setShowModal(false)}
-                />
+                <EditUser user={userToEdit} isModalOpen={showModal} closeModal={() => setShowModal(false)} />
             )}
             <h2>Your info</h2>
             <Card className='card'>

@@ -7,6 +7,7 @@ export const defaultTicket = {
 } as CreateTicket
 
 export const defaultUser = {
+    phones: [] as string[],
     smsPermission: true,
     emailPermission: true,
     isActive: true,

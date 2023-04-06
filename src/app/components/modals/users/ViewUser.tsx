@@ -1,6 +1,6 @@
 import React from 'react'
-import { AppModal } from './AppModal'
-import { User } from '../../models/interfaces/user'
+import { AppModal } from '../AppModal'
+import { User } from '../../../models/interfaces/user'
 import { Checkbox, Descriptions, Space, Typography } from 'antd'
 import { InfinitySpin } from 'react-loader-spinner'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'

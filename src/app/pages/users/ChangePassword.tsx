@@ -8,6 +8,9 @@ import { TextField } from '../../components/form/TextField'
 import { FormError } from '../../components/form/FormError'
 import { changePassword } from '../../axios/http/userRequests'
 import { Button } from 'antd'
+import { toast } from 'react-toastify'
+import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
+import { useNavigate } from 'react-router-dom'
 
 export const ChangePassword = () => {
     const {
@@ -16,11 +19,16 @@ export const ChangePassword = () => {
         formState: { errors },
         setError,
     } = useForm<ResetPassword>({ resolver: yupResolver(ResetPasswordSchema) })
-
+    const navigate = useNavigate()
     const onSubmit = ({ password, oldPassword }: ResetPassword) => {
-        changePassword({ password, oldPassword } as ResetPassword).catch((reason) =>
-            setError('root', { message: reason })
-        )
+        toast
+            .promise(
+                changePassword({ password, oldPassword } as ResetPassword),
+                toastUpdatePromiseTemplate('user'),
+                toastProps
+            )
+            .then(() => navigate('/profile'))
+            .catch((reason) => setError('root', { message: reason }))
     }
 
     return (
