@@ -47,17 +47,19 @@ export const ShopView = () => {
     }
 
     const submitShop = (formValue: Shop) => {
-        toast.promise(
-            updateShop(formValue)
-                .then(() => {
-                    queryClient.invalidateQueries(['shop', id]).then()
-                })
-                .catch((error) => {
-                    setError('root', { message: error })
-                }),
-            { pending: 'Sending', success: 'Edited shop successfully', error: 'Failed ' },
-            toastProps
-        )
+        toast
+            .promise(
+                updateShop(formValue)
+                    .then(() => {
+                        queryClient.invalidateQueries(['shop', id]).then()
+                    })
+                    .catch((error) => {
+                        setError('root', { message: error })
+                    }),
+                { pending: 'Sending', success: 'Edited shop successfully', error: 'Failed ' },
+                toastProps
+            )
+            .then()
     }
 
     useEffect(() => {

@@ -34,25 +34,7 @@
         color: var(--textPrimary);
         flex-grow: 1;
       }
-
-      .description {
-        width: 40%;
-        color: var(--backgroundColor20);
-        flex-grow: 1;
-      }
     }
-
-    .header {
-      @extend .row;
-      color: var(--textPrimary);
-      align-items: center;
-      justify-content: space-between;
-
-      .button {
-        padding: 10px;
-      }
-    }
-
   }
 
 }

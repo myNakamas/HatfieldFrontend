@@ -78,20 +78,9 @@
   }
 }
 
-.ticketThumb {
-  border-bottom: 1px solid var(--primaryColor);
-  border-radius: 5px;
-  padding: 10px;
-}
-
 .ticketInfo {
   width: 100%;
   text-align: left;
-
-  .column {
-    width: 45%;
-    margin-left: 10px;
-  }
 
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
 }

@@ -7,11 +7,4 @@ export default defineConfig({
   define: {
     global: {},
   },
-  // css: {
-  //   preprocessorOptions: {
-  //     scss: {
-  //       additionalData: `@use 'src/styles/main.sass' as *;`,
-  //     },
-  //   },
-  // },
 });

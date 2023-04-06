@@ -37,7 +37,7 @@ export const EditTicketForm = ({
     } = useForm<CreateTicket>({ defaultValues: ticket })
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
-    const { data: clients } = useQuery('clients', () => getAllClients())
+    const { data: clients } = useQuery('clients', () => getAllClients({}))
     const [tempText, setTempText] = useState('')
     return (
         <form

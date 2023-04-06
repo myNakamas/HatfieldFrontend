@@ -15,12 +15,6 @@ export interface Page<T> {
     content: T[]
 }
 
-export interface ButtonProps {
-    onAction: () => void
-    content: string
-    className?: string
-}
-
 export interface AppError {
     detail: string
     instance: string
