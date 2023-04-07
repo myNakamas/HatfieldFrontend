@@ -72,6 +72,11 @@ span {
   display: flex;
 }
 
+.app-screen {
+  @extend .flex-100;
+  min-height: calc(100vh - 80px);
+}
+
 .justify-start {
   justify-content: flex-start;
 }
