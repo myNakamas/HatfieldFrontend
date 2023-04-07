@@ -26,8 +26,10 @@ import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
 import { CustomTable } from '../../table/CustomTable'
 import { NoDataComponent } from '../../table/NoDataComponent'
 import { AddUsedItem } from './AddUsedItem'
+import { useNavigate } from 'react-router-dom'
 
 export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal: () => void }) => {
+    const navigate = useNavigate()
     const [mode, setMode] = useState('view')
     const [deviceLocation, setDeviceLocation] = useState('')
     const [deviceLocationError, setDeviceLocationError] = useState('')
@@ -186,7 +188,7 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                     <h3>Other actions</h3>
                                     <div className='ticketActions'>
                                         <div>Open the chat with the customer</div>
-                                        <Button>Chat</Button>
+                                        <Button onClick={() => navigate('/chats?id=' + ticket.id)}>Chat</Button>
                                     </div>
                                     <div className='ticketActions'>
                                         <div>Show as pdf</div>

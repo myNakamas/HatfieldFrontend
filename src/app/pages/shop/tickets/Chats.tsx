@@ -16,17 +16,20 @@ import { faArrowRight, faCheckDouble, faCircleCheck, faSpinner } from '@fortawes
 import { dateTimeMask } from '../../../models/enums/appEnums'
 import { Button, Card, Descriptions, Menu, Skeleton } from 'antd'
 import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 export const Chats = () => {
-    const { loggedUser } = useContext(AuthContext)
-    const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
-    const { data: users } = useQuery(['users'], () => getAllUsers({}))
     const page = { page: 0, pageSize: 10 }
-    const { data: tickets } = useQuery(['tickets', page], () => fetchAllTickets({ page, filter: {} }))
-    // const { data: tasks } = useQuery('tasks', fetchAllTickets)
-
+    const { loggedUser } = useContext(AuthContext)
+    const navigate = useNavigate()
     const { userChats, setUserChats, unsentMessages, setUnsentMessages } = useContext(WebSocketContext)
+    const { data: users } = useQuery(['users'], () => getAllUsers({}))
+    const { data: tickets } = useQuery(['tickets', page], () => fetchAllTickets({ page, filter: {} }))
     const [chat, setChat] = useState<Chat | undefined>()
+    const [params] = useSearchParams()
+    const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>(
+        tickets?.content.find((ticket) => String(ticket.id) === params.get('id'))
+    )
     const { data: oldMessages } = useQuery(
         ['messages', selectedTicket?.client],
         //todo: add ticket Id
@@ -52,6 +55,7 @@ export const Chats = () => {
 
     useEffect(() => {
         if (selectedTicket) {
+            navigate({ search: 'id=' + selectedTicket.id })
             const userMessages = selectedTicket?.client?.userId ? userChats[selectedTicket.client.userId] ?? [] : []
             const old = oldMessages ?? []
             const messagesByUser = [...old, ...userMessages, ...unsentMessages].sort(
@@ -147,6 +151,7 @@ export const Chats = () => {
                             onSelect={(item) => {
                                 setSelectedTicket(tickets?.content.find((ticket) => ticket.id === +item.key))
                             }}
+                            defaultSelectedKeys={[String(selectedTicket?.id)]}
                             mode='inline'
                             items={tickets.content.map((ticket) => ({
                                 label: `Ticket#${ticket.id}`,
