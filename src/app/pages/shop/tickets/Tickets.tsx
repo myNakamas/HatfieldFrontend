@@ -98,15 +98,22 @@ const TicketsTab = ({
     <CustomSuspense isReady={!isLoading}>
         {data && data.content.length > 0 ? (
             <CustomTable<Ticket>
-                data={data.content.map(({ id, timestamp, deadline, createdBy, client, status, totalPrice }) => ({
-                    id,
-                    'creation date': dateFormat(timestamp),
+                data={data.content.map(({ timestamp, deadline, createdBy, client, ...rest }) => ({
+                    ...rest,
+                    timestamp: dateFormat(timestamp),
                     deadline: deadline ? dateFormat(deadline) : '-',
-                    status,
-                    totalPrice,
                     createdBy: createdBy?.fullName,
                     client: client?.fullName,
                 }))}
+                headers={{
+                    id: 'Ticket Id',
+                    timestamp: 'Creation date',
+                    deadline: 'Deadline',
+                    status: 'Ticket status',
+                    totalPrice: 'Total Price',
+                    createdBy: 'Created by',
+                    client: 'Client name',
+                }}
                 onClick={({ id }) => setSelectedTicket(data?.content.find(({ id: ticketId }) => id === ticketId))}
                 pagination={page}
                 onPageChange={setPage}

@@ -57,13 +57,17 @@ export const Clients = () => {
             <div className='tableWrapper' ref={tourRef2}>
                 {clients && clients.length > 0 ? (
                     <CustomTable<User>
+                        headers={{
+                            username: 'username',
+                            fullName: 'Full name',
+                            role: 'role',
+                            email: 'email',
+                            shop: 'Shop name',
+                            actions: 'Actions',
+                        }}
                         data={clients.map((user) => {
                             return {
-                                userId: user.userId,
-                                username: user.username,
-                                fullName: user.fullName,
-                                role: user.role,
-                                email: user.email,
+                                ...user,
                                 shop: shops?.find(({ id }) => user.shopId === id)?.shopName,
                                 actions: (
                                     <Space>

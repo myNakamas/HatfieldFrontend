@@ -116,11 +116,17 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                             <Card title='Used items'>
                                 {ticket.usedParts.length > 0 ? (
                                     <CustomTable<UsedItemView>
-                                        data={ticket.usedParts.map((part) => ({
-                                            item: `${part.item.brand} ${part.item.model}`,
-                                            'Used count': part.usedCount,
-                                            'Used at': dateFormat(part.timestamp),
+                                        data={ticket.usedParts.map(({ item, usedCount, timestamp }) => ({
+                                            item,
+                                            usedCount,
+                                            itemDetail: item.brand + ' : ' + item.model,
+                                            timestamp: dateFormat(timestamp),
                                         }))}
+                                        headers={{
+                                            itemDetail: 'item',
+                                            usedCount: 'Used count',
+                                            timestamp: 'Used at',
+                                        }}
                                         onClick={() => console.log('todo:Display Used item data')}
                                     />
                                 ) : (

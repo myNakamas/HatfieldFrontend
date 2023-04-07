@@ -72,6 +72,12 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
                     error={errors.username}
                     label={'Username'}
                 />
+                <TextField
+                    defaultValue={''}
+                    register={register('fullName')}
+                    error={errors.fullName}
+                    label={'FullName'}
+                />
                 <UserForm {...{ register, control, watch, setValue, getValues, errors }} />
                 {isLoggedUserAdmin ? (
                     <Controller
