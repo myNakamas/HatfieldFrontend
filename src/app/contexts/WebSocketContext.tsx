@@ -37,7 +37,11 @@ export const WebSocketContextProvider = ({ children }: { children: ReactNode }) 
                         })
                         setUserChats((prev) => {
                             //if message is missing, add it to the userChats
-                            if (!prev[message.receiver].some((value) => value.randomId === message.randomId))
+                            //todo: Refactor chats
+                            if (
+                                message.receiver &&
+                                !prev[message.receiver].some((value) => value.randomId === message.randomId)
+                            )
                                 prev[message.receiver] = [...(prev[message.receiver] ?? []), message]
                             return { ...prev }
                         })

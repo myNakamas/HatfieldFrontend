@@ -44,8 +44,9 @@ export const putCollectTicket = ({ id, invoice }: { id: number; invoice: CreateT
     return backendClient.put('ticket/collected', invoice, { params: { id } })
 }
 
-export const fetchChat = ({ userId }: { userId: string }): Promise<ChatMessage[]> => {
-    return backendClient.get('chat/all', { params: { userId } })
+export const fetchChat = ({ ticketId }: { ticketId?: number }): Promise<ChatMessage[]> => {
+    if (!ticketId) return new Promise(() => [])
+    return backendClient.get('chat/all', { params: { ticketId } })
 }
 
 export const createUsedItems = (usedItem: CreateUsedItem) => {

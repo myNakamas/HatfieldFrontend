@@ -34,9 +34,7 @@ export const CategorySettings = () => {
     return (
         <div className='mainScreen'>
             <div className='button-bar'>
-                <Button onClick={() => setShowModal(true)}>
-                    Add new category
-                </Button>
+                <Button onClick={() => setShowModal(true)}>Add new category</Button>
             </div>
             <AddInventoryCategory
                 closeModal={() => setShowEditModal(false)}
@@ -72,16 +70,23 @@ export const CategorySettings = () => {
                                 </Popconfirm>
                             ),
                         }))}
+                        headers={{
+                            name: 'name',
+                            itemType: 'type',
+                            columns: 'columns',
+                            actions: 'actions',
+                        }}
                         onClick={(value) => {
                             setSelectedCategory(value)
                         }}
                     />
-                ):
+                ) : (
                     <NoDataComponent items={'categories'}>
                         <Button type={'primary'} onClick={() => setShowModal(true)}>
                             Add new category
                         </Button>
-                    </NoDataComponent>}
+                    </NoDataComponent>
+                )}
             </CustomSuspense>
         </div>
     )

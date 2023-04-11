@@ -6,8 +6,8 @@ import { faCreditCard } from '@fortawesome/free-solid-svg-icons/faCreditCard'
 import { faDollar } from '@fortawesome/free-solid-svg-icons/faDollar'
 import { faHeadset } from '@fortawesome/free-solid-svg-icons/faHeadset'
 
-export type InvoiceType = 'TICKET' | 'BUY' | 'SELL' | 'ACCESSORIES'
-export const InvoiceTypes = Array('TICKET', 'BUY', 'SELL', 'ACCESSORIES')
+export type InvoiceType = 'REPAIR' | 'BUY' | 'SELL' | 'ACCESSORIES'
+export const InvoiceTypes = Array('REPAIR', 'BUY', 'SELL', 'ACCESSORIES')
 export type PaymentMethod = 'CASH' | 'CARD' | 'COMBINED'
 export const PaymentMethods = Array('CASH', 'CARD', 'COMBINED')
 export const PaymentMethodList = PaymentMethods.map((value, index) => ({ value, id: index }))

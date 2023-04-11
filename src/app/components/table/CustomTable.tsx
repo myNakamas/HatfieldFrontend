@@ -3,18 +3,24 @@ import { Table } from 'antd'
 import { PageRequest } from '../../models/interfaces/generalModels'
 
 interface CustomTableProps<T> {
-    headers?: string[]
+    headers: { [key: string]: string }
     onClick?: (value: T) => void
     pagination?: PageRequest
     onPageChange?: (page: PageRequest) => void
     data: any[]
 }
 
-export const CustomTable = <T extends object>({ data, onClick, pagination, onPageChange }: CustomTableProps<T>) => {
-    const columns = Object.entries(data[0]).map(([key], index) => ({
-        title: key,
-        dataIndex: key,
-        key: 'column' + index + key,
+export const CustomTable = <T extends object>({
+    data,
+    headers,
+    onClick,
+    pagination,
+    onPageChange,
+}: CustomTableProps<T>) => {
+    const columns = Object.entries(headers).map(([key, value], index) => ({
+        title: value,
+        dataIndex: String(key),
+        key: 'column' + index,
     }))
     // noinspection JSUnusedGlobalSymbols
     const getComponentProps = (record: T) => ({

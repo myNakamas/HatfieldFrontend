@@ -87,8 +87,15 @@ export const EditUser = ({
                     error={errors.username}
                     label={'Username'}
                 />
+                {!isSelfEdit() && (
+                    <TextField
+                        defaultValue={''}
+                        register={register('fullName')}
+                        error={errors.fullName}
+                        label={'FullName'}
+                    />
+                )}
                 <UserForm {...{ register, control, watch, setValue, getValues, errors }} />
-
                 {!isSelfEdit() && (
                     <>
                         <Controller

@@ -33,7 +33,6 @@ export const UserForm = ({
 }) => {
     return (
         <>
-            <TextField defaultValue={''} register={register('fullName')} error={errors.fullName} label={'FullName'} />
             <TextField
                 defaultValue={''}
                 register={register('email')}

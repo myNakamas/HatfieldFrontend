@@ -24,15 +24,15 @@ export const Shops = () => {
                 <CustomSuspense isReady={isSuccess}>
                     {data && data.length > 0 ? (
                         <CustomTable<Shop>
-                            data={data.map(({ id, shopName, email, address, phone, regNumber, vatNumber }) => ({
-                                id,
-                                shopName,
-                                email,
-                                address,
-                                phone,
-                                regNumber,
-                                vatNumber,
-                            }))}
+                            data={data}
+                            headers={{
+                                shopName: 'Shop Name',
+                                email: 'email',
+                                address: 'Shop address',
+                                phone: 'phone',
+                                regNumber: 'Registration number',
+                                vatNumber: 'VAT Number',
+                            }}
                             onClick={({ id }) => navigate('/shops/' + id)}
                         />
                     ) : (
