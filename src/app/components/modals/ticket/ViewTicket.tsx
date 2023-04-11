@@ -9,7 +9,7 @@ import {
 import React, { useState } from 'react'
 import dateFormat from 'dateformat'
 import { EditTicketForm } from './EditTicketForm'
-import { postCompleteTicket, postStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
+import { putCompleteTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
 import { useQueryClient } from 'react-query'
 import { dateTimeMask } from '../../../models/enums/appEnums'
 import CreatableSelect from 'react-select/creatable'
@@ -26,12 +26,14 @@ import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
 import { CustomTable } from '../../table/CustomTable'
 import { NoDataComponent } from '../../table/NoDataComponent'
 import { AddUsedItem } from './AddUsedItem'
+import { AddTicketInvoice } from '../AddTicketInvoice'
 
 export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal: () => void }) => {
     const [mode, setMode] = useState('view')
     const [deviceLocation, setDeviceLocation] = useState('')
     const [deviceLocationError, setDeviceLocationError] = useState('')
     const [isUseModalOpen, setIsUseModalOpen] = useState(false)
+    const [showInvoiceModal, setShowInvoiceModal] = useState(false)
     const queryClient = useQueryClient()
 
     const editTicket = (formValue: CreateTicket) => {
@@ -43,7 +45,7 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
 
     const startTicket = (id: number) => {
         toast
-            .promise(postStartTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps)
+            .promise(putStartTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps)
             .then(() => queryClient.invalidateQueries(['tickets']).then())
     }
 
@@ -52,7 +54,7 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
         else {
             toast
                 .promise(
-                    postCompleteTicket({ id, location: deviceLocation }),
+                    putCompleteTicket({ id, location: deviceLocation }),
                     toastUpdatePromiseTemplate('ticket'),
                     toastProps
                 )
@@ -63,7 +65,7 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
     const collectTicket = (invoice: {}, id: number) => {
         return toast
             .promise(
-                postCompleteTicket({ id, location: deviceLocation }),
+                putCompleteTicket({ id, location: deviceLocation }),
                 toastUpdatePromiseTemplate('ticket'),
                 toastProps
             )
@@ -85,6 +87,11 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                         usedItem={{ itemId: undefined, count: 1, ticketId: ticket.id } as unknown as CreateUsedItem}
                         closeModal={() => setIsUseModalOpen(false)}
                         show={isUseModalOpen}
+                    />
+                    <AddTicketInvoice
+                        ticketId={ticket.id}
+                        closeModal={() => setShowInvoiceModal(false)}
+                        isModalOpen={showInvoiceModal}
                     />
                     <div className='flex-100 justify-end '>
                         {mode !== 'edit' ? (
@@ -172,7 +179,7 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                     </div>
                                     <div className='ticketActions'>
                                         <div>Mark as collected</div>
-                                        <Button>Collected</Button>
+                                        <Button onClick={() => setShowInvoiceModal(true)}>Collected</Button>
                                     </div>
                                 </div>
 
@@ -183,8 +190,9 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                         <Button>Chat</Button>
                                     </div>
                                     <div className='ticketActions'>
-                                        <div>Show as pdf</div>
-                                        <Button>Print invoice</Button>
+                                        <div>Print ticket label</div>
+                                        <Button>Print label</Button>
+                                        {/*todo: da svurja toq buton kum BE endpointa*/}
                                     </div>
                                     <div className='ticketActions'>
                                         <div>Use an item for ticket</div>
