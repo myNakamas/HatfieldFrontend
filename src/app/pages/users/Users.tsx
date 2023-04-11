@@ -105,13 +105,17 @@ const UsersTab = ({
     const queryClient = useQueryClient()
     return users && users.length > 0 ? (
         <CustomTable<User>
+            headers={{
+                username: 'Username',
+                fullName: 'Full name',
+                role: 'Role',
+                email: 'Email',
+                shop: 'Shop name',
+                actions: 'Actions',
+            }}
             data={users.map((user) => {
                 return {
-                    userId: user.userId,
-                    username: user.username,
-                    fullName: user.fullName,
-                    role: user.role,
-                    email: user.email,
+                    ...user,
                     shop: shops?.find(({ id }) => user.shopId === id)?.shopName,
                     actions: (
                         <Space>

@@ -70,7 +70,7 @@ export const Inventory = () => {
                 {data && data.content.length > 0 ? (
                     <CustomTable<InventoryItem>
                         data={data.content.map((item) => ({
-                            id: item.id,
+                            ...item,
                             brand: item.brand,
                             model: item.model,
                             type: item.categoryView?.itemType ?? '-',
@@ -80,6 +80,14 @@ export const Inventory = () => {
                                 <Button onClick={() => setEditItem(item)} icon={<FontAwesomeIcon icon={faPen} />} />
                             ),
                         }))}
+                        headers={{
+                            brand: 'Brand',
+                            model: 'Model',
+                            type: 'Item type',
+                            category: 'Category',
+                            count: 'Count',
+                            actions: 'Actions',
+                        }}
                         onClick={({ id }) => setSelectedItem(data?.content.find((row) => row.id === id))}
                         pagination={page}
                         onPageChange={setPage}

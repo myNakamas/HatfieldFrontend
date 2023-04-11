@@ -11,6 +11,11 @@
     color: var(--textPrimary);
 }
 
+#root {
+    min-height: 100vh;
+
+}
+
 @media (prefers-color-scheme:dark){
     :root {
         --backgroundColor:#121212;

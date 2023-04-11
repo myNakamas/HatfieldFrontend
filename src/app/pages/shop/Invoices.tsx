@@ -27,24 +27,32 @@ export const Invoices = () => {
                 {data && data.length > 0 ? (
                     <CustomTable<InventoryItem>
                         data={data.map((invoice) => ({
-                            id: invoice.id,
+                            ...invoice,
                             type: (
                                 <>
                                     <FontAwesomeIcon icon={invoiceTypeIcon[invoice.type]} /> invoice.type
                                 </>
                             ),
-                            'created at': dateFormat(invoice.timestamp),
-                            'total price': invoice.totalPrice.toFixed(2),
-                            'created by': invoice.createdBy.fullName,
+                            timestamp: dateFormat(invoice.timestamp),
+                            price: invoice.totalPrice.toFixed(2),
+                            createdBy: invoice.createdBy.fullName,
                             client: invoice.client.fullName,
-                            'payment method': (
+                            payment: (
                                 <>
                                     <FontAwesomeIcon icon={paymentMethodIcon[invoice.paymentMethod]} />{' '}
                                     invoice.paymentMethod
                                 </>
                             ),
-                            warranty: invoice.warrantyPeriod,
                         }))}
+                        headers={{
+                            type: 'Invoice type',
+                            timestamp: 'Created at',
+                            price: 'Total price',
+                            createdBy: 'Created by',
+                            client: 'Client name',
+                            payment: 'Payment method',
+                            warrantyPeriod: 'Warranty period',
+                        }}
                         onClick={({ id }) => setSelectedItem(data?.find((row) => row.id === id))}
                         pagination={page}
                         onPageChange={setPage}
