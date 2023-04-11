@@ -1,14 +1,14 @@
-import { InventoryItem } from '../../models/interfaces/shop'
-import { AppModal } from './AppModal'
+import { InventoryItem } from '../../../models/interfaces/shop'
+import { AppModal } from '../AppModal'
 import { Button, Card, Descriptions, Divider, Space, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons'
 import React, { useState } from 'react'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
-import { postPrintItemLabel } from '../../axios/http/documentRequests'
-import { AddUsedItem } from './ticket/AddUsedItem'
-import { CreateUsedItem } from '../../models/interfaces/ticket'
+import { postPrintItemLabel } from '../../../axios/http/documentRequests'
+import { AddUsedItem } from '../ticket/AddUsedItem'
+import { CreateUsedItem } from '../../../models/interfaces/ticket'
 
 export const ViewInventoryItem = ({
     inventoryItem,

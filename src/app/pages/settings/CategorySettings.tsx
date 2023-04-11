@@ -3,30 +3,33 @@ import { addCategory, getAllCategories, updateCategory } from '../../axios/http/
 import { Category } from '../../models/interfaces/shop'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import { CustomTable } from '../../components/table/CustomTable'
-import { AddInventoryCategory } from '../../components/modals/AddEditCategory'
+import { AddEditCategory } from '../../components/modals/AddEditCategory'
 import { useState } from 'react'
-import { Button, Popconfirm } from 'antd'
-import { faTrashCan } from '@fortawesome/free-solid-svg-icons'
+import { Button, Popconfirm, Space } from 'antd'
+import { faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { deleteCategory } from '../../axios/http/settingsRequests'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
+import { toast } from 'react-toastify'
+import { toastProps } from '../../components/modals/ToastProps'
 
 export const CategorySettings = () => {
     const { data: allCategories, isLoading } = useQuery(['allCategories'], () => getAllCategories())
     const queryClient = useQueryClient()
     const [showModal, setShowModal] = useState(false)
-    const [showEditModal, setShowEditModal] = useState(false)
     const [selectedCategory, setSelectedCategory] = useState<Category>()
 
     const onUpdate = (formValue: Category) => {
         return updateCategory(formValue).then(() => {
-            setShowEditModal(false)
+            setSelectedCategory(undefined)
+            toast.success('Successfully updated the selected category', toastProps)
             queryClient.invalidateQueries(['allCategories']).then()
         })
     }
     const onCreate = (formValue: Category) => {
         return addCategory(formValue).then(() => {
             setShowModal(false)
+            toast.success('Successfully created a new category', toastProps)
             queryClient.invalidateQueries(['allCategories']).then()
         })
     }
@@ -36,13 +39,13 @@ export const CategorySettings = () => {
             <div className='button-bar'>
                 <Button onClick={() => setShowModal(true)}>Add new category</Button>
             </div>
-            <AddInventoryCategory
-                closeModal={() => setShowEditModal(false)}
-                isModalOpen={showEditModal}
+            <AddEditCategory
+                closeModal={() => setSelectedCategory(undefined)}
+                isModalOpen={!!selectedCategory}
                 onComplete={onUpdate}
                 category={selectedCategory}
             />
-            <AddInventoryCategory
+            <AddEditCategory
                 closeModal={() => setShowModal(false)}
                 isModalOpen={showModal}
                 onComplete={onCreate}
@@ -55,19 +58,25 @@ export const CategorySettings = () => {
                             ...rest,
                             columns: columns.join(', '),
                             actions: (
-                                <Popconfirm
-                                    title='Delete the category'
-                                    description='Are you sure to delete this category?'
-                                    onConfirm={() =>
-                                        deleteCategory(rest.id).then(() =>
-                                            queryClient.invalidateQueries(['allCategories']).then()
-                                        )
-                                    }
-                                    okText='Yes'
-                                    cancelText='No'
-                                >
-                                    <Button icon={<FontAwesomeIcon icon={faTrashCan} />} />
-                                </Popconfirm>
+                                <Space>
+                                    <Button
+                                        icon={<FontAwesomeIcon icon={faPen} />}
+                                        onClick={() => setShowModal(true)}
+                                    />
+                                    <Popconfirm
+                                        title='Delete the category'
+                                        description='Are you sure to delete this category?'
+                                        onConfirm={() =>
+                                            deleteCategory(rest.id).then(() =>
+                                                queryClient.invalidateQueries(['allCategories']).then()
+                                            )
+                                        }
+                                        okText='Yes'
+                                        cancelText='No'
+                                    >
+                                        <Button icon={<FontAwesomeIcon icon={faTrashCan} />} />
+                                    </Popconfirm>
+                                </Space>
                             ),
                         }))}
                         headers={{
@@ -76,8 +85,8 @@ export const CategorySettings = () => {
                             columns: 'columns',
                             actions: 'actions',
                         }}
-                        onClick={(value) => {
-                            setSelectedCategory(value)
+                        onClick={({ id }) => {
+                            setSelectedCategory(allCategories?.find((value) => value.id === id))
                         }}
                     />
                 ) : (

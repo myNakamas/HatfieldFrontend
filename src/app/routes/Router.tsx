@@ -31,7 +31,6 @@ export const Router = () => {
                 <Route path='/shops/:id' element={<ShopView />} />
                 <Route path='/tickets' element={<Tickets />} />
                 <Route path='/invoices' element={<Invoices />} />
-                {/*<Route path='/settings' element={<div>All settings for all shops?</div>} />*/}
                 <Route path='/categories' element={<CategorySettings />} />
             </Route>
         </Routes>

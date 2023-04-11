@@ -1,7 +1,7 @@
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { EditItemInventorySchema } from '../../models/validators/FormValidators'
-import { Category, InventoryItem } from '../../models/interfaces/shop'
+import { EditItemInventorySchema } from '../../../models/validators/FormValidators'
+import { Category, InventoryItem } from '../../../models/interfaces/shop'
 import {
     addCategory,
     getAllBrands,
@@ -9,21 +9,21 @@ import {
     getAllModels,
     getShopData,
     putUpdateItem,
-} from '../../axios/http/shopRequests'
+} from '../../../axios/http/shopRequests'
 import { useQuery, useQueryClient } from 'react-query'
-import { TextField } from '../form/TextField'
-import { FormError } from '../form/FormError'
-import { AppModal } from './AppModal'
+import { TextField } from '../../form/TextField'
+import { FormError } from '../../form/FormError'
+import { AppModal } from '../AppModal'
 import React, { useEffect, useState } from 'react'
 import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
+import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import CreatableSelect from 'react-select/creatable'
-import { FormField } from '../form/Field'
-import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { FormField } from '../../form/Field'
+import { ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
-import { toastProps } from './ToastProps'
+import { toastProps } from '../ToastProps'
 import { Button, Space } from 'antd'
-import { AddInventoryCategory } from './AddEditCategory'
+import { AddEditCategory } from '../AddEditCategory'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
@@ -194,7 +194,7 @@ const InlineAddInventoryCategory = () => {
 
     return (
         <>
-            <AddInventoryCategory
+            <AddEditCategory
                 closeModal={() => setShowModal(false)}
                 isModalOpen={showModal}
                 onComplete={onCreate}

@@ -57,15 +57,17 @@ export const createTicketFromTicket = (t: Ticket): CreateTicket => {
  */
 export interface CreateChatMessage {
     text: string
-    timestamp: Date
+    timestamp: string
     sender: string
     receiver: string
     ticketId: number
     randomId: number
 }
 
+type ChatMessageStatus = 'NotSent' | 'Sent'
 export interface ChatMessage extends Entity, CreateChatMessage {
     readByReceiver: Date
+    status?: ChatMessageStatus
 }
 
 export interface Chat {

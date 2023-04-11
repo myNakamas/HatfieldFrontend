@@ -5,9 +5,9 @@ import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalMo
 import { InventoryFilter } from '../../models/interfaces/filters'
 import { CustomTable } from '../../components/table/CustomTable'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { AddInventoryItem } from '../../components/modals/AddInventoryItem'
+import { AddInventoryItem } from '../../components/modals/inventory/AddInventoryItem'
 import { Category, InventoryItem } from '../../models/interfaces/shop'
-import { ViewInventoryItem } from '../../components/modals/ViewInventoryItem'
+import { ViewInventoryItem } from '../../components/modals/inventory/ViewInventoryItem'
 import { useNavigate } from 'react-router-dom'
 import { SearchComponent } from '../../components/filters/SearchComponent'
 import Select from 'react-select'
@@ -17,7 +17,7 @@ import { Button } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faFileEdit, faPen, faPlus } from '@fortawesome/free-solid-svg-icons'
-import { EditInventoryItem } from '../../components/modals/EditInventoryItem'
+import { EditInventoryItem } from '../../components/modals/inventory/EditInventoryItem'
 
 export const Inventory = () => {
     const [editItem, setEditItem] = useState<InventoryItem>()

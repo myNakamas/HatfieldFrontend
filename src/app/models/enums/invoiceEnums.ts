@@ -21,7 +21,7 @@ export type WarrantyPeriod =
     | 'TWO_YEARS'
 
 export const invoiceTypeIcon = {
-    TICKET: faTicket,
+    REPAIR: faTicket,
     BUY: faShoppingBag,
     SELL: faCommentsDollar,
     ACCESSORIES: faHeadset,
