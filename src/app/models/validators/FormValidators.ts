@@ -2,6 +2,7 @@ import * as Yup from 'yup'
 import { User } from '../interfaces/user'
 import { UserRoles } from '../enums/userEnums'
 import { InventoryItem } from '../interfaces/shop'
+import { InvoiceTypes, PaymentMethods, WarrantyPeriods } from '../enums/invoiceEnums'
 
 export const LoginSchema = Yup.object().shape({
     username: Yup.string().min(5, 'Too Short!').max(50, 'Too Long!').required('Required'),
@@ -76,4 +77,23 @@ export const UsedItemSchema = Yup.object().shape({
     itemId: Yup.number().required(),
     ticketId: Yup.number().required(),
     count: Yup.number().min(1, 'Must be over 0').required(),
+})
+export const NewInvoiceSchema = Yup.object().shape({
+    type: Yup.string().oneOf(InvoiceTypes).required(),
+    deviceModel: Yup.string().notRequired(),
+    deviceBrand: Yup.string().notRequired(),
+    serialNumber: Yup.string().notRequired(),
+    notes: Yup.string().notRequired(),
+    totalPrice: Yup.number().required(),
+    clientId: Yup.string().notRequired(),
+    paymentMethod: Yup.string().oneOf(PaymentMethods),
+    warrantyPeriod: Yup.string().oneOf(WarrantyPeriods),
+})
+export const TicketInvoiceSchema = Yup.object().shape({
+    ticketId: Yup.number().required(),
+    notes: Yup.string().notRequired(),
+    totalPrice: Yup.number().required(),
+    clientId: Yup.string().notRequired(),
+    paymentMethod: Yup.string().oneOf(PaymentMethods).required(),
+    warrantyPeriod: Yup.string().oneOf(WarrantyPeriods).required(),
 })
