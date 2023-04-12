@@ -4,12 +4,11 @@ import { faHouse } from '@fortawesome/free-solid-svg-icons/faHouse'
 import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
 import { faCommentDots } from '@fortawesome/free-solid-svg-icons/faCommentDots'
 import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket'
-import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs'
 import { faDashboard } from '@fortawesome/free-solid-svg-icons/faDashboard'
 import React from 'react'
 import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
 import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield'
-import { faBuildingUser, faFileInvoice } from '@fortawesome/free-solid-svg-icons'
+import { faBuildingUser, faFileInvoice, faPersonCircleQuestion } from '@fortawesome/free-solid-svg-icons'
 import { Drawer, Menu, MenuProps } from 'antd'
 
 export type MenuItem = Required<MenuProps>['items'][number]
@@ -34,7 +33,12 @@ export const SideNavigation = ({
         { label: 'Tickets', key: '/tickets', icon: <FontAwesomeIcon icon={faTicket} /> },
         { label: 'Invoices', key: '/invoices', icon: <FontAwesomeIcon icon={faFileInvoice} /> },
         { label: 'Chats', key: '/chats', icon: <FontAwesomeIcon icon={faCommentDots} /> },
-        { label: 'Settings', key: '/settings', icon: <FontAwesomeIcon icon={faCogs} /> },
+        {
+            label: 'About us',
+            key: '/about',
+            icon: <FontAwesomeIcon icon={faPersonCircleQuestion} />,
+            style: { marginTop: 'auto' },
+        },
     ]
 
     //todo: when navigating with back button, the menu does not rerender
@@ -48,10 +52,11 @@ export const SideNavigation = ({
             open={showNavigation}
         >
             <Menu
-                defaultSelectedKeys={[pathname]}
-                onSelect={(item) => {
+                selectedKeys={[pathname]}
+                onClick={(item) => {
                     navigate(item.key)
                 }}
+                onSelect={() => setShowNav(false)}
                 mode='inline'
                 items={items}
             />

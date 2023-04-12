@@ -57,7 +57,7 @@ export const getAllCategories = (): Promise<Category[]> => {
 }
 
 export const updateCategory = (category: Category): Promise<void> => {
-    return backendClient.put('category/admin/update', category)
+    return backendClient.put('category/admin/update', category, { params: { id: category.id } })
 }
 
 export const addCategory = (category: Category): Promise<void> => {

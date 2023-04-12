@@ -5,15 +5,20 @@
   flex-direction: column-reverse;
   padding-right: 10px;
   width: 100%;
-}
 
-.ticketChatContainer {
-  min-width: 300px;
-  display: flex;
-  flex-direction: column;
-  padding: 30px;
-}
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
 
+  &::-webkit-scrollbar-track {
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--backgroundColor20);
+    border-radius: 10px;
+    padding-right: 2px;
+  }
+}
 .message {
   padding: 10px;
   width: fit-content;
@@ -51,15 +56,29 @@
   justify-content: left;
   align-items: center;
   text-align: left;
+
   .message {
     border-radius: 15px 15px 15px 0;
     background-color: var(--secondaryColor);
   }
+
+  .message-wrapper {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: end;
+  }
+}
+
+.statusIcon {
+  width: 15px;
+  height: 15px;
+  margin: 0 5px;
 }
 
 .messageField {
   display: flex;
   width: 100%;
+  align-items: center;
 
   .input {
     flex: 1;
@@ -75,6 +94,8 @@
 
   .sendButton {
     margin: 5px;
+    height: 40px;
+    width: 40px;
   }
 }
 

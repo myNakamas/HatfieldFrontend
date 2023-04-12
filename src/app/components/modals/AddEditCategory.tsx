@@ -4,7 +4,7 @@ import { CategorySchema } from '../../models/validators/FormValidators'
 import { Category } from '../../models/interfaces/shop'
 import { TextField } from '../form/TextField'
 import { AppModal } from './AppModal'
-import React from 'react'
+import React, { useEffect } from 'react'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { ItemTypesArray } from '../../models/enums/shopEnums'
@@ -15,7 +15,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
 import { Button, Typography } from 'antd'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 
-export const AddInventoryCategory = ({
+export const AddEditCategory = ({
     isModalOpen,
     closeModal,
     category,
@@ -26,6 +26,7 @@ export const AddInventoryCategory = ({
     category?: Category
     onComplete: (formValue: Category) => Promise<void>
 }) => {
+    const defaultValue = { ...category, columns: category?.columns ?? [] }
     const {
         control,
         register,
@@ -34,11 +35,15 @@ export const AddInventoryCategory = ({
         getValues,
         setValue,
         watch,
+        reset,
     } = useForm<Category>({
         resolver: yupResolver(CategorySchema),
-        defaultValues: { ...category, columns: category?.columns ?? [] },
+        defaultValues: defaultValue,
     })
     const properties = watch('columns') ?? []
+    useEffect(() => {
+        reset(defaultValue)
+    }, [isModalOpen])
 
     const displayProperties = (value: string, index: number) => {
         const error = errors.columns && (errors.columns[index] as FieldError)
@@ -77,6 +82,7 @@ export const AddInventoryCategory = ({
                                     theme={SelectTheme}
                                     styles={SelectStyles()}
                                     name='type'
+                                    value={ItemTypesArray.find(({ value }) => value === field.value)}
                                     options={ItemTypesArray}
                                     placeholder='Select Item Type'
                                     onChange={(type) => field.onChange(type?.value)}
@@ -92,7 +98,11 @@ export const AddInventoryCategory = ({
                         onClick={() => setValue('columns', [...getValues('columns'), ''])}
                         icon={<FontAwesomeIcon size='lg' icon={faPlus} />}
                     />
-                    {properties?.map((value, index) => displayProperties(value, index))}
+                    {properties && properties.length ? (
+                        properties?.map((value, index) => displayProperties(value, index))
+                    ) : (
+                        <></>
+                    )}
                     <div className='flex-100 justify-end'>
                         <Button type='primary' htmlType='submit'>
                             Save

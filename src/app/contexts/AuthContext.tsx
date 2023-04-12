@@ -2,6 +2,7 @@ import React, { ReactNode, useEffect, useState } from 'react'
 import { User } from '../models/interfaces/user'
 import { getLoggedUser } from '../axios/http/userRequests'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { stompClient } from '../axios/websocketClient'
 
 export interface AuthContextData {
     loggedUser?: User
@@ -22,6 +23,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = () => {
         setLoggedUser(undefined)
+        stompClient.deactivate().then()
         localStorage.clear()
         setToken(undefined)
         navigate('/login', { state: { from: location } })

@@ -37,7 +37,7 @@ export const WarrantyPeriods = Array(
 export const WarrantyPeriodList = WarrantyPeriods.map((value, index) => ({ value, id: index }))
 
 export const invoiceTypeIcon = {
-    TICKET: faTicket,
+    REPAIR: faTicket,
     BUY: faShoppingBag,
     SELL: faCommentsDollar,
     ACCESSORIES: faHeadset,

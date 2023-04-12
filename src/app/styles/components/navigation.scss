@@ -21,6 +21,12 @@
   padding: 10px;
 }
 
+.chatScreen {
+  @extend .mainScreen;
+  flex-wrap: wrap-reverse;
+  display: flex;
+}
+
 .invisible {
   display: none;
 }

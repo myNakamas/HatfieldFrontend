@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { capitalizeFirst } from '../../utils/helperFunctions'
@@ -11,6 +11,8 @@ import { getProfilePicture } from '../../axios/http/userRequests'
 
 export const ProfileDropdown = () => {
     const { loggedUser, logout } = useContext(AuthContext)
+    const [smallScreen, setSmallScreen] = useState<boolean>(window.innerWidth < 768)
+    window.addEventListener('resize', () => setSmallScreen(window.innerWidth < 768))
     const navigate = useNavigate()
     const { data: profileImg } = useQuery(['profileImg', loggedUser?.userId], () =>
         getProfilePicture({ id: loggedUser?.userId })
@@ -37,10 +39,12 @@ export const ProfileDropdown = () => {
                 <div className='icon-s'>
                     <Avatar icon={<ProfileImage profileImg={profileImg} />} />
                 </div>
-                <div className='menu '>
-                    <div className='username'>{capitalizeFirst(loggedUser?.username)}</div>
-                    <div className='role'>{loggedUser?.role}</div>
-                </div>
+                {!smallScreen && (
+                    <div className='menu '>
+                        <div className='username'>{capitalizeFirst(loggedUser?.username)}</div>
+                        <div className='role'>{loggedUser?.role}</div>
+                    </div>
+                )}
             </Space>
         </Dropdown>
     )
