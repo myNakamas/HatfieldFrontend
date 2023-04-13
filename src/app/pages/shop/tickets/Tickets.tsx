@@ -139,7 +139,7 @@ const TicketFilters = ({
     const { data: users } = useQuery(['users', 'workers'], () => getAllWorkers({}))
     const { data: shops } = useQuery(['shops'], getAllShops)
     return advanced ? (
-        <div className='ticketFilter'>
+        <div className='largeFilter'>
             <div className='filterColumn'>
                 <h4>Filters</h4>
                 <SearchComponent {...{ filter, setFilter }} />

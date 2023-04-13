@@ -11,8 +11,9 @@ import { Shops } from '../pages/shop/Shops'
 import { ShopView } from '../pages/shop/ShopView'
 import { CategorySettings } from '../pages/settings/CategorySettings'
 import { Dashboard } from '../pages/dashboard/Dashboard'
-import { Invoices } from '../pages/shop/Invoices'
+import { Invoices } from '../pages/invoices/Invoices'
 import { Clients } from '../pages/users/Clients'
+import { InvoiceView } from '../pages/invoices/InvoiceView'
 
 export const Router = () => {
     return (
@@ -31,6 +32,7 @@ export const Router = () => {
                 <Route path='/shops/:id' element={<ShopView />} />
                 <Route path='/tickets' element={<Tickets />} />
                 <Route path='/invoices' element={<Invoices />} />
+                <Route path='/invoices/:id' element={<InvoiceView />} />
                 <Route path='/categories' element={<CategorySettings />} />
             </Route>
         </Routes>

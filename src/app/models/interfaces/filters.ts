@@ -1,6 +1,7 @@
-import { Shop } from './shop';
-import { ItemPropertyView } from './generalModels';
-import { TicketStatus } from '../enums/ticketEnums';
+import { Shop } from './shop'
+import { ItemPropertyView } from './generalModels'
+import { TicketStatus } from '../enums/ticketEnums'
+import { InvoiceType } from '../enums/invoiceEnums'
 
 export interface Filter {
     searchBy?: string
@@ -25,18 +26,29 @@ export interface InventoryFilter extends Filter {
 }
 
 export interface TicketFilter extends Filter {
-    searchBy?: string;
-    modelId?: number;
-    brandId?: number;
-    deviceLocation?: number;
-    shopId?: number;
-    clientId?: string;
-    createdById?: string;
-    createdBefore?: string;
-    createdAfter?: string;
-    deadlineBefore?: string;
-    deadlineAfter?: string;
-    ticketStatuses?: TicketStatus[];
+    modelId?: number
+    brandId?: number
+    deviceLocation?: number
+    shopId?: number
+    clientId?: string
+    createdById?: string
+    createdBefore?: string
+    createdAfter?: string
+    deadlineBefore?: string
+    deadlineAfter?: string
+    ticketStatuses?: TicketStatus[]
+}
+
+export interface InvoiceFilter extends Filter {
+    model?: string
+    brand?: string
+    deviceLocation?: number
+    shopId?: number
+    clientId?: string
+    createdById?: string
+    createdBefore?: string
+    createdAfter?: string
+    type?: InvoiceType
 }
 
 export const toUserFilterView = (filter: UserFilter | undefined) => {
