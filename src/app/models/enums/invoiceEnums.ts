@@ -8,6 +8,8 @@ import { faHeadset } from '@fortawesome/free-solid-svg-icons/faHeadset'
 
 export type InvoiceType = 'REPAIR' | 'BUY' | 'SELL' | 'ACCESSORIES'
 export const InvoiceTypes = Array('REPAIR', 'BUY', 'SELL', 'ACCESSORIES')
+export const InvoiceTypesArray = InvoiceTypes.map((value, index) => ({ value, id: index }))
+
 export type PaymentMethod = 'CASH' | 'CARD' | 'COMBINED'
 export const PaymentMethods = Array('CASH', 'CARD', 'COMBINED')
 export const PaymentMethodList = PaymentMethods.map((value, index) => ({ value, id: index }))
