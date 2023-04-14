@@ -1,34 +1,36 @@
-import { Filter, InventoryFilter } from '../../models/interfaces/filters'
+import { TicketFilter } from '../../models/interfaces/filters'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { Shop } from '../../models/interfaces/shop'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { useQuery } from 'react-query'
 import { getAllShops } from '../../axios/http/shopRequests'
 import { DateTimeFilter } from '../../components/filters/DateTimeFilter'
 import { Button, Card, Space } from 'antd'
 import { ShortTicketTable } from '../../components/table/ShortTicketTable'
 import { Ticket } from '../../models/interfaces/ticket'
-import { fetchAllTickets } from '../../axios/http/ticketRequests'
-import { activeTicketStatuses } from '../../models/enums/ticketEnums'
+import { fetchAllActiveTickets } from '../../axios/http/ticketRequests'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import { useNavigate } from 'react-router-dom'
 import { ViewTicket } from '../../components/modals/ticket/ViewTicket'
 import { AddTicket } from '../../components/modals/ticket/AddTicket'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
+import { AuthContext } from '../../contexts/AuthContext'
+import { defaultDashboardFilter } from '../../models/enums/defaultValues'
+import { InvoicesReport } from '../../components/reports/InvoicesReport'
 
 export const Dashboard = () => {
-    const [filter, setFilter] = useState<Filter>({})
+    const { loggedUser } = useContext(AuthContext)
+    const [filter, setFilter] = useState<TicketFilter>(defaultDashboardFilter(loggedUser?.shopId))
     const navigate = useNavigate()
 
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [showNewTicketModal, setShowNewTicketModal] = useState(false)
-    const [page, setPage] = useState({ page: 1, pageSize: 10 })
 
     // const { data: users } = useQuery(['users'], () => getAllUsers({}))
-    const { data: tickets, isLoading } = useQuery(['tickets', { filter: activeTicketStatuses }, page], () =>
-        fetchAllTickets({ page, filter: { ticketStatuses: activeTicketStatuses } })
+    const { data: tickets, isLoading } = useQuery(['tickets','active', filter], () =>
+        fetchAllActiveTickets({ filter })
     )
 
     return (
@@ -39,7 +41,7 @@ export const Dashboard = () => {
             <Space>
                 <Card
                     style={{minWidth:350}}
-                    title={`Active Tickets: ${tickets?.totalCount} `}
+                    title={`Active Tickets: ${tickets?.length} `}
                     extra={
                         <Space>
                             <Button
@@ -55,13 +57,12 @@ export const Dashboard = () => {
                         <ShortTicketTable
                             data={tickets}
                             onClick={({ id }) =>
-                                setSelectedTicket(tickets?.content.find(({ id: ticketId }) => id === ticketId))
+                                setSelectedTicket(tickets?.find(({ id: ticketId }) => id === ticketId))
                             }
-                            page={page}
-                            setPage={setPage}
                         />
                     </CustomSuspense>
                 </Card>
+                <InvoicesReport filter={filter} />
             </Space>
         </Space>
     )
@@ -71,8 +72,8 @@ export const DashboardFilters = ({
     filter,
     setFilter,
 }: {
-    filter: InventoryFilter
-    setFilter: (value: ((prevState: InventoryFilter) => InventoryFilter) | InventoryFilter) => void
+    filter: TicketFilter
+    setFilter: (value: ((prevState: TicketFilter) => TicketFilter) | TicketFilter) => void
 }) => {
     const { data: shops } = useQuery('shops', getAllShops)
 
@@ -82,16 +83,16 @@ export const DashboardFilters = ({
                 <Select<Shop, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter.modelId === id)}
+                    value={shops?.find(({ id }) => filter.shopId === id)}
                     options={shops ?? []}
                     placeholder='Filter by shop'
                     isClearable
-                    onChange={(value) => setFilter({ ...filter, modelId: value?.id ?? undefined })}
+                    onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
                     getOptionLabel={(shop) => shop.shopName}
                     getOptionValue={(shop) => String(shop.id)}
                 />
             </div>
-            <DateTimeFilter filter={filter} setFilter={setFilter} />
+            <DateTimeFilter filter={filter} setFilter={setFilter} dataKeys={{before:'createdBefore', after:'createdAfter'}} />
         </Space>
     )
 }

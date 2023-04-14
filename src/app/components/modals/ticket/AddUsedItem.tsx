@@ -3,7 +3,6 @@ import { AppModal } from '../AppModal'
 import { Button, Form, Space } from 'antd'
 import Select from 'react-select'
 import { useQuery, useQueryClient } from 'react-query'
-import { activeTicketStatuses } from '../../../models/enums/ticketEnums'
 import { createUsedItems, fetchAllActiveTickets } from '../../../axios/http/ticketRequests'
 import { CustomSuspense } from '../../CustomSuspense'
 import { getAllShopItems } from '../../../axios/http/shopRequests'
@@ -29,7 +28,7 @@ export const AddUsedItem = ({
     usedItem: CreateUsedItem
 }) => {
     const { loggedUser } = useContext(AuthContext)
-    const { data: tickets } = useQuery(['tickets', { filter: activeTicketStatuses }], () => fetchAllActiveTickets())
+    const { data: tickets } = useQuery(['tickets', 'active'], () => fetchAllActiveTickets({}))
     const { data: items } = useQuery(['shopItems', 'short', loggedUser?.shopId], () =>
         getAllShopItems(loggedUser?.shopId)
     )

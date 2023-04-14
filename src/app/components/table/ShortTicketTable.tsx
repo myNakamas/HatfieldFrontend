@@ -1,5 +1,4 @@
 import { Ticket } from '../../models/interfaces/ticket'
-import { Page, PageRequest } from '../../models/interfaces/generalModels'
 import dateFormat from 'dateformat'
 import { Statistic, Table } from 'antd'
 import { NoDataComponent } from './NoDataComponent'
@@ -16,15 +15,11 @@ const Deadline = ({ deadline }: { deadline: Date }) => {
 export const ShortTicketTable = ({
     data,
     onClick,
-    page,
-    setPage,
 }: {
-    data?: Page<Ticket>
+    data?: Ticket[]
     onClick: (ticket: Ticket) => void
-    page: PageRequest
-    setPage: (page: PageRequest) => void
 }) => {
-    if (!data || data.content.length === 0) return <NoDataComponent items={'active tickets'} />
+    if (!data || data.length === 0) return <NoDataComponent items={'active tickets'} />
     const columns = ['creation date', 'due', 'status', 'client'].map((string, index) => ({
         title: string,
         dataIndex: string,
@@ -38,7 +33,7 @@ export const ShortTicketTable = ({
     return (
         <Table
             dataSource={
-                data.content.map(({ timestamp, deadline, client, status, ...rest }, index) => ({
+                data.map(({ timestamp, deadline, client, status, ...rest }, index) => ({
                     key: 'ticket' + index,
                     'creation date': dateFormat(timestamp),
                     deadline: deadline,
@@ -50,14 +45,8 @@ export const ShortTicketTable = ({
             }
             columns={columns}
             onRow={getComponentProps}
+            pagination={false}
             rowClassName={({ deadline }: Ticket) => (moment(deadline).isBefore(moment()) ? 'dangerBg' : '')}
-            pagination={{
-                pageSize: page?.pageSize,
-                current: page?.page,
-                onChange: (page, pageSize) => setPage({ page, pageSize }),
-                pageSizeOptions: [5, 10, 15],
-                showSizeChanger: true,
-            }}
         />
     )
 }
