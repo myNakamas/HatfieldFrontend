@@ -5,11 +5,12 @@ import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
 import { faCommentDots } from '@fortawesome/free-solid-svg-icons/faCommentDots'
 import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket'
 import { faDashboard } from '@fortawesome/free-solid-svg-icons/faDashboard'
-import React from 'react'
+import React, { useContext } from 'react'
 import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
 import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield'
 import { faBuildingUser, faFileInvoice, faPersonCircleQuestion } from '@fortawesome/free-solid-svg-icons'
-import { Drawer, Menu, MenuProps } from 'antd'
+import { Drawer, Menu, MenuProps, Space, Typography } from 'antd'
+import { WebSocketContext } from '../../contexts/WebSocketContext'
 
 export type MenuItem = Required<MenuProps>['items'][number]
 
@@ -20,9 +21,10 @@ export const SideNavigation = ({
     showNavigation?: boolean
     setShowNav: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
+    const { notificationCount } = useContext(WebSocketContext)
     const navigate = useNavigate()
     const { pathname } = useLocation()
-
+    const totalNotificationCount = Object.values(notificationCount).reduce((a, b) => a + b, 0);
     const items: MenuItem[] = [
         { label: 'Home', key: '/welcome', icon: <FontAwesomeIcon icon={faHouse} /> },
         { label: 'Dashboard', key: '/dashboard', icon: <FontAwesomeIcon icon={faDashboard} /> },
@@ -32,16 +34,24 @@ export const SideNavigation = ({
         { label: 'Clients', key: '/clients', icon: <FontAwesomeIcon icon={faUsers} /> },
         { label: 'Tickets', key: '/tickets', icon: <FontAwesomeIcon icon={faTicket} /> },
         { label: 'Invoices', key: '/invoices', icon: <FontAwesomeIcon icon={faFileInvoice} /> },
-        { label: 'Chats', key: '/chats', icon: <FontAwesomeIcon icon={faCommentDots} /> },
+        {
+            label: 'Chats',
+            key: '/chats',
+            icon: (
+                <Space className={'sideNavIcon'}>
+                    <FontAwesomeIcon icon={faCommentDots} />
+                    {totalNotificationCount > 0 && (
+                        <Typography className={'icon-s abs-icon'}>{totalNotificationCount}</Typography>
+                    )}
+                </Space>
+            ),
+        },
         {
             label: 'About us',
             key: '/about',
             icon: <FontAwesomeIcon icon={faPersonCircleQuestion} />,
-            style: { marginTop: 'auto' },
         },
     ]
-
-    //todo: when navigating with back button, the menu does not rerender
     return (
         <Drawer
             title='Hatfield'

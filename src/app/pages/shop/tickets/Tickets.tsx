@@ -1,11 +1,11 @@
 import { CustomSuspense } from '../../../components/CustomSuspense'
 import { CustomTable } from '../../../components/table/CustomTable'
 import { NoDataComponent } from '../../../components/table/NoDataComponent'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Ticket } from '../../../models/interfaces/ticket'
 import { useQuery } from 'react-query'
 import { ItemPropertyView, Page, PageRequest } from '../../../models/interfaces/generalModels'
-import { fetchAllTickets } from '../../../axios/http/ticketRequests'
+import { fetchAllTickets, fetchTicketById } from '../../../axios/http/ticketRequests'
 import { AddTicket } from '../../../components/modals/ticket/AddTicket'
 import dateFormat from 'dateformat'
 import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
@@ -25,19 +25,24 @@ import {
     TicketStatus,
     TicketStatusesArray,
 } from '../../../models/enums/ticketEnums'
+import { useSearchParams } from 'react-router-dom'
 
 export const Tickets = () => {
+    const [params] = useSearchParams()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [showNewModal, setShowNewModal] = useState(false)
     const [filter, setFilter] = useState<TicketFilter>({ ticketStatuses: activeTicketStatuses })
-    const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
 
+    const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
     const onSelectedTicketUpdate = (data: Page<Ticket>) => {
         setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
     }
     const tickets = useQuery(['tickets', filter, page], () => fetchAllTickets({ page, filter }), {
         onSuccess: onSelectedTicketUpdate,
     })
+    useEffect(() => {
+        params.get('ticketId') && fetchTicketById(Number(params.get('ticketId'))).then(setSelectedTicket)
+    }, [])
 
     const tabs: TabsProps['items'] = [
         {

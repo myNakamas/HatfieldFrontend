@@ -10,7 +10,7 @@ import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { getAllInvoices, getInvoicePdf } from '../../axios/http/invoiceRequests'
 import dateFormat from 'dateformat'
 import { InvoiceType, invoiceTypeIcon, InvoiceTypesArray, paymentMethodIcon } from '../../models/enums/invoiceEnums'
-import { Button, Space } from 'antd'
+import { Button, Skeleton, Space } from 'antd'
 import { faPrint } from '@fortawesome/free-solid-svg-icons'
 import { getAllBrands, getAllModels, getAllShops } from '../../axios/http/shopRequests'
 import { getAllClients, getAllWorkers } from '../../axios/http/userRequests'
@@ -24,7 +24,7 @@ export const Invoices = () => {
     const navigate = useNavigate()
     const [filter, setFilter] = useState<InvoiceFilter>({})
     const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
-    const { data: invoices } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }))
+    const { data: invoices, isLoading } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }))
 
     const openPdf = async (invoiceId: number) => {
         const pdfBlob = await getInvoicePdf(invoiceId)
@@ -38,7 +38,9 @@ export const Invoices = () => {
         <div className='mainScreen'>
             <InvoiceFilters {...{ filter, setFilter }} />
             <div className='tableWrapper'>
-                {invoices && invoices.content.length > 0 ? (
+                {isLoading ? (
+                    <Skeleton loading />
+                ) : invoices && invoices.content.length > 0 ? (
                     <CustomTable<InventoryItem>
                         data={invoices.content.map((invoice) => ({
                             ...invoice,

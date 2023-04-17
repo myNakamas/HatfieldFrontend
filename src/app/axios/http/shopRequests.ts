@@ -18,7 +18,26 @@ export const useGetShopItems = ({
 }
 export const getAllShopItems = (shopId?: number): Promise<InventoryItem[]> => {
     const filter: InventoryFilter = { shopId }
-    return backendClient.get('inventory/item/short', { params: { ...filter } })
+    return backendClient.get('inventory/item/short', { params: filter })
+}
+export const getShoppingList = ({ filter }: { filter: InventoryFilter }): Promise<InventoryItem[]> => {
+    return backendClient.get('inventory/item/required', { params: filter })
+}
+
+export const setShoppingList = ({
+    shopId,
+    ids,
+    isNeeded,
+}: {
+    shopId?: number
+    ids: string[]
+    isNeeded: boolean
+}): Promise<InventoryItem[]> => {
+    return backendClient.put('inventory/item/required', ids, { params: { shopId, isNeeded } })
+}
+export const setRequiredItemCount = ({ id, count }: { id: number; count?: number }): Promise<InventoryItem[]> => {
+    if(!count) return Promise.reject();
+    return backendClient.put('inventory/item/required/count', {}, { params: { id, count } })
 }
 
 export const getShopData = (): Promise<Shop> => {
@@ -48,8 +67,8 @@ export const addNewItem = ({
     const body = { ...rest, modelId: model?.id, model: model?.value, brandId: brand?.id, brand: brand?.value }
     return backendClient.post('inventory/item/create', body)
 }
-export const putUpdateItem = ({ item }: { item: InventoryItem }) => {
-    return backendClient.post('inventory/item/create', item)
+export const putUpdateItem = ({ item }: { item: CreateInventoryItem }) => {
+    return backendClient.post('inventory/item/update', item)
 }
 
 export const getAllCategories = (): Promise<Category[]> => {
