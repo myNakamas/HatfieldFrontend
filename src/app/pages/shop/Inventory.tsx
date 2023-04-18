@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { Suspense, useContext, useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
 import { getAllBrands, getAllCategories, getAllModels, useGetShopItems } from '../../axios/http/shopRequests'
 import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalModels'
@@ -8,12 +8,12 @@ import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { AddInventoryItem } from '../../components/modals/inventory/AddInventoryItem'
 import { Category, InventoryItem } from '../../models/interfaces/shop'
 import { ViewInventoryItem } from '../../components/modals/inventory/ViewInventoryItem'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { SearchComponent } from '../../components/filters/SearchComponent'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { AuthContext } from '../../contexts/AuthContext'
-import { Button } from 'antd'
+import { Button, Skeleton } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faFileEdit, faPen, faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -21,15 +21,13 @@ import { EditInventoryItem } from '../../components/modals/inventory/EditInvento
 
 export const Inventory = () => {
     const [editItem, setEditItem] = useState<InventoryItem>()
-    const [selectedItem, setSelectedItem] = useState<InventoryItem>()
     const navigate = useNavigate()
     const { loggedUser } = useContext(AuthContext)
     const [filter, setFilter] = useState<InventoryFilter>({ shopId: loggedUser?.shopId })
     const [createModalIsOpen, setCreateModalIsOpen] = useState(false)
     const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
-    const { data } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), {
-        keepPreviousData: true,
-    })
+    const [selectedItem, setSelectedItem] = useState<InventoryItem | undefined>()
+
     return (
         <div className='mainScreen'>
             <InventoryFilters {...{ filter, setFilter }} />
@@ -58,7 +56,7 @@ export const Inventory = () => {
                 <Button
                     icon={<FontAwesomeIcon icon={faShoppingCart} />}
                     type='primary'
-                    onClick={() => navigate('/categories')}
+                    onClick={() => navigate('required')}
                 >
                     Shopping List
                 </Button>
@@ -67,40 +65,71 @@ export const Inventory = () => {
                 </Button>
             </div>
             <div className='tableWrapper'>
-                {data && data.content.length > 0 ? (
-                    <CustomTable<InventoryItem>
-                        data={data.content.map((item) => ({
-                            ...item,
-                            brand: item.brand,
-                            model: item.model,
-                            type: item.categoryView?.itemType ?? '-',
-                            category: item.categoryView?.name ?? '-',
-                            count: item.count,
-                            actions: (
-                                <Button onClick={() => setEditItem(item)} icon={<FontAwesomeIcon icon={faPen} />} />
-                            ),
-                        }))}
-                        headers={{
-                            brand: 'Brand',
-                            model: 'Model',
-                            type: 'Item type',
-                            category: 'Category',
-                            count: 'Count',
-                            actions: 'Actions',
-                        }}
-                        onClick={({ id }) => setSelectedItem(data?.content.find((row) => row.id === id))}
-                        pagination={page}
-                        onPageChange={setPage}
+                <Suspense fallback={<Skeleton active loading />}>
+                    <InventoryInner
+                        {...{ setSelectedItem, setEditItem, page, setPage, filter }}
+                        openCreateModal={() => setCreateModalIsOpen(true)}
                     />
-                ) : (
-                    <NoDataComponent items='items in inventory'>
-                        <Button type='primary' onClick={() => setCreateModalIsOpen(true)}>
-                            Create Now
-                        </Button>
-                    </NoDataComponent>
-                )}
+                </Suspense>
             </div>
         </div>
+    )
+}
+
+const InventoryInner = ({
+    setSelectedItem,
+    setEditItem,
+    setPage,
+    page,
+    filter,
+    openCreateModal,
+}: {
+    filter: InventoryFilter
+    setSelectedItem: React.Dispatch<React.SetStateAction<InventoryItem | undefined>>
+    setEditItem: React.Dispatch<React.SetStateAction<InventoryItem | undefined>>
+    openCreateModal: () => void
+    page: PageRequest
+    setPage: React.Dispatch<React.SetStateAction<PageRequest>>
+}) => {
+    const { data } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), { suspense: true })
+    const [params] = useSearchParams()
+
+    useEffect(() => {
+        if (params.get('itemId')) {
+            setSelectedItem(data?.content.find(({ id }) => String(id) === params.get('itemId')))
+        }
+    }, [])
+
+    return data && data.content.length > 0 ? (
+        <CustomTable<InventoryItem>
+            data={data.content.map((item) => ({
+                ...item,
+                name: item.name ?? '-',
+                price: item.price?.toFixed(2) ?? '-',
+                type: item.categoryView?.itemType ?? '-',
+                category: item.categoryView?.name ?? '-',
+                actions: <Button onClick={() => setEditItem(item)} icon={<FontAwesomeIcon icon={faPen} />} />,
+            }))}
+            headers={{
+                name: 'Name',
+                brand: 'Brand',
+                model: 'Model',
+                price: 'Price',
+                type: 'Item type',
+                category: 'Category',
+                count: 'Count',
+                actions: 'Actions',
+            }}
+            onClick={({ id }) => setSelectedItem(data?.content.find((row) => row.id === id))}
+            pagination={page}
+            onPageChange={setPage}
+        />
+    ) : (
+        <NoDataComponent items='items in inventory'>
+            <Button type='primary' onClick={openCreateModal}>
+                Create Now
+            </Button>
+        </NoDataComponent>
     )
 }
 

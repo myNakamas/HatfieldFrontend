@@ -24,20 +24,36 @@ export interface Shop extends Entity {
 }
 
 export interface InventoryItem extends Entity {
+    name?: string
     model: string
     brand: string
     count: number
+    requiredAmount: number
+    price?: number
     shopId: number
+    requiredItem?: RequiredItem
     categoryView: Category
     columns: CategoryProperties
 }
+
 export interface CreateInventoryItem {
+    name?: string
     count: number
     shopId: number
+    price?: number
     model: ItemPropertyView
     brand: ItemPropertyView
     categoryId: number
     properties: CategoryProperties
+}
+
+type RequiredItemReason = "NEEDED_FOR_TICKET" | "INVENTORY_EMPTY" |"REQUESTED"
+type RequiredItemStatus = "NOT_NEEDED" | "PENDING" |"RECEIVED"
+
+export interface RequiredItem {
+    requiredAmount: number,
+    requiredReason?: RequiredItemReason,
+    status: RequiredItemStatus
 }
 
 export interface CategoryProperties {

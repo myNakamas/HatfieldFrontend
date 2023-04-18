@@ -41,7 +41,7 @@ export const InvoiceView = () => {
                                 <Descriptions.Item label={'Total price'}>
                                     {invoice.totalPrice.toFixed(2)}
                                 </Descriptions.Item>
-                                <Descriptions.Item label={'Client name'}>{invoice.client.fullName}</Descriptions.Item>
+                                {invoice.client && <Descriptions.Item label={'Client name'}>{invoice.client.fullName}</Descriptions.Item>}
                                 <Descriptions.Item label={'Payment method'}>
                                     <FontAwesomeIcon icon={paymentMethodIcon[invoice.paymentMethod]} />{' '}
                                     {invoice.paymentMethod}

@@ -4,21 +4,26 @@ import { useQuery } from 'react-query'
 import { getInvoicesReport } from '../../axios/http/invoiceRequests'
 import { Button, Card, Space, Switch } from 'antd'
 import { CustomSuspense } from '../CustomSuspense'
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import React, { useContext, useState } from 'react'
 import { DesignTokenContext } from 'antd/es/theme/internal'
 import moment from 'moment/moment'
 import { generateDaysArray } from '../../utils/helperFunctions'
 import dateFormat from 'dateformat'
 import { dateMask } from '../../models/enums/appEnums'
+import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
+import { InvoiceType, InvoiceTypesArray } from '../../models/enums/invoiceEnums'
+import Select from 'react-select'
 
 type ChartType = 'COUNT' | 'INCOME'
 
 export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
+    const [invoiceType, setInvoiceType] = useState<InvoiceType | undefined>();
     const [chartType, setChartType] = useState<ChartType>('COUNT')
     const { token } = useContext(DesignTokenContext)
     const navigate = useNavigate()
-    const { data:report, isLoading } = useQuery(['invoices', filter, 'report'], () => getInvoicesReport({ filter }))
+    const { data:report, isLoading } = useQuery(['invoices', filter, 'report'], () => getInvoicesReport({ filter:{...filter,type:invoiceType},  }))
 
     const daysArray = generateDaysArray(filter.createdAfter, filter.createdBefore)
 
@@ -37,18 +42,14 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
                     : `Income: ${report?.totalAmount.toFixed(2)}£`
             }
             extra={
-                <Space>
-                    Invoice count/income
-                    <Switch
-                        onChange={() => setChartType((prevState) => (prevState === 'COUNT' ? 'INCOME' : 'COUNT'))}
-                    />
+
                     <Button type='link' onClick={() => navigate('/invoices')} children={'See All Invoices'} />
-                </Space>
+
             }
         >
             <CustomSuspense isReady={!isLoading}>
-                <ResponsiveContainer width={600} height={400}>
-                    <BarChart data={reportCalendar}>
+                <ResponsiveContainer width='100%' height={400} minWidth={350}>
+                    <BarChart data={reportCalendar} margin={{top:0,right:0,bottom:0,left:0}}>
                         <XAxis dataKey={'Date'}/>
                         <YAxis allowDecimals={false} />
                         {chartType == 'COUNT' && <Bar dataKey={'Invoice Count'} fill={token.colorPrimary} />}
@@ -63,8 +64,25 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
                                 return key === 'Daily income' ? [(+value).toFixed(2) + '£', key] : [value,key]
                             }}
                         />
+                        <Legend/>
                     </BarChart>
                 </ResponsiveContainer>
+                <Space>Invoice count/income
+                    <Switch
+                        onChange={() => setChartType((prevState) => (prevState === 'COUNT' ? 'INCOME' : 'COUNT'))}
+                    />
+                    <Select<ItemPropertyView, false>
+                        theme={SelectTheme}
+                        styles={SelectStyles()}
+                        value={InvoiceTypesArray.find(({ value }) => invoiceType === value)}
+                        options={InvoiceTypesArray ?? []}
+                        placeholder='Filter by status'
+                        isClearable
+                        onChange={(value) => setInvoiceType(value?.value as InvoiceType)}
+                        getOptionLabel={(status) => status.value}
+                        getOptionValue={(status) => String(status.id)}
+                    />
+                </Space>
             </CustomSuspense>
         </Card>
     )

@@ -17,7 +17,7 @@ export const ViewInventoryItem = ({
 }: {
     inventoryItem?: InventoryItem
     closeModal: () => void
-    openEditModal: (item: InventoryItem) => void
+    openEditModal?: (item: InventoryItem) => void
 }) => {
     // const [sellModalOpen, setSellModalOpen] = useState(false)
     const [isUseModalOpen, setIsUseModalOpen] = useState(false)
@@ -30,7 +30,11 @@ export const ViewInventoryItem = ({
     }
 
     return (
-        <AppModal isModalOpen={!!inventoryItem} closeModal={closeModal} title={'Inventory Item'}>
+        <AppModal
+            isModalOpen={!!inventoryItem}
+            closeModal={closeModal}
+            title={'Inventory Item ' + inventoryItem?.name ?? ''}
+        >
             <AddUsedItem
                 usedItem={{ itemId: inventoryItem?.id, count: 1, ticketId: undefined } as unknown as CreateUsedItem}
                 closeModal={() => setIsUseModalOpen(false)}
@@ -45,22 +49,30 @@ export const ViewInventoryItem = ({
             {inventoryItem && (
                 <Space direction='vertical' style={{ width: '100%' }}>
                     <Descriptions
+                        size={'middle'}
                         layout={'vertical'}
                         column={3}
                         bordered
                         extra={
-                            <Button
-                                onClick={() => {
-                                    closeModal()
-                                    openEditModal(inventoryItem)
-                                }}
-                                icon={<FontAwesomeIcon icon={faPen} />}
-                            />
+                            openEditModal && (
+                                <Button
+                                    onClick={() => {
+                                        closeModal()
+                                        openEditModal(inventoryItem)
+                                    }}
+                                    icon={<FontAwesomeIcon icon={faPen} />}
+                                />
+                            )
                         }
                     >
                         <Descriptions.Item label={'Model'}>{inventoryItem.model}</Descriptions.Item>
                         <Descriptions.Item label={'Brand'}>{inventoryItem.brand}</Descriptions.Item>
                         <Descriptions.Item label={'Current count in shop'}>{inventoryItem.count}</Descriptions.Item>
+                        {inventoryItem.price && (
+                            <Descriptions.Item label={'Price'} className='bold'>
+                                {inventoryItem.price.toFixed(2)}
+                            </Descriptions.Item>
+                        )}
                         {inventoryItem.categoryView && (
                             <>
                                 <Descriptions.Item label={'Type'}>

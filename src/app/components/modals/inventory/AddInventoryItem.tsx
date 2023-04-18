@@ -14,8 +14,9 @@ import CreatableSelect from 'react-select/creatable'
 import { FormField } from '../../form/Field'
 import { ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
-import { toastProps } from '../ToastProps'
-import { Button } from 'antd'
+import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
+import { Button, Space } from 'antd'
+import { InlineAddInventoryCategory } from './EditInventoryItem'
 
 export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
     const queryClient = useQueryClient()
@@ -39,19 +40,14 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
         if (shop) {
             const item = { ...formValue, shopId: shop.id }
             toast
-                .promise(
-                    addNewItem({ item })
-                        .then(() => {
-                            closeModal()
-                            queryClient.invalidateQueries(['shopItems']).then()
-                        })
-                        .catch((error) => {
-                            setError('root', error)
-                        }),
-                    { pending: 'Sending', success: 'Done', error: 'Failed to create a new item' },
-                    toastProps
-                )
-                .then()
+                .promise(addNewItem({ item }), toastCreatePromiseTemplate('item'), toastProps)
+                .then(() => {
+                    closeModal()
+                    queryClient.invalidateQueries(['shopItems']).then()
+                })
+                .catch((error) => {
+                    setError('root', error)
+                })
         } else {
             setError('root', { type: 'shopId', message: 'You are not assigned to any shop' })
         }
@@ -67,6 +63,13 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
             <form className='modalForm' onSubmit={handleSubmit(submit)}>
                 <div className='textFormLabel'>Adding item to shop:</div>
                 <input readOnly className='input' disabled defaultValue={shop?.shopName} />
+                <TextField
+                    label='Name'
+                    register={register('name')}
+                    error={errors.name}
+                    placeholder={'The name of the item'}
+                />
+
                 <Controller
                     control={control}
                     name={'brand'}
@@ -110,6 +113,7 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                     )}
                 />
                 <TextField label='Count' register={register('count')} error={errors.count} type='number' />
+                <TextField label='Price' register={register('price')} error={errors.price} type='currency' />
 
                 <Controller
                     control={control}
@@ -117,18 +121,21 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                     render={({ field, fieldState }) => {
                         return (
                             <FormField label={'Item Category'} error={fieldState.error}>
-                                <Select<Category>
-                                    isClearable
-                                    theme={SelectTheme}
-                                    options={categories}
-                                    placeholder='Select Item Category'
-                                    onChange={(type) => {
-                                        field.onChange(type?.id)
-                                        setColumns(type?.columns)
-                                    }}
-                                    getOptionLabel={(item) => item.name}
-                                    getOptionValue={(item) => String(item.id)}
-                                />
+                                <Space>
+                                    <Select<Category>
+                                        isClearable
+                                        theme={SelectTheme}
+                                        options={categories}
+                                        placeholder='Select Item Category'
+                                        onChange={(type) => {
+                                            field.onChange(type?.id)
+                                            setColumns(type?.columns)
+                                        }}
+                                        getOptionLabel={(item) => item.name}
+                                        getOptionValue={(item) => String(item.id)}
+                                    />
+                                    <InlineAddInventoryCategory />
+                                </Space>
                             </FormField>
                         )
                     }}

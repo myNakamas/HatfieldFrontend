@@ -14,7 +14,20 @@ import { faPaperPlane } from '@fortawesome/free-solid-svg-icons/faPaperPlane'
 import dateFormat from 'dateformat'
 import { faArrowRight, faCheckDouble, faCircleCheck, faFileUpload, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { dateTimeMask } from '../../../models/enums/appEnums'
-import { Button, Card, Descriptions, Drawer, Menu, Modal, Skeleton, Space, Upload, UploadFile, UploadProps } from 'antd'
+import {
+    Button,
+    Card,
+    Descriptions,
+    Drawer,
+    Menu,
+    Modal,
+    Skeleton,
+    Space,
+    Typography,
+    Upload,
+    UploadFile,
+    UploadProps,
+} from 'antd'
 import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ProfileImage } from '../../../components/user/ProfileImage'
@@ -24,9 +37,8 @@ import { RcFile } from 'antd/es/upload'
 export const Chats = () => {
     const page = { page: 0, pageSize: 10 }
     const { loggedUser } = useContext(AuthContext)
-
     const navigate = useNavigate()
-    const { userChats, setUserChats } = useContext(WebSocketContext)
+    const { userChats, setUserChats, notificationCount } = useContext(WebSocketContext)
     const { data: tickets } = useQuery(['tickets', page], () => fetchAllTickets({ page, filter: {} }))
     const [chat, setChat] = useState<Chat | undefined>()
     const [params] = useSearchParams()
@@ -93,7 +105,10 @@ export const Chats = () => {
                             items={tickets.content.map((ticket) => ({
                                 label: `Ticket#${ticket.id}`,
                                 key: ticket.id,
-                            }))}
+                                icon:notificationCount[ticket.id] >0 ?                     (
+                                    <Typography className={'icon-s abs-icon'}>{notificationCount[ticket.id]}</Typography>
+                                ):<></>}
+                            ))}
                         />
                     ) : (
                         <Skeleton loading={true} />

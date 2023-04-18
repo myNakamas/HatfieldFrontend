@@ -2,6 +2,9 @@ import { CreateTicket } from '../interfaces/ticket'
 import { User } from '../interfaces/user'
 import { TicketFilter } from '../interfaces/filters'
 import moment from 'moment/moment'
+import { PageRequest } from '../interfaces/generalModels'
+
+export const defaultPage: PageRequest = { pageSize: 10, page: 1 }
 
 export const defaultTicket = {
     status: 'PENDING',

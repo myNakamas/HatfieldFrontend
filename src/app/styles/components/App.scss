@@ -69,8 +69,17 @@ span {
 }
 
 .app-screen {
-  @extend .flex-100;
-  min-height: calc(100vh - 80px);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.app-footer{
+  border-top: 1px solid var(--primaryColor);
+  margin-top: auto;
+}
+.app-content{
+  margin-bottom: 20px;
 }
 
 .justify-start {
@@ -80,6 +89,9 @@ span {
 
 .flex-wrap {
   flex-wrap: wrap;
+}
+.bold {
+  font-weight: bold;
 }
 
 .align-center {

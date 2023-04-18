@@ -1,7 +1,7 @@
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { EditItemInventorySchema } from '../../../models/validators/FormValidators'
-import { Category, InventoryItem } from '../../../models/interfaces/shop'
+import { Category, CreateInventoryItem, InventoryItem } from '../../../models/interfaces/shop'
 import {
     addCategory,
     getAllBrands,
@@ -21,7 +21,7 @@ import CreatableSelect from 'react-select/creatable'
 import { FormField } from '../../form/Field'
 import { ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
-import { toastProps } from '../ToastProps'
+import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { Button, Space } from 'antd'
 import { AddEditCategory } from '../AddEditCategory'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -55,21 +55,21 @@ export const EditInventoryItem = ({
     })
     const submit = (formValue: InventoryItem) => {
         if (shop) {
-            const item = { ...formValue, categoryId: formValue.categoryView.id, shopId: shop.id }
+            const item = {
+                ...formValue,
+                categoryId: formValue.categoryView.id,
+                shopId: shop.id,
+                properties: formValue.columns,
+            } as unknown as CreateInventoryItem
             toast
-                .promise(
-                    putUpdateItem({ item })
-                        .then(() => {
-                            closeModal()
-                            queryClient.invalidateQueries(['shopItems']).then()
-                        })
-                        .catch((error) => {
-                            setError('root', error)
-                        }),
-                    { pending: 'Sending', success: 'Done', error: 'Failed to create a new item' },
-                    toastProps
-                )
-                .then()
+                .promise(putUpdateItem({ item }), toastUpdatePromiseTemplate('item'), toastProps)
+                .then(() => {
+                    closeModal()
+                    queryClient.invalidateQueries(['shopItems']).then()
+                })
+                .catch((error) => {
+                    setError('root', error)
+                })
         } else {
             setError('root', { type: 'shopId', message: 'You are not assigned to any shop' })
         }
@@ -84,6 +84,12 @@ export const EditInventoryItem = ({
             <form className='modalForm' onSubmit={handleSubmit(submit)}>
                 <div className='textFormLabel'>Adding item to shop:</div>
                 <input readOnly className='input' disabled defaultValue={shop?.shopName} />
+                <TextField
+                    label='Name'
+                    register={register('name')}
+                    error={errors.name}
+                    placeholder={'The name of the item'}
+                />
                 <Controller
                     control={control}
                     name={'brand'}
@@ -137,6 +143,7 @@ export const EditInventoryItem = ({
                     )}
                 />
                 <TextField label='Count' register={register('count')} error={errors.count} type='number' />
+                <TextField label='Price' register={register('price')} error={errors.price} type='currency' />
 
                 <Controller
                     control={control}
@@ -181,7 +188,7 @@ export const EditInventoryItem = ({
     )
 }
 
-const InlineAddInventoryCategory = () => {
+export const InlineAddInventoryCategory = () => {
     const [showModal, setShowModal] = useState(false)
     const queryClient = useQueryClient()
 
