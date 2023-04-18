@@ -4,6 +4,7 @@ import { getShopSettings } from '../axios/http/settingsRequests'
 import { ShopSettingsModel } from '../models/interfaces/shop'
 import { ConfigProvider, theme } from 'antd'
 import { CustomSuspense } from '../components/CustomSuspense'
+import locale from 'antd/locale/en_GB'
 import { useQuery } from 'react-query'
 
 export interface ThemeContextData {
@@ -37,6 +38,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     return (
         <CustomSuspense isReady={!isLoading}>
             <ConfigProvider
+                locale={locale}
                 theme={{
                     token: {
                         colorPrimary: colors?.primaryColor ?? 'cyan',
@@ -45,7 +47,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
                     algorithm: prefersDark ? darkAlgorithm : defaultAlgorithm,
                 }}
             >
-                <ThemeContext.Provider value={{ colors }}>{children}</ThemeContext.Provider>
+                <ThemeContext.Provider value={{ colors:{...colors,
+                        primaryColor: colors?.primaryColor ?? 'cyan',
+                        secondaryColor: colors?.secondaryColor ?? '#5258B1',
+                    } as ShopSettingsModel }}>{children}</ThemeContext.Provider>
             </ConfigProvider>
         </CustomSuspense>
     )

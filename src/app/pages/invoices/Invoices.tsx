@@ -50,7 +50,7 @@ export const Invoices = () => {
                             timestamp: dateFormat(invoice.timestamp),
                             price: invoice.totalPrice.toFixed(2),
                             createdBy: invoice.createdBy.fullName,
-                            client: invoice.client.fullName,
+                            client: invoice.client?.fullName ?? '-',
                             payment: (
                                 <>
                                     <FontAwesomeIcon icon={paymentMethodIcon[invoice.paymentMethod]} />{' '}

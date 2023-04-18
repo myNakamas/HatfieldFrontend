@@ -37,3 +37,15 @@ export interface CreateInvoice {
     paymentMethod: PaymentMethod
     warrantyPeriod: WarrantyPeriod
 }
+
+export interface InvoicesReport {
+    totalCount: number;
+    totalAmount: number;
+    calendar: InvoiceDailyReport[];
+}
+
+export interface InvoiceDailyReport {
+    date: string;
+    dailyIncome: number;
+    count: number;
+}

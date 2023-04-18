@@ -14,8 +14,8 @@ export const fetchAllTickets = ({
     const ticketFilter = { ...filter, ticketStatuses: filter.ticketStatuses?.join(',') }
     return backendClient.get('ticket/all', { params: { ...page, ...ticketFilter } })
 }
-export const fetchAllActiveTickets = (): Promise<Ticket[]> => {
-    return backendClient.get('ticket/active')
+export const fetchAllActiveTickets = ({ filter }: { filter?: TicketFilter }): Promise<Ticket[]> => {
+    return backendClient.get('ticket/active', { params: { ...filter } })
 }
 export const fetchTicketById = (id: number): Promise<Ticket> => {
     return backendClient.get('ticket/byId', { params: { id } })
