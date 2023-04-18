@@ -16,6 +16,7 @@ import { InvoiceView } from '../pages/invoices/InvoiceView'
 import { WelcomePage } from '../pages/WelcomePage'
 import { EditShoppingList } from '../pages/shop/EditShoppingList'
 import { ShoppingListView } from '../components/modals/inventory/ShoppingListView'
+import { Inventory } from '../pages/shop/Inventory'
 
 export const Router = () => {
     return (
@@ -24,6 +25,7 @@ export const Router = () => {
             <Route path='/' element={<PrivateRoute />}>
                 <Route path='/welcome' element={<WelcomePage />} />
                 <Route path='/dashboard' element={<Dashboard />} />
+                <Route path='/inventory' element={<Inventory />} />
                 <Route path='/inventory/:shopId/shopping-list' element={<ShoppingListView />} />
                 <Route path='/inventory/required' element={<EditShoppingList />} />
                 <Route path='/profile' element={<Profile />} />
