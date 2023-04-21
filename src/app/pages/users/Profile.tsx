@@ -11,6 +11,7 @@ import { useQuery, useQueryClient } from 'react-query'
 import { ProfileImage } from '../../components/user/ProfileImage'
 import { Button, Card } from 'antd'
 import { EditUser } from '../../components/modals/users/EditUser'
+import { AppFooter } from '../../components/navigation/AppFooter'
 
 export const Profile = () => {
     const { loggedUser } = useContext(AuthContext)
@@ -30,51 +31,58 @@ export const Profile = () => {
     )
 
     return (
-        <div className='setting'>
-            {userToEdit && (
-                <EditUser user={userToEdit} isModalOpen={showModal} closeModal={() => setShowModal(false)} />
-            )}
-            <h2>Your info</h2>
-            <Card className='card'>
-                <div className='flex-100 justify-start '>
-                    <div className='icon-xxl'>
-                        <ProfileImage profileImg={profileImg} />
+        <>
+            <div className='setting'>
+                {userToEdit && (
+                    <EditUser user={userToEdit} isModalOpen={showModal} closeModal={() => setShowModal(false)} />
+                )}
+                <h2>Your info</h2>
+                <Card className='card'>
+                    <div className='flex-100 justify-start '>
+                        <div className='icon-xxl'>
+                            <ProfileImage profileImg={profileImg} />
+                        </div>
+                        <div className='p-2 profileDesc'>
+                            <p>Personalize your account with a photo:</p>
+                            <input
+                                type='file'
+                                className='actionButton'
+                                onChange={(e) => uploadPicture(e.target.files)}
+                            />
+                        </div>
                     </div>
-                    <div className='p-2 profileDesc'>
-                        <p>Personalize your account with a photo:</p>
-                        <input type='file' className='actionButton' onChange={(e) => uploadPicture(e.target.files)} />
-                    </div>
-                </div>
 
-                <SettingsRow name={'Full name'} value={loggedUser?.fullName} />
-            </Card>
-            <SettingsCard
-                header='Security'
-                headerNode={
-                    <Button
-                        icon={<FontAwesomeIcon icon={faUserLock} />}
-                        onClick={() => navigate('/profile/change-password')}
-                    >
-                        Change password
-                    </Button>
-                }
-            />
-            <SettingsCard
-                header='Account info'
-                headerNode={<Button onClick={() => setShowModal(true)}>Edit account</Button>}
-            >
-                <SettingsRow name={'Username'} value={loggedUser?.username} />
+                    <SettingsRow name={'Full name'} value={loggedUser?.fullName} />
+                </Card>
+                <SettingsCard
+                    header='Security'
+                    headerNode={
+                        <Button
+                            icon={<FontAwesomeIcon icon={faUserLock} />}
+                            onClick={() => navigate('/profile/change-password')}
+                        >
+                            Change password
+                        </Button>
+                    }
+                />
+                <SettingsCard
+                    header='Account info'
+                    headerNode={<Button onClick={() => setShowModal(true)}>Edit account</Button>}
+                >
+                    <SettingsRow name={'Username'} value={loggedUser?.username} />
 
-                <SettingsRow name={'Email address'} value={loggedUser?.email} />
+                    <SettingsRow name={'Email address'} value={loggedUser?.email} />
 
-                {loggedUser?.phones &&
-                    loggedUser.phones.length > 0 &&
-                    loggedUser.phones.map((phone, index) => (
-                        <SettingsRow key={'phone' + index} name={'Phone number'} value={phone} />
-                    ))}
-                <SettingsRow name={'Full name'} value={loggedUser?.fullName} />
-            </SettingsCard>
-        </div>
+                    {loggedUser?.phones &&
+                        loggedUser.phones.length > 0 &&
+                        loggedUser.phones.map((phone, index) => (
+                            <SettingsRow key={'phone' + index} name={'Phone number'} value={phone} />
+                        ))}
+                    <SettingsRow name={'Full name'} value={loggedUser?.fullName} />
+                </SettingsCard>
+            </div>
+            <AppFooter/>
+        </>
     )
 }
 export const SettingsCard = ({

@@ -13,7 +13,7 @@ import { FormField } from '../form/Field'
 import Select from 'react-select'
 import { User } from '../../models/interfaces/user'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
-import { PaymentMethodList, WarrantyPeriod, WarrantyPeriodList } from '../../models/enums/invoiceEnums'
+import { PaymentMethod, PaymentMethodList, WarrantyPeriod, WarrantyPeriodList } from '../../models/enums/invoiceEnums'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -22,10 +22,10 @@ import { TicketInvoiceSchema } from '../../models/validators/FormValidators'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 export const AddTicketInvoice = ({
-    ticketId,
-    isModalOpen,
-    closeModal,
-}: {
+                                     ticketId,
+                                     isModalOpen,
+                                     closeModal,
+                                 }: {
     ticketId: number
     isModalOpen: boolean
     closeModal: () => void
@@ -36,6 +36,7 @@ export const AddTicketInvoice = ({
     const { data: ticket } = useQuery(['ticket', ticketId], () => fetchTicketById(ticketId), { enabled: !!ticketId })
     const [showCreateModal, setShowCreateModal] = useState(false)
     const defaultValue = {
+        paymentMethod: 'CARD' as PaymentMethod,
         ticketId: ticket?.id,
         totalPrice: ticket?.totalPrice && ticket.deposit ? ticket?.totalPrice - ticket?.deposit : ticket?.totalPrice,
         clientId: ticket?.client?.userId,
@@ -48,6 +49,7 @@ export const AddTicketInvoice = ({
         formState: { errors },
         setError,
         reset,
+        setValue,
     } = useForm<CreateTicketInvoice>({
         defaultValues: ticket ? defaultValue : {},
         resolver: yupResolver(TicketInvoiceSchema),
@@ -62,7 +64,7 @@ export const AddTicketInvoice = ({
             .promise(
                 putCollectTicket({ id: data.ticketId, invoice: data }),
                 toastCreatePromiseTemplate('invoice'),
-                toastProps
+                toastProps,
             )
             .then(() => {
                 closeModal()
@@ -75,7 +77,8 @@ export const AddTicketInvoice = ({
     return (
         <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'}>
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice, console.log)}>
-                <AddClient isModalOpen={showCreateModal} closeModal={() => setShowCreateModal(false)} />
+                <AddClient isModalOpen={showCreateModal} closeModal={() => setShowCreateModal(false)}
+                           onSuccess={(user) => setValue('clientId', user.userId)} />
 
                 <FormField label={'Ticket Id'} error={errors.ticketId}>
                     <input readOnly className='input' disabled defaultValue={ticketId} />

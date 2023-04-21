@@ -3,7 +3,7 @@ import { AppModal } from '../AppModal'
 import { Button, Card, Descriptions, Divider, Space, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons'
-import React, { useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
 import { postPrintItemLabel } from '../../../axios/http/documentRequests'
@@ -48,11 +48,8 @@ export const ViewInventoryItem = ({
             }
             {inventoryItem && (
                 <Space direction='vertical' style={{ width: '100%' }}>
-                    <Descriptions
-                        size={'middle'}
-                        layout={'vertical'}
-                        column={3}
-                        bordered
+                    <ItemDescriptions
+                        inventoryItem={inventoryItem}
                         extra={
                             openEditModal && (
                                 <Button
@@ -64,33 +61,7 @@ export const ViewInventoryItem = ({
                                 />
                             )
                         }
-                    >
-                        <Descriptions.Item label={'Model'}>{inventoryItem.model}</Descriptions.Item>
-                        <Descriptions.Item label={'Brand'}>{inventoryItem.brand}</Descriptions.Item>
-                        <Descriptions.Item label={'Current count in shop'}>{inventoryItem.count}</Descriptions.Item>
-                        {inventoryItem.price && (
-                            <Descriptions.Item label={'Price'} className='bold'>
-                                {inventoryItem.price.toFixed(2)}
-                            </Descriptions.Item>
-                        )}
-                        {inventoryItem.categoryView && (
-                            <>
-                                <Descriptions.Item label={'Type'}>
-                                    {inventoryItem.categoryView.itemType}
-                                </Descriptions.Item>
-                                <Descriptions.Item label={'Category name'}>
-                                    {inventoryItem.categoryView.name}
-                                </Descriptions.Item>
-                            </>
-                        )}
-                    </Descriptions>
-                    <Descriptions layout={'vertical'} column={3} title={'Properties'} bordered>
-                        {Object.entries(inventoryItem.columns).map(([name, value], index) => (
-                            <Descriptions.Item key={name + index} label={name}>
-                                {value}
-                            </Descriptions.Item>
-                        ))}
-                    </Descriptions>
+                    />
 
                     <Space wrap>
                         <Card title={'Actions'}>
@@ -134,5 +105,35 @@ export const ViewInventoryItem = ({
                 </Space>
             )}
         </AppModal>
+    )
+}
+
+export const ItemDescriptions = ({ inventoryItem, extra }: { inventoryItem: InventoryItem; extra?: ReactNode }) => {
+    return (
+        <>
+            <Descriptions size={'middle'} layout={'vertical'} column={3} bordered extra={extra}>
+                <Descriptions.Item label={'Model'}>{inventoryItem.model}</Descriptions.Item>
+                <Descriptions.Item label={'Brand'}>{inventoryItem.brand}</Descriptions.Item>
+                <Descriptions.Item label={'Current count in shop'}>{inventoryItem.count}</Descriptions.Item>
+                {inventoryItem.price && (
+                    <Descriptions.Item label={'Price'} className='bold'>
+                        {inventoryItem.price.toFixed(2)}
+                    </Descriptions.Item>
+                )}
+                {inventoryItem.categoryView && (
+                    <>
+                        <Descriptions.Item label={'Type'}>{inventoryItem.categoryView.itemType}</Descriptions.Item>
+                        <Descriptions.Item label={'Category name'}>{inventoryItem.categoryView.name}</Descriptions.Item>
+                    </>
+                )}
+            </Descriptions>
+            <Descriptions layout={'vertical'} column={3} title={'Properties'} bordered>
+                {Object.entries(inventoryItem.columns).map(([name, value], index) => (
+                    <Descriptions.Item key={name + index} label={name}>
+                        {value}
+                    </Descriptions.Item>
+                ))}
+            </Descriptions>
+        </>
     )
 }

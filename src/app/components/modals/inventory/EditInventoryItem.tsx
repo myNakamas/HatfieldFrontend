@@ -41,6 +41,8 @@ export const EditInventoryItem = ({
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: categories } = useQuery(['allCategories'], getAllCategories)
     const { data: shop } = useQuery(['currentShop'], getShopData)
+    const [showModal, setShowModal] = useState(false)
+
     const {
         control,
         register,
@@ -49,10 +51,19 @@ export const EditInventoryItem = ({
         setError,
         watch,
         reset,
+        setValue
     } = useForm<InventoryItem>({
         resolver: yupResolver(EditItemInventorySchema),
         defaultValues: item,
     })
+
+    const onCreateCategory = (formValue: Category) => {
+        return addCategory(formValue).then((category) => {
+            setShowModal(false)
+            queryClient.invalidateQueries(['allCategories']).then(()=>setValue('categoryView',category))
+        })
+    }
+
     const submit = (formValue: InventoryItem) => {
         if (shop) {
             const item = {
@@ -80,7 +91,14 @@ export const EditInventoryItem = ({
     }, [item])
 
     return (
-        <AppModal {...{ isModalOpen, closeModal }} title={'Edit item #' + item?.id}>
+        <>
+            <AddEditCategory
+                closeModal={() => setShowModal(false)}
+                isModalOpen={showModal}
+                onComplete={onCreateCategory}
+                category={{} as Category}
+            />
+            <AppModal {...{ isModalOpen, closeModal }} title={'Edit item #' + item?.id}>
             <form className='modalForm' onSubmit={handleSubmit(submit)}>
                 <div className='textFormLabel'>Adding item to shop:</div>
                 <input readOnly className='input' disabled defaultValue={shop?.shopName} />
@@ -163,7 +181,14 @@ export const EditInventoryItem = ({
                                         getOptionLabel={(item) => item.name}
                                         getOptionValue={(item) => String(item.id)}
                                     />
-                                    <InlineAddInventoryCategory />
+                                    <Button
+                                        onClick={() => {
+                                            setShowModal(true)
+                                        }}
+                                        icon={<FontAwesomeIcon icon={faPlus} />}
+                                    >
+                                        Add a new category
+                                    </Button>
                                 </Space>
                             </FormField>
                         )
@@ -185,36 +210,7 @@ export const EditInventoryItem = ({
                 </Space>
             </form>
         </AppModal>
-    )
-}
-
-export const InlineAddInventoryCategory = () => {
-    const [showModal, setShowModal] = useState(false)
-    const queryClient = useQueryClient()
-
-    const onCreate = (formValue: Category) => {
-        return addCategory(formValue).then(() => {
-            setShowModal(false)
-            queryClient.invalidateQueries(['allCategories']).then()
-        })
-    }
-
-    return (
-        <>
-            <AddEditCategory
-                closeModal={() => setShowModal(false)}
-                isModalOpen={showModal}
-                onComplete={onCreate}
-                category={{} as Category}
-            />
-            <Button
-                onClick={() => {
-                    setShowModal(true)
-                }}
-                icon={<FontAwesomeIcon icon={faPlus} />}
-            >
-                Add a new category
-            </Button>
         </>
+
     )
 }

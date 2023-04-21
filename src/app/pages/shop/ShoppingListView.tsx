@@ -1,16 +1,16 @@
-import { InventoryItem } from '../../../models/interfaces/shop'
-import { CustomTable } from '../../table/CustomTable'
-import { NoDataComponent } from '../../table/NoDataComponent'
+import { InventoryItem } from '../../models/interfaces/shop'
+import { CustomTable } from '../../components/table/CustomTable'
+import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { Button } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons'
 import React, { useState } from 'react'
 import { faBasketShopping } from '@fortawesome/free-solid-svg-icons/faBasketShopping'
 import { useQuery } from 'react-query'
-import { getShoppingList } from '../../../axios/http/shopRequests'
-import { InventoryFilter } from '../../../models/interfaces/filters'
+import { getShoppingList } from '../../axios/http/shopRequests'
+import { InventoryFilter } from '../../models/interfaces/filters'
 import { useParams } from 'react-router-dom'
-import { ViewInventoryItem } from './ViewInventoryItem'
+import { ViewInventoryItem } from '../../components/modals/inventory/ViewInventoryItem'
 
 export const ShoppingListView = () => {
     const { shopId } = useParams()

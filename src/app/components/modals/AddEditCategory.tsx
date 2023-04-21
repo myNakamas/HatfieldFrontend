@@ -69,10 +69,9 @@ export const AddEditCategory = ({
     }
 
     return (
-        <AppModal {...{ isModalOpen, closeModal }}>
-            <h2>Category</h2>
+        <AppModal {...{ isModalOpen, closeModal }} title={'Category'}>
             {category && (
-                <form className='modalForm' onSubmit={handleSubmit(onComplete)}>
+                <form id='addEditCategory' className='modalForm' onSubmit={handleSubmit(onComplete)}>
                     <TextField register={register('name')} error={errors.name} label={'Category name'} />
                     <Controller
                         control={control}
@@ -104,10 +103,10 @@ export const AddEditCategory = ({
                         <></>
                     )}
                     <div className='flex-100 justify-end'>
-                        <Button type='primary' htmlType='submit'>
+                        <Button type='primary' htmlType='submit' form='addEditCategory'>
                             Save
                         </Button>
-                        <Button htmlType='button' onClick={closeModal}>
+                        <Button htmlType='button' onClick={closeModal} form='addEditCategory'>
                             Close
                         </Button>
                     </div>

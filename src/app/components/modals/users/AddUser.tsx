@@ -38,6 +38,7 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
         setValue,
         getValues,
         setError,
+        reset
     } = useForm<User>({
         resolver: yupResolver(SimpleUserSchema),
         defaultValues: isLoggedUserAdmin ? defaultUser : { ...defaultUser, shopId: loggedUser?.shopId },
@@ -56,6 +57,7 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
             )
             .then(() => {
                 closeModal()
+                reset({})
                 queryClient.invalidateQueries(['users']).then()
             })
             .catch((message: string) => {

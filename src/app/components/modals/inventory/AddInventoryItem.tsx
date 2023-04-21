@@ -2,7 +2,14 @@ import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { AddItemInventorySchema } from '../../../models/validators/FormValidators'
 import { Category, CreateInventoryItem } from '../../../models/interfaces/shop'
-import { addNewItem, getAllBrands, getAllCategories, getAllModels, getShopData } from '../../../axios/http/shopRequests'
+import {
+    addCategory,
+    addNewItem,
+    getAllBrands,
+    getAllCategories,
+    getAllModels,
+    getShopData,
+} from '../../../axios/http/shopRequests'
 import { useQuery, useQueryClient } from 'react-query'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
@@ -16,7 +23,9 @@ import { ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
 import { Button, Space } from 'antd'
-import { InlineAddInventoryCategory } from './EditInventoryItem'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { AddEditCategory } from '../AddEditCategory'
 
 export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
     const queryClient = useQueryClient()
@@ -25,6 +34,8 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
     const { data: categories } = useQuery(['allCategories'], getAllCategories)
     const { data: shop } = useQuery(['currentShop'], getShopData)
     const [columns, setColumns] = useState<string[]>()
+    const [showCategoryModal, setShowCategoryModal] = useState(false)
+
     const {
         control,
         register,
@@ -32,10 +43,20 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
         formState: { errors },
         setError,
         watch,
+        setValue,
+        reset,
     } = useForm<CreateInventoryItem>({
         resolver: yupResolver(AddItemInventorySchema),
         defaultValues: { shopId: shop?.id },
     })
+
+    const onCreateCategory = (formValue: Category) => {
+        return addCategory(formValue).then((category) => {
+            setShowCategoryModal(false)
+            queryClient.invalidateQueries(['allCategories']).then(()=>setValue('categoryId',category.id))
+        })
+    }
+
     const submit = (formValue: CreateInventoryItem) => {
         if (shop) {
             const item = { ...formValue, shopId: shop.id }
@@ -43,6 +64,7 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                 .promise(addNewItem({ item }), toastCreatePromiseTemplate('item'), toastProps)
                 .then(() => {
                     closeModal()
+                    reset({});
                     queryClient.invalidateQueries(['shopItems']).then()
                 })
                 .catch((error) => {
@@ -58,16 +80,52 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
     }, [watch('categoryId')])
 
     return (
-        <AppModal {...{ isModalOpen, closeModal }}>
-            <h2>Add inventory item</h2>
+        <AppModal {...{ isModalOpen, closeModal }} title={'Add inventory item'}>
+            <AddEditCategory
+                closeModal={() => setShowCategoryModal(false)}
+                isModalOpen={showCategoryModal}
+                onComplete={onCreateCategory}
+                category={{} as Category}
+            />
             <form className='modalForm' onSubmit={handleSubmit(submit)}>
                 <div className='textFormLabel'>Adding item to shop:</div>
-                <input readOnly className='input' disabled defaultValue={shop?.shopName} />
                 <TextField
                     label='Name'
                     register={register('name')}
                     error={errors.name}
                     placeholder={'The name of the item'}
+                />
+
+                <Controller
+                    control={control}
+                    name='categoryId'
+                    render={({ field, fieldState }) => {
+                        return (
+                            <FormField label={'Item Category'} error={fieldState.error}>
+                                <Space>
+                                    <Select<Category>
+                                        isClearable
+                                        theme={SelectTheme}
+                                        options={categories}
+                                        placeholder='Select Item Category'
+                                        onChange={(type) => {
+                                            field.onChange(type?.id)
+                                            setColumns(type?.columns)
+                                        }}
+                                        getOptionLabel={(item) => item.name}
+                                        getOptionValue={(item) => String(item.id)}
+                                    />
+                                    <Button
+                                        onClick={() => {
+                                            setShowCategoryModal(true)
+                                        }}
+                                        icon={<FontAwesomeIcon icon={faPlus} />}
+                                    >
+                                        Add a new category
+                                    </Button>                                </Space>
+                            </FormField>
+                        )
+                    }}
                 />
 
                 <Controller
@@ -114,36 +172,12 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                 />
                 <TextField label='Count' register={register('count')} error={errors.count} type='number' />
                 <TextField label='Price' register={register('price')} error={errors.price} type='currency' />
-
-                <Controller
-                    control={control}
-                    name='categoryId'
-                    render={({ field, fieldState }) => {
-                        return (
-                            <FormField label={'Item Category'} error={fieldState.error}>
-                                <Space>
-                                    <Select<Category>
-                                        isClearable
-                                        theme={SelectTheme}
-                                        options={categories}
-                                        placeholder='Select Item Category'
-                                        onChange={(type) => {
-                                            field.onChange(type?.id)
-                                            setColumns(type?.columns)
-                                        }}
-                                        getOptionLabel={(item) => item.name}
-                                        getOptionValue={(item) => String(item.id)}
-                                    />
-                                    <InlineAddInventoryCategory />
-                                </Space>
-                            </FormField>
-                        )
-                    }}
-                />
+                <h2>Category specific properties:</h2>
                 {columns &&
                     columns.map((key, index) => (
                         <TextField register={register(`properties.${key}`)} label={key} key={key + index} />
                     ))}
+                <input readOnly className='input' disabled defaultValue={shop?.shopName} />
 
                 <FormError error={errors.root?.message} />
                 <div className='flex-100 justify-end'>

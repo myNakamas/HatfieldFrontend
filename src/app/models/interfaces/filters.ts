@@ -50,6 +50,9 @@ export interface InvoiceFilter extends Filter {
     createdAfter?: string
     type?: InvoiceType
 }
+export interface LogsFilter extends Filter{
+    shopId?: number
+}
 
 export const toUserFilterView = (filter: UserFilter | undefined) => {
     return {

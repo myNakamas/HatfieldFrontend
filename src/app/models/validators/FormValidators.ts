@@ -28,7 +28,7 @@ export const SimpleUserSchema = Yup.object<User>().shape({
 })
 export const ClientSchema = Yup.object().shape({
     fullName: Yup.string().notRequired(),
-    email: Yup.string().email('Invalid email').required('Required'),
+    email: Yup.string().email('Invalid email').notRequired(),
     role: Yup.string().oneOf(UserRoles).required(),
     phones: Yup.array().of(Yup.string().min(10, 'Not a valid phone number')).notRequired(),
     shopId: Yup.number().notRequired(),
@@ -63,6 +63,9 @@ export const CategorySchema = Yup.object().shape({
     name: Yup.string().required(),
     itemType: Yup.string().required(),
     phones: Yup.array().of(Yup.string().required()).notRequired(),
+})
+export const EditTicketSchema = Yup.object().shape({
+    deadline: Yup.date().required(),
 })
 export const ShopSchema = Yup.object().shape({
     shopName: Yup.string().required(),

@@ -99,7 +99,7 @@ export const AddUsedItem = ({
                                         placeholder='Choose an item to use'
                                         value={items?.find(({ id }) => field.value === id)}
                                         onChange={(newValue) => field.onChange(newValue?.id)}
-                                        getOptionLabel={(item) => [item.brand, item.model].join(' ')}
+                                        getOptionLabel={(item) => [item.name, item.brand, item.model].join(' ')}
                                         getOptionValue={(item) => item.id + ''}
                                     />
                                 </FormField>
