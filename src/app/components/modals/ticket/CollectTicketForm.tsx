@@ -75,7 +75,7 @@ export const CollectTicketForm = ({
                                 styles={SelectStyles<ItemPropertyView>()}
                                 options={TicketStatusesArray}
                                 placeholder='Fill in the ticket status'
-                                value={TicketStatusesArray.find(({ value }) => field.value === value)}
+                                value={TicketStatusesArray.find(({ value }) => field.value === value) ?? null}
                                 onChange={(newValue) => field.onChange(newValue?.value)}
                                 getOptionLabel={(item) => item.value}
                                 getOptionValue={(item) => item.id + item.value}

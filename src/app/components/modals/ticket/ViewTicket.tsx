@@ -60,7 +60,7 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                 .promise(
                     putCompleteTicket({ id, location: deviceLocation }),
                     toastUpdatePromiseTemplate('ticket'),
-                    toastProps,
+                    toastProps
                 )
                 .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
         }
@@ -71,17 +71,17 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
             .promise(
                 putCompleteTicket({ id, location: deviceLocation }),
                 toastUpdatePromiseTemplate('ticket'),
-                toastProps,
+                toastProps
             )
             .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
     }
 
-    const updateTicketStatus = (id: number, ticketStatus:TicketStatus) => {
+    const updateTicketStatus = (id: number, ticketStatus: TicketStatus) => {
         return toast
             .promise(
-                updateTicket({ id, ticket:{id, status:ticketStatus} as unknown as CreateTicket}),
+                updateTicket({ id, ticket: { id, status: ticketStatus } as unknown as CreateTicket }),
                 toastUpdatePromiseTemplate('ticket status'),
-                toastProps,
+                toastProps
             )
             .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
     }
@@ -178,18 +178,22 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                             theme={SelectTheme}
                                             styles={SelectStyles()}
                                             value={
-                                                TicketStatusesArray.find(({ value }) => value === ticketStatus) as ItemPropertyView
+                                                (TicketStatusesArray.find(
+                                                    ({ value }) => value === ticketStatus
+                                                ) as ItemPropertyView) ?? null
                                             }
                                             options={TicketStatusesArray ?? []}
                                             placeholder='New Status'
                                             isClearable
-                                            onChange={(value) =>
-                                                setTicketStatus(value?.value as TicketStatus)
-                                            }
+                                            onChange={(value) => setTicketStatus(value?.value as TicketStatus)}
                                             getOptionLabel={(status) => status.value}
                                             getOptionValue={(status) => String(status.id)}
                                         />
-                                        <Button onClick={() => updateTicketStatus(ticket.id, ticketStatus as TicketStatus)}>Change status</Button>
+                                        <Button
+                                            onClick={() => updateTicketStatus(ticket.id, ticketStatus as TicketStatus)}
+                                        >
+                                            Change status
+                                        </Button>
                                     </Space>
                                     <div className='ticketActions'>
                                         <FormError error={deviceLocationError} />
@@ -274,7 +278,8 @@ export const TicketDescription = ({ ticket }: { ticket: Ticket }) => {
             <Descriptions.Item label='Device Info'>
                 {ticket.deviceModel && (
                     <>
-                        Device model: {ticket.deviceModel}<br />
+                        Device model: {ticket.deviceModel}
+                        <br />
                     </>
                 )}
                 {ticket.deviceBrand && (
@@ -289,12 +294,14 @@ export const TicketDescription = ({ ticket }: { ticket: Ticket }) => {
                 )}
                 {ticket.devicePassword && (
                     <>
-                        Password: {ticket.devicePassword}<br />
+                        Password: {ticket.devicePassword}
+                        <br />
                     </>
                 )}
                 {ticket.serialNumberOrImei && (
                     <>
-                        Serial number / Imei: {ticket.serialNumberOrImei}<br />
+                        Serial number / Imei: {ticket.serialNumberOrImei}
+                        <br />
                     </>
                 )}
                 {ticket.accessories && (

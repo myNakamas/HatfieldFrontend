@@ -22,10 +22,10 @@ import { TicketInvoiceSchema } from '../../models/validators/FormValidators'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 export const AddTicketInvoice = ({
-                                     ticketId,
-                                     isModalOpen,
-                                     closeModal,
-                                 }: {
+    ticketId,
+    isModalOpen,
+    closeModal,
+}: {
     ticketId: number
     isModalOpen: boolean
     closeModal: () => void
@@ -64,7 +64,7 @@ export const AddTicketInvoice = ({
             .promise(
                 putCollectTicket({ id: data.ticketId, invoice: data }),
                 toastCreatePromiseTemplate('invoice'),
-                toastProps,
+                toastProps
             )
             .then(() => {
                 closeModal()
@@ -77,8 +77,11 @@ export const AddTicketInvoice = ({
     return (
         <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'}>
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice, console.log)}>
-                <AddClient isModalOpen={showCreateModal} closeModal={() => setShowCreateModal(false)}
-                           onSuccess={(user) => setValue('clientId', user.userId)} />
+                <AddClient
+                    isModalOpen={showCreateModal}
+                    closeModal={() => setShowCreateModal(false)}
+                    onSuccess={(user) => setValue('clientId', user.userId)}
+                />
 
                 <FormField label={'Ticket Id'} error={errors.ticketId}>
                     <input readOnly className='input' disabled defaultValue={ticketId} />
@@ -94,7 +97,7 @@ export const AddTicketInvoice = ({
                                 styles={SelectStyles<User>()}
                                 options={clients}
                                 placeholder='Client'
-                                value={clients?.find(({ userId }) => field.value === userId)}
+                                value={clients?.find(({ userId }) => field.value === userId) ?? null}
                                 onChange={(newValue) => field.onChange(newValue?.userId)}
                                 getOptionLabel={(item) => [item.fullName, item.email].join(' ')}
                                 getOptionValue={(item) => item.userId}
@@ -116,7 +119,7 @@ export const AddTicketInvoice = ({
                                 styles={SelectStyles<ItemPropertyView>()}
                                 options={PaymentMethodList}
                                 placeholder='Select a payment method'
-                                value={PaymentMethodList?.find(({ value }) => value === field.value)}
+                                value={PaymentMethodList?.find(({ value }) => value === field.value) ?? null}
                                 onChange={(newValue) => field.onChange(newValue?.value)}
                                 getOptionLabel={(item) => item.value}
                                 getOptionValue={(item) => String(item.id)}
@@ -135,7 +138,7 @@ export const AddTicketInvoice = ({
                                 styles={SelectStyles<ItemPropertyView>()}
                                 options={WarrantyPeriodList}
                                 placeholder='Warranty period'
-                                value={WarrantyPeriodList?.find(({ value }) => value === field.value)}
+                                value={WarrantyPeriodList?.find(({ value }) => value === field.value) ?? null}
                                 onChange={(newValue) => field.onChange(newValue?.value)}
                                 getOptionLabel={(item) => item.value}
                                 getOptionValue={(item) => String(item.id)}

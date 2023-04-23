@@ -38,7 +38,7 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
         setValue,
         getValues,
         setError,
-        reset
+        reset,
     } = useForm<User>({
         resolver: yupResolver(SimpleUserSchema),
         defaultValues: isLoggedUserAdmin ? defaultUser : { ...defaultUser, shopId: loggedUser?.shopId },
@@ -91,7 +91,7 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
                                     theme={SelectTheme}
                                     options={shops}
                                     isDisabled={loggedUser?.role !== 'ADMIN'}
-                                    value={shops?.find((shop) => shop.id === field.value)}
+                                    value={shops?.find((shop) => shop.id === field.value) ?? null}
                                     getOptionLabel={({ shopName }) => shopName}
                                     getOptionValue={({ id }) => id + ''}
                                     placeholder=''

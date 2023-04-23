@@ -9,7 +9,6 @@ import { ShortTicketTable } from '../components/table/ShortTicketTable'
 import { useNavigate } from 'react-router-dom'
 import { ViewTicket } from '../components/modals/ticket/ViewTicket'
 import { Ticket } from '../models/interfaces/ticket'
-import { AppFooter } from '../components/navigation/AppFooter'
 
 export const WelcomePage = () => {
     const { loggedUser } = useContext(AuthContext)
@@ -47,10 +46,7 @@ export const WelcomePage = () => {
                 </GridCol>
                 <GridCol></GridCol>
             </Row>
-            <AppFooter/>
-
         </div>
     )
 }
-const GridCol =({children}:{children?:ReactNode})=> <Col span={10}>{children}</Col>
-
+const GridCol = ({ children }: { children?: ReactNode }) => <Col span={10}>{children}</Col>

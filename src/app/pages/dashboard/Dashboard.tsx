@@ -20,7 +20,6 @@ import { AuthContext } from '../../contexts/AuthContext'
 import { defaultDashboardFilter } from '../../models/enums/defaultValues'
 import { InvoicesReport } from '../../components/reports/InvoicesReport'
 import { RepairsReport } from '../../components/reports/RepairsReport'
-import { AppFooter } from '../../components/navigation/AppFooter'
 
 export const Dashboard = () => {
     const { loggedUser } = useContext(AuthContext)
@@ -78,8 +77,6 @@ export const Dashboard = () => {
                     </Card>
                 </Col>
             </Row>
-            <AppFooter/>
-
         </Space>
     )
 }
@@ -99,7 +96,7 @@ export const DashboardFilters = ({
                 <Select<Shop, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter.shopId === id)}
+                    value={shops?.find(({ id }) => filter.shopId === id) ?? null}
                     options={shops ?? []}
                     placeholder='Filter by shop'
                     isClearable

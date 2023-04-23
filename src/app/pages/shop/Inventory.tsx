@@ -151,7 +151,7 @@ const InventoryFilters = ({
                 <Select<ItemPropertyView, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={models?.find(({ id }) => filter.modelId === id)}
+                    value={models?.find(({ id }) => filter.modelId === id) ?? null}
                     options={models ?? []}
                     placeholder='Filter by model'
                     isClearable
@@ -164,7 +164,7 @@ const InventoryFilters = ({
                 <Select<ItemPropertyView, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={brands?.find(({ id }) => filter.brandId === id)}
+                    value={brands?.find(({ id }) => filter.brandId === id) ?? null}
                     options={brands ?? []}
                     placeholder='Filter by brand'
                     isClearable
@@ -177,7 +177,7 @@ const InventoryFilters = ({
                 <Select<Category, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={categories?.find(({ id }) => filter.categoryId === id)}
+                    value={categories?.find(({ id }) => filter.categoryId === id) ?? null}
                     options={categories ?? []}
                     placeholder='Filter by category'
                     isClearable
