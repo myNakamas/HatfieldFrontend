@@ -40,3 +40,4 @@ export const toastUpdatePromiseTemplate = (item: string) => {
         error: `${capitalizeFirst(itemLower)} update failed`,
     }
 }
+export const toastPrintTemplate = { pending: 'Preparing document', error: 'Could not print document', success: 'Done' }

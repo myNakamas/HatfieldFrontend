@@ -17,7 +17,7 @@ import { ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import { DeviceLocationArray, TicketStatus, TicketStatusesArray } from '../../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
-import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
+import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { FormError } from '../../form/FormError'
 import { CollectTicketForm } from './CollectTicketForm'
 import { Button, Card, Descriptions, Space } from 'antd'
@@ -29,6 +29,7 @@ import { AddUsedItem } from './AddUsedItem'
 import { useNavigate } from 'react-router-dom'
 import { AddTicketInvoice } from '../AddTicketInvoice'
 import Select from 'react-select'
+import { postPrintTicket, postPrintTicketLabel } from '../../../axios/http/documentRequests'
 
 export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal: () => void }) => {
     const navigate = useNavigate()
@@ -84,6 +85,19 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                 toastProps
             )
             .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
+    }
+
+    const printTicketLabel = () => {
+        toast.promise(postPrintTicketLabel(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
+            const fileUrl = URL.createObjectURL(blob)
+            window.open(fileUrl)
+        })
+    }
+    const printTicket = () => {
+        toast.promise(postPrintTicket(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
+            const fileUrl = URL.createObjectURL(blob)
+            window.open(fileUrl)
+        })
     }
 
     return (
@@ -233,9 +247,12 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                         <Button onClick={() => navigate('/chats?id=' + ticket.id)}>Chat</Button>
                                     </div>
                                     <div className='ticketActions'>
-                                        <div>Print ticket label</div>
-                                        <Button>Print label</Button>
-                                        {/*todo: da svurja toq buton kum BE endpointa*/}
+                                        <div>Print ticket repair tag</div>
+                                        <Button onClick={printTicketLabel}>Print repair tag</Button>
+                                    </div>
+                                    <div className='ticketActions'>
+                                        <div>Print ticket</div>
+                                        <Button onClick={printTicket}>Print ticket</Button>
                                     </div>
                                     <div className='ticketActions'>
                                         <div>Use an item for ticket</div>
