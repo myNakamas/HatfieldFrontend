@@ -81,7 +81,7 @@ export const AddEditCategory = ({
                                     theme={SelectTheme}
                                     styles={SelectStyles()}
                                     name='type'
-                                    value={ItemTypesArray.find(({ value }) => value === field.value)}
+                                    value={ItemTypesArray.find(({ value }) => value === field.value) ?? null}
                                     options={ItemTypesArray}
                                     placeholder='Select Item Type'
                                     onChange={(type) => field.onChange(type?.value)}

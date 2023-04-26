@@ -24,7 +24,6 @@ export const Logs = () => {
                 <LogsFilters filter={filter} setFilter={setFilter} />
             </div>
             <Suspense fallback={<InfinitySpin />}>
-
                 <LogsInner {...{ filter, page, setPage }} />
             </Suspense>
         </div>
@@ -80,7 +79,7 @@ const LogsFilters = ({
                 <Select<Shop, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter.shopId === id)}
+                    value={shops?.find(({ id }) => filter.shopId === id) ?? null}
                     options={shops ?? []}
                     placeholder='Filter by shop'
                     isClearable

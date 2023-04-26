@@ -2,13 +2,14 @@ import { FieldError, UseFormRegisterReturn } from 'react-hook-form'
 import React, { ReactNode } from 'react'
 import { FormError } from './FormError'
 
-interface TextFieldProps {
+interface TextFieldProps
+    extends React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
     register: UseFormRegisterReturn
     label?: string
-    placeholder?: string
     error?: FieldError
-    type?: string
-    defaultValue?: string
+    // placeholder?: string
+    // type?: string
+    // defaultValue?: string
     button?: ReactNode
 }
 

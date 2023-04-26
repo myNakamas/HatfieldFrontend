@@ -40,7 +40,6 @@ export const EditTicketForm = ({
         setError,
         reset,
         setValue,
-        watch
     } = useForm<CreateTicket>({ defaultValues: ticket, resolver: yupResolver(EditTicketSchema) })
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
@@ -100,7 +99,7 @@ export const EditTicketForm = ({
                                         styles={SelectStyles<User>()}
                                         options={clients}
                                         placeholder='Client'
-                                        value={clients?.find(({ userId }) => field.value === userId)}
+                                        value={clients?.find(({ userId }) => field.value === userId) ?? null}
                                         onChange={(newValue) => field.onChange(newValue?.userId)}
                                         getOptionLabel={(item) =>
                                             [item.fullName, item.email, ...(item.phones ?? [])].join(' ')
@@ -124,7 +123,7 @@ export const EditTicketForm = ({
                                         styles={SelectStyles<ItemPropertyView>()}
                                         options={TicketStatusesArray}
                                         placeholder='Fill in the ticket status'
-                                        value={TicketStatusesArray.find(({ value }) => field.value === value)}
+                                        value={TicketStatusesArray.find(({ value }) => field.value === value) ?? null}
                                         onChange={(newValue) => field.onChange(newValue?.value)}
                                         getOptionLabel={(item) => item.value}
                                         getOptionValue={(item) => item.id + item.value}

@@ -17,7 +17,7 @@ import { ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import { DeviceLocationArray, TicketStatus, TicketStatusesArray } from '../../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
-import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
+import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { FormError } from '../../form/FormError'
 import { CollectTicketForm } from './CollectTicketForm'
 import { Button, Card, Descriptions, Space } from 'antd'
@@ -29,6 +29,7 @@ import { AddUsedItem } from './AddUsedItem'
 import { useNavigate } from 'react-router-dom'
 import { AddTicketInvoice } from '../AddTicketInvoice'
 import Select from 'react-select'
+import { postPrintTicket, postPrintTicketLabel } from '../../../axios/http/documentRequests'
 
 export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal: () => void }) => {
     const navigate = useNavigate()
@@ -60,7 +61,7 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                 .promise(
                     putCompleteTicket({ id, location: deviceLocation }),
                     toastUpdatePromiseTemplate('ticket'),
-                    toastProps,
+                    toastProps
                 )
                 .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
         }
@@ -71,19 +72,32 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
             .promise(
                 putCompleteTicket({ id, location: deviceLocation }),
                 toastUpdatePromiseTemplate('ticket'),
-                toastProps,
+                toastProps
             )
             .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
     }
 
-    const updateTicketStatus = (id: number, ticketStatus:TicketStatus) => {
+    const updateTicketStatus = (id: number, ticketStatus: TicketStatus) => {
         return toast
             .promise(
-                updateTicket({ id, ticket:{id, status:ticketStatus} as unknown as CreateTicket}),
+                updateTicket({ id, ticket: { id, status: ticketStatus } as unknown as CreateTicket }),
                 toastUpdatePromiseTemplate('ticket status'),
-                toastProps,
+                toastProps
             )
             .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
+    }
+
+    const printTicketLabel = () => {
+        toast.promise(postPrintTicketLabel(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
+            const fileUrl = URL.createObjectURL(blob)
+            window.open(fileUrl)
+        })
+    }
+    const printTicket = () => {
+        toast.promise(postPrintTicket(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
+            const fileUrl = URL.createObjectURL(blob)
+            window.open(fileUrl)
+        })
     }
 
     return (
@@ -178,18 +192,22 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                             theme={SelectTheme}
                                             styles={SelectStyles()}
                                             value={
-                                                TicketStatusesArray.find(({ value }) => value === ticketStatus) as ItemPropertyView
+                                                (TicketStatusesArray.find(
+                                                    ({ value }) => value === ticketStatus
+                                                ) as ItemPropertyView) ?? null
                                             }
                                             options={TicketStatusesArray ?? []}
                                             placeholder='New Status'
                                             isClearable
-                                            onChange={(value) =>
-                                                setTicketStatus(value?.value as TicketStatus)
-                                            }
+                                            onChange={(value) => setTicketStatus(value?.value as TicketStatus)}
                                             getOptionLabel={(status) => status.value}
                                             getOptionValue={(status) => String(status.id)}
                                         />
-                                        <Button onClick={() => updateTicketStatus(ticket.id, ticketStatus as TicketStatus)}>Change status</Button>
+                                        <Button
+                                            onClick={() => updateTicketStatus(ticket.id, ticketStatus as TicketStatus)}
+                                        >
+                                            Change status
+                                        </Button>
                                     </Space>
                                     <div className='ticketActions'>
                                         <FormError error={deviceLocationError} />
@@ -229,9 +247,12 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                         <Button onClick={() => navigate('/chats?id=' + ticket.id)}>Chat</Button>
                                     </div>
                                     <div className='ticketActions'>
-                                        <div>Print ticket label</div>
-                                        <Button>Print label</Button>
-                                        {/*todo: da svurja toq buton kum BE endpointa*/}
+                                        <div>Print ticket repair tag</div>
+                                        <Button onClick={printTicketLabel}>Print repair tag</Button>
+                                    </div>
+                                    <div className='ticketActions'>
+                                        <div>Print ticket</div>
+                                        <Button onClick={printTicket}>Print ticket</Button>
                                     </div>
                                     <div className='ticketActions'>
                                         <div>Use an item for ticket</div>
@@ -274,7 +295,8 @@ export const TicketDescription = ({ ticket }: { ticket: Ticket }) => {
             <Descriptions.Item label='Device Info'>
                 {ticket.deviceModel && (
                     <>
-                        Device model: {ticket.deviceModel}<br />
+                        Device model: {ticket.deviceModel}
+                        <br />
                     </>
                 )}
                 {ticket.deviceBrand && (
@@ -289,12 +311,14 @@ export const TicketDescription = ({ ticket }: { ticket: Ticket }) => {
                 )}
                 {ticket.devicePassword && (
                     <>
-                        Password: {ticket.devicePassword}<br />
+                        Password: {ticket.devicePassword}
+                        <br />
                     </>
                 )}
                 {ticket.serialNumberOrImei && (
                     <>
-                        Serial number / Imei: {ticket.serialNumberOrImei}<br />
+                        Serial number / Imei: {ticket.serialNumberOrImei}
+                        <br />
                     </>
                 )}
                 {ticket.accessories && (

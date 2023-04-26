@@ -35,6 +35,7 @@ export const WebSocketContextProvider = ({ children }: { children: ReactNode }) 
     useEffect(() => {
         if (loggedUser?.userId) {
             connectToWebsocket(() => {
+                toast.info('Connection established', { position: 'bottom-center' })
                 registerToChat(
                     loggedUser?.userId,
                     (message: ChatMessage) => {
@@ -43,11 +44,11 @@ export const WebSocketContextProvider = ({ children }: { children: ReactNode }) 
                             `Ticket#${message.ticketId}: ${
                                 users?.find(({ userId }) => userId === message.sender)?.username
                             }:\n${message.text}`,
-                            toastChatProps,
+                            toastChatProps
                         )
                         addMessageToUserChats(message)
                     },
-                    replaceOrAddMessageUserChats,
+                    replaceOrAddMessageUserChats
                 )
             })
         } else stompClient.deactivate().then()

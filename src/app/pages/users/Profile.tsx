@@ -11,7 +11,6 @@ import { useQuery, useQueryClient } from 'react-query'
 import { ProfileImage } from '../../components/user/ProfileImage'
 import { Button, Card } from 'antd'
 import { EditUser } from '../../components/modals/users/EditUser'
-import { AppFooter } from '../../components/navigation/AppFooter'
 
 export const Profile = () => {
     const { loggedUser } = useContext(AuthContext)
@@ -81,7 +80,6 @@ export const Profile = () => {
                     <SettingsRow name={'Full name'} value={loggedUser?.fullName} />
                 </SettingsCard>
             </div>
-            <AppFooter/>
         </>
     )
 }

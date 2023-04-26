@@ -115,7 +115,7 @@ export const EditUser = ({
                                     <Select<Shop, false>
                                         theme={SelectTheme}
                                         options={shops}
-                                        value={shops?.find((shop) => shop.id === field.value)}
+                                        value={shops?.find((shop) => shop.id === field.value) ?? null}
                                         getOptionLabel={({ shopName }) => shopName}
                                         getOptionValue={({ id }) => id + ''}
                                         placeholder=''
@@ -139,7 +139,7 @@ export const EditUser = ({
                                     <Select
                                         theme={SelectTheme}
                                         options={UserRolesArray}
-                                        value={UserRolesArray.find((role) => role.value === field.value)}
+                                        value={UserRolesArray.find((role) => role.value === field.value) ?? null}
                                         getOptionLabel={({ value }) => value}
                                         getOptionValue={({ value }) => value}
                                         placeholder='Select a role for the user'

@@ -17,6 +17,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { UsedItemSchema } from '../../../models/validators/FormValidators'
 import { toastProps } from '../ToastProps'
 import { toast } from 'react-toastify'
+import { FormError } from '../../form/FormError'
 
 export const AddUsedItem = ({
     show,
@@ -38,6 +39,8 @@ export const AddUsedItem = ({
         formState: { errors },
         handleSubmit,
         reset,
+        setError,
+        watch,
     } = useForm<CreateUsedItem>({ resolver: yupResolver(UsedItemSchema), defaultValues: usedItem })
     const queryClient = useQueryClient()
     useEffect(() => reset(usedItem), [show])
@@ -56,8 +59,10 @@ export const AddUsedItem = ({
             .then(async () => {
                 await queryClient.invalidateQueries(['usedItems'])
                 await queryClient.invalidateQueries(['tickets'])
+                await queryClient.invalidateQueries(['shopItems', 'short'])
                 closeModal()
             })
+            .catch((reason) => setError('root', { message: reason }))
     }
 
     return (
@@ -76,7 +81,7 @@ export const AddUsedItem = ({
                                         styles={SelectStyles<Ticket>()}
                                         options={tickets}
                                         placeholder='Choose a ticket'
-                                        value={tickets?.find(({ id }) => field.value === id)}
+                                        value={tickets?.find(({ id }) => field.value === id) ?? null}
                                         onChange={(newValue) => field.onChange(newValue?.id)}
                                         getOptionLabel={(item) =>
                                             ['Ticket#' + item.id, item.deviceBrand, item.deviceBrand].join(' ')
@@ -97,7 +102,7 @@ export const AddUsedItem = ({
                                         styles={SelectStyles<InventoryItem>()}
                                         options={items}
                                         placeholder='Choose an item to use'
-                                        value={items?.find(({ id }) => field.value === id)}
+                                        value={items?.find(({ id }) => field.value === id) ?? null}
                                         onChange={(newValue) => field.onChange(newValue?.id)}
                                         getOptionLabel={(item) => [item.name, item.brand, item.model].join(' ')}
                                         getOptionValue={(item) => item.id + ''}
@@ -105,12 +110,20 @@ export const AddUsedItem = ({
                                 </FormField>
                             )}
                         />
+                        {watch('itemId') && (
+                            <h4>
+                                Current item count in the shop: {items?.find(({ id }) => watch('itemId') === id)?.count}
+                            </h4>
+                        )}
                         <TextField
                             register={register('count')}
                             error={errors.count}
                             type='number'
+                            max={items?.find(({ id }) => watch('itemId') === id)?.count}
+                            min={1}
                             label='Number of items to use'
                         />
+                        <FormError error={errors.root?.message} />
                         <div className='flex-100 justify-end'>
                             <Button type='primary' htmlType='submit'>
                                 Save

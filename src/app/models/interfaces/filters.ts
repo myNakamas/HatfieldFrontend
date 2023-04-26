@@ -50,12 +50,13 @@ export interface InvoiceFilter extends Filter {
     createdAfter?: string
     type?: InvoiceType
 }
-export interface LogsFilter extends Filter{
+export interface LogsFilter extends Filter {
     shopId?: number
 }
 
 export const toUserFilterView = (filter: UserFilter | undefined) => {
     return {
+        searchBy: filter?.searchBy,
         shopId: filter?.shop?.id,
         roles: filter?.roles?.map(({ value }) => value).join(','),
         banned: filter?.banned,

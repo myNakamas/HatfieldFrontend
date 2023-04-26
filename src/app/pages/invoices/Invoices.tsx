@@ -115,7 +115,7 @@ function InvoiceFilters({
                 <Select<ItemPropertyView, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={InvoiceTypesArray.find(({ value }) => filter.type === value)}
+                    value={InvoiceTypesArray.find(({ value }) => filter.type === value) ?? null}
                     options={InvoiceTypesArray ?? []}
                     placeholder='Filter by status'
                     isClearable
@@ -129,7 +129,7 @@ function InvoiceFilters({
                 <Select<ItemPropertyView, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={models?.find(({ value }) => filter.model === value)}
+                    value={models?.find(({ value }) => filter.model === value) ?? null}
                     options={models ?? []}
                     placeholder='Filter by model'
                     isClearable
@@ -140,7 +140,7 @@ function InvoiceFilters({
                 <Select<ItemPropertyView, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={brands?.find(({ value }) => filter.brand === value)}
+                    value={brands?.find(({ value }) => filter.brand === value) ?? null}
                     options={brands ?? []}
                     placeholder='Filter by brand'
                     isClearable
@@ -154,7 +154,7 @@ function InvoiceFilters({
                 <Select<User, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={clients?.find(({ userId }) => filter.clientId === userId)}
+                    value={clients?.find(({ userId }) => filter.clientId === userId) ?? null}
                     options={clients ?? []}
                     placeholder='Filter by client'
                     isClearable
@@ -165,7 +165,7 @@ function InvoiceFilters({
                 <Select<User, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={users?.find(({ userId }) => filter.createdById === userId)}
+                    value={users?.find(({ userId }) => filter.createdById === userId) ?? null}
                     options={users ?? []}
                     placeholder='Filter by creator'
                     isClearable
@@ -176,7 +176,7 @@ function InvoiceFilters({
                 <Select<Shop, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter.shopId === id)}
+                    value={shops?.find(({ id }) => filter.shopId === id) ?? null}
                     options={shops ?? []}
                     placeholder='Filter by shop'
                     isClearable

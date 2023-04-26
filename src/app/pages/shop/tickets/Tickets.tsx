@@ -170,7 +170,7 @@ const TicketFilters = ({
                 <Select<ItemPropertyView, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={models?.find(({ id }) => filter.modelId === id)}
+                    value={models?.find(({ id }) => filter.modelId === id) ?? null}
                     options={models ?? []}
                     placeholder='Filter by model'
                     isClearable
@@ -181,7 +181,7 @@ const TicketFilters = ({
                 <Select<ItemPropertyView, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={brands?.find(({ id }) => filter.brandId === id)}
+                    value={brands?.find(({ id }) => filter.brandId === id) ?? null}
                     options={brands ?? []}
                     placeholder='Filter by brand'
                     isClearable
@@ -195,7 +195,7 @@ const TicketFilters = ({
                 <Select<User, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={clients?.find(({ userId }) => filter.clientId === userId)}
+                    value={clients?.find(({ userId }) => filter.clientId === userId) ?? null}
                     options={clients ?? []}
                     placeholder='Filter by client'
                     isClearable
@@ -206,7 +206,7 @@ const TicketFilters = ({
                 <Select<User, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={users?.find(({ userId }) => filter.createdById === userId)}
+                    value={users?.find(({ userId }) => filter.createdById === userId) ?? null}
                     options={users ?? []}
                     placeholder='Filter by ticket creator'
                     isClearable
@@ -217,7 +217,7 @@ const TicketFilters = ({
                 <Select<Shop, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter.shopId === id)}
+                    value={shops?.find(({ id }) => filter.shopId === id) ?? null}
                     options={shops ?? []}
                     placeholder='Filter by shop'
                     isClearable

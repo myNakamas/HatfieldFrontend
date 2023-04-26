@@ -53,7 +53,7 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
     const onCreateCategory = (formValue: Category) => {
         return addCategory(formValue).then((category) => {
             setShowCategoryModal(false)
-            queryClient.invalidateQueries(['allCategories']).then(()=>setValue('categoryId',category.id))
+            queryClient.invalidateQueries(['allCategories']).then(() => setValue('categoryId', category.id))
         })
     }
 
@@ -64,7 +64,7 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                 .promise(addNewItem({ item }), toastCreatePromiseTemplate('item'), toastProps)
                 .then(() => {
                     closeModal()
-                    reset({});
+                    reset({})
                     queryClient.invalidateQueries(['shopItems']).then()
                 })
                 .catch((error) => {
@@ -108,6 +108,7 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                                         theme={SelectTheme}
                                         options={categories}
                                         placeholder='Select Item Category'
+                                        value={categories?.find(({ id }) => field.value === id) ?? null}
                                         onChange={(type) => {
                                             field.onChange(type?.id)
                                             setColumns(type?.columns)
@@ -122,7 +123,8 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                                         icon={<FontAwesomeIcon icon={faPlus} />}
                                     >
                                         Add a new category
-                                    </Button>                                </Space>
+                                    </Button>{' '}
+                                </Space>
                             </FormField>
                         )
                     }}

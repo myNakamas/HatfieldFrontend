@@ -19,11 +19,13 @@ import Select from 'react-select'
 type ChartType = 'COUNT' | 'INCOME'
 
 export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
-    const [invoiceType, setInvoiceType] = useState<InvoiceType | undefined>();
+    const [invoiceType, setInvoiceType] = useState<InvoiceType | undefined>()
     const [chartType, setChartType] = useState<ChartType>('COUNT')
     const { token } = useContext(DesignTokenContext)
     const navigate = useNavigate()
-    const { data:report, isLoading } = useQuery(['invoices', filter, 'report'], () => getInvoicesReport({ filter:{...filter,type:invoiceType},  }))
+    const { data: report, isLoading } = useQuery(['invoices', filter, 'report'], () =>
+        getInvoicesReport({ filter: { ...filter, type: invoiceType } })
+    )
 
     const daysArray = generateDaysArray(filter.createdAfter, filter.createdBefore)
 
@@ -32,7 +34,11 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
         return match || { count: 0, dailyIncome: 0, date: day.format('YYYY-MM-DD') }
     })
 
-    const reportCalendar = mergedArray.map(({ count, dailyIncome, date })=>({'Invoice Count':count,'Daily income':dailyIncome,'Date':dateFormat(date,dateMask) }))
+    const reportCalendar = mergedArray.map(({ count, dailyIncome, date }) => ({
+        'Invoice Count': count,
+        'Daily income': dailyIncome,
+        Date: dateFormat(date, dateMask),
+    }))
     return (
         <Card
             style={{ minWidth: 350 }}
@@ -41,40 +47,37 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
                     ? `Created invoices: ${report?.totalCount}`
                     : `Income: ${report?.totalAmount.toFixed(2)}£`
             }
-            extra={
-
-                    <Button type='link' onClick={() => navigate('/invoices')} children={'See All Invoices'} />
-
-            }
+            extra={<Button type='link' onClick={() => navigate('/invoices')} children={'See All Invoices'} />}
         >
             <CustomSuspense isReady={!isLoading}>
                 <ResponsiveContainer width='100%' height={400} minWidth={350}>
-                    <BarChart data={reportCalendar} margin={{top:0,right:0,bottom:0,left:0}}>
-                        <XAxis dataKey={'Date'}/>
+                    <BarChart data={reportCalendar} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                        <XAxis dataKey={'Date'} />
                         <YAxis allowDecimals={false} />
                         {chartType == 'COUNT' && <Bar dataKey={'Invoice Count'} fill={token.colorPrimary} />}
                         {chartType == 'INCOME' && <Bar dataKey={'Daily income'} fill={token.colorFill} />}
-                        <Tooltip<string,string>
+                        <Tooltip<string, string>
                             contentStyle={{
                                 borderRadius: token.borderRadius,
                                 backgroundColor: token.colorInfo,
                             }}
-                            itemStyle={{color:'white'}}
-                            formatter={(value,key)=> {
-                                return key === 'Daily income' ? [(+value).toFixed(2) + '£', key] : [value,key]
+                            itemStyle={{ color: 'white' }}
+                            formatter={(value, key) => {
+                                return key === 'Daily income' ? [(+value).toFixed(2) + '£', key] : [value, key]
                             }}
                         />
-                        <Legend/>
+                        <Legend />
                     </BarChart>
                 </ResponsiveContainer>
-                <Space>Invoice count/income
+                <Space>
+                    Invoice count/income
                     <Switch
                         onChange={() => setChartType((prevState) => (prevState === 'COUNT' ? 'INCOME' : 'COUNT'))}
                     />
                     <Select<ItemPropertyView, false>
                         theme={SelectTheme}
                         styles={SelectStyles()}
-                        value={InvoiceTypesArray.find(({ value }) => invoiceType === value)}
+                        value={InvoiceTypesArray.find(({ value }) => invoiceType === value) ?? null}
                         options={InvoiceTypesArray ?? []}
                         placeholder='Filter by status'
                         isClearable

@@ -51,7 +51,7 @@ export const EditInventoryItem = ({
         setError,
         watch,
         reset,
-        setValue
+        setValue,
     } = useForm<InventoryItem>({
         resolver: yupResolver(EditItemInventorySchema),
         defaultValues: item,
@@ -60,7 +60,7 @@ export const EditInventoryItem = ({
     const onCreateCategory = (formValue: Category) => {
         return addCategory(formValue).then((category) => {
             setShowModal(false)
-            queryClient.invalidateQueries(['allCategories']).then(()=>setValue('categoryView',category))
+            queryClient.invalidateQueries(['allCategories']).then(() => setValue('categoryView', category))
         })
     }
 
@@ -99,118 +99,119 @@ export const EditInventoryItem = ({
                 category={{} as Category}
             />
             <AppModal {...{ isModalOpen, closeModal }} title={'Edit item #' + item?.id}>
-            <form className='modalForm' onSubmit={handleSubmit(submit)}>
-                <div className='textFormLabel'>Adding item to shop:</div>
-                <input readOnly className='input' disabled defaultValue={shop?.shopName} />
-                <TextField
-                    label='Name'
-                    register={register('name')}
-                    error={errors.name}
-                    placeholder={'The name of the item'}
-                />
-                <Controller
-                    control={control}
-                    name={'brand'}
-                    render={({ field, fieldState }) => (
-                        <FormField label='Brand' error={fieldState.error}>
-                            <CreatableSelect<ItemPropertyView, false>
-                                isClearable
-                                theme={SelectTheme}
-                                styles={SelectStyles<ItemPropertyView>()}
-                                options={brands}
-                                formatCreateLabel={(value) => 'Create new brand ' + value}
-                                placeholder='Select or add a new brand'
-                                value={
-                                    brands?.find((brand) => brand.value === field.value) || {
-                                        id: -1,
-                                        value: field.value,
+                <form className='modalForm' onSubmit={handleSubmit(submit)}>
+                    <div className='textFormLabel'>Adding item to shop:</div>
+                    <input readOnly className='input' disabled defaultValue={shop?.shopName} />
+                    <TextField
+                        label='Name'
+                        register={register('name')}
+                        error={errors.name}
+                        placeholder={'The name of the item'}
+                    />
+                    <Controller
+                        control={control}
+                        name='categoryView'
+                        render={({ field, fieldState }) => {
+                            return (
+                                <FormField label={'Item Category'} error={fieldState.error}>
+                                    <Space>
+                                        <Select<Category>
+                                            isClearable
+                                            theme={SelectTheme}
+                                            options={categories}
+                                            placeholder='Select Item Category'
+                                            value={categories?.find(({ id }) => field.value.id === id) ?? null}
+                                            onChange={(type) => {
+                                                field.onChange(type)
+                                            }}
+                                            getOptionLabel={(item) => item.name}
+                                            getOptionValue={(item) => String(item.id)}
+                                        />
+                                        <Button
+                                            onClick={() => {
+                                                setShowModal(true)
+                                            }}
+                                            icon={<FontAwesomeIcon icon={faPlus} />}
+                                        >
+                                            Add a new category
+                                        </Button>
+                                    </Space>
+                                </FormField>
+                            )
+                        }}
+                    />
+                    <Controller
+                        control={control}
+                        name={'brand'}
+                        render={({ field, fieldState }) => (
+                            <FormField label='Brand' error={fieldState.error}>
+                                <CreatableSelect<ItemPropertyView, false>
+                                    isClearable
+                                    theme={SelectTheme}
+                                    styles={SelectStyles<ItemPropertyView>()}
+                                    options={brands}
+                                    formatCreateLabel={(value) => 'Create new brand ' + value}
+                                    placeholder='Select or add a new brand'
+                                    value={
+                                        brands?.find((brand) => brand.value === field.value) ?? {
+                                            id: -1,
+                                            value: field.value,
+                                        }
                                     }
-                                }
-                                onCreateOption={(item) => field.onChange(item)}
-                                onChange={(newValue) => field.onChange(newValue?.value)}
-                                getOptionLabel={(item) => item.value}
-                                getOptionValue={(item) => item.id + item.value}
-                            />
-                        </FormField>
-                    )}
-                />
-                <Controller
-                    control={control}
-                    name={'model'}
-                    render={({ field, fieldState }) => (
-                        <FormField label='Model' error={fieldState.error}>
-                            <CreatableSelect<ItemPropertyView, false>
-                                isClearable
-                                theme={SelectTheme}
-                                styles={SelectStyles<ItemPropertyView>()}
-                                options={models}
-                                placeholder='Select or add a new brand'
-                                formatCreateLabel={(value) => 'Create new model ' + value}
-                                value={
-                                    models?.find((model) => model.value === field.value) || {
-                                        id: -1,
-                                        value: field.value,
-                                    }
-                                }
-                                onCreateOption={(item) => field.onChange(item)}
-                                onChange={(newValue) => field.onChange(newValue?.value)}
-                                getOptionLabel={(item) => item.value}
-                                getOptionValue={(item) => item.id + item.value}
-                            />
-                        </FormField>
-                    )}
-                />
-                <TextField label='Count' register={register('count')} error={errors.count} type='number' />
-                <TextField label='Price' register={register('price')} error={errors.price} type='currency' />
-
-                <Controller
-                    control={control}
-                    name='categoryView'
-                    render={({ field, fieldState }) => {
-                        return (
-                            <FormField label={'Item Category'} error={fieldState.error}>
-                                <Space>
-                                    <Select<Category>
-                                        isClearable
-                                        theme={SelectTheme}
-                                        options={categories}
-                                        placeholder='Select Item Category'
-                                        onChange={(type) => {
-                                            field.onChange(type)
-                                        }}
-                                        getOptionLabel={(item) => item.name}
-                                        getOptionValue={(item) => String(item.id)}
-                                    />
-                                    <Button
-                                        onClick={() => {
-                                            setShowModal(true)
-                                        }}
-                                        icon={<FontAwesomeIcon icon={faPlus} />}
-                                    >
-                                        Add a new category
-                                    </Button>
-                                </Space>
+                                    onCreateOption={(item) => field.onChange(item)}
+                                    onChange={(newValue) => field.onChange(newValue?.value)}
+                                    getOptionLabel={(item) => item.value}
+                                    getOptionValue={(item) => item.id + item.value}
+                                />
                             </FormField>
-                        )
-                    }}
-                />
-                {watch('categoryView') &&
-                    watch('categoryView.columns').map((key, index) => (
-                        <TextField register={register(`columns.${key}`)} label={key} key={key + index} />
-                    ))}
+                        )}
+                    />
+                    <Controller
+                        control={control}
+                        name={'model'}
+                        render={({ field, fieldState }) => (
+                            <FormField label='Model' error={fieldState.error}>
+                                <CreatableSelect<ItemPropertyView, false>
+                                    isClearable
+                                    theme={SelectTheme}
+                                    styles={SelectStyles<ItemPropertyView>()}
+                                    options={models}
+                                    placeholder='Select or add a new brand'
+                                    formatCreateLabel={(value) => 'Create new model ' + value}
+                                    value={
+                                        models?.find((model) => model.value === field.value) ?? {
+                                            id: -1,
+                                            value: field.value,
+                                        }
+                                    }
+                                    onCreateOption={(item) => field.onChange(item)}
+                                    onChange={(newValue) => field.onChange(newValue?.value)}
+                                    getOptionLabel={(item) => item.value}
+                                    getOptionValue={(item) => item.id + item.value}
+                                />
+                            </FormField>
+                        )}
+                    />
+                    <TextField label='Count' register={register('count')} error={errors.count} type='number' />
+                    <TextField label='Price' register={register('price')} error={errors.price} type='currency' />
+                    <h2>Category specific properties:</h2>
 
-                <FormError error={errors.root?.message} />
-                <Space className={'flex-100 justify-end'}>
-                    <Button type='primary' htmlType='submit'>
-                        Create
-                    </Button>
-                    <Button htmlType='button' onClick={closeModal}>
-                        Close
-                    </Button>
-                </Space>
-            </form>
-        </AppModal>
+                    {watch('categoryView') &&
+                        watch('categoryView.columns').map((key, index) => (
+                            <TextField register={register(`columns.${key}`)} label={key} key={key + index} />
+                        ))}
+
+                    <FormError error={errors.root?.message} />
+                    <Space className={'flex-100 justify-end'}>
+                        <Button type='primary' htmlType='submit'>
+                            Create
+                        </Button>
+                        <Button htmlType='button' onClick={closeModal}>
+                            Close
+                        </Button>
+                    </Space>
+                </form>
+            </AppModal>
         </>
-
     )
 }
