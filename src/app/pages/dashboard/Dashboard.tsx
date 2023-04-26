@@ -20,6 +20,7 @@ import { AuthContext } from '../../contexts/AuthContext'
 import { defaultDashboardFilter } from '../../models/enums/defaultValues'
 import { InvoicesReport } from '../../components/reports/InvoicesReport'
 import { RepairsReport } from '../../components/reports/RepairsReport'
+import { AppFooter } from '../../components/navigation/AppFooter'
 
 export const Dashboard = () => {
     const { loggedUser } = useContext(AuthContext)
@@ -54,7 +55,7 @@ export const Dashboard = () => {
                 <Col span={12} offset={1}>
                     <Card
                         style={{ minWidth: 350 }}
-                        title={`Active Tickets: ${tickets?.length} `}
+                        title={`Active Tickets: ${tickets?.length ?? 0} `}
                         extra={
                             <Space>
                                 <Button
@@ -77,6 +78,8 @@ export const Dashboard = () => {
                     </Card>
                 </Col>
             </Row>
+            <AppFooter/>
+
         </Space>
     )
 }

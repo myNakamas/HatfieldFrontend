@@ -8,7 +8,12 @@ import { faDashboard } from '@fortawesome/free-solid-svg-icons/faDashboard'
 import React, { useContext } from 'react'
 import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
 import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield'
-import { faBuildingUser, faFileInvoice, faPersonCircleQuestion } from '@fortawesome/free-solid-svg-icons'
+import {
+    faBuildingUser,
+    faClockRotateLeft,
+    faFileInvoice,
+    faPersonCircleQuestion,
+} from '@fortawesome/free-solid-svg-icons'
 import { Drawer, Menu, MenuProps, Space, Typography } from 'antd'
 import { WebSocketContext } from '../../contexts/WebSocketContext'
 
@@ -45,6 +50,11 @@ export const SideNavigation = ({
                     )}
                 </Space>
             ),
+        },
+        {
+            label: 'Logs',
+            key: '/logs',
+            icon: <FontAwesomeIcon icon={faClockRotateLeft} />,
         },
         {
             label: 'About us',

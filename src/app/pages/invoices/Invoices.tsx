@@ -36,7 +36,9 @@ export const Invoices = () => {
     }
     return (
         <div className='mainScreen'>
-            <InvoiceFilters {...{ filter, setFilter }} />
+            <div className={'button-bar'}>
+                <InvoiceFilters {...{ filter, setFilter }} />
+            </div>
             <div className='tableWrapper'>
                 {isLoading ? (
                     <Skeleton loading />

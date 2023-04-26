@@ -1,7 +1,6 @@
 import { SideNavigation } from './SideNavigation'
 import { Toolbar } from './Toolbar'
 import { ReactNode, useState } from 'react'
-import { AppFooter } from './AppFooter'
 
 export const AppWrapper = ({ children }: { children: ReactNode }) => {
     const [showNav, setShowNav] = useState(false)
@@ -13,7 +12,6 @@ export const AppWrapper = ({ children }: { children: ReactNode }) => {
                 <SideNavigation showNavigation={showNav} setShowNav={setShowNav} />
                 {children}
             </div>
-            <AppFooter/>
         </div>
     )
 }

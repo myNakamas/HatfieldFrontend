@@ -15,7 +15,7 @@ import { dateTimeMask } from '../../../models/enums/appEnums'
 import CreatableSelect from 'react-select/creatable'
 import { ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
-import { DeviceLocationArray } from '../../../models/enums/ticketEnums'
+import { DeviceLocationArray, TicketStatus, TicketStatusesArray } from '../../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { FormError } from '../../form/FormError'
@@ -28,6 +28,7 @@ import { NoDataComponent } from '../../table/NoDataComponent'
 import { AddUsedItem } from './AddUsedItem'
 import { useNavigate } from 'react-router-dom'
 import { AddTicketInvoice } from '../AddTicketInvoice'
+import Select from 'react-select'
 
 export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal: () => void }) => {
     const navigate = useNavigate()
@@ -36,6 +37,7 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
     const [deviceLocationError, setDeviceLocationError] = useState('')
     const [isUseModalOpen, setIsUseModalOpen] = useState(false)
     const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+    const [ticketStatus, setTicketStatus] = useState(ticket?.status ?? '')
     const queryClient = useQueryClient()
 
     const editTicket = (formValue: CreateTicket) => {
@@ -58,7 +60,7 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                 .promise(
                     putCompleteTicket({ id, location: deviceLocation }),
                     toastUpdatePromiseTemplate('ticket'),
-                    toastProps
+                    toastProps,
                 )
                 .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
         }
@@ -69,7 +71,17 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
             .promise(
                 putCompleteTicket({ id, location: deviceLocation }),
                 toastUpdatePromiseTemplate('ticket'),
-                toastProps
+                toastProps,
+            )
+            .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
+    }
+
+    const updateTicketStatus = (id: number, ticketStatus:TicketStatus) => {
+        return toast
+            .promise(
+                updateTicket({ id, ticket:{id, status:ticketStatus} as unknown as CreateTicket}),
+                toastUpdatePromiseTemplate('ticket status'),
+                toastProps,
             )
             .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
     }
@@ -160,8 +172,30 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                             Start repair
                                         </Button>
                                     </div>
-                                    <div>Complete the repair</div>
+                                    <div>Change ticket status</div>
                                     <Space>
+                                        <Select<ItemPropertyView, false>
+                                            theme={SelectTheme}
+                                            styles={SelectStyles()}
+                                            value={
+                                                TicketStatusesArray.find(({ value }) => value === ticketStatus) as ItemPropertyView
+                                            }
+                                            options={TicketStatusesArray ?? []}
+                                            placeholder='New Status'
+                                            isClearable
+                                            onChange={(value) =>
+                                                setTicketStatus(value?.value as TicketStatus)
+                                            }
+                                            getOptionLabel={(status) => status.value}
+                                            getOptionValue={(status) => String(status.id)}
+                                        />
+                                        <Button onClick={() => updateTicketStatus(ticket.id, ticketStatus as TicketStatus)}>Change status</Button>
+                                    </Space>
+                                    <div className='ticketActions'>
+                                        <FormError error={deviceLocationError} />
+                                    </div>
+                                    <div>Complete the repair</div>
+                                    <Space className='justify-between w-100'>
                                         <CreatableSelect<ItemPropertyView, false>
                                             isClearable
                                             theme={SelectTheme}
@@ -182,9 +216,6 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                         />
                                         <Button onClick={() => completeTicket(ticket.id)}>Finish repair</Button>
                                     </Space>
-                                    <div className='ticketActions'>
-                                        <FormError error={deviceLocationError} />
-                                    </div>
                                     <div className='ticketActions'>
                                         <div>Mark as collected</div>
                                         <Button onClick={() => setShowInvoiceModal(true)}>Collected</Button>
@@ -243,32 +274,32 @@ export const TicketDescription = ({ ticket }: { ticket: Ticket }) => {
             <Descriptions.Item label='Device Info'>
                 {ticket.deviceModel && (
                     <>
-                        `Device model: ${ticket.deviceModel}`<br />
+                        Device model: {ticket.deviceModel}<br />
                     </>
                 )}
                 {ticket.deviceBrand && (
                     <>
-                        `Device brand: ${ticket.deviceBrand}` <br />
+                        Device brand: {ticket.deviceBrand} <br />
                     </>
                 )}
                 {ticket.deviceCondition && (
                     <>
-                        `Condition: ${ticket.deviceCondition}` <br />
+                        Condition: {ticket.deviceCondition} <br />
                     </>
                 )}
                 {ticket.devicePassword && (
                     <>
-                        `Password: ${ticket.devicePassword}`<br />
+                        Password: {ticket.devicePassword}<br />
                     </>
                 )}
                 {ticket.serialNumberOrImei && (
                     <>
-                        `Serial number / Imei: ${ticket.serialNumberOrImei}`<br />
+                        Serial number / Imei: {ticket.serialNumberOrImei}<br />
                     </>
                 )}
                 {ticket.accessories && (
                     <>
-                        `Accessories: ${ticket.accessories}` <br />
+                        Accessories: {ticket.accessories} <br />
                     </>
                 )}
             </Descriptions.Item>

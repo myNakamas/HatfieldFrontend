@@ -1,4 +1,5 @@
 import { Entity, ItemPropertyView } from './generalModels'
+import { User } from './user'
 
 export interface ThemeColors {
     primaryColor: string
@@ -64,4 +65,16 @@ export interface Category extends Entity {
     name: string
     itemType: string
     columns: string[]
+}
+export interface ReturnItem {
+    returnCount: number,
+    item: InventoryItem
+}
+export interface Log extends Entity {
+    action:string,
+    user:User,
+    timestamp: Date,
+    ticketId: number,
+    itemId: number,
+    tag: string,
 }

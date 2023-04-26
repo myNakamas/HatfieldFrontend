@@ -1,7 +1,7 @@
 import backendClient from '../backendClient'
 import { ItemPropertyView, Page, PageRequest } from '../../models/interfaces/generalModels'
-import { InventoryFilter } from '../../models/interfaces/filters'
-import { Category, CreateInventoryItem, InventoryItem, Shop } from '../../models/interfaces/shop'
+import { Filter, InventoryFilter } from '../../models/interfaces/filters'
+import { Category, CreateInventoryItem, InventoryItem, Log, Shop } from '../../models/interfaces/shop'
 
 export const getAllShops = (): Promise<Shop[]> => {
     return backendClient.get('shop/admin/all')
@@ -75,10 +75,13 @@ export const getAllCategories = (): Promise<Category[]> => {
     return backendClient.get('category/all')
 }
 
-export const updateCategory = (category: Category): Promise<void> => {
+export const updateCategory = (category: Category): Promise<Category> => {
     return backendClient.put('category/admin/update', category, { params: { id: category.id } })
 }
 
-export const addCategory = (category: Category): Promise<void> => {
+export const addCategory = (category: Category): Promise<Category> => {
     return backendClient.post('category/admin/create', category)
+}
+export const getAllLogs = ({filter,page}:{filter:Filter, page:PageRequest}):Promise<Page<Log>> => {
+    return backendClient.get('logs/all', {params:{...filter,...page}})
 }

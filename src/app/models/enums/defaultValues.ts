@@ -9,10 +9,11 @@ export const defaultPage: PageRequest = { pageSize: 10, page: 1 }
 export const defaultTicket = {
     status: 'PENDING',
     deviceLocation: 'IN_THE_FRONT',
+    deadline: moment().add(1,'hour').toDate()
 } as CreateTicket
 
 export const defaultUser = {
-    phones: [] as string[],
+    phones: [''],
     smsPermission: true,
     emailPermission: true,
     isActive: true,
