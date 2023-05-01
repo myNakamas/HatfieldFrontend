@@ -79,6 +79,13 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
         setColumns(c?.columns)
     }, [watch('categoryId')])
 
+    useEffect(() => {
+        const category = categories?.find((category) => category.id === watch('categoryId'))
+        const brand = watch('brand')?.value
+        const model = watch('model')?.value
+        setValue('name', `${category?.name} ${brand} ${model}`)
+    }, [watch('categoryId'), watch('brand'), watch('model')])
+
     return (
         <AppModal {...{ isModalOpen, closeModal }} title={'Add inventory item'}>
             <AddEditCategory
@@ -91,8 +98,10 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                 <div className='textFormLabel'>Adding item to shop:</div>
                 <TextField
                     label='Name'
+                    value={watch('name')}
                     register={register('name')}
                     error={errors.name}
+                    disabled
                     placeholder={'The name of the item'}
                 />
 
