@@ -43,7 +43,7 @@ export const WebSocketContextProvider = ({ children }: { children: ReactNode }) 
                         toast.info(
                             `Ticket#${message.ticketId}: ${
                                 users?.find(({ userId }) => userId === message.sender)?.username
-                            }:\n${message.text}`,
+                            }:${message.isImage ? ' sent a photo' : '\n' + message.text}`,
                             toastChatProps
                         )
                         addMessageToUserChats(message)
