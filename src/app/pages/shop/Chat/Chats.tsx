@@ -27,7 +27,7 @@ export const Chats = () => {
 
     const { data: oldMessages } = useQuery(
         ['messages', selectedTicket?.id],
-        () => useGetChat({ ticketId: selectedTicket?.id }),
+        () => useGetChat({ ticketId: selectedTicket?.id, loggedUser }),
         {
             onSuccess: () => {
                 if (selectedTicket?.id) {
