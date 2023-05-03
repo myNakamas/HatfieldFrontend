@@ -8,14 +8,14 @@ import { WebSocketContext } from '../../../contexts/WebSocketContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons/faPaperPlane'
 import { faFileUpload } from '@fortawesome/free-solid-svg-icons'
-import { Button, Checkbox, Modal, Upload, UploadFile, UploadProps } from 'antd'
+import { Button, Modal, Switch, Upload, UploadFile, UploadProps } from 'antd'
 import { getBase64, getCurrentTime } from '../../../utils/helperFunctions'
 import { RcFile } from 'antd/es/upload'
 
 export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?: Ticket }) => {
     const { loggedUser } = useContext(AuthContext)
     const [messageText, setMessageText] = useState('')
-    const [showToClient, setShowToClient] = useState(true)
+    const [showToClient, setShowToClient] = useState(false)
     const { addUnsentMessage, removeUnsentMessage } = useContext(WebSocketContext)
     const queryClient = useQueryClient()
     const [previewOpen, setPreviewOpen] = useState(false)
@@ -47,7 +47,7 @@ export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?:
                 text: messageText,
                 ticketId: ticket.id,
                 receiver,
-                publicMessage: showToClient,
+                publicMessage: loggedUser.role === 'CLIENT' ? true : showToClient,
                 randomId: randomId,
             }
             addUnsentMessage(message)
@@ -57,7 +57,6 @@ export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?:
         }
     }
     const sendPicture = () => {
-        console.log('sending picture:', fileList)
         uploadPicture(fileList, ticket?.id, showToClient).then(() => {
             queryClient.invalidateQueries(['messages', ticket?.id]).then(() => {
                 setPreviewOpen(false)
@@ -101,8 +100,12 @@ export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?:
                     autoFocus
                 />
             )}
-            {/*todo: hide from the client*/}
-            Send to client: <Checkbox checked={showToClient} onChange={() => setShowToClient((prev) => !prev)} />
+            {loggedUser?.role !== 'CLIENT' && (
+                <div>
+                    <div className='span'>Send to client</div>
+                    <Switch checked={showToClient} onChange={() => setShowToClient((prev) => !prev)} />
+                </div>
+            )}
             <Button
                 type='primary'
                 className={`sendButton`}

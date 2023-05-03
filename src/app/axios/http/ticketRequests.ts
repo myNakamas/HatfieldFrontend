@@ -3,6 +3,8 @@ import backendClient from '../backendClient'
 import { ChatMessage, CreateTicket, CreateUsedItem, Ticket } from '../../models/interfaces/ticket'
 import { TicketFilter } from '../../models/interfaces/filters'
 import { CreateTicketInvoice } from '../../models/interfaces/invoice'
+import { useContext } from 'react'
+import { AuthContext } from '../../contexts/AuthContext'
 
 export const fetchAllTickets = ({
     page,
@@ -27,7 +29,7 @@ export const createTicket = ({ ticket }: { ticket: CreateTicket }): Promise<numb
     return backendClient.post('ticket', body)
 }
 export const updateTicket = ({ id, ticket }: { id: number; ticket: CreateTicket }): Promise<number> => {
-    const deadline = new Date(ticket.deadline).toISOString()
+    const deadline = ticket.deadline ? new Date(ticket.deadline).toISOString() : undefined
     const body = { ...ticket, deadline }
     return backendClient.put('ticket/update/' + id, body)
 }
@@ -44,9 +46,11 @@ export const putCollectTicket = ({ id, invoice }: { id: number; invoice: CreateT
     return backendClient.put('ticket/collected', invoice, { params: { id } })
 }
 
-export const fetchChat = ({ ticketId }: { ticketId?: number }): Promise<ChatMessage[]> => {
+export const useGetChat = ({ ticketId }: { ticketId?: number }): Promise<ChatMessage[]> => {
     if (!ticketId) return new Promise(() => [])
-    return backendClient.get('chat/all', { params: { ticketId } })
+    const { loggedUser } = useContext(AuthContext)
+    const url = loggedUser?.role === 'CLIENT' ? 'chat/client/all' : 'chat/all'
+    return backendClient.get(url, { params: { ticketId } })
 }
 
 export const createUsedItems = (usedItem: CreateUsedItem) => {

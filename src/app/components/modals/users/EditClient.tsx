@@ -64,7 +64,7 @@ export const EditClient = ({
 
     return (
         <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title='Edit client '>
-            <form ref={formRef} className='modalForm' onSubmit={handleSubmit((data) => onSaveNew(data), console.log)}>
+            <form ref={formRef} className='modalForm' onSubmit={handleSubmit((data) => onSaveNew(data))}>
                 <UserForm {...{ register, control, watch, setValue, getValues, errors }} />
 
                 <FormField label='Shop'>

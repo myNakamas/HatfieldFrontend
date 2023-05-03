@@ -4,7 +4,7 @@ import { Chat, Ticket } from '../../../models/interfaces/ticket'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { useQuery } from 'react-query'
 import { WebSocketContext } from '../../../contexts/WebSocketContext'
-import { fetchAllTickets, fetchChat } from '../../../axios/http/ticketRequests'
+import { fetchAllTickets, useGetChat } from '../../../axios/http/ticketRequests'
 import { Drawer, Menu, Skeleton, Space, Typography } from 'antd'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { sortChatByDate } from '../../../utils/helperFunctions'
@@ -27,7 +27,7 @@ export const Chats = () => {
 
     const { data: oldMessages } = useQuery(
         ['messages', selectedTicket?.id],
-        () => fetchChat({ ticketId: selectedTicket?.id }),
+        () => useGetChat({ ticketId: selectedTicket?.id }),
         {
             onSuccess: () => {
                 if (selectedTicket?.id) {
@@ -50,7 +50,6 @@ export const Chats = () => {
             if (messagesByUser) {
                 const received = messagesByUser?.filter((msg) => msg.receiver === loggedUser?.userId)
                 const lastMessage = received[received.length - 1]
-                console.log(received, lastMessage)
                 if (!lastMessage?.readByReceiver) sendMessageSeen(lastMessage).then()
             }
         }

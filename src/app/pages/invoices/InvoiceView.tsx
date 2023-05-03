@@ -1,19 +1,25 @@
 import React from 'react'
-import { useParams } from 'react-router-dom'
-import { useQuery } from 'react-query'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useQuery, useQueryClient } from 'react-query'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { getInvoiceById, getInvoicePdf } from '../../axios/http/invoiceRequests'
+import { getInvoiceById, getInvoicePdf, invalidateInvoice } from '../../axios/http/invoiceRequests'
 import dateFormat from 'dateformat'
 import { invoiceTypeIcon, paymentMethodIcon } from '../../models/enums/invoiceEnums'
-import { Button, Descriptions, Space } from 'antd'
+import { Button, Descriptions, Space, Typography } from 'antd'
 import { faPrint } from '@fortawesome/free-solid-svg-icons'
 import { CustomSuspense } from '../../components/CustomSuspense'
+import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
+import { toast } from 'react-toastify'
+import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExclamationTriangle'
 
 export const InvoiceView = () => {
     const { id } = useParams()
+    const navigate = useNavigate()
     if (!id) return <NoDataComponent items={'information'} />
     const { data: invoice } = useQuery(['invoices', id], () => getInvoiceById(+id))
+    const queryClient = useQueryClient()
 
     const openPdf = async (invoiceId: number) => {
         const pdfBlob = await getInvoicePdf(invoiceId)
@@ -24,13 +30,33 @@ export const InvoiceView = () => {
         }
     }
 
+    const onDelete = (id: number) => {
+        toast.promise(invalidateInvoice(id), toastUpdatePromiseTemplate('invoice'), toastProps).then(() => {
+            queryClient.invalidateQueries(['invoices']).then(() => {
+                navigate('/invoices')
+            })
+        })
+    }
+
     return (
         <div className='mainScreen'>
             <CustomSuspense isReady={!!invoice}>
                 {invoice && (
-                    <div>
-                        <Space wrap>
-                            <Descriptions bordered title={'Invoice ' + id}>
+                    <Space>
+                        <Space direction={'vertical'}>
+                            {!invoice.valid && (
+                                <Space className='warning-box'>
+                                    <FontAwesomeIcon size={'2x'} icon={faExclamationTriangle} />
+                                    <div>
+                                        <h3>Caution! Invalid Invoice</h3>
+                                        <Typography>
+                                            We wish to inform you that this particular invoice has been flagged as
+                                            invalid by a user and, consequently, will not be recognized by our system.
+                                        </Typography>
+                                    </div>
+                                </Space>
+                            )}
+                            <Descriptions bordered title={'Invoice #' + id}>
                                 <Descriptions.Item label={'Type'}>
                                     <FontAwesomeIcon icon={invoiceTypeIcon[invoice.type]} /> {invoice.type}
                                 </Descriptions.Item>
@@ -41,7 +67,11 @@ export const InvoiceView = () => {
                                 <Descriptions.Item label={'Total price'}>
                                     {invoice.totalPrice.toFixed(2)}
                                 </Descriptions.Item>
-                                {invoice.client && <Descriptions.Item label={'Client name'}>{invoice.client.fullName}</Descriptions.Item>}
+                                {invoice.client && (
+                                    <Descriptions.Item label={'Client name'}>
+                                        {invoice.client.fullName}
+                                    </Descriptions.Item>
+                                )}
                                 <Descriptions.Item label={'Payment method'}>
                                     <FontAwesomeIcon icon={paymentMethodIcon[invoice.paymentMethod]} />{' '}
                                     {invoice.paymentMethod}
@@ -51,13 +81,6 @@ export const InvoiceView = () => {
                                 </Descriptions.Item>
                                 <Descriptions.Item label={'Notes'}>{invoice.notes}</Descriptions.Item>
                             </Descriptions>
-                            <Space direction='vertical'>
-                                <h3>Actions</h3>
-                                <Button icon={<FontAwesomeIcon icon={faPrint} />} onClick={() => openPdf(invoice.id)}>
-                                    Open document for print
-                                </Button>
-                            </Space>
-
                             <Descriptions bordered title={'Device properties '}>
                                 <Descriptions.Item label={'Brand:'}>{invoice.deviceBrand}</Descriptions.Item>
                                 <Descriptions.Item label={'Model:'}>{invoice.deviceModel}</Descriptions.Item>
@@ -69,7 +92,16 @@ export const InvoiceView = () => {
                                 )}
                             </Descriptions>
                         </Space>
-                    </div>
+                        <Space direction='vertical'>
+                            <h3>Actions</h3>
+                            <Button icon={<FontAwesomeIcon icon={faPrint} />} onClick={() => openPdf(invoice.id)}>
+                                Open document for print
+                            </Button>
+                            <Button icon={<FontAwesomeIcon icon={faTrash} />} onClick={() => onDelete(invoice.id)}>
+                                Invalidate invoice
+                            </Button>
+                        </Space>
+                    </Space>
                 )}
             </CustomSuspense>
         </div>
