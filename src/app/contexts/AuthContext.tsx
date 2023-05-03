@@ -22,11 +22,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const location = useLocation()
 
     const logout = () => {
-        setLoggedUser(undefined)
         stompClient.deactivate().then()
         localStorage.clear()
+        setLoggedUser(undefined)
         setToken(undefined)
-        navigate('/login', { state: { from: location } })
     }
     const isLoggedIn = () => {
         return !!localStorage.getItem('token')
@@ -45,6 +44,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             getLoggedUser().then((user) => setLoggedUser(user))
         }
     }, [])
+    useEffect(() => {
+        if (!loggedUser) {
+            navigate('/login', { state: { from: location } })
+        }
+    }, [loggedUser])
 
     document.addEventListener('session_expired', () => logout())
 

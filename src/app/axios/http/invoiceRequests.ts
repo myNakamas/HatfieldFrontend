@@ -10,7 +10,7 @@ export const getAllInvoices = ({ page, filter }: { page: PageRequest; filter: Fi
     return backendClient.get('invoice/all', { params: { ...page, ...filter } })
 }
 
-export const getInvoicesReport = ({ filter }: {  filter: InvoiceFilter }): Promise<InvoicesReport> => {
+export const getInvoicesReport = ({ filter }: { filter: InvoiceFilter }): Promise<InvoicesReport> => {
     return backendClient.get('invoice/report', { params: { ...filter } })
 }
 export const getInvoiceByClientId = (clientId: string): Promise<Invoice[]> => {
@@ -21,6 +21,9 @@ export const getInvoiceById = (invoiceId: number): Promise<Invoice> => {
 }
 export const getInvoicePdf = (invoiceId: number): Promise<Blob> => {
     return backendClient.post('document/print/invoice', {}, { params: { invoiceId }, responseType: 'blob' })
+}
+export const invalidateInvoice = (invoiceId: number): Promise<Blob> => {
+    return backendClient.delete('invoice/invalidate', { params: { id: invoiceId } })
 }
 export const getInvoiceByTicketId = (ticketId: number): Promise<Invoice> => {
     return backendClient.get('invoice/byTicketId', { params: { ticketId } })

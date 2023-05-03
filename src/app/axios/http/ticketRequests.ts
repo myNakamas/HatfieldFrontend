@@ -27,7 +27,7 @@ export const createTicket = ({ ticket }: { ticket: CreateTicket }): Promise<numb
     return backendClient.post('ticket', body)
 }
 export const updateTicket = ({ id, ticket }: { id: number; ticket: CreateTicket }): Promise<number> => {
-    const deadline = new Date(ticket.deadline).toISOString()
+    const deadline = ticket.deadline ? new Date(ticket.deadline).toISOString() : undefined
     const body = { ...ticket, deadline }
     return backendClient.put('ticket/update/' + id, body)
 }
@@ -44,9 +44,13 @@ export const putCollectTicket = ({ id, invoice }: { id: number; invoice: CreateT
     return backendClient.put('ticket/collected', invoice, { params: { id } })
 }
 
-export const fetchChat = ({ ticketId }: { ticketId?: number }): Promise<ChatMessage[]> => {
+export const getChat = ({ ticketId }: { ticketId?: number }): Promise<ChatMessage[]> => {
     if (!ticketId) return new Promise(() => [])
     return backendClient.get('chat/all', { params: { ticketId } })
+}
+export const getClientChat = ({ ticketId }: { ticketId?: number }): Promise<ChatMessage[]> => {
+    if (!ticketId) return new Promise(() => [])
+    return backendClient.get('chat/client/all', { params: { ticketId } })
 }
 
 export const createUsedItems = (usedItem: CreateUsedItem) => {

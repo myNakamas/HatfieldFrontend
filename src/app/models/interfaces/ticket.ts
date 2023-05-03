@@ -62,12 +62,14 @@ export interface CreateChatMessage {
     receiver: string
     ticketId: number
     randomId: number
+    publicMessage: boolean
 }
 
 type ChatMessageStatus = 'NotSent' | 'Sent'
 export interface ChatMessage extends Entity, CreateChatMessage {
     readByReceiver: Date
     status?: ChatMessageStatus
+    isImage?: boolean
 }
 
 export interface Chat {

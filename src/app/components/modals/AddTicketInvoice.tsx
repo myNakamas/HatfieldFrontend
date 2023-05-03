@@ -76,7 +76,7 @@ export const AddTicketInvoice = ({
     }
     return (
         <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'}>
-            <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice, console.log)}>
+            <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice)}>
                 <AddClient
                     isModalOpen={showCreateModal}
                     closeModal={() => setShowCreateModal(false)}

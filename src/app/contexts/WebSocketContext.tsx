@@ -6,9 +6,8 @@ import { ChatMessage, CreateChatMessage, UserChats } from '../models/interfaces/
 import { sortChatByDate } from '../utils/helperFunctions'
 import { toast } from 'react-toastify'
 import { toastChatProps } from '../components/modals/ToastProps'
-import { useQuery } from 'react-query'
-import { getAllUsers } from '../axios/http/userRequests'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Typography } from 'antd'
 
 export interface WebSocketContextData {
     userChats: UserChats
@@ -27,10 +26,10 @@ interface NotificationCount {
 
 export const WebSocketContextProvider = ({ children }: { children: ReactNode }) => {
     const { loggedUser } = useContext(AuthContext)
-    const { data: users } = useQuery(['users'], () => getAllUsers({}))
     const [userChats, setUserChats] = useState<UserChats>({})
     const [notificationCount, setNotificationCount] = useState<NotificationCount>({})
     const location = useLocation()
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (loggedUser?.userId) {
@@ -41,10 +40,11 @@ export const WebSocketContextProvider = ({ children }: { children: ReactNode }) 
                     (message: ChatMessage) => {
                         addNotificationCount(message.ticketId).then()
                         toast.info(
-                            `Ticket#${message.ticketId}: ${
-                                users?.find(({ userId }) => userId === message.sender)?.username
-                            }:\n${message.text}`,
-                            toastChatProps
+                            <Typography onClick={() => navigate('/chats?id=' + message.ticketId)}>
+                                Ticket#{message.ticketId}:<br />
+                                {message.isImage ? ' A photo was sent' : '\n' + message.text}
+                            </Typography>,
+                            { ...toastChatProps }
                         )
                         addMessageToUserChats(message)
                     },
@@ -89,7 +89,7 @@ export const WebSocketContextProvider = ({ children }: { children: ReactNode }) 
     const addMessageToUserChats = (message: ChatMessage) => {
         setUserChats((prev) => {
             const messages = prev[message.ticketId] ?? []
-            if (prev[message.ticketId].some(({ randomId }) => message.randomId === randomId)) return prev
+            if (messages.some(({ randomId }) => message.randomId === randomId)) return prev
             prev[message.ticketId] = [...messages, message].sort(sortChatByDate)
             return { ...prev }
         })

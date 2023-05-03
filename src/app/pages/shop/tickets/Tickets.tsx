@@ -26,10 +26,13 @@ import {
     TicketStatusesArray,
 } from '../../../models/enums/ticketEnums'
 import { useSearchParams } from 'react-router-dom'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPen } from '@fortawesome/free-solid-svg-icons/faPen'
 
 export const Tickets = () => {
     const [params] = useSearchParams()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
+    const [ticketView, setTicketView] = useState('view')
     const [showNewModal, setShowNewModal] = useState(false)
     const [filter, setFilter] = useState<TicketFilter>({ ticketStatuses: activeTicketStatuses })
 
@@ -48,26 +51,57 @@ export const Tickets = () => {
         {
             key: '1',
             label: 'Active tickets',
-            children: <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} />,
+            children: (
+                <TicketsTab
+                    {...{ ...tickets, setSelectedTicket, page, setPage }}
+                    setEditTicket={(ticket) => {
+                        setSelectedTicket(ticket)
+                        setTicketView('edit')
+                    }}
+                />
+            ),
         },
         {
             key: '2',
             label: 'Completed tickets',
-            children: <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} />,
+            children: (
+                <TicketsTab
+                    {...{ ...tickets, setSelectedTicket, page, setPage }}
+                    setEditTicket={(ticket) => {
+                        setSelectedTicket(ticket)
+                        setTicketView('edit')
+                    }}
+                />
+            ),
         },
         {
             key: '3',
             label: 'All tickets',
-            children: <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} />,
+            children: (
+                <TicketsTab
+                    {...{ ...tickets, setSelectedTicket, page, setPage }}
+                    setEditTicket={(ticket) => {
+                        setSelectedTicket(ticket)
+                        setTicketView('edit')
+                    }}
+                />
+            ),
         },
     ]
 
     return (
         <div className='mainScreen'>
-            <ViewTicket ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
+            <ViewTicket
+                ticket={selectedTicket}
+                closeModal={() => {
+                    setSelectedTicket(undefined)
+                    setTicketView('view')
+                }}
+                view={ticketView}
+            />
             <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} />
             <TicketFilters {...{ filter, setFilter }} />
-            <div className=' button-bar'>
+            <div className='button-bar'>
                 <Button type={'primary'} onClick={() => setShowNewModal(true)}>
                     Add Ticket
                 </Button>
@@ -93,22 +127,25 @@ const TicketsTab = ({
     setSelectedTicket,
     page,
     setPage,
+    setEditTicket,
 }: {
     isLoading: boolean
     data?: Page<Ticket>
     setSelectedTicket: React.Dispatch<React.SetStateAction<Ticket | undefined>>
+    setEditTicket: (ticket: Ticket) => void
     page: PageRequest
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
 }) => (
     <CustomSuspense isReady={!isLoading}>
         {data && data.content.length > 0 ? (
             <CustomTable<Ticket>
-                data={data.content.map(({ timestamp, deadline, createdBy, client, ...rest }) => ({
-                    ...rest,
-                    timestamp: dateFormat(timestamp),
-                    deadline: deadline ? dateFormat(deadline) : '-',
-                    createdBy: createdBy?.fullName,
-                    client: client?.fullName,
+                data={data.content.map((ticket) => ({
+                    ...ticket,
+                    timestamp: dateFormat(ticket.timestamp),
+                    deadline: ticket.deadline ? dateFormat(ticket.deadline) : '-',
+                    createdBy: ticket.createdBy?.fullName,
+                    client: ticket.client?.fullName,
+                    actions: <Button icon={<FontAwesomeIcon icon={faPen} />} onClick={() => setEditTicket(ticket)} />,
                 }))}
                 headers={{
                     id: 'Ticket Id',
@@ -118,8 +155,9 @@ const TicketsTab = ({
                     totalPrice: 'Total Price',
                     createdBy: 'Created by',
                     client: 'Client name',
+                    actions: 'Actions',
                 }}
-                onClick={({ id }) => setSelectedTicket(data?.content.find(({ id: ticketId }) => id === ticketId))}
+                onClick={(ticket) => setSelectedTicket(ticket)}
                 pagination={page}
                 onPageChange={setPage}
             />

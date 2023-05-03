@@ -23,7 +23,7 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
     const [chartType, setChartType] = useState<ChartType>('COUNT')
     const { token } = useContext(DesignTokenContext)
     const navigate = useNavigate()
-    const { data: report, isLoading } = useQuery(['invoices', filter, 'report'], () =>
+    const { data: report, isLoading } = useQuery(['invoices', invoiceType, filter, 'report'], () =>
         getInvoicesReport({ filter: { ...filter, type: invoiceType } })
     )
 

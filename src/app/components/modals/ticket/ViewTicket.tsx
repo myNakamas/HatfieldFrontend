@@ -6,7 +6,7 @@ import {
     Ticket,
     UsedItemView,
 } from '../../../models/interfaces/ticket'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import dateFormat from 'dateformat'
 import { EditTicketForm } from './EditTicketForm'
 import { putCompleteTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
@@ -31,7 +31,15 @@ import { AddTicketInvoice } from '../AddTicketInvoice'
 import Select from 'react-select'
 import { postPrintTicket, postPrintTicketLabel } from '../../../axios/http/documentRequests'
 
-export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal: () => void }) => {
+export const ViewTicket = ({
+    ticket,
+    closeModal,
+    view,
+}: {
+    ticket?: Ticket
+    closeModal: () => void
+    view?: string
+}) => {
     const navigate = useNavigate()
     const [mode, setMode] = useState('view')
     const [deviceLocation, setDeviceLocation] = useState('')
@@ -41,8 +49,17 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
     const [ticketStatus, setTicketStatus] = useState(ticket?.status ?? '')
     const queryClient = useQueryClient()
 
+    useEffect(() => {
+        if (view) setMode(view)
+        else setMode('view')
+    }, [view])
+
     const editTicket = (formValue: CreateTicket) => {
-        return updateTicket({ id: ticket?.id ?? -1, ticket: formValue }).then(() => {
+        if (!ticket?.id) {
+            toast.error('Something went wrong, please try again', toastProps)
+            return Promise.resolve()
+        }
+        return updateTicket({ id: ticket?.id, ticket: formValue }).then(() => {
             queryClient.invalidateQueries(['tickets']).then()
             setMode('view')
         })
@@ -175,7 +192,7 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
 
                             {/*Actions with ticket*/}
                             <Space wrap>
-                                <div className='card'>
+                                <Space direction='vertical' className='card'>
                                     <h3>Ticket status</h3>
                                     <div className='ticketActions'>
                                         <div>Start the repair</div>
@@ -209,9 +226,7 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                             Change status
                                         </Button>
                                     </Space>
-                                    <div className='ticketActions'>
-                                        <FormError error={deviceLocationError} />
-                                    </div>
+                                    <FormError error={deviceLocationError} />
                                     <div>Complete the repair</div>
                                     <Space className='justify-between w-100'>
                                         <CreatableSelect<ItemPropertyView, false>
@@ -222,10 +237,12 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                             formatCreateLabel={(value) => 'Add a new location: ' + value}
                                             placeholder='New location'
                                             value={
-                                                DeviceLocationArray.find(({ value }) => deviceLocation === value) ?? {
-                                                    value: deviceLocation,
-                                                    id: -1,
-                                                }
+                                                deviceLocation
+                                                    ? {
+                                                          value: deviceLocation,
+                                                          id: -1,
+                                                      }
+                                                    : null
                                             }
                                             onCreateOption={(item) => setDeviceLocation(item)}
                                             onChange={(newValue) => setDeviceLocation(newValue?.value ?? '')}
@@ -234,33 +251,33 @@ export const ViewTicket = ({ ticket, closeModal }: { ticket?: Ticket; closeModal
                                         />
                                         <Button onClick={() => completeTicket(ticket.id)}>Finish repair</Button>
                                     </Space>
-                                    <div className='ticketActions'>
+                                    <Space className='ticketActions'>
                                         <div>Mark as collected</div>
                                         <Button onClick={() => setShowInvoiceModal(true)}>Collected</Button>
-                                    </div>
-                                </div>
+                                    </Space>
+                                </Space>
 
-                                <div className='card'>
+                                <Space direction='vertical' className='card'>
                                     <h3>Other actions</h3>
-                                    <div className='ticketActions'>
+                                    <Space className='ticketActions'>
                                         <div>Open the chat with the customer</div>
                                         <Button onClick={() => navigate('/chats?id=' + ticket.id)}>Chat</Button>
-                                    </div>
-                                    <div className='ticketActions'>
+                                    </Space>
+                                    <Space className='ticketActions'>
                                         <div>Print ticket repair tag</div>
                                         <Button onClick={printTicketLabel}>Print repair tag</Button>
-                                    </div>
-                                    <div className='ticketActions'>
+                                    </Space>
+                                    <Space className='ticketActions'>
                                         <div>Print ticket</div>
                                         <Button onClick={printTicket}>Print ticket</Button>
-                                    </div>
-                                    <div className='ticketActions'>
+                                    </Space>
+                                    <Space className='ticketActions'>
                                         <div>Use an item for ticket</div>
                                         <Button type='primary' onClick={() => setIsUseModalOpen(true)}>
                                             Add an item from inventory
                                         </Button>
-                                    </div>
-                                </div>
+                                    </Space>
+                                </Space>
                             </Space>
                         </div>
                     )}

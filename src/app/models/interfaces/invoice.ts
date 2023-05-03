@@ -15,6 +15,7 @@ export interface Invoice extends Entity {
     client: User
     paymentMethod: PaymentMethod
     warrantyPeriod: WarrantyPeriod
+    valid: boolean
 }
 
 export interface CreateTicketInvoice {
@@ -39,13 +40,13 @@ export interface CreateInvoice {
 }
 
 export interface InvoicesReport {
-    totalCount: number;
-    totalAmount: number;
-    calendar: InvoiceDailyReport[];
+    totalCount: number
+    totalAmount: number
+    calendar: InvoiceDailyReport[]
 }
 
 export interface InvoiceDailyReport {
-    date: string;
-    dailyIncome: number;
-    count: number;
+    date: string
+    dailyIncome: number
+    count: number
 }

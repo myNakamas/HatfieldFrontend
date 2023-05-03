@@ -312,7 +312,7 @@ export const EditTicketForm = ({
                     <FormError error={errors.root?.message} />
                 </div>
                 <Space className='buttonFooter'>
-                    <Button htmlType='submit' type='primary' form='editTicketForm'>
+                    <Button htmlType='submit' type='primary'>
                         Submit
                     </Button>
                     <Button
