@@ -29,7 +29,10 @@ export const Clients = () => {
     const [selectedUser, setSelectedUser] = useState<User | undefined>()
     const [showCreateModal, setShowCreateModal] = useState(false)
     const { data: shops } = useQuery(['shops'], getAllShops)
-    const [filter, setFilter] = useState<UserFilter>({ shop: shops?.find(({ id }) => loggedUser?.shopId === id) })
+    const [filter, setFilter] = useState<UserFilter>({
+        banned: false,
+        shop: shops?.find(({ id }) => loggedUser?.shopId === id),
+    })
     const queryClient = useQueryClient()
 
     const { data: clients } = useQuery(['users', 'clients', filter], () => getAllClients({ filter }))

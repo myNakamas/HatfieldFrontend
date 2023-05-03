@@ -83,7 +83,7 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
         const category = categories?.find((category) => category.id === watch('categoryId'))
         const brand = watch('brand')?.value
         const model = watch('model')?.value
-        setValue('name', `${category?.name} ${brand} ${model}`)
+        setValue('name', `${category?.name ?? ''} ${brand ?? ''} ${model ?? ''}`)
     }, [watch('categoryId'), watch('brand'), watch('model')])
 
     return (

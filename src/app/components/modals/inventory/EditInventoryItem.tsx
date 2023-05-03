@@ -89,6 +89,12 @@ export const EditInventoryItem = ({
     useEffect(() => {
         if (item) reset(item)
     }, [item])
+    useEffect(() => {
+        const category = watch('categoryView')?.name
+        const brand = watch('brand')
+        const model = watch('model')
+        setValue('name', `${category ?? ''} ${brand ?? ''} ${model ?? ''}`)
+    }, [watch('categoryView'), watch('brand'), watch('model')])
 
     return (
         <>
@@ -104,8 +110,10 @@ export const EditInventoryItem = ({
                     <input readOnly className='input' disabled defaultValue={shop?.shopName} />
                     <TextField
                         label='Name'
+                        value={watch('name')}
                         register={register('name')}
                         error={errors.name}
+                        disabled
                         placeholder={'The name of the item'}
                     />
                     <Controller
