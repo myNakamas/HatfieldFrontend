@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (!loggedUser) {
             navigate('/login', { state: { from: location } })
         }
-    }, [loggedUser, navigate, location])
+    }, [loggedUser])
 
     document.addEventListener('session_expired', () => logout())
 
