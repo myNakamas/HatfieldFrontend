@@ -103,10 +103,10 @@ export const AddEditCategory = ({
                         <></>
                     )}
                     <div className='flex-100 justify-end'>
-                        <Button type='primary' htmlType='submit' form='addEditCategory'>
+                        <Button type='primary' htmlType='submit'>
                             Save
                         </Button>
-                        <Button htmlType='button' onClick={closeModal} form='addEditCategory'>
+                        <Button htmlType='button' onClick={closeModal}>
                             Close
                         </Button>
                     </div>

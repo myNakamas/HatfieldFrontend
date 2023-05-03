@@ -120,7 +120,7 @@ export const EditInventoryItem = ({
                                             theme={SelectTheme}
                                             options={categories}
                                             placeholder='Select Item Category'
-                                            value={categories?.find(({ id }) => field.value.id === id) ?? null}
+                                            value={categories?.find(({ id }) => field.value?.id === id) ?? null}
                                             onChange={(type) => {
                                                 field.onChange(type)
                                             }}

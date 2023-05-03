@@ -20,9 +20,7 @@ export const Chats = () => {
     const { data: tickets } = useQuery(['tickets', page], () => fetchAllTickets({ page, filter: {} }))
     const [chat, setChat] = useState<Chat | undefined>()
     const [params] = useSearchParams()
-    const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>(
-        tickets?.content.find((ticket) => String(ticket.id) === params.get('id'))
-    )
+    const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [ticketDrawer, setTicketDrawer] = useState(!selectedTicket)
 
     const { data: oldMessages } = useQuery(
@@ -43,6 +41,12 @@ export const Chats = () => {
         }
     )
 
+    useEffect(() => {
+        if (params.get('id')) {
+            setSelectedTicket(tickets?.content.find((ticket) => String(ticket.id) === params.get('id')))
+            setTicketDrawer(false)
+        }
+    }, [params])
     useEffect(() => {
         if (selectedTicket) {
             navigate({ search: 'id=' + selectedTicket.id })

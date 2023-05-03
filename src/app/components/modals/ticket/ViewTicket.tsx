@@ -55,7 +55,6 @@ export const ViewTicket = ({
     }, [view])
 
     const editTicket = (formValue: CreateTicket) => {
-        console.log(formValue)
         if (!ticket?.id) {
             toast.error('Something went wrong, please try again', toastProps)
             return Promise.resolve()

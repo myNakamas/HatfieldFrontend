@@ -97,9 +97,11 @@ export const InvoiceView = () => {
                             <Button icon={<FontAwesomeIcon icon={faPrint} />} onClick={() => openPdf(invoice.id)}>
                                 Open document for print
                             </Button>
-                            <Button icon={<FontAwesomeIcon icon={faTrash} />} onClick={() => onDelete(invoice.id)}>
-                                Invalidate invoice
-                            </Button>
+                            {invoice.valid && (
+                                <Button icon={<FontAwesomeIcon icon={faTrash} />} onClick={() => onDelete(invoice.id)}>
+                                    Invalidate invoice
+                                </Button>
+                            )}
                         </Space>
                     </Space>
                 )}

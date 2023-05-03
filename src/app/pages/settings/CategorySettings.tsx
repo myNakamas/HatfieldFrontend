@@ -17,7 +17,7 @@ export const CategorySettings = () => {
     const { data: allCategories, isLoading } = useQuery(['allCategories'], () => getAllCategories())
     const queryClient = useQueryClient()
     const [showModal, setShowModal] = useState(false)
-    const [selectedCategory, setSelectedCategory] = useState<Category>()
+    const [selectedCategory, setSelectedCategory] = useState<Category | undefined>()
 
     const onUpdate = (formValue: Category) => {
         return updateCategory(formValue).then(() => {
@@ -54,20 +54,20 @@ export const CategorySettings = () => {
             <CustomSuspense isReady={!isLoading}>
                 {allCategories && allCategories.length > 0 ? (
                     <CustomTable<Category>
-                        data={allCategories.map(({ columns, ...rest }) => ({
-                            ...rest,
-                            columns: columns.join(', '),
+                        data={allCategories.map((category) => ({
+                            ...category,
+                            columns: category.columns.join(', '),
                             actions: (
                                 <Space>
                                     <Button
                                         icon={<FontAwesomeIcon icon={faPen} />}
-                                        onClick={() => setShowModal(true)}
+                                        onClick={() => setSelectedCategory(category)}
                                     />
                                     <Popconfirm
                                         title='Delete the category'
                                         description='Are you sure to delete this category?'
                                         onConfirm={() =>
-                                            deleteCategory(rest.id).then(() =>
+                                            deleteCategory(category.id).then(() =>
                                                 queryClient.invalidateQueries(['allCategories']).then()
                                             )
                                         }
@@ -85,8 +85,8 @@ export const CategorySettings = () => {
                             columns: 'columns',
                             actions: 'actions',
                         }}
-                        onClick={({ id }) => {
-                            setSelectedCategory(allCategories?.find((value) => value.id === id))
+                        onClick={(category) => {
+                            setSelectedCategory(category)
                         }}
                     />
                 ) : (
