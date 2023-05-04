@@ -1,12 +1,17 @@
 import React from 'react'
 import { AppModal } from '../AppModal'
 import { User } from '../../../models/interfaces/user'
-import { Checkbox, Descriptions, Space, Typography } from 'antd'
+import { Button, Checkbox, Descriptions, Popconfirm, Space, Typography } from 'antd'
 import { InfinitySpin } from 'react-loader-spinner'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan'
+import { faPrint } from '@fortawesome/free-solid-svg-icons'
+import { printUserLabel } from '../../../axios/http/documentRequests'
+import { banClient } from '../../../axios/http/userRequests'
+import { useQueryClient } from 'react-query'
 
 export const ViewUser = ({ user, closeModal }: { closeModal: () => void; user?: User }) => {
+    const queryClient = useQueryClient()
     return (
         <AppModal isModalOpen={!!user} closeModal={closeModal} title={`User "${user?.username}" Info`}>
             {user?.isBanned && (
@@ -18,6 +23,22 @@ export const ViewUser = ({ user, closeModal }: { closeModal: () => void; user?: 
             {user ? (
                 <Space direction={'vertical'} style={{ width: '100%' }}>
                     <UserDescription user={user} />
+                    <Space>
+                        <Button icon={<FontAwesomeIcon icon={faPrint} />} onClick={() => printUserLabel(user.userId)}>
+                            Print user label
+                        </Button>
+                        <Popconfirm
+                            title='Ban user'
+                            description='Are you sure to ban this user?'
+                            onConfirm={() => {
+                                banClient(user.userId, true).then(() => {
+                                    queryClient.invalidateQueries(['users', 'clients']).then(closeModal)
+                                })
+                            }}
+                        >
+                            <Button icon={<FontAwesomeIcon icon={faBan} />}>Ban user</Button>
+                        </Popconfirm>
+                    </Space>
                 </Space>
             ) : (
                 <InfinitySpin />
@@ -27,7 +48,7 @@ export const ViewUser = ({ user, closeModal }: { closeModal: () => void; user?: 
 }
 
 export const UserDescription = ({ user }: { user?: User }) => {
-    if(!user) return <></>
+    if (!user) return <></>
     return (
         <Descriptions bordered size='small' layout='vertical'>
             <Descriptions.Item label='Full name'>{user.fullName}</Descriptions.Item>
@@ -42,10 +63,10 @@ export const UserDescription = ({ user }: { user?: User }) => {
             <Descriptions.Item label='Phones'>
                 {user.phones.length > 0
                     ? user.phones.map((phone, index) => (
-                        <Typography key={'phone' + index}>
-                            Phone #{index + 1}: {phone}
-                        </Typography>
-                    ))
+                          <Typography key={'phone' + index}>
+                              Phone #{index + 1}: {phone}
+                          </Typography>
+                      ))
                     : '-'}
             </Descriptions.Item>
         </Descriptions>

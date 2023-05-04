@@ -14,7 +14,7 @@ import { useQuery, useQueryClient } from 'react-query'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { AppModal } from '../AppModal'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import CreatableSelect from 'react-select/creatable'
@@ -28,6 +28,8 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { AddEditCategory } from '../AddEditCategory'
 
 export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
+    const formRef = useRef<HTMLFormElement>(null)
+
     const queryClient = useQueryClient()
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
@@ -75,6 +77,9 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
         }
     }
     useEffect(() => {
+        formRef.current?.reset()
+    }, [isModalOpen])
+    useEffect(() => {
         const c = categories?.find((category) => category.id === watch('categoryId'))
         setColumns(c?.columns)
     }, [watch('categoryId')])
@@ -83,7 +88,7 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
         const category = categories?.find((category) => category.id === watch('categoryId'))
         const brand = watch('brand')?.value
         const model = watch('model')?.value
-        setValue('name', `${category?.name} ${brand} ${model}`)
+        setValue('name', `${category?.name ?? ''} ${brand ?? ''} ${model ?? ''}`)
     }, [watch('categoryId'), watch('brand'), watch('model')])
 
     return (
@@ -94,7 +99,7 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                 onComplete={onCreateCategory}
                 category={{} as Category}
             />
-            <form className='modalForm' onSubmit={handleSubmit(submit)}>
+            <form className='modalForm' onSubmit={handleSubmit(submit)} ref={formRef}>
                 <div className='textFormLabel'>Adding item to shop:</div>
                 <TextField
                     label='Name'

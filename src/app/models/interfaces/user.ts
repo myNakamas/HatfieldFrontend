@@ -14,6 +14,7 @@ export interface ResetPassword {
 export interface User extends UsernamePassword {
     userId: string
     fullName: string
+    firstPass: string
     role: Role
     email: string
     phones: string[]

@@ -48,7 +48,6 @@ export const ViewTicket = ({
     const [showInvoiceModal, setShowInvoiceModal] = useState(false)
     const [ticketStatus, setTicketStatus] = useState(ticket?.status ?? '')
     const queryClient = useQueryClient()
-
     useEffect(() => {
         if (view) setMode(view)
         else setMode('view')
