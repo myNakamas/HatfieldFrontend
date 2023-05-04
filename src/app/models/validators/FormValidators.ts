@@ -89,14 +89,14 @@ export const UsedItemSchema = Yup.object().shape({
 })
 export const NewInvoiceSchema = Yup.object().shape({
     type: Yup.string().oneOf(InvoiceTypes).required(),
-    deviceModel: Yup.string().notRequired(),
-    deviceBrand: Yup.string().notRequired(),
-    serialNumber: Yup.string().notRequired(),
+    deviceModel: Yup.string().required(),
+    deviceBrand: Yup.string().required(),
+    serialNumber: Yup.string().required(),
     notes: Yup.string().notRequired(),
     totalPrice: Yup.number().required(),
     clientId: Yup.string().notRequired(),
-    paymentMethod: Yup.string().oneOf(PaymentMethods),
-    warrantyPeriod: Yup.string().oneOf(WarrantyPeriods),
+    paymentMethod: Yup.string().oneOf(PaymentMethods).required(),
+    warrantyPeriod: Yup.string().oneOf(WarrantyPeriods).required(),
 })
 export const TicketInvoiceSchema = Yup.object().shape({
     ticketId: Yup.number().required(),
