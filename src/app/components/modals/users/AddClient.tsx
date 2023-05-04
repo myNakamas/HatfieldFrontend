@@ -45,11 +45,13 @@ export const AddClient = ({
         setValue,
         getValues,
         setError,
+        reset,
     } = useForm<User>({
         resolver: yupResolver(ClientSchema),
         defaultValues: getDefaultClient(loggedUser?.shopId),
     })
     useEffect(() => {
+        reset()
         formRef.current?.reset()
         setShowResponse(undefined)
     }, [isModalOpen])

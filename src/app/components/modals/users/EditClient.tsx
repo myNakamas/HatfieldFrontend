@@ -46,6 +46,7 @@ export const EditClient = ({
         defaultValues: client,
     })
     useEffect(() => {
+        formRef.current?.reset()
         reset(client)
     }, [isModalOpen])
 

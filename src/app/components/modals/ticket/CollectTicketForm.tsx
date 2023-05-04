@@ -38,9 +38,11 @@ export const CollectTicketForm = ({
         <form
             className='modalForm'
             onSubmit={handleSubmit((data) =>
-                onComplete(data, ticket.id).catch((message: string) => {
-                    setError('root', { message })
-                })
+                onComplete(data, ticket.id)
+                    .then(() => reset())
+                    .catch((message: string) => {
+                        setError('root', { message })
+                    })
             )}
         >
             <div className='card'>

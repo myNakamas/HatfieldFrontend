@@ -4,7 +4,7 @@ import { CategorySchema } from '../../models/validators/FormValidators'
 import { Category } from '../../models/interfaces/shop'
 import { TextField } from '../form/TextField'
 import { AppModal } from './AppModal'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { ItemTypesArray } from '../../models/enums/shopEnums'
@@ -26,6 +26,7 @@ export const AddEditCategory = ({
     category?: Category
     onComplete: (formValue: Category) => Promise<void>
 }) => {
+    const formRef = useRef<HTMLFormElement>(null)
     const defaultValue = { ...category, columns: category?.columns ?? [] }
     const {
         control,
@@ -42,6 +43,7 @@ export const AddEditCategory = ({
     })
     const properties = watch('columns') ?? []
     useEffect(() => {
+        formRef.current?.reset()
         reset(defaultValue)
     }, [isModalOpen])
 
@@ -71,7 +73,7 @@ export const AddEditCategory = ({
     return (
         <AppModal {...{ isModalOpen, closeModal }} title={'Category'}>
             {category && (
-                <form id='addEditCategory' className='modalForm' onSubmit={handleSubmit(onComplete)}>
+                <form ref={formRef} className='modalForm' onSubmit={handleSubmit(onComplete)}>
                     <TextField register={register('name')} error={errors.name} label={'Category name'} />
                     <Controller
                         control={control}
