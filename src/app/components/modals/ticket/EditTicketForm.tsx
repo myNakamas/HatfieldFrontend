@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { FormField } from '../../form/Field'
 import { Dictaphone } from '../../form/Dictaphone'
@@ -46,6 +46,10 @@ export const EditTicketForm = ({
     const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}))
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [tempText, setTempText] = useState('')
+    useEffect(() => {
+        // formRef.current?.reset()
+        reset(ticket)
+    }, [ticket])
 
     return (
         <>

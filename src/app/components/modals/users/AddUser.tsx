@@ -28,7 +28,7 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
     const isLoggedUserAdmin = loggedUser?.role === 'ADMIN'
 
     const queryClient = useQueryClient()
-
+    const defaultValues = isLoggedUserAdmin ? defaultUser : { ...defaultUser, shopId: loggedUser?.shopId }
     const {
         register,
         handleSubmit,
@@ -41,10 +41,11 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
         reset,
     } = useForm<User>({
         resolver: yupResolver(SimpleUserSchema),
-        defaultValues: isLoggedUserAdmin ? defaultUser : { ...defaultUser, shopId: loggedUser?.shopId },
+        defaultValues,
     })
     useEffect(() => {
         formRef.current?.reset()
+        reset(defaultValues)
     }, [isModalOpen])
 
     const onSaveNew = (formValue: User) => {
@@ -121,6 +122,7 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
                                 getOptionLabel={({ value }) => value}
                                 getOptionValue={({ value }) => value}
                                 placeholder=''
+                                value={UserRolesArray.find((role) => role.value === field.value) ?? null}
                                 onChange={(item) => field.onChange(item?.value)}
                             />
                         </FormField>

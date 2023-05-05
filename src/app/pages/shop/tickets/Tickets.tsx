@@ -3,9 +3,9 @@ import { CustomTable } from '../../../components/table/CustomTable'
 import { NoDataComponent } from '../../../components/table/NoDataComponent'
 import React, { useEffect, useState } from 'react'
 import { Ticket } from '../../../models/interfaces/ticket'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { ItemPropertyView, Page, PageRequest } from '../../../models/interfaces/generalModels'
-import { fetchAllTickets, fetchTicketById } from '../../../axios/http/ticketRequests'
+import { fetchAllTickets, fetchTicketById, updatePriority } from '../../../axios/http/ticketRequests'
 import { AddTicket } from '../../../components/modals/ticket/AddTicket'
 import dateFormat from 'dateformat'
 import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
@@ -18,7 +18,7 @@ import { Shop } from '../../../models/interfaces/shop'
 import { User } from '../../../models/interfaces/user'
 import { getAllClients, getAllWorkers } from '../../../axios/http/userRequests'
 import { DateTimeFilter } from '../../../components/filters/DateTimeFilter'
-import { Button, Tabs, TabsProps } from 'antd'
+import { Button, Space, Tabs, TabsProps } from 'antd'
 import {
     activeTicketStatuses,
     completedTicketStatuses,
@@ -28,6 +28,8 @@ import {
 import { useSearchParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons/faPen'
+import { DragEndEvent } from '@dnd-kit/core'
+import { TicketTable } from '../../../components/table/TicketTable'
 
 export const Tickets = () => {
     const [params] = useSearchParams()
@@ -52,8 +54,8 @@ export const Tickets = () => {
             key: '1',
             label: 'Active tickets',
             children: (
-                <TicketsTab
-                    {...{ ...tickets, setSelectedTicket, page, setPage }}
+                <ActiveTicketsTab
+                    {...{ ...tickets, setSelectedTicket }}
                     setEditTicket={(ticket) => {
                         setSelectedTicket(ticket)
                         setTicketView('edit')
@@ -166,6 +168,53 @@ const TicketsTab = ({
         )}
     </CustomSuspense>
 )
+
+const ActiveTicketsTab = ({
+    isFetching,
+    data,
+    setSelectedTicket,
+    setEditTicket,
+}: {
+    isFetching: boolean
+    data?: Page<Ticket>
+    setSelectedTicket: React.Dispatch<React.SetStateAction<Ticket | undefined>>
+    setEditTicket: (ticket: Ticket) => void
+}) => {
+    const queryClient = useQueryClient()
+    const onSort = ({ active, over }: DragEndEvent) => {
+        if (over?.id && active.id !== over.id) {
+            const placeAbove: boolean = active.data.current?.sortable.index > over.data.current?.sortable.index
+            updatePriority({ id: +active.id, newIndexId: +over.id, placeAbove }).then(() => {
+                queryClient.invalidateQueries(['tickets']).then()
+            })
+        }
+    }
+
+    return (
+        <CustomSuspense isReady={!isFetching}>
+            {data && data.content.length > 0 ? (
+                <TicketTable
+                    data={data?.content.map((ticket) => ({
+                        ...ticket,
+                        timestamp: dateFormat(ticket.timestamp),
+                        deadline: ticket.deadline ? dateFormat(ticket.deadline) : '-',
+                        createdBy: ticket.createdBy?.fullName,
+                        clientName: ticket.client?.fullName,
+                        actions: (
+                            <Space>
+                                <Button icon={<FontAwesomeIcon icon={faPen} />} onClick={() => setEditTicket(ticket)} />
+                            </Space>
+                        ),
+                    }))}
+                    onClick={(ticket) => setSelectedTicket(ticket)}
+                    onSort={onSort}
+                />
+            ) : (
+                <NoDataComponent items='tickets' />
+            )}
+        </CustomSuspense>
+    )
+}
 
 const TicketFilters = ({
     filter,

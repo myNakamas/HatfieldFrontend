@@ -2,7 +2,7 @@ import React from 'react'
 import { Table } from 'antd'
 import { PageRequest } from '../../models/interfaces/generalModels'
 
-interface CustomTableProps<T> {
+export interface CustomTableProps<T> {
     headers: { [key: string]: string }
     onClick?: (value: T) => void
     pagination?: PageRequest
