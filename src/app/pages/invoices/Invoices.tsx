@@ -19,10 +19,13 @@ import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { User } from '../../models/interfaces/user'
 import { DateTimeFilter } from '../../components/filters/DateTimeFilter'
+import { AddInvoice } from '../../components/modals/AddInvoice'
+import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 
 export const Invoices = () => {
     const navigate = useNavigate()
     const [filter, setFilter] = useState<InvoiceFilter>({})
+    const [addInvoiceModalOpen, setAddInvoiceModalOpen] = useState(false)
     const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
     const { data: invoices, isLoading } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }))
 
@@ -39,6 +42,15 @@ export const Invoices = () => {
             <div className={'button-bar'}>
                 <InvoiceFilters {...{ filter, setFilter }} />
             </div>
+            <Space className={'button-bar'}>
+                <Button
+                    type='primary'
+                    icon={<FontAwesomeIcon icon={faPlus} />}
+                    children='Add a new invoice'
+                    onClick={() => setAddInvoiceModalOpen(true)}
+                />
+            </Space>
+            <AddInvoice isModalOpen={addInvoiceModalOpen} closeModal={() => setAddInvoiceModalOpen(false)} />
             <div className='tableWrapper'>
                 {isLoading ? (
                     <Skeleton loading />

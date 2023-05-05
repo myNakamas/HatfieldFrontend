@@ -36,7 +36,7 @@ export const setShoppingList = ({
     return backendClient.put('inventory/item/required', ids, { params: { shopId, isNeeded } })
 }
 export const setRequiredItemCount = ({ id, count }: { id: number; count?: number }): Promise<InventoryItem[]> => {
-    if(!count) return Promise.reject();
+    if (!count) return Promise.reject()
     return backendClient.put('inventory/item/required/count', {}, { params: { id, count } })
 }
 
@@ -70,6 +70,9 @@ export const addNewItem = ({
 export const putUpdateItem = ({ item }: { item: CreateInventoryItem }) => {
     return backendClient.post('inventory/item/update', item)
 }
+export const updateItemQuantity = ({ item }: { item: InventoryItem }) => {
+    return backendClient.post('inventory/item/updateQuantity', item)
+}
 
 export const getAllCategories = (): Promise<Category[]> => {
     return backendClient.get('category/all')
@@ -82,6 +85,6 @@ export const updateCategory = (category: Category): Promise<Category> => {
 export const addCategory = (category: Category): Promise<Category> => {
     return backendClient.post('category/admin/create', category)
 }
-export const getAllLogs = ({filter,page}:{filter:Filter, page:PageRequest}):Promise<Page<Log>> => {
-    return backendClient.get('logs/all', {params:{...filter,...page}})
+export const getAllLogs = ({ filter, page }: { filter: Filter; page: PageRequest }): Promise<Page<Log>> => {
+    return backendClient.get('logs/all', { params: { ...filter, ...page } })
 }

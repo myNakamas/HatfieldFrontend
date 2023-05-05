@@ -32,6 +32,7 @@ export interface CreateInvoice {
     deviceModel: string
     deviceBrand: string
     serialNumber: string
+    count: number
     notes?: string
     totalPrice: number
     clientId?: string

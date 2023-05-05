@@ -54,9 +54,12 @@ export const EditItemInventorySchema = Yup.object<InventoryItem>().shape({
     brand: Yup.string().notRequired(),
     count: Yup.number().min(1, 'Invalid count').required('Item count is required'),
 })
+export const UpdateItemCountSchema = Yup.object<InventoryItem>().shape({
+    count: Yup.number().min(0, 'Invalid count').required('Item count is required'),
+})
 export const EditRequiredItemSchema = Yup.object<InventoryItem>().shape({
     requiredItem: Yup.object().shape({
-        requiredAmount: Yup.number().min(0, 'Not a valid number').required("Each item must have a required count"),
+        requiredAmount: Yup.number().min(0, 'Not a valid number').required('Each item must have a required count'),
     }),
 })
 export const CategorySchema = Yup.object().shape({
@@ -89,11 +92,11 @@ export const UsedItemSchema = Yup.object().shape({
 })
 export const NewInvoiceSchema = Yup.object().shape({
     type: Yup.string().oneOf(InvoiceTypes).required(),
-    deviceModel: Yup.string().required(),
-    deviceBrand: Yup.string().required(),
-    serialNumber: Yup.string().required(),
+    deviceModel: Yup.string().notRequired(),
+    deviceBrand: Yup.string().notRequired(),
+    serialNumber: Yup.string().notRequired(),
     notes: Yup.string().notRequired(),
-    totalPrice: Yup.number().required(),
+    totalPrice: Yup.number().positive().required('Total price must be a valid number'),
     clientId: Yup.string().notRequired(),
     paymentMethod: Yup.string().oneOf(PaymentMethods).required(),
     warrantyPeriod: Yup.string().oneOf(WarrantyPeriods).required(),
