@@ -28,6 +28,7 @@ export interface CreateTicketInvoice {
 }
 
 export interface CreateInvoice {
+    itemId?: number
     type: InvoiceType
     deviceModel: string
     deviceBrand: string

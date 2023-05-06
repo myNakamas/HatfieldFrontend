@@ -1,7 +1,7 @@
 import backendClient from '../backendClient'
 import { ItemPropertyView, Page, PageRequest } from '../../models/interfaces/generalModels'
 import { Filter, InventoryFilter } from '../../models/interfaces/filters'
-import { Category, CreateInventoryItem, InventoryItem, Log, Shop } from '../../models/interfaces/shop'
+import { Brand, Category, CreateInventoryItem, InventoryItem, Log, Shop } from '../../models/interfaces/shop'
 
 export const getAllShops = (): Promise<Shop[]> => {
     return backendClient.get('shop/admin/all')
@@ -56,7 +56,7 @@ export const createShop = (value: Shop): Promise<Shop> => {
 export const getAllModels = (): Promise<ItemPropertyView[]> => {
     return backendClient.get('inventory/model/all')
 }
-export const getAllBrands = (): Promise<ItemPropertyView[]> => {
+export const getAllBrands = (): Promise<Brand[]> => {
     return backendClient.get('inventory/brand/all')
 }
 export const addNewItem = ({
@@ -69,6 +69,9 @@ export const addNewItem = ({
 }
 export const putUpdateItem = ({ item }: { item: CreateInventoryItem }) => {
     return backendClient.post('inventory/item/update', item)
+}
+export const fetchItemById = (params: { id?: number }): Promise<InventoryItem> => {
+    return backendClient.get('inventory/item', { params })
 }
 export const updateItemQuantity = ({ item }: { item: InventoryItem }) => {
     return backendClient.post('inventory/item/updateQuantity', item)

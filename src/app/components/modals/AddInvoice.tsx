@@ -24,10 +24,12 @@ import { AddClient } from './users/AddClient'
 import { NewInvoiceSchema } from '../../models/validators/FormValidators'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { InventoryItem } from '../../models/interfaces/shop'
-import { getAllBrands, getAllModels } from '../../axios/http/shopRequests'
+import { getAllBrands } from '../../axios/http/shopRequests'
 import { createInvoice } from '../../axios/http/invoiceRequests'
 import { toastCreatePromiseTemplate, toastProps } from './ToastProps'
 import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
+import { FormError } from '../form/FormError'
 
 export const AddInvoice = ({
     item,
@@ -39,17 +41,18 @@ export const AddInvoice = ({
     closeModal: () => void
 }) => {
     const formRef = useRef<HTMLFormElement>(null)
+    const navigate = useNavigate()
     const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}))
     const queryClient = useQueryClient()
-    const { data: models } = useQuery('models', getAllModels)
-    const { data: brands } = useQuery('brands', getAllBrands)
     const [showCreateModal, setShowCreateModal] = useState(false)
     const defaultValues = item
         ? {
               ...defaultInvoice,
               count: 1,
+              itemId: item.id,
               deviceBrand: item.brand,
               deviceModel: item.model,
+              totalPrice: item.price,
               type: 'SELL' as InvoiceType,
           }
         : defaultInvoice
@@ -62,21 +65,25 @@ export const AddInvoice = ({
         formState: { errors },
         reset,
         setError,
+        watch,
     } = useForm<CreateInvoice>({
         defaultValues,
         resolver: yupResolver(NewInvoiceSchema),
     })
+    const { data: brands } = useQuery('brands', getAllBrands)
+    const models = brands?.find((b) => b.value === watch('deviceBrand'))?.models ?? []
     useEffect(() => {
         formRef.current?.reset()
         reset(defaultValues)
     }, [isModalOpen])
 
     const saveInvoice = (data: CreateInvoice) => {
+        if (item) data.itemId = item.id
         toast
             .promise(createInvoice(data), toastCreatePromiseTemplate('invoice'), toastProps)
-            .then(() => {
+            .then((id) => {
                 closeModal()
-                queryClient.invalidateQueries(['invoices']).then()
+                queryClient.invalidateQueries(['invoices']).then(() => navigate('/invoices/' + id))
             })
             .catch((message: string) => {
                 setError('root', { message })
@@ -84,12 +91,12 @@ export const AddInvoice = ({
     }
     return (
         <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'}>
+            <AddClient
+                isModalOpen={showCreateModal}
+                closeModal={() => setShowCreateModal(false)}
+                onSuccess={(client) => setValue('clientId', client.userId)}
+            />
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice, console.log)}>
-                <AddClient
-                    isModalOpen={showCreateModal}
-                    closeModal={() => setShowCreateModal(false)}
-                    onSuccess={(client) => setValue('clientId', client.userId)}
-                />
                 <Space direction='vertical' className='w-100'>
                     <Controller
                         control={control}
@@ -102,7 +109,7 @@ export const AddInvoice = ({
                                     styles={SelectStyles<User>()}
                                     options={clients}
                                     placeholder='Client'
-                                    value={clients?.find(({ userId }) => field.value === userId)}
+                                    value={clients?.find(({ userId }) => field.value === userId) ?? null}
                                     onChange={(newValue) => field.onChange(newValue?.userId)}
                                     getOptionLabel={(item) => [item.fullName, item.email].join(' ')}
                                     getOptionValue={(item) => item.userId}
@@ -190,6 +197,12 @@ export const AddInvoice = ({
                                 error={errors.count}
                                 type='number'
                             />
+                            {watch('count') ==1 &&
+                            <TextField
+                                label={'Serial number'}
+                                register={register('serialNumber')}
+                                error={errors.serialNumber}
+                            />}
                         </Space>
                     </Card>
                     <Card>
@@ -239,6 +252,7 @@ export const AddInvoice = ({
                         />
                     </Card>
                 </Space>
+                <FormError error={errors.root?.message} />
 
                 <div className='flex-100 justify-end'>
                     <Button type='primary' htmlType='submit'>

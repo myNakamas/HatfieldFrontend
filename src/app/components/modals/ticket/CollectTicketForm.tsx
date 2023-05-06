@@ -12,7 +12,7 @@ import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { CreateTicket, Ticket } from '../../../models/interfaces/ticket'
 import { useQuery } from 'react-query'
-import { getAllBrands, getAllModels } from '../../../axios/http/shopRequests'
+import { getAllBrands } from '../../../axios/http/shopRequests'
 
 export const CollectTicketForm = ({
     ticket,
@@ -30,9 +30,11 @@ export const CollectTicketForm = ({
         control,
         setError,
         reset,
+        watch,
     } = useForm<CreateTicket>({ defaultValues: ticket })
-    const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
+    const models = brands?.find((b) => b.value === watch('deviceBrand'))?.models ?? []
+
     const [tempText, setTempText] = useState('')
     return (
         <form

@@ -53,5 +53,6 @@ export const paymentMethodIcon = {
 }
 
 export const defaultInvoice = {
+    itemId: null,
     warrantyPeriod: 'ONE_MONTH',
-} as CreateInvoice
+} as unknown as CreateInvoice
