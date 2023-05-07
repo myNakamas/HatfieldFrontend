@@ -204,8 +204,8 @@ function InvoiceFilters({
                     setFilter={({ from, to }) => {
                         setFilter((oldVal) => ({
                             ...oldVal,
-                            createdAfter: from?.slice(0, 10) ?? oldVal.createdAfter,
-                            createdBefore: to?.slice(0, 10) ?? oldVal.createdBefore,
+                            createdAfter: from?.slice(0, 10) ?? undefined,
+                            createdBefore: to?.slice(0, 10) ?? undefined,
                         }))
                     }}
                     placeholder={'Created'}

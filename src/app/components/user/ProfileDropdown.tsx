@@ -14,8 +14,10 @@ export const ProfileDropdown = () => {
     const [smallScreen, setSmallScreen] = useState<boolean>(window.innerWidth < 768)
     window.addEventListener('resize', () => setSmallScreen(window.innerWidth < 768))
     const navigate = useNavigate()
-    const { data: profileImg } = useQuery(['profileImg', loggedUser?.userId], () =>
-        getProfilePicture({ id: loggedUser?.userId })
+    const { data: profileImg } = useQuery(
+        ['profileImg', loggedUser?.userId],
+        () => getProfilePicture({ id: loggedUser?.userId }),
+        { retry: false }
     )
     const items: MenuProps['items'] = [
         {
