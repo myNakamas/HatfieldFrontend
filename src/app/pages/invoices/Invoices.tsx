@@ -39,9 +39,9 @@ export const Invoices = () => {
     }
     return (
         <div className='mainScreen'>
-            <div className={'button-bar'}>
+            <Space className={'button-bar'}>
                 <InvoiceFilters {...{ filter, setFilter }} />
-            </div>
+            </Space>
             <Space className={'button-bar'}>
                 <Button
                     type='primary'

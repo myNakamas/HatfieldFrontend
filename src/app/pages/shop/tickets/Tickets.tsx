@@ -103,11 +103,11 @@ export const Tickets = () => {
             />
             <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} />
             <TicketFilters {...{ filter, setFilter }} />
-            <div className='button-bar'>
+            <Space className='button-bar'>
                 <Button type={'primary'} onClick={() => setShowNewModal(true)}>
                     Add Ticket
                 </Button>
-            </div>
+            </Space>
             <Tabs
                 animated
                 defaultActiveKey='active'

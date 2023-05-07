@@ -13,7 +13,7 @@ import { SearchComponent } from '../../components/filters/SearchComponent'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { AuthContext } from '../../contexts/AuthContext'
-import { Button, Skeleton } from 'antd'
+import { Button, Skeleton, Space } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faFileEdit, faPen, faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -38,7 +38,7 @@ export const Inventory = () => {
                 closeModal={() => setSelectedItem(undefined)}
                 openEditModal={(item) => setEditItem(item)}
             />
-            <div className='button-bar'>
+            <Space className='button-bar'>
                 <Button
                     icon={<FontAwesomeIcon icon={faPlus} />}
                     type='primary'
@@ -63,7 +63,7 @@ export const Inventory = () => {
                 <Button disabled type='primary' onClick={() => navigate('/categories')}>
                     Return List
                 </Button>
-            </div>
+            </Space>
             <div className='tableWrapper'>
                 <Suspense fallback={<Skeleton active loading />}>
                     <InventoryInner
@@ -107,16 +107,12 @@ const InventoryInner = ({
                 name: item.name ?? '-',
                 price: item.price?.toFixed(2) ?? '-',
                 type: item.categoryView?.itemType ?? '-',
-                category: item.categoryView?.name ?? '-',
                 actions: <Button onClick={() => setEditItem(item)} icon={<FontAwesomeIcon icon={faPen} />} />,
             }))}
             headers={{
                 name: 'Name',
-                brand: 'Brand',
-                model: 'Model',
                 price: 'Price',
                 type: 'Item type',
-                category: 'Category',
                 count: 'Count',
                 actions: 'Actions',
             }}

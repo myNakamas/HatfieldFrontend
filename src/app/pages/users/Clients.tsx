@@ -48,7 +48,7 @@ export const Clients = () => {
 
             <ViewUser user={viewUser} closeModal={() => setViewUser(undefined)} />
             <ClientsFilters {...{ filter, setFilter }} />
-            <div className='align-center button-bar'>
+            <Space className='align-center button-bar'>
                 <Button
                     icon={<FontAwesomeIcon icon={faPlus} />}
                     ref={tourRef1}
@@ -56,7 +56,7 @@ export const Clients = () => {
                 >
                     Add a new client
                 </Button>
-            </div>
+            </Space>
             <div className='tableWrapper' ref={tourRef2}>
                 {clients && clients.length > 0 ? (
                     <CustomTable<User>

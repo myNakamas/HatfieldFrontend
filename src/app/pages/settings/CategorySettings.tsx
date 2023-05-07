@@ -36,9 +36,9 @@ export const CategorySettings = () => {
 
     return (
         <div className='mainScreen'>
-            <div className='button-bar'>
+            <Space className='button-bar'>
                 <Button onClick={() => setShowModal(true)}>Add new category</Button>
-            </div>
+            </Space>
             <AddEditCategory
                 closeModal={() => setSelectedCategory(undefined)}
                 isModalOpen={!!selectedCategory}

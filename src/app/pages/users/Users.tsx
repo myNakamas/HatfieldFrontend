@@ -65,11 +65,11 @@ export const Users = () => {
 
             <ViewUser user={viewUser} closeModal={() => setViewUser(undefined)} />
             <UserFilters {...{ filter, setFilter }} />
-            <div className='align-center button-bar'>
+            <Space className='align-center button-bar'>
                 <Button ref={tourRef1} onClick={() => setShowCreateModal(true)}>
                     Add a new user
                 </Button>
-            </div>
+            </Space>
             <div className='tableWrapper' ref={tourRef2}>
                 <Tabs animated defaultActiveKey='active' items={tabs} />
             </div>
