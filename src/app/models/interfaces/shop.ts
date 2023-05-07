@@ -48,13 +48,9 @@ export interface CreateInventoryItem {
     properties: CategoryProperties
 }
 
-type RequiredItemReason = 'NEEDED_FOR_TICKET' | 'INVENTORY_EMPTY' | 'REQUESTED'
-type RequiredItemStatus = 'NOT_NEEDED' | 'PENDING' | 'RECEIVED'
-
 export interface RequiredItem {
     requiredAmount: number
-    requiredReason?: RequiredItemReason
-    status: RequiredItemStatus
+    isNeeded: boolean
 }
 
 export interface CategoryProperties {

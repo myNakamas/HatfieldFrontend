@@ -1,32 +1,33 @@
 import { InventoryItem } from '../../../models/interfaces/shop'
 import { AppModal } from '../AppModal'
-import { Button, Descriptions, Space } from 'antd'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPen } from '@fortawesome/free-solid-svg-icons'
+import { Button, Collapse, Space, Switch } from 'antd'
 import React, { useEffect } from 'react'
 import { TextField } from '../../form/TextField'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
 import { EditRequiredItemSchema } from '../../../models/validators/FormValidators'
-import { setRequiredItemCount } from '../../../axios/http/shopRequests'
+import { updateRequiredItemCount } from '../../../axios/http/shopRequests'
 import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { toast } from 'react-toastify'
 import { useQueryClient } from 'react-query'
+import { FormField } from '../../form/Field'
+import FormItemLabel from 'antd/es/form/FormItemLabel'
+import CollapsePanel from 'antd/es/collapse/CollapsePanel'
+import { ItemDescriptions } from './ViewInventoryItem'
 
 export const EditRequiredItem = ({
     inventoryItem,
     closeModal,
-    openEditModal,
 }: {
     inventoryItem?: InventoryItem
     closeModal: () => void
-    openEditModal?: (item: InventoryItem) => void
 }) => {
     const queryClient = useQueryClient()
     const {
         reset,
         watch,
         register,
+        control,
         handleSubmit,
         formState: { errors },
     } = useForm<InventoryItem>({
@@ -39,78 +40,64 @@ export const EditRequiredItem = ({
     const submitUpdate = (formValue: InventoryItem) => {
         toast
             .promise(
-                () => setRequiredItemCount({ id: formValue.id, count: formValue.requiredItem?.requiredAmount }),
+                () =>
+                    updateRequiredItemCount({
+                        id: formValue.id,
+                        count: formValue.requiredItem?.requiredAmount,
+                        isNeeded: formValue.requiredItem?.isNeeded,
+                    }),
                 toastUpdatePromiseTemplate('required item count'),
                 toastProps
             )
             .then(() => {
-                queryClient.invalidateQueries(['shopItems', 'shoppingList']).then()
+                queryClient.invalidateQueries(['shopItems']).then()
                 closeModal()
             })
     }
-
     return (
         <AppModal
             isModalOpen={!!inventoryItem}
             closeModal={closeModal}
-            title={`Adjust needed amount for inventory item '${inventoryItem?.name ?? inventoryItem?.id}'`}
+            title={`Adjust needed amount for inventory item '${inventoryItem?.name}'`}
         >
             {inventoryItem && (
                 <form className='modalForm' onSubmit={handleSubmit(submitUpdate)}>
-                    <Descriptions
-                        size={'middle'}
-                        layout={'vertical'}
-                        column={3}
-                        bordered
-                        extra={
-                            openEditModal && (
-                                <Button
-                                    onClick={() => {
-                                        closeModal()
-                                        openEditModal(inventoryItem)
-                                    }}
-                                    icon={<FontAwesomeIcon icon={faPen} />}
-                                />
-                            )
-                        }
-                    >
-                        <Descriptions.Item label={'Model'}>{inventoryItem.model}</Descriptions.Item>
-                        <Descriptions.Item label={'Brand'}>{inventoryItem.brand}</Descriptions.Item>
-                        <Descriptions.Item label={'Current count in shop'}>{inventoryItem.count}</Descriptions.Item>
-                        {inventoryItem.price && (
-                            <Descriptions.Item label={'Price'} className='bold'>
-                                {inventoryItem.price.toFixed(2)}
-                            </Descriptions.Item>
-                        )}
-                        {inventoryItem.categoryView && (
-                            <>
-                                <Descriptions.Item label={'Type'}>
-                                    {inventoryItem.categoryView.itemType}
-                                </Descriptions.Item>
-                                <Descriptions.Item label={'Category name'}>
-                                    {inventoryItem.categoryView.name}
-                                </Descriptions.Item>
-                            </>
-                        )}
-                    </Descriptions>
-                    <Descriptions layout={'vertical'} column={3} title={'Properties'} bordered>
-                        {Object.entries(inventoryItem.columns).map(([name, value], index) => (
-                            <Descriptions.Item key={name + index} label={name}>
-                                {value}
-                            </Descriptions.Item>
-                        ))}
-                    </Descriptions>
-                    <Space>
+                    <Collapse>
+                        <CollapsePanel key={'1'} header={inventoryItem.name}>
+                            <ItemDescriptions inventoryItem={inventoryItem} />
+                        </CollapsePanel>
+                    </Collapse>
+                    <Space className={'w-100 '}>
                         <TextField
                             register={register('requiredItem.requiredAmount')}
-                            label={'Required count'}
+                            label={'Required count for the shop'}
                             type='number'
-                            error={errors.count}
+                            error={errors.requiredItem?.requiredAmount}
                         />
-                        <h3>
-                            Missing count: {Math.max(watch('requiredItem.requiredAmount') - inventoryItem.count, 0)}
-                        </h3>
+                        <FormField label={'Current count in  store'}>
+                            <input className={'input'} disabled readOnly value={inventoryItem.count + ''} />
+                        </FormField>
+                        <FormField label={'Missing'}>
+                            <input
+                                className={'input'}
+                                readOnly
+                                disabled
+                                value={Math.max(watch('requiredItem.requiredAmount') - inventoryItem.count, 0) + ''}
+                            />
+                        </FormField>
                     </Space>
+                    <Controller
+                        control={control}
+                        name={'requiredItem.isNeeded'}
+                        render={({ field: { value, onChange } }) => {
+                            return (
+                                <Space>
+                                    <FormItemLabel prefixCls={''} label={'Required status for the shop:'} />
+                                    <Switch checked={value} onChange={() => onChange(!value)} />
+                                </Space>
+                            )
+                        }}
+                    />
                     <Space className={'flex-100 justify-end'}>
                         <Button type='primary' htmlType='submit'>
                             Save

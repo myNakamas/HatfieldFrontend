@@ -24,20 +24,29 @@ export const getShoppingList = ({ filter }: { filter: InventoryFilter }): Promis
     return backendClient.get('inventory/item/required', { params: filter })
 }
 
-export const setShoppingList = ({
-    shopId,
+export const updateRequiredItemCount = ({
+    id,
+    count,
+    isNeeded,
+}: {
+    id: number
+    count?: number
+    isNeeded?: boolean
+}): Promise<InventoryItem[]> => {
+    if (!count) return Promise.reject()
+    return backendClient.patch('inventory/item/required', {}, { params: { id, count, isNeeded } })
+}
+export const changeNeed = ({ id, isNeeded }: { id: number; isNeeded?: boolean }): Promise<InventoryItem[]> => {
+    return backendClient.patch('inventory/item/changeNeed', {}, { params: { id, need: isNeeded } })
+}
+export const changeMultipleNeed = ({
     ids,
     isNeeded,
 }: {
-    shopId?: number
     ids: string[]
-    isNeeded: boolean
+    isNeeded?: boolean
 }): Promise<InventoryItem[]> => {
-    return backendClient.put('inventory/item/required', ids, { params: { shopId, isNeeded } })
-}
-export const setRequiredItemCount = ({ id, count }: { id: number; count?: number }): Promise<InventoryItem[]> => {
-    if (!count) return Promise.reject()
-    return backendClient.put('inventory/item/required/count', {}, { params: { id, count } })
+    return backendClient.put('inventory/item/changeNeed', ids, { params: { need: isNeeded } })
 }
 
 export const getShopData = (): Promise<Shop> => {
