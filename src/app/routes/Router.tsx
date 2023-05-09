@@ -18,6 +18,8 @@ import { EditShoppingList } from '../pages/shop/EditShoppingList'
 import { ShoppingListView } from '../pages/shop/ShoppingListView'
 import { Inventory } from '../pages/shop/Inventory'
 import { Logs } from '../pages/Logs'
+import { Privacy } from '../pages/Privacy'
+import { About } from '../pages/About'
 
 export const Router = () => {
     return (
@@ -41,6 +43,8 @@ export const Router = () => {
                 <Route path='/invoices/:id' element={<InvoiceView />} />
                 <Route path='/categories' element={<CategorySettings />} />
                 <Route path='/logs' element={<Logs />} />
+                <Route path='/about' element={<About />} />
+                <Route path='/privacy' element={<Privacy />} />
             </Route>
         </Routes>
     )
