@@ -12,7 +12,7 @@ import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { CreateTicket } from '../../../models/interfaces/ticket'
 import { useQuery } from 'react-query'
-import { getAllBrands, getAllModels } from '../../../axios/http/shopRequests'
+import { getAllBrands } from '../../../axios/http/shopRequests'
 import { User } from '../../../models/interfaces/user'
 import { getAllClients } from '../../../axios/http/userRequests'
 import moment from 'moment/moment'
@@ -40,10 +40,11 @@ export const EditTicketForm = ({
         setError,
         reset,
         setValue,
+        watch,
     } = useForm<CreateTicket>({ defaultValues: ticket, resolver: yupResolver(EditTicketSchema) })
-    const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}))
+    const models = brands?.find((b) => b.value === watch('deviceBrand'))?.models ?? []
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [tempText, setTempText] = useState('')
     useEffect(() => {

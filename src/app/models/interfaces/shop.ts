@@ -43,18 +43,14 @@ export interface CreateInventoryItem {
     shopId: number
     price?: number
     model: ItemPropertyView
-    brand: ItemPropertyView
+    brand: Brand
     categoryId: number
     properties: CategoryProperties
 }
 
-type RequiredItemReason = "NEEDED_FOR_TICKET" | "INVENTORY_EMPTY" |"REQUESTED"
-type RequiredItemStatus = "NOT_NEEDED" | "PENDING" |"RECEIVED"
-
 export interface RequiredItem {
-    requiredAmount: number,
-    requiredReason?: RequiredItemReason,
-    status: RequiredItemStatus
+    requiredAmount: number
+    isNeeded: boolean
 }
 
 export interface CategoryProperties {
@@ -67,14 +63,17 @@ export interface Category extends Entity {
     columns: string[]
 }
 export interface ReturnItem {
-    returnCount: number,
+    returnCount: number
     item: InventoryItem
 }
 export interface Log extends Entity {
-    action:string,
-    user:User,
-    timestamp: Date,
-    ticketId: number,
-    itemId: number,
-    tag: string,
+    action: string
+    user: User
+    timestamp: Date
+    ticketId: number
+    itemId: number
+    tag: string
+}
+export interface Brand extends ItemPropertyView {
+    models: ItemPropertyView[]
 }

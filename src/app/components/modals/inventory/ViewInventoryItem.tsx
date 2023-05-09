@@ -3,12 +3,21 @@ import { AppModal } from '../AppModal'
 import { Button, Card, Descriptions, Divider, Space, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons'
-import React, { ReactNode, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
 import { postPrintItemLabel } from '../../../axios/http/documentRequests'
 import { AddUsedItem } from '../ticket/AddUsedItem'
 import { CreateUsedItem } from '../../../models/interfaces/ticket'
+import { useForm } from 'react-hook-form'
+import { TextField } from '../../form/TextField'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { UpdateItemCountSchema } from '../../../models/validators/FormValidators'
+import { updateItemQuantity } from '../../../axios/http/shopRequests'
+import { toast } from 'react-toastify'
+import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
+import { useQueryClient } from 'react-query'
+import { AddInvoice } from '../AddInvoice'
 
 export const ViewInventoryItem = ({
     inventoryItem,
@@ -19,7 +28,7 @@ export const ViewInventoryItem = ({
     closeModal: () => void
     openEditModal?: (item: InventoryItem) => void
 }) => {
-    // const [sellModalOpen, setSellModalOpen] = useState(false)
+    const [sellModalOpen, setSellModalOpen] = useState(false)
     const [isUseModalOpen, setIsUseModalOpen] = useState(false)
     const printSellDocument = async () => {
         const blob = await postPrintItemLabel(inventoryItem?.id)
@@ -40,12 +49,13 @@ export const ViewInventoryItem = ({
                 closeModal={() => setIsUseModalOpen(false)}
                 show={isUseModalOpen}
             />
-            {
-                //todo:Display sell item modal
-                /*inventoryItem && (
-                <SellItem usedItem={inventoryItem} closeModal={() => setSellModalOpen(false)} show={sellModalOpen} />
-            )*/
-            }
+            {inventoryItem && (
+                <AddInvoice
+                    item={inventoryItem}
+                    closeModal={() => setSellModalOpen(false)}
+                    isModalOpen={sellModalOpen}
+                />
+            )}
             {inventoryItem && (
                 <Space direction='vertical' style={{ width: '100%' }}>
                     <ItemDescriptions
@@ -74,7 +84,12 @@ export const ViewInventoryItem = ({
                             <Divider />
                             <Space>
                                 <Typography>Sell as an item</Typography>
-                                <Button icon={<FontAwesomeIcon icon={faShoppingCart} />}>Sell</Button>
+                                <Button
+                                    icon={<FontAwesomeIcon icon={faShoppingCart} />}
+                                    onClick={() => setSellModalOpen(true)}
+                                >
+                                    Sell
+                                </Button>
                             </Space>
                             <Divider />
                             <Space>
@@ -85,6 +100,8 @@ export const ViewInventoryItem = ({
                             </Space>
                         </Card>
                         <Card title={'Modify item quantity'}>
+                            <UpdateItemCountForm item={inventoryItem} onComplete={closeModal} />
+                            <Divider />
                             <Space>
                                 <Typography>Mark as damaged</Typography>
                                 <Button disabled>Remove</Button>
@@ -135,5 +152,41 @@ export const ItemDescriptions = ({ inventoryItem, extra }: { inventoryItem: Inve
                 ))}
             </Descriptions>
         </>
+    )
+}
+
+const UpdateItemCountForm = ({ item, onComplete }: { item: InventoryItem; onComplete: () => void }) => {
+    const queryClient = useQueryClient()
+
+    const {
+        handleSubmit,
+        register,
+        formState: { errors },
+        reset,
+    } = useForm<InventoryItem>({ defaultValues: item, resolver: yupResolver(UpdateItemCountSchema) })
+    const updateCount = (value: InventoryItem) => {
+        toast
+            .promise(updateItemQuantity({ item: value }), toastUpdatePromiseTemplate('item count'), toastProps)
+            .then(() => queryClient.invalidateQueries(['shopItems']).then(onComplete))
+    }
+    useEffect(() => {
+        reset(item)
+    }, [item])
+
+    return (
+        <form onSubmit={handleSubmit(updateCount)} className={'modalForm'}>
+            <Space>
+                <TextField
+                    min={0}
+                    defaultValue={item.count}
+                    register={register('count')}
+                    error={errors.count}
+                    type='number'
+                />
+                <Button type={'primary'} htmlType={'submit'}>
+                    Update
+                </Button>
+            </Space>
+        </form>
     )
 }

@@ -28,10 +28,12 @@ export interface CreateTicketInvoice {
 }
 
 export interface CreateInvoice {
-    type?: InvoiceType
-    deviceModel?: string
-    deviceBrand?: string
-    serialNumber?: string
+    itemId?: number
+    type: InvoiceType
+    deviceModel: string
+    deviceBrand: string
+    serialNumber: string
+    count: number
     notes?: string
     totalPrice: number
     clientId?: string

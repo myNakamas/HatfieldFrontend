@@ -4,15 +4,18 @@ import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
 import { InventoryItem } from '../../models/interfaces/shop'
 import { ViewInventoryItem } from '../../components/modals/inventory/ViewInventoryItem'
-import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { getShoppingList, setShoppingList, useGetShopItems } from '../../axios/http/shopRequests'
+import { useQuery, useQueryClient } from 'react-query'
+import { changeMultipleNeed, changeNeed, getShoppingList, useGetShopItems } from '../../axios/http/shopRequests'
 import { Button, Space, Table, Transfer } from 'antd'
 import { TransferDirection } from 'antd/es/transfer'
 import { defaultPage } from '../../models/enums/defaultValues'
 import { TableRowSelection } from 'antd/es/table/interface'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faListCheck, faPen } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRight, faListCheck, faPen } from '@fortawesome/free-solid-svg-icons'
 import { EditRequiredItem } from '../../components/modals/inventory/EditRequiredItem'
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft'
+import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
+import { toast } from 'react-toastify'
 
 const getInventoryItemKey = (item: InventoryItem) => String(item.id)
 const nonRequiredColumns = [
@@ -31,6 +34,11 @@ const requiredColumns = [
     { dataIndex: 'action', title: 'Actions' },
 ]
 
+export interface ItemRequest {
+    itemId: string
+    count: number
+}
+
 export const EditShoppingList = () => {
     const queryClient = useQueryClient()
     const navigate = useNavigate()
@@ -45,18 +53,27 @@ export const EditShoppingList = () => {
     const { data: neededItems } = useQuery(['shopItems', 'shoppingList', filter], () => getShoppingList({ filter }), {
         suspense: true,
     })
-    const { mutate: updateShoppingList } = useMutation(['shoppingList'], setShoppingList, {
-        onSuccess: () => queryClient.invalidateQueries(['shopItems']),
-    })
 
     const [selectedKeys, setSelectedKeys] = useState<string[]>([])
 
     const onChange = (nextTargetKeys: string[], direction: TransferDirection, moveKeys: string[]) => {
-        updateShoppingList({ shopId: loggedUser?.shopId, ids: moveKeys, isNeeded: direction === 'right' })
+        toast
+            .promise(
+                changeMultipleNeed({ ids: moveKeys, isNeeded: direction === 'right' }),
+                toastUpdatePromiseTemplate('status'),
+                toastProps
+            )
+            .then(() => queryClient.invalidateQueries(['shopItems']))
     }
 
     const onSelectChange = (sourceSelectedKeys: string[], targetSelectedKeys: string[]) => {
         setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys])
+    }
+
+    const updateNeeded = (id: any, isNeeded: boolean) => {
+        toast
+            .promise(changeNeed({ id, isNeeded }), toastUpdatePromiseTemplate('status'), toastProps)
+            .then(() => queryClient.invalidateQueries(['shopItems']))
     }
 
     return (
@@ -64,7 +81,10 @@ export const EditShoppingList = () => {
             <ViewInventoryItem inventoryItem={selectedItem} closeModal={() => setSelectedItem(undefined)} />
             <EditRequiredItem inventoryItem={editRequiredItem} closeModal={() => setEditRequiredItem(undefined)} />
             <Space className={'button-bar'}>
-                <Button icon={<FontAwesomeIcon icon={faListCheck} />} onClick={()=>navigate(`/inventory/${filter.shopId}/shopping-list`)}>
+                <Button
+                    icon={<FontAwesomeIcon icon={faListCheck} />}
+                    onClick={() => navigate(`/inventory/${filter.shopId}/shopping-list`)}
+                >
                     View the shopping list
                 </Button>
             </Space>
@@ -85,6 +105,7 @@ export const EditShoppingList = () => {
                     selectedKeys: listSelectedKeys,
                     disabled: listDisabled,
                 }) => {
+                    const required = direction === 'right'
                     const rowSelection: TableRowSelection<InventoryItem> = {
                         onSelectAll(selected, selectedRows) {
                             onItemSelectAll(selectedRows.map(getInventoryItemKey), selected)
@@ -98,10 +119,38 @@ export const EditShoppingList = () => {
                         ...item,
                         ...item.requiredItem,
                         missingCount: Math.max((item.requiredItem?.requiredAmount ?? item.count) - item.count, 0),
-                        action:<Button
-                            icon={<FontAwesomeIcon icon={faPen} />}
-                            onClick={() => setEditRequiredItem(item)}
-                        />
+                        action: (
+                            <Space>
+                                <Button
+                                    icon={<FontAwesomeIcon icon={faPen} />}
+                                    onClick={() => setEditRequiredItem(item)}
+                                />
+                                {required &&
+                                    item.requiredItem?.requiredAmount &&
+                                    item.count < item.requiredItem?.requiredAmount && (
+                                        <Button
+                                            icon={<FontAwesomeIcon icon={faArrowLeft} />}
+                                            onClick={() => {
+                                                updateNeeded(item.id, false)
+                                            }}
+                                        >
+                                            Mark as not required
+                                        </Button>
+                                    )}
+                                {!required &&
+                                    item.requiredItem?.requiredAmount &&
+                                    item.count < item.requiredItem?.requiredAmount && (
+                                        <Button
+                                            icon={<FontAwesomeIcon icon={faArrowRight} />}
+                                            onClick={() => {
+                                                updateNeeded(item.id, true)
+                                            }}
+                                        >
+                                            Mark as required
+                                        </Button>
+                                    )}
+                            </Space>
+                        ),
                     }))
                     return (
                         <Table<InventoryItem>

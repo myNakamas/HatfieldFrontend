@@ -1,7 +1,7 @@
 import backendClient from '../backendClient'
 import { ItemPropertyView, Page, PageRequest } from '../../models/interfaces/generalModels'
 import { Filter, InventoryFilter } from '../../models/interfaces/filters'
-import { Category, CreateInventoryItem, InventoryItem, Log, Shop } from '../../models/interfaces/shop'
+import { Brand, Category, CreateInventoryItem, InventoryItem, Log, Shop } from '../../models/interfaces/shop'
 
 export const getAllShops = (): Promise<Shop[]> => {
     return backendClient.get('shop/admin/all')
@@ -24,20 +24,29 @@ export const getShoppingList = ({ filter }: { filter: InventoryFilter }): Promis
     return backendClient.get('inventory/item/required', { params: filter })
 }
 
-export const setShoppingList = ({
-    shopId,
+export const updateRequiredItemCount = ({
+    id,
+    count,
+    isNeeded,
+}: {
+    id: number
+    count?: number
+    isNeeded?: boolean
+}): Promise<InventoryItem[]> => {
+    if (!count) return Promise.reject()
+    return backendClient.patch('inventory/item/required', {}, { params: { id, count, isNeeded } })
+}
+export const changeNeed = ({ id, isNeeded }: { id: number; isNeeded?: boolean }): Promise<InventoryItem[]> => {
+    return backendClient.patch('inventory/item/changeNeed', {}, { params: { id, need: isNeeded } })
+}
+export const changeMultipleNeed = ({
     ids,
     isNeeded,
 }: {
-    shopId?: number
     ids: string[]
-    isNeeded: boolean
+    isNeeded?: boolean
 }): Promise<InventoryItem[]> => {
-    return backendClient.put('inventory/item/required', ids, { params: { shopId, isNeeded } })
-}
-export const setRequiredItemCount = ({ id, count }: { id: number; count?: number }): Promise<InventoryItem[]> => {
-    if(!count) return Promise.reject();
-    return backendClient.put('inventory/item/required/count', {}, { params: { id, count } })
+    return backendClient.put('inventory/item/changeNeed', ids, { params: { need: isNeeded } })
 }
 
 export const getShopData = (): Promise<Shop> => {
@@ -56,7 +65,7 @@ export const createShop = (value: Shop): Promise<Shop> => {
 export const getAllModels = (): Promise<ItemPropertyView[]> => {
     return backendClient.get('inventory/model/all')
 }
-export const getAllBrands = (): Promise<ItemPropertyView[]> => {
+export const getAllBrands = (): Promise<Brand[]> => {
     return backendClient.get('inventory/brand/all')
 }
 export const addNewItem = ({
@@ -70,6 +79,12 @@ export const addNewItem = ({
 export const putUpdateItem = ({ item }: { item: CreateInventoryItem }) => {
     return backendClient.post('inventory/item/update', item)
 }
+export const fetchItemById = (params: { id?: number }): Promise<InventoryItem> => {
+    return backendClient.get('inventory/item', { params })
+}
+export const updateItemQuantity = ({ item }: { item: InventoryItem }) => {
+    return backendClient.post('inventory/item/updateQuantity', item)
+}
 
 export const getAllCategories = (): Promise<Category[]> => {
     return backendClient.get('category/all')
@@ -82,6 +97,6 @@ export const updateCategory = (category: Category): Promise<Category> => {
 export const addCategory = (category: Category): Promise<Category> => {
     return backendClient.post('category/admin/create', category)
 }
-export const getAllLogs = ({filter,page}:{filter:Filter, page:PageRequest}):Promise<Page<Log>> => {
-    return backendClient.get('logs/all', {params:{...filter,...page}})
+export const getAllLogs = ({ filter, page }: { filter: Filter; page: PageRequest }): Promise<Page<Log>> => {
+    return backendClient.get('logs/all', { params: { ...filter, ...page } })
 }

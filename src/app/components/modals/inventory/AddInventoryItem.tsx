@@ -2,14 +2,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { AddItemInventorySchema } from '../../../models/validators/FormValidators'
 import { Category, CreateInventoryItem } from '../../../models/interfaces/shop'
-import {
-    addCategory,
-    addNewItem,
-    getAllBrands,
-    getAllCategories,
-    getAllModels,
-    getShopData,
-} from '../../../axios/http/shopRequests'
+import { addCategory, addNewItem, getAllBrands, getAllCategories, getShopData } from '../../../axios/http/shopRequests'
 import { useQuery, useQueryClient } from 'react-query'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
@@ -31,7 +24,6 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
     const formRef = useRef<HTMLFormElement>(null)
 
     const queryClient = useQueryClient()
-    const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: categories } = useQuery(['allCategories'], getAllCategories)
     const { data: shop } = useQuery(['currentShop'], getShopData)
@@ -47,10 +39,12 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
         watch,
         setValue,
         reset,
+        resetField
     } = useForm<CreateInventoryItem>({
         resolver: yupResolver(AddItemInventorySchema),
         defaultValues: { shopId: shop?.id },
     })
+    const models = watch('brand')?.models ?? []
 
     const onCreateCategory = (formValue: Category) => {
         return addCategory(formValue).then((category) => {
@@ -68,6 +62,7 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                     closeModal()
                     reset({})
                     queryClient.invalidateQueries(['shopItems']).then()
+                    queryClient.invalidateQueries(['brands']).then()
                 })
                 .catch((error) => {
                     setError('root', error)
@@ -158,7 +153,10 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                                 placeholder='Select or add a new brand'
                                 value={field.value as unknown as ItemPropertyView}
                                 onCreateOption={(item) => field.onChange({ value: item })}
-                                onChange={(newValue) => field.onChange(newValue)}
+                                onChange={(newValue) => {
+                                    resetField('model')
+                                    field.onChange(newValue)
+                                }}
                                 getOptionLabel={(item) => item.value}
                                 getOptionValue={(item) => item.id + item.value}
                             />
@@ -175,9 +173,12 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                                 theme={SelectTheme}
                                 styles={SelectStyles<ItemPropertyView>()}
                                 options={models}
-                                placeholder='Select or add a new brand'
-                                formatCreateLabel={(value) => 'Create new model ' + value}
-                                value={field.value as unknown as ItemPropertyView}
+                                placeholder='Select or add a new model'
+                                noOptionsMessage={() =>
+                                    watch('brand') ? 'No models available' : 'Please select a brand'
+                                }
+                                formatCreateLabel={(value) => `Create new model '${value}'`}
+                                value={field.value ?? null}
                                 onCreateOption={(item) => field.onChange({ value: item })}
                                 onChange={(newValue) => field.onChange(newValue)}
                                 getOptionLabel={(item) => item.value}

@@ -103,11 +103,11 @@ export const Tickets = () => {
             />
             <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} />
             <TicketFilters {...{ filter, setFilter }} />
-            <div className='button-bar'>
+            <Space className='button-bar'>
                 <Button type={'primary'} onClick={() => setShowNewModal(true)}>
                     Add Ticket
                 </Button>
-            </div>
+            </Space>
             <Tabs
                 animated
                 defaultActiveKey='active'
@@ -320,8 +320,8 @@ const TicketFilters = ({
                     setFilter={({ from, to }) => {
                         setFilter((oldVal) => ({
                             ...oldVal,
-                            createdAfter: from?.slice(0, 10) ?? oldVal.createdAfter,
-                            createdBefore: to?.slice(0, 10) ?? oldVal.createdBefore,
+                            createdAfter: from?.slice(0, 10) ?? undefined,
+                            createdBefore: to?.slice(0, 10) ?? undefined,
                         }))
                     }}
                     placeholder={'Created'}
@@ -331,8 +331,8 @@ const TicketFilters = ({
                     setFilter={({ from, to }) => {
                         setFilter((oldVal) => ({
                             ...oldVal,
-                            deadlineAfter: from?.slice(0, 10) ?? oldVal.deadlineAfter,
-                            deadlineBefore: to?.slice(0, 10) ?? oldVal.deadlineBefore,
+                            deadlineAfter: from?.slice(0, 10) ?? undefined,
+                            deadlineBefore: to?.slice(0, 10) ?? undefined,
                         }))
                     }}
                     placeholder={'Deadline'}

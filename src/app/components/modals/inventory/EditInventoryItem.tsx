@@ -6,7 +6,6 @@ import {
     addCategory,
     getAllBrands,
     getAllCategories,
-    getAllModels,
     getShopData,
     putUpdateItem,
 } from '../../../axios/http/shopRequests'
@@ -37,7 +36,6 @@ export const EditInventoryItem = ({
     item?: InventoryItem
 }) => {
     const queryClient = useQueryClient()
-    const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: categories } = useQuery(['allCategories'], getAllCategories)
     const { data: shop } = useQuery(['currentShop'], getShopData)
@@ -56,10 +54,12 @@ export const EditInventoryItem = ({
         resolver: yupResolver(EditItemInventorySchema),
         defaultValues: item,
     })
+    const models = brands?.find((b) => b.value === watch('brand'))?.models ?? []
 
     const onCreateCategory = (formValue: Category) => {
         return addCategory(formValue).then((category) => {
             setShowModal(false)
+            queryClient.invalidateQueries(['brands']).then()
             queryClient.invalidateQueries(['allCategories']).then(() => setValue('categoryView', category))
         })
     }

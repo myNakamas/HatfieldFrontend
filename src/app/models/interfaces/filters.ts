@@ -23,6 +23,7 @@ export interface InventoryFilter extends Filter {
     shopId?: number
     categoryId?: number
     isNeeded?: boolean
+    inShoppingList?: boolean
 }
 
 export interface TicketFilter extends Filter {

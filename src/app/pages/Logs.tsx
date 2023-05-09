@@ -20,9 +20,9 @@ export const Logs = () => {
     const [filter, setFilter] = useState<Filter>({})
     return (
         <div className='mainPage'>
-            <div className='button-bar'>
+            <Space className='button-bar'>
                 <LogsFilters filter={filter} setFilter={setFilter} />
-            </div>
+            </Space>
             <Suspense fallback={<InfinitySpin />}>
                 <LogsInner {...{ filter, page, setPage }} />
             </Suspense>

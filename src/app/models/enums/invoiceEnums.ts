@@ -5,6 +5,7 @@ import { faMoneyBill } from '@fortawesome/free-solid-svg-icons/faMoneyBill'
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons/faCreditCard'
 import { faDollar } from '@fortawesome/free-solid-svg-icons/faDollar'
 import { faHeadset } from '@fortawesome/free-solid-svg-icons/faHeadset'
+import { CreateInvoice } from '../interfaces/invoice'
 
 export type InvoiceType = 'REPAIR' | 'BUY' | 'SELL' | 'ACCESSORIES'
 export const InvoiceTypes = Array('REPAIR', 'BUY', 'SELL', 'ACCESSORIES')
@@ -50,3 +51,8 @@ export const paymentMethodIcon = {
     CARD: faCreditCard,
     COMBINED: faDollar,
 }
+
+export const defaultInvoice = {
+    itemId: null,
+    warrantyPeriod: 'ONE_MONTH',
+} as unknown as CreateInvoice
