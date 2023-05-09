@@ -30,6 +30,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons/faPen'
 import { DragEndEvent } from '@dnd-kit/core'
 import { TicketTable } from '../../../components/table/TicketTable'
+import { getUserString } from '../../../utils/helperFunctions'
 
 export const Tickets = () => {
     const [params] = useSearchParams()
@@ -287,7 +288,7 @@ const TicketFilters = ({
                     placeholder='Filter by client'
                     isClearable
                     onChange={(value) => setFilter({ ...filter, clientId: value?.userId ?? undefined })}
-                    getOptionLabel={(client) => client.username}
+                    getOptionLabel={getUserString}
                     getOptionValue={(client) => String(client.userId)}
                 />
                 <Select<User, false>
@@ -298,7 +299,7 @@ const TicketFilters = ({
                     placeholder='Filter by ticket creator'
                     isClearable
                     onChange={(value) => setFilter({ ...filter, createdById: value?.userId ?? undefined })}
-                    getOptionLabel={(user) => user.username}
+                    getOptionLabel={getUserString}
                     getOptionValue={(user) => String(user.userId)}
                 />
                 <Select<Shop, false>

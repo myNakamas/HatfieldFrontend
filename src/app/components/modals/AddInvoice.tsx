@@ -30,6 +30,7 @@ import { toastCreatePromiseTemplate, toastProps } from './ToastProps'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import { FormError } from '../form/FormError'
+import { getUserString } from '../../utils/helperFunctions'
 
 export const AddInvoice = ({
     item,
@@ -111,7 +112,7 @@ export const AddInvoice = ({
                                     placeholder='Client'
                                     value={clients?.find(({ userId }) => field.value === userId) ?? null}
                                     onChange={(newValue) => field.onChange(newValue?.userId)}
-                                    getOptionLabel={(item) => [item.fullName, item.email].join(' ')}
+                                    getOptionLabel={getUserString}
                                     getOptionValue={(item) => item.userId}
                                 />
                             </FormField>

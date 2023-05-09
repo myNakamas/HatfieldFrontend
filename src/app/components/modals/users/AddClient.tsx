@@ -92,7 +92,7 @@ export const AddClient = ({
                         defaultValue={''}
                         register={register('fullName')}
                         error={errors.fullName}
-                        label={'FullName'}
+                        label={'Full name'}
                     />
                     <UserForm {...{ register, control, watch, setValue, getValues, errors }} />
                     {loggedUser?.role === 'ADMIN' && (

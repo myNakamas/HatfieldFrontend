@@ -20,6 +20,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { AddClient } from './users/AddClient'
 import { TicketInvoiceSchema } from '../../models/validators/FormValidators'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { getUserString } from '../../utils/helperFunctions'
 
 export const AddTicketInvoice = ({
     ticketId,
@@ -99,7 +100,7 @@ export const AddTicketInvoice = ({
                                 placeholder='Client'
                                 value={clients?.find(({ userId }) => field.value === userId) ?? null}
                                 onChange={(newValue) => field.onChange(newValue?.userId)}
-                                getOptionLabel={(item) => [item.fullName, item.email].join(' ')}
+                                getOptionLabel={getUserString}
                                 getOptionValue={(item) => item.userId}
                             />
                         </FormField>
