@@ -21,9 +21,7 @@ import { EditUser } from '../../components/modals/users/EditUser'
 
 export const Users = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
-    const tourRef1 = useRef(null)
-    const tourRef2 = useRef(null)
-    const tourRef3 = useRef(null)
+    const refsArray = Array.from({ length: 4 }, () => useRef(null))
 
     const [viewUser, setViewUser] = useState<User | undefined>()
     const [selectedUser, setSelectedUser] = useState<User | undefined>()
@@ -44,40 +42,40 @@ export const Users = () => {
         {
             key: '1',
             label: 'Workers',
-            children: <UsersTab {...{ users: workers, setSelectedUser, setViewUser, tourRef: tourRef3 }} showBan />,
+            children: <UsersTab {...{ users: workers, setSelectedUser, setViewUser, tourRef: refsArray[3] }} showBan />,
         },
         {
             key: '2',
             label: 'Clients',
-            children: <UsersTab {...{ users: clients, setSelectedUser, setViewUser, tourRef: tourRef3 }} showBan />,
+            children: <UsersTab {...{ users: clients, setSelectedUser, setViewUser, tourRef: refsArray[3] }} showBan />,
         },
         {
             key: '3',
             label: 'Banned users',
-            children: <UsersTab {...{ users: banned, setSelectedUser, setViewUser, tourRef: tourRef3 }} />,
+            children: <UsersTab {...{ users: banned, setSelectedUser, setViewUser, tourRef: refsArray[3] }} />,
         },
     ]
 
     return (
-        <div className='mainScreen'>
+        <div className='mainScreen' >
             <AddUser isModalOpen={showCreateModal} closeModal={() => setShowCreateModal(false)} />
             <EditUser user={selectedUser} isModalOpen={!!selectedUser} closeModal={() => setSelectedUser(undefined)} />
 
             <ViewUser user={viewUser} closeModal={() => setViewUser(undefined)} />
             <UserFilters {...{ filter, setFilter }} />
             <Space className='align-center button-bar'>
-                <Button ref={tourRef1} onClick={() => setShowCreateModal(true)}>
+                <Button ref={refsArray[1]} onClick={() => setShowCreateModal(true)}>
                     Add a new user
                 </Button>
             </Space>
-            <div className='tableWrapper' ref={tourRef2}>
+            <div className='tableWrapper' ref={refsArray[2]}>
                 <Tabs animated defaultActiveKey='active' items={tabs} />
             </div>
             <Tour
                 type={'primary'}
                 open={tourIsOpen}
                 onClose={() => setTourIsOpen(false)}
-                steps={userTourSteps([tourRef1, tourRef2, tourRef3])}
+                steps={userTourSteps(refsArray)}
             />
             <FloatButton
                 tooltip={'Take a tour!'}

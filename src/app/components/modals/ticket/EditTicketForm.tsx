@@ -22,6 +22,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
 import { EditTicketSchema } from '../../../models/validators/FormValidators'
+import { getUserString } from '../../../utils/helperFunctions'
 
 export const EditTicketForm = ({
     ticket,
@@ -106,9 +107,7 @@ export const EditTicketForm = ({
                                         placeholder='Client'
                                         value={clients?.find(({ userId }) => field.value === userId) ?? null}
                                         onChange={(newValue) => field.onChange(newValue?.userId)}
-                                        getOptionLabel={(item) =>
-                                            [item.fullName, item.email, ...(item.phones ?? [])].join(' ')
-                                        }
+                                        getOptionLabel={getUserString}
                                         getOptionValue={(item) => item.userId}
                                     />
                                 </FormField>

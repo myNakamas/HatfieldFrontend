@@ -1,6 +1,7 @@
 import { RcFile } from 'antd/es/upload'
 import { ChatMessage } from '../models/interfaces/ticket'
 import moment from 'moment/moment'
+import { User } from '../models/interfaces/user'
 
 export const capitalizeFirst = (str: string | undefined) => {
     return str?.substring(0, 1).toUpperCase().concat(str?.substring(1).toLowerCase())
@@ -28,4 +29,8 @@ export const generateDaysArray = (startDate?: string, endDate?: string): moment.
     }
 
     return daysArray
+}
+
+export const getUserString = (user:User) => {
+    return `${user?.fullName} ${user?.email} ${user.phones?.join(',')}`
 }

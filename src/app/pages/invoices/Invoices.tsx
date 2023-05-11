@@ -21,6 +21,7 @@ import { User } from '../../models/interfaces/user'
 import { DateTimeFilter } from '../../components/filters/DateTimeFilter'
 import { AddInvoice } from '../../components/modals/AddInvoice'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
+import { getUserString } from '../../utils/helperFunctions'
 
 export const Invoices = () => {
     const navigate = useNavigate()
@@ -171,7 +172,7 @@ function InvoiceFilters({
                     placeholder='Filter by client'
                     isClearable
                     onChange={(value) => setFilter({ ...filter, clientId: value?.userId ?? undefined })}
-                    getOptionLabel={(client) => client.username}
+                    getOptionLabel={getUserString}
                     getOptionValue={(client) => String(client.userId)}
                 />
                 <Select<User, false>
@@ -182,7 +183,7 @@ function InvoiceFilters({
                     placeholder='Filter by creator'
                     isClearable
                     onChange={(value) => setFilter({ ...filter, createdById: value?.userId ?? undefined })}
-                    getOptionLabel={(user) => user.username}
+                    getOptionLabel={getUserString}
                     getOptionValue={(user) => String(user.userId)}
                 />
                 <Select<Shop, false>

@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan'
 import { SearchComponent } from '../../components/filters/SearchComponent'
 import { UserFilter } from '../../models/interfaces/filters'
-import { userTourSteps } from '../../models/enums/userEnums'
+import { clientsTourSteps, userTourSteps } from '../../models/enums/userEnums'
 import { Button, FloatButton, Popconfirm, Space, Switch, Tour } from 'antd'
 import { faPen, faPlus, faQuestion } from '@fortawesome/free-solid-svg-icons'
 import { ViewUser } from '../../components/modals/users/ViewUser'
@@ -20,9 +20,7 @@ import { EditClient } from '../../components/modals/users/EditClient'
 
 export const Clients = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
-    const tourRef1 = useRef(null)
-    const tourRef2 = useRef(null)
-    const tourRef3 = useRef(null)
+    const refsArray = Array.from({ length: 4 }, () => useRef(null));
     const { loggedUser } = useContext(AuthContext)
 
     const [viewUser, setViewUser] = useState<User | undefined>()
@@ -38,7 +36,7 @@ export const Clients = () => {
     const { data: clients } = useQuery(['users', 'clients', filter], () => getAllClients({ filter }))
 
     return (
-        <div className='mainScreen'>
+        <div className='mainScreen' ref={refsArray[0]}>
             <AddClient isModalOpen={showCreateModal} closeModal={() => setShowCreateModal(false)} />
             <EditClient
                 client={selectedUser}
@@ -51,13 +49,13 @@ export const Clients = () => {
             <Space className='align-center button-bar'>
                 <Button
                     icon={<FontAwesomeIcon icon={faPlus} />}
-                    ref={tourRef1}
+                    ref={refsArray[1]}
                     onClick={() => setShowCreateModal(true)}
                 >
                     Add a new client
                 </Button>
             </Space>
-            <div className='tableWrapper' ref={tourRef2}>
+            <div className='tableWrapper' ref={refsArray[2]}>
                 {clients && clients.length > 0 ? (
                     <CustomTable<User>
                         headers={{
@@ -75,7 +73,7 @@ export const Clients = () => {
                                 actions: (
                                     <Space>
                                         <Button
-                                            ref={tourRef3}
+                                            ref={refsArray[3]}
                                             onClick={() => setSelectedUser(user)}
                                             icon={<FontAwesomeIcon icon={faPen} />}
                                         />
@@ -104,7 +102,7 @@ export const Clients = () => {
                 type={'primary'}
                 open={tourIsOpen}
                 onClose={() => setTourIsOpen(false)}
-                steps={userTourSteps([tourRef1, tourRef2, tourRef3])}
+                steps={clientsTourSteps(refsArray)}
             />
             <FloatButton
                 tooltip={'Take a tour!'}
