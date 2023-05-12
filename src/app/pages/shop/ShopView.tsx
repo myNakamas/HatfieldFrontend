@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { getShopById, updateShop } from '../../axios/http/shopRequests'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Shop, ShopSettingsModel } from '../../models/interfaces/shop'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
@@ -18,6 +18,7 @@ import { Button, Space } from 'antd'
 
 export const ShopView = () => {
     const { id } = useParams()
+    const navigate = useNavigate()
     const { colors } = useContext(ThemeContext)
     const queryClient = useQueryClient()
     const { data: shop, isLoading } = useQuery(['shop', id], () => getShopById(Number(id)), {
@@ -60,7 +61,7 @@ export const ShopView = () => {
                 { pending: 'Sending', success: 'Edited shop successfully', error: 'Failed ' },
                 toastProps
             )
-            .then()
+            .then(() => navigate('/shops/'))
     }
 
     useEffect(() => {
@@ -159,8 +160,8 @@ export const ShopView = () => {
                         <Button type='primary' onClick={handleSubmit(submitShop)}>
                             Save
                         </Button>
-                        <Button htmlType='button' onClick={() => resetForm(shop)}>
-                            Reset
+                        <Button htmlType='button' onClick={() => navigate('/shops/')}>
+                            Cancel
                         </Button>
                     </div>
                 </form>
