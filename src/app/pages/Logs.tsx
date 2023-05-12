@@ -9,11 +9,12 @@ import { Space } from 'antd'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../styles/components/stylesTS'
 import { DateTimeFilter } from '../components/filters/DateTimeFilter'
-import { PageRequest } from '../models/interfaces/generalModels'
+import { ItemPropertyView, PageRequest } from '../models/interfaces/generalModels'
 import dateFormat from 'dateformat'
 import { NoDataComponent } from '../components/table/NoDataComponent'
 import { InfinitySpin } from 'react-loader-spinner'
 import { LogDetails } from '../components/modals/LogDetails'
+import { LogType, LogTypeList } from '../models/enums/logEnums'
 
 export const Logs = () => {
     const [page, setPage] = useState(defaultPage)
@@ -53,7 +54,7 @@ const LogsInner = ({
                         username: user?.fullName,
                         user,
                     }))}
-                    headers={{ action: 'Message', username: 'User', timestamp: 'Created at' }}
+                    headers={{ action: 'Message', type: 'Log type', username: 'User', timestamp: 'Created at' }}
                     pagination={page}
                     onPageChange={setPage}
                     onClick={setSelectedLog}
@@ -72,7 +73,6 @@ const LogsFilters = ({
     setFilter: React.Dispatch<React.SetStateAction<LogsFilter>>
 }) => {
     const { data: shops } = useQuery('shops', getAllShops)
-
     return (
         <Space>
             <div className='filterField'>
@@ -86,6 +86,19 @@ const LogsFilters = ({
                     onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
                     getOptionLabel={(shop) => shop.shopName}
                     getOptionValue={(shop) => String(shop.id)}
+                />
+            </div>
+            <div className='filterField'>
+                <Select<ItemPropertyView, false>
+                    theme={SelectTheme}
+                    styles={SelectStyles()}
+                    value={LogTypeList.find(({ value }) => value === filter.type) ?? null}
+                    options={LogTypeList}
+                    placeholder='Filter by type'
+                    isClearable
+                    onChange={(value) => setFilter({ ...filter, type: value?.value as LogType })}
+                    getOptionLabel={(item) => item.value}
+                    getOptionValue={(item) => String(item.value)}
                 />
             </div>
             <DateTimeFilter filter={filter} setFilter={setFilter} />
