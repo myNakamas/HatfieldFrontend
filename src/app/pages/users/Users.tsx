@@ -57,7 +57,7 @@ export const Users = () => {
     ]
 
     return (
-        <div className='mainScreen' >
+        <div className='mainScreen'>
             <AddUser isModalOpen={showCreateModal} closeModal={() => setShowCreateModal(false)} />
             <EditUser user={selectedUser} isModalOpen={!!selectedUser} closeModal={() => setSelectedUser(undefined)} />
 
@@ -125,7 +125,7 @@ const UsersTab = ({
                             {showBan && (
                                 <Popconfirm
                                     title='Ban user'
-                                    description='Are you sure to ban this user?'
+                                    description='Do you want to ban this user?'
                                     onConfirm={() => {
                                         banClient(user.userId, true).then(() => {
                                             queryClient.invalidateQueries(['users']).then()

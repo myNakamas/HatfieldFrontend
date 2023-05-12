@@ -50,6 +50,7 @@ export interface InvoiceFilter extends Filter {
     createdBefore?: string
     createdAfter?: string
     type?: InvoiceType
+    valid?: boolean
 }
 export interface LogsFilter extends Filter {
     shopId?: number

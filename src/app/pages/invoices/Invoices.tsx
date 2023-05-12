@@ -10,7 +10,7 @@ import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { getAllInvoices, getInvoicePdf } from '../../axios/http/invoiceRequests'
 import dateFormat from 'dateformat'
 import { InvoiceType, invoiceTypeIcon, InvoiceTypesArray, paymentMethodIcon } from '../../models/enums/invoiceEnums'
-import { Button, Skeleton, Space } from 'antd'
+import { Button, Skeleton, Space, Switch } from 'antd'
 import { faPrint } from '@fortawesome/free-solid-svg-icons'
 import { getAllBrands, getAllModels, getAllShops } from '../../axios/http/shopRequests'
 import { getAllClients, getAllWorkers } from '../../axios/http/userRequests'
@@ -22,10 +22,11 @@ import { DateTimeFilter } from '../../components/filters/DateTimeFilter'
 import { AddInvoice } from '../../components/modals/AddInvoice'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 import { getUserString } from '../../utils/helperFunctions'
+import { FormField } from '../../components/form/Field'
 
 export const Invoices = () => {
     const navigate = useNavigate()
-    const [filter, setFilter] = useState<InvoiceFilter>({})
+    const [filter, setFilter] = useState<InvoiceFilter>({ valid: true })
     const [addInvoiceModalOpen, setAddInvoiceModalOpen] = useState(false)
     const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
     const { data: invoices, isLoading } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }))
@@ -211,6 +212,11 @@ function InvoiceFilters({
                     }}
                     placeholder={'Created'}
                 />
+                <div>
+                    <FormField label='Valid invoices filter'>
+                        <Switch checked={filter.valid} onChange={(value) => setFilter({ ...filter, valid: value })} />
+                    </FormField>
+                </div>
             </div>
         </div>
     ) : (
