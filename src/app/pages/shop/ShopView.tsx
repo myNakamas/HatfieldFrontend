@@ -79,10 +79,16 @@ export const ShopView = () => {
                         <TextField
                             label={'Company Email'}
                             register={register('email')}
+                            inputMode={'email'}
                             error={errors.email}
                             type='email'
                         />
-                        <TextField label={'Phone number'} register={register('phone')} error={errors.phone} />
+                        <TextField
+                            label={'Phone number'}
+                            register={register('phone')}
+                            inputMode={'tel'}
+                            error={errors.phone}
+                        />
                         <TextField label={'REG number'} register={register('regNumber')} error={errors.regNumber} />
                         <TextField label={'VAT number'} register={register('vatNumber')} error={errors.vatNumber} />
                     </div>
@@ -138,6 +144,7 @@ export const ShopView = () => {
                     <div className='card'>
                         <TextField
                             label='Notification email'
+                            inputMode={'email'}
                             register={register('shopSettingsView.gmail')}
                             error={errors.shopSettingsView?.gmail}
                         />

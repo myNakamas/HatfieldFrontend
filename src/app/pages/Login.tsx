@@ -1,6 +1,6 @@
 import { UsernamePassword } from '../models/interfaces/user'
 import { LoginSchema } from '../models/validators/FormValidators'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useLogin } from '../axios/http/userRequests'
 import { useContext, useEffect } from 'react'
 import { AuthContext } from '../contexts/AuthContext'
@@ -12,10 +12,11 @@ import { TextField } from '../components/form/TextField'
 import { FormError } from '../components/form/FormError'
 
 export const Login = () => {
+    const [params] = useSearchParams()
     const { login } = useContext(AuthContext)
     const navigate = useNavigate()
     const { state } = useLocation()
-    const pageToRedirectTo = state?.from ?? '/welcome'
+    const pageToRedirectTo = state?.from && state?.from !== '/login' ? state.from : '/welcome'
     const {
         register,
         handleSubmit,
@@ -27,6 +28,7 @@ export const Login = () => {
         useLogin(formValues)
             .then(({ user, token }) => {
                 login(user, token)
+                console.log(pageToRedirectTo)
                 navigate(pageToRedirectTo, { replace: true })
             })
             .catch(() => {
@@ -34,6 +36,9 @@ export const Login = () => {
             })
     }
     useEffect(() => {
+        if (params.has('username') && params.has('password')) {
+            onSubmit({ username: params.get('username'), password: params.get('password') } as UsernamePassword)
+        }
         if (localStorage.getItem('token')) navigate(pageToRedirectTo, { replace: true })
     }, [])
 
@@ -45,12 +50,18 @@ export const Login = () => {
                 </div>
                 <h2>Sign in</h2>
 
-                <TextField register={register('username')} error={errors.username} placeholder='Username*' />
+                <TextField
+                    register={register('username')}
+                    error={errors.username}
+                    placeholder='Username*'
+                    autoComplete='username'
+                />
                 <TextField
                     register={register('password')}
                     error={errors.password}
                     placeholder='Password*'
                     type='password'
+                    autoComplete='current-password'
                 />
                 <FormError error={errors?.root?.message} />
                 <button className='button' type='submit'>

@@ -37,6 +37,7 @@ export const UserForm = ({
                 defaultValue={''}
                 register={register('email')}
                 error={errors.email}
+                inputMode={'email'}
                 label={'Email'}
                 type='email'
             />
@@ -53,6 +54,7 @@ export const UserForm = ({
                             key={index}
                             register={register(`phones.${index}`)}
                             placeholder={'Add phone'}
+                            inputMode={'tel'}
                             error={error}
                             button={
                                 <Button
