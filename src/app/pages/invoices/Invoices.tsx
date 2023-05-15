@@ -94,6 +94,7 @@ export const Invoices = () => {
                             warrantyPeriod: 'Warranty period',
                             actions: 'Actions',
                         }}
+                        totalCount={invoices.totalCount}
                         onClick={({ id }) => navigate('' + id)}
                         pagination={page}
                         onPageChange={setPage}

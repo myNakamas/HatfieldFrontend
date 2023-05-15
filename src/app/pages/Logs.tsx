@@ -58,6 +58,7 @@ const LogsInner = ({
                     pagination={page}
                     onPageChange={setPage}
                     onClick={setSelectedLog}
+                    totalCount={data.totalCount}
                 />
             ) : (
                 <NoDataComponent items={'logs'} />

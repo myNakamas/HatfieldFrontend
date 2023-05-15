@@ -8,6 +8,7 @@ export interface CustomTableProps<T> {
     pagination?: PageRequest
     onPageChange?: (page: PageRequest) => void
     data: any[]
+    totalCount?: number
 }
 
 export const CustomTable = <T extends object>({
@@ -16,6 +17,7 @@ export const CustomTable = <T extends object>({
     onClick,
     pagination,
     onPageChange,
+    totalCount,
 }: CustomTableProps<T>) => {
     const columns = Object.entries(headers).map(([key, value], index) => ({
         title: value,
@@ -38,11 +40,14 @@ export const CustomTable = <T extends object>({
             pagination={
                 pagination
                     ? {
+                          defaultPageSize: 10,
+                          defaultCurrent: 1,
                           pageSize: pagination?.pageSize,
                           current: pagination?.page,
                           onChange: (page, pageSize) => onPageChange && onPageChange({ page, pageSize }),
                           pageSizeOptions: [5, 10, 15, 20, 50],
                           showSizeChanger: true,
+                          total: totalCount,
                       }
                     : false
             }

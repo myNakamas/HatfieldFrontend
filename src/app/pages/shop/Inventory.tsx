@@ -119,6 +119,7 @@ const InventoryInner = ({
             onClick={({ id }) => setSelectedItem(data?.content.find((row) => row.id === id))}
             pagination={page}
             onPageChange={setPage}
+            totalCount={data.totalCount}
         />
     ) : (
         <NoDataComponent items='items in inventory'>
