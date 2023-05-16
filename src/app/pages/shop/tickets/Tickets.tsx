@@ -5,7 +5,12 @@ import React, { useEffect, useState } from 'react'
 import { Ticket } from '../../../models/interfaces/ticket'
 import { useQuery, useQueryClient } from 'react-query'
 import { ItemPropertyView, Page, PageRequest } from '../../../models/interfaces/generalModels'
-import { fetchAllTickets, fetchTicketById, updatePriority } from '../../../axios/http/ticketRequests'
+import {
+    fetchAllActiveTickets,
+    fetchAllTickets,
+    fetchTicketById,
+    updatePriority,
+} from '../../../axios/http/ticketRequests'
 import { AddTicket } from '../../../components/modals/ticket/AddTicket'
 import dateFormat from 'dateformat'
 import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
@@ -19,27 +24,22 @@ import { User } from '../../../models/interfaces/user'
 import { getAllClients, getAllWorkers } from '../../../axios/http/userRequests'
 import { DateTimeFilter } from '../../../components/filters/DateTimeFilter'
 import { Button, Space, Tabs, TabsProps } from 'antd'
-import {
-    activeTicketStatuses,
-    completedTicketStatuses,
-    TicketStatus,
-    TicketStatusesArray,
-} from '../../../models/enums/ticketEnums'
+import { completedTicketStatuses, TicketStatus, TicketStatusesArray } from '../../../models/enums/ticketEnums'
 import { useSearchParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons/faPen'
 import { DragEndEvent } from '@dnd-kit/core'
 import { TicketTable } from '../../../components/table/TicketTable'
 import { getUserString } from '../../../utils/helperFunctions'
+import { defaultPage } from '../../../models/enums/defaultValues'
 
 export const Tickets = () => {
     const [params] = useSearchParams()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [ticketView, setTicketView] = useState('view')
     const [showNewModal, setShowNewModal] = useState(false)
-    const [filter, setFilter] = useState<TicketFilter>({ ticketStatuses: activeTicketStatuses })
-
-    const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
+    const [filter, setFilter] = useState<TicketFilter>({})
+    const [page, setPage] = useState<PageRequest>(defaultPage)
     const onSelectedTicketUpdate = (data: Page<Ticket>) => {
         setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
     }
@@ -56,7 +56,7 @@ export const Tickets = () => {
             label: 'Active tickets',
             children: (
                 <ActiveTicketsTab
-                    {...{ ...tickets, setSelectedTicket }}
+                    {...{ filter, setSelectedTicket }}
                     setEditTicket={(ticket) => {
                         setSelectedTicket(ticket)
                         setTicketView('edit')
@@ -114,9 +114,10 @@ export const Tickets = () => {
                 defaultActiveKey='active'
                 items={tabs}
                 onChange={(key) => {
+                    setPage({ pageSize: page.pageSize, page: defaultPage.page })
                     setFilter((old) => ({
                         ...old,
-                        ticketStatuses: key === '1' ? activeTicketStatuses : key === '2' ? completedTicketStatuses : [],
+                        ticketStatuses: key === '2' ? completedTicketStatuses : [],
                     }))
                 }}
             />
@@ -163,6 +164,7 @@ const TicketsTab = ({
                 onClick={(ticket) => setSelectedTicket(ticket)}
                 pagination={page}
                 onPageChange={setPage}
+                totalCount={data.totalCount}
             />
         ) : (
             <NoDataComponent items='tickets' />
@@ -171,16 +173,17 @@ const TicketsTab = ({
 )
 
 const ActiveTicketsTab = ({
-    isFetching,
-    data,
     setSelectedTicket,
     setEditTicket,
+    filter,
 }: {
-    isFetching: boolean
-    data?: Page<Ticket>
     setSelectedTicket: React.Dispatch<React.SetStateAction<Ticket | undefined>>
     setEditTicket: (ticket: Ticket) => void
+    filter: TicketFilter
 }) => {
+    const { data: tickets, isFetching } = useQuery(['tickets', 'active', filter], () =>
+        fetchAllActiveTickets({ filter })
+    )
     const queryClient = useQueryClient()
     const onSort = ({ active, over }: DragEndEvent) => {
         if (over?.id && active.id !== over.id) {
@@ -193,9 +196,9 @@ const ActiveTicketsTab = ({
 
     return (
         <CustomSuspense isReady={!isFetching}>
-            {data && data.content.length > 0 ? (
+            {tickets && tickets.length > 0 ? (
                 <TicketTable
-                    data={data?.content.map((ticket) => ({
+                    data={tickets?.map((ticket) => ({
                         ...ticket,
                         timestamp: dateFormat(ticket.timestamp),
                         deadline: ticket.deadline ? dateFormat(ticket.deadline) : '-',
