@@ -18,6 +18,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faFileEdit, faPen, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { EditInventoryItem } from '../../components/modals/inventory/EditInventoryItem'
+import { defaultPage } from '../../models/enums/defaultValues'
 
 export const Inventory = () => {
     const [editItem, setEditItem] = useState<InventoryItem>()
@@ -25,7 +26,7 @@ export const Inventory = () => {
     const { loggedUser } = useContext(AuthContext)
     const [filter, setFilter] = useState<InventoryFilter>({ shopId: loggedUser?.shopId })
     const [createModalIsOpen, setCreateModalIsOpen] = useState(false)
-    const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
+    const [page, setPage] = useState<PageRequest>(defaultPage)
     const [selectedItem, setSelectedItem] = useState<InventoryItem | undefined>()
 
     return (

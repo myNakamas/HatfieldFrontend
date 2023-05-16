@@ -2,6 +2,7 @@ import backendClient from '../backendClient'
 import { ResetPassword, User, UsernamePassword } from '../../models/interfaces/user'
 import axios, { AxiosResponse } from 'axios'
 import { toUserFilterView, UserFilter } from '../../models/interfaces/filters'
+import { Page, PageRequest } from '../../models/interfaces/generalModels'
 
 const transformLoginResponse = ({ data: user, headers }: AxiosResponse) => {
     const token = 'Bearer ' + headers['authorization']
@@ -32,6 +33,16 @@ export const getAllWorkers = ({ filter }: { filter?: UserFilter }): Promise<User
 export const getAllClients = ({ filter }: { filter?: UserFilter }): Promise<User[]> => {
     const userFilter = toUserFilterView(filter)
     return backendClient.get('user/worker/all/clients', { params: userFilter })
+}
+export const getAllClientsPage = ({
+    filter,
+    page,
+}: {
+    filter?: UserFilter
+    page: PageRequest
+}): Promise<Page<User>> => {
+    const userFilter = toUserFilterView(filter)
+    return backendClient.get('user/worker/all/clientsPages', { params: { ...page, ...userFilter } })
 }
 export const updateYourProfile = (user: User): Promise<User> => {
     return backendClient.put('user/profile/edit', user)
