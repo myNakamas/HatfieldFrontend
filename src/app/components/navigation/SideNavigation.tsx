@@ -29,12 +29,12 @@ export const SideNavigation = ({
     const { notificationCount } = useContext(WebSocketContext)
     const navigate = useNavigate()
     const { pathname } = useLocation()
-    const totalNotificationCount = Object.values(notificationCount).reduce((a, b) => a + b, 0);
+    const totalNotificationCount = Object.values(notificationCount).reduce((a, b) => a + b, 0)
     const items: MenuItem[] = [
         { label: 'Home', key: '/welcome', icon: <FontAwesomeIcon icon={faHouse} /> },
         { label: 'Dashboard', key: '/dashboard', icon: <FontAwesomeIcon icon={faDashboard} /> },
         { label: 'Inventory', key: '/inventory', icon: <FontAwesomeIcon icon={faStore} /> },
-        { label: 'Users', key: '/users', icon: <FontAwesomeIcon icon={faUserShield} /> },
+        { label: 'Workers', key: '/workers', icon: <FontAwesomeIcon icon={faUserShield} /> },
         { label: 'Shops', key: '/shops', icon: <FontAwesomeIcon icon={faBuildingUser} /> },
         { label: 'Clients', key: '/clients', icon: <FontAwesomeIcon icon={faUsers} /> },
         { label: 'Tickets', key: '/tickets', icon: <FontAwesomeIcon icon={faTicket} /> },
