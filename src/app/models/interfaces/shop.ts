@@ -31,7 +31,8 @@ export interface InventoryItem extends Entity {
     brand: string
     count: number
     requiredAmount: number
-    price?: number
+    purchasePrice?: number
+    sellPrice?: number
     shopId: number
     requiredItem?: RequiredItem
     categoryView: Category
@@ -42,7 +43,8 @@ export interface CreateInventoryItem {
     name?: string
     count: number
     shopId: number
-    price?: number
+    purchasePrice?: number
+    sellPrice?: number
     model: ItemPropertyView
     brand: Brand
     categoryId: number

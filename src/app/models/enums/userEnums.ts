@@ -10,6 +10,10 @@ export const UserRolesArray: ItemPropertyView[] = Array('ADMIN', 'CLIENT', 'SALE
         value,
     })
 )
+export const WorkerRolesArray: ItemPropertyView[] = Array('ADMIN', 'SALESMAN', 'ENGINEER').map((value, index) => ({
+    id: index,
+    value,
+}))
 
 export const userTourSteps = (refs: MutableRefObject<any>[]): TourProps['steps'] => {
     return refs
@@ -42,30 +46,30 @@ export const userTourSteps = (refs: MutableRefObject<any>[]): TourProps['steps']
 }
 export const clientsTourSteps = (refs: MutableRefObject<any>[]): TourProps['steps'] => {
     return [
-              {
-                  title: 'Clients page',
-                  description: 'This is the clients page. You can view and edit all clients of the store here. ',
-                  target: () => refs[0].current,
-              },
-              {
-                  title: 'Creating a new client',
-                  description: 'Click this button and fill the form with information about the user.',
-                  type: 'default',
-                  target: () => refs[1].current,
-              },
-              {
-                  title: 'View the saved information',
-                  description: "Double click on a row to open a modal with the user's information.",
-                  type: 'default',
-                  target: () => refs[2].current,
-              },
-              {
-                  title: 'Other Actions',
-                  description: 'Edit the existing users through these actions.',
-                  type: 'default',
-                  target: () => refs[3].current,
-              },
-          ]
+        {
+            title: 'Clients page',
+            description: 'This is the clients page. You can view and edit all clients of the store here. ',
+            target: () => refs[0].current,
+        },
+        {
+            title: 'Creating a new client',
+            description: 'Click this button and fill the form with information about the user.',
+            type: 'default',
+            target: () => refs[1].current,
+        },
+        {
+            title: 'View the saved information',
+            description: "Double click on a row to open a modal with the user's information.",
+            type: 'default',
+            target: () => refs[2].current,
+        },
+        {
+            title: 'Other Actions',
+            description: 'Edit the existing users through these actions.',
+            type: 'default',
+            target: () => refs[3].current,
+        },
+    ]
 }
 
 export const welcomePageTourSteps = (refs: MutableRefObject<any>[], shopName?: string): TourProps['steps'] => {

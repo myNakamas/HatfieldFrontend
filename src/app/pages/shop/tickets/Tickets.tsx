@@ -145,8 +145,8 @@ const TicketsTab = ({
                     ...ticket,
                     timestamp: dateFormat(ticket.timestamp),
                     deadline: ticket.deadline ? dateFormat(ticket.deadline) : '-',
-                    createdBy: ticket.createdBy?.fullName,
-                    client: ticket.client?.fullName,
+                    createdByName: ticket.createdBy?.fullName,
+                    clientName: ticket.client?.fullName,
                     actions: <Button icon={<FontAwesomeIcon icon={faPen} />} onClick={() => setEditTicket(ticket)} />,
                 }))}
                 headers={{
@@ -155,8 +155,8 @@ const TicketsTab = ({
                     deadline: 'Deadline',
                     status: 'Ticket status',
                     totalPrice: 'Total Price',
-                    createdBy: 'Created by',
-                    client: 'Client name',
+                    createdByName: 'Created by',
+                    clientName: 'Client name',
                     actions: 'Actions',
                 }}
                 onClick={(ticket) => setSelectedTicket(ticket)}

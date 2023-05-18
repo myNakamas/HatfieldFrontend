@@ -39,7 +39,7 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
         watch,
         setValue,
         reset,
-        resetField
+        resetField,
     } = useForm<CreateInventoryItem>({
         resolver: yupResolver(AddItemInventorySchema),
         defaultValues: { shopId: shop?.id },
@@ -188,7 +188,18 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                     )}
                 />
                 <TextField label='Count' register={register('count')} error={errors.count} type='number' />
-                <TextField label='Price' register={register('price')} error={errors.price} type='currency' />
+                <TextField
+                    label='Purchase Price'
+                    register={register('purchasePrice')}
+                    error={errors.purchasePrice}
+                    type='currency'
+                />
+                <TextField
+                    label='Sell Price'
+                    register={register('sellPrice')}
+                    error={errors.sellPrice}
+                    type='currency'
+                />
                 <h2>Category specific properties:</h2>
                 {columns &&
                     columns.map((key, index) => (

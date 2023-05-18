@@ -3,7 +3,7 @@ import { User } from '../../../models/interfaces/user'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
 import { TextField } from '../../form/TextField'
-import { UserRolesArray } from '../../../models/enums/userEnums'
+import { WorkerRolesArray } from '../../../models/enums/userEnums'
 import { FormError } from '../../form/FormError'
 import Select from 'react-select'
 import { FormField } from '../../form/Field'
@@ -118,11 +118,11 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
                         <FormField error={fieldState.error} label='Role'>
                             <Select
                                 theme={SelectTheme}
-                                options={UserRolesArray}
+                                options={WorkerRolesArray}
                                 getOptionLabel={({ value }) => value}
                                 getOptionValue={({ value }) => value}
                                 placeholder=''
-                                value={UserRolesArray.find((role) => role.value === field.value) ?? null}
+                                value={WorkerRolesArray.find((role) => role.value === field.value) ?? null}
                                 onChange={(item) => field.onChange(item?.value)}
                             />
                         </FormField>
