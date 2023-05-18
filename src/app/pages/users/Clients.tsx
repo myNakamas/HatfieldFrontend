@@ -2,14 +2,14 @@ import React, { useContext, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { CustomTable } from '../../components/table/CustomTable'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { banClient, getAllClients } from '../../axios/http/userRequests'
+import { banClient, getAllClientsPage } from '../../axios/http/userRequests'
 import { User } from '../../models/interfaces/user'
 import { getAllShops } from '../../axios/http/shopRequests'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan'
 import { SearchComponent } from '../../components/filters/SearchComponent'
 import { UserFilter } from '../../models/interfaces/filters'
-import { clientsTourSteps, userTourSteps } from '../../models/enums/userEnums'
+import { clientsTourSteps } from '../../models/enums/userEnums'
 import { Button, FloatButton, Popconfirm, Space, Switch, Tour } from 'antd'
 import { faPen, faPlus, faQuestion } from '@fortawesome/free-solid-svg-icons'
 import { ViewUser } from '../../components/modals/users/ViewUser'
@@ -17,12 +17,14 @@ import { FormField } from '../../components/form/Field'
 import { AuthContext } from '../../contexts/AuthContext'
 import { AddClient } from '../../components/modals/users/AddClient'
 import { EditClient } from '../../components/modals/users/EditClient'
+import { PageRequest } from '../../models/interfaces/generalModels'
+import { defaultPage } from '../../models/enums/defaultValues'
 
 export const Clients = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
-    const refsArray = Array.from({ length: 4 }, () => useRef(null));
+    const refsArray = Array.from({ length: 4 }, () => useRef(null))
     const { loggedUser } = useContext(AuthContext)
-
+    const [page, setPage] = useState<PageRequest>(defaultPage)
     const [viewUser, setViewUser] = useState<User | undefined>()
     const [selectedUser, setSelectedUser] = useState<User | undefined>()
     const [showCreateModal, setShowCreateModal] = useState(false)
@@ -33,7 +35,7 @@ export const Clients = () => {
     })
     const queryClient = useQueryClient()
 
-    const { data: clients } = useQuery(['users', 'clients', filter], () => getAllClients({ filter }))
+    const { data: clients } = useQuery(['users', 'clients', page, filter], () => getAllClientsPage({ filter, page }))
 
     return (
         <div className='mainScreen' ref={refsArray[0]}>
@@ -56,7 +58,7 @@ export const Clients = () => {
                 </Button>
             </Space>
             <div className='tableWrapper' ref={refsArray[2]}>
-                {clients && clients.length > 0 ? (
+                {clients && clients.totalCount > 0 ? (
                     <CustomTable<User>
                         headers={{
                             username: 'username',
@@ -66,7 +68,7 @@ export const Clients = () => {
                             shop: 'Shop name',
                             actions: 'Actions',
                         }}
-                        data={clients.map((user) => {
+                        data={clients.content.map((user) => {
                             return {
                                 ...user,
                                 shop: shops?.find(({ id }) => user.shopId === id)?.shopName,
@@ -92,7 +94,10 @@ export const Clients = () => {
                                 ),
                             }
                         })}
-                        onClick={({ userId }) => setViewUser(clients?.find((user) => user.userId === userId))}
+                        totalCount={clients.totalCount}
+                        pagination={page}
+                        onPageChange={setPage}
+                        onClick={({ userId }) => setViewUser(clients?.content.find((user) => user.userId === userId))}
                     />
                 ) : (
                     <NoDataComponent items='clients' />

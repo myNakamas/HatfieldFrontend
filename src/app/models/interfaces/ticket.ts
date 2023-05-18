@@ -21,7 +21,6 @@ export interface Ticket extends Entity {
     deposit: number
     createdBy: User
     client: User
-    priority: number
     usedParts: UsedItemView[]
 }
 
@@ -41,7 +40,6 @@ export interface CreateTicket {
     totalPrice: number
     deposit: number
     clientId: string
-    priority: number
 }
 
 export const createTicketFromTicket = (t: Ticket): CreateTicket => {

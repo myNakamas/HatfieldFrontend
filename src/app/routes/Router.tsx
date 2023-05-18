@@ -26,6 +26,7 @@ export const Router = () => {
         <Routes>
             <Route path='/login' element={<Login />} />
             <Route path='/' element={<PrivateRoute />}>
+                <Route path='/' element={<WelcomePage />} />
                 <Route path='/welcome' element={<WelcomePage />} />
                 <Route path='/dashboard' element={<Dashboard />} />
                 <Route path='/inventory' element={<Inventory />} />
@@ -33,7 +34,7 @@ export const Router = () => {
                 <Route path='/inventory/required' element={<EditShoppingList />} />
                 <Route path='/profile' element={<Profile />} />
                 <Route path='/profile/change-password' element={<ChangePassword />} />
-                <Route path='/users' element={<Users />} />
+                <Route path='/workers' element={<Users />} />
                 <Route path='/clients' element={<Clients />} />
                 <Route path='/chats' element={<Chats />} />
                 <Route path='/shops' element={<Shops />} />

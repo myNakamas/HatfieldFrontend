@@ -1,5 +1,6 @@
 import { Entity, ItemPropertyView } from './generalModels'
 import { User } from './user'
+import { LogType } from '../enums/logEnums'
 
 export interface ThemeColors {
     primaryColor: string
@@ -30,7 +31,8 @@ export interface InventoryItem extends Entity {
     brand: string
     count: number
     requiredAmount: number
-    price?: number
+    purchasePrice?: number
+    sellPrice?: number
     shopId: number
     requiredItem?: RequiredItem
     categoryView: Category
@@ -41,7 +43,8 @@ export interface CreateInventoryItem {
     name?: string
     count: number
     shopId: number
-    price?: number
+    purchasePrice?: number
+    sellPrice?: number
     model: ItemPropertyView
     brand: Brand
     categoryId: number
@@ -68,11 +71,13 @@ export interface ReturnItem {
 }
 export interface Log extends Entity {
     action: string
+    type: LogType
     user: User
     timestamp: Date
-    ticketId: number
-    itemId: number
-    tag: string
+    ticketId?: number
+    itemId?: number
+    invoiceId?: number
+    shopId?: number
 }
 export interface Brand extends ItemPropertyView {
     models: ItemPropertyView[]

@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { CustomTable } from '../../components/table/CustomTable'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { banClient, getAllClients, getAllUsers, getAllWorkers } from '../../axios/http/userRequests'
+import { banClient, getAllUsers, getAllWorkers } from '../../axios/http/userRequests'
 import { AddUser } from '../../components/modals/users/AddUser'
 import { User } from '../../models/interfaces/user'
 import { getAllShops } from '../../axios/http/shopRequests'
@@ -31,9 +31,6 @@ export const Users = () => {
     const { data: workers } = useQuery(['users', 'workers', { ...filter, banned: true }], () =>
         getAllWorkers({ filter: { ...filter, banned: false } })
     )
-    const { data: clients } = useQuery(['users', 'clients', { ...filter, banned: true }], () =>
-        getAllClients({ filter: { ...filter, banned: false } })
-    )
     const { data: banned } = useQuery(['users', 'bannedUsers', { ...filter, banned: true }], () =>
         getAllUsers({ filter: { ...filter, banned: true } })
     )
@@ -46,18 +43,13 @@ export const Users = () => {
         },
         {
             key: '2',
-            label: 'Clients',
-            children: <UsersTab {...{ users: clients, setSelectedUser, setViewUser, tourRef: refsArray[3] }} showBan />,
-        },
-        {
-            key: '3',
             label: 'Banned users',
             children: <UsersTab {...{ users: banned, setSelectedUser, setViewUser, tourRef: refsArray[3] }} />,
         },
     ]
 
     return (
-        <div className='mainScreen' >
+        <div className='mainScreen'>
             <AddUser isModalOpen={showCreateModal} closeModal={() => setShowCreateModal(false)} />
             <EditUser user={selectedUser} isModalOpen={!!selectedUser} closeModal={() => setSelectedUser(undefined)} />
 
@@ -125,7 +117,7 @@ const UsersTab = ({
                             {showBan && (
                                 <Popconfirm
                                     title='Ban user'
-                                    description='Are you sure to ban this user?'
+                                    description='Do you want to ban this user?'
                                     onConfirm={() => {
                                         banClient(user.userId, true).then(() => {
                                             queryClient.invalidateQueries(['users']).then()
@@ -171,22 +163,6 @@ const UserFilters = ({
                     getOptionValue={(shop) => String(shop.id)}
                 />
             </div>
-            {/*
-                        <div className='filterField'>
-                <Select<ItemPropertyView, true>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    options={UserRolesArray}
-                    isMulti
-                    placeholder='Filter by roles'
-                    isClearable
-                    onChange={(value: any) => {
-                        setFilter({ ...filter, roles: value })
-                    }}
-                    getOptionLabel={({ value }) => value}
-                    getOptionValue={({ id }) => String(id)}
-                />
-            </div>*/}
         </div>
     )
 }

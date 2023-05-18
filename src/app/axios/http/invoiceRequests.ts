@@ -16,7 +16,7 @@ export const getInvoicesReport = ({ filter }: { filter: InvoiceFilter }): Promis
 export const getInvoiceByClientId = (clientId: string): Promise<Invoice[]> => {
     return backendClient.get('invoice/allByClient', { params: { clientId } })
 }
-export const getInvoiceById = (invoiceId: number): Promise<Invoice> => {
+export const getInvoiceById = (invoiceId?: number): Promise<Invoice> => {
     return backendClient.get('invoice/byId', { params: { invoiceId } })
 }
 export const getInvoicePdf = (invoiceId: number): Promise<Blob> => {

@@ -3,9 +3,9 @@ import { CustomTable } from '../../../components/table/CustomTable'
 import { NoDataComponent } from '../../../components/table/NoDataComponent'
 import React, { useEffect, useState } from 'react'
 import { Ticket } from '../../../models/interfaces/ticket'
-import { useQuery, useQueryClient } from 'react-query'
+import { useQuery } from 'react-query'
 import { ItemPropertyView, Page, PageRequest } from '../../../models/interfaces/generalModels'
-import { fetchAllTickets, fetchTicketById, updatePriority } from '../../../axios/http/ticketRequests'
+import { fetchAllTickets, fetchTicketById } from '../../../axios/http/ticketRequests'
 import { AddTicket } from '../../../components/modals/ticket/AddTicket'
 import dateFormat from 'dateformat'
 import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
@@ -28,18 +28,16 @@ import {
 import { useSearchParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons/faPen'
-import { DragEndEvent } from '@dnd-kit/core'
-import { TicketTable } from '../../../components/table/TicketTable'
 import { getUserString } from '../../../utils/helperFunctions'
+import { defaultPage } from '../../../models/enums/defaultValues'
 
 export const Tickets = () => {
     const [params] = useSearchParams()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [ticketView, setTicketView] = useState('view')
     const [showNewModal, setShowNewModal] = useState(false)
-    const [filter, setFilter] = useState<TicketFilter>({ ticketStatuses: activeTicketStatuses })
-
-    const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
+    const [filter, setFilter] = useState<TicketFilter>({})
+    const [page, setPage] = useState<PageRequest>(defaultPage)
     const onSelectedTicketUpdate = (data: Page<Ticket>) => {
         setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
     }
@@ -55,8 +53,8 @@ export const Tickets = () => {
             key: '1',
             label: 'Active tickets',
             children: (
-                <ActiveTicketsTab
-                    {...{ ...tickets, setSelectedTicket }}
+                <TicketsTab
+                    {...{ ...tickets, setSelectedTicket, page, setPage }}
                     setEditTicket={(ticket) => {
                         setSelectedTicket(ticket)
                         setTicketView('edit')
@@ -114,6 +112,7 @@ export const Tickets = () => {
                 defaultActiveKey='active'
                 items={tabs}
                 onChange={(key) => {
+                    setPage({ pageSize: page.pageSize, page: 1 })
                     setFilter((old) => ({
                         ...old,
                         ticketStatuses: key === '1' ? activeTicketStatuses : key === '2' ? completedTicketStatuses : [],
@@ -146,8 +145,8 @@ const TicketsTab = ({
                     ...ticket,
                     timestamp: dateFormat(ticket.timestamp),
                     deadline: ticket.deadline ? dateFormat(ticket.deadline) : '-',
-                    createdBy: ticket.createdBy?.fullName,
-                    client: ticket.client?.fullName,
+                    createdByName: ticket.createdBy?.fullName,
+                    clientName: ticket.client?.fullName,
                     actions: <Button icon={<FontAwesomeIcon icon={faPen} />} onClick={() => setEditTicket(ticket)} />,
                 }))}
                 headers={{
@@ -156,66 +155,20 @@ const TicketsTab = ({
                     deadline: 'Deadline',
                     status: 'Ticket status',
                     totalPrice: 'Total Price',
-                    createdBy: 'Created by',
-                    client: 'Client name',
+                    createdByName: 'Created by',
+                    clientName: 'Client name',
                     actions: 'Actions',
                 }}
                 onClick={(ticket) => setSelectedTicket(ticket)}
                 pagination={page}
                 onPageChange={setPage}
+                totalCount={data.totalCount}
             />
         ) : (
             <NoDataComponent items='tickets' />
         )}
     </CustomSuspense>
 )
-
-const ActiveTicketsTab = ({
-    isFetching,
-    data,
-    setSelectedTicket,
-    setEditTicket,
-}: {
-    isFetching: boolean
-    data?: Page<Ticket>
-    setSelectedTicket: React.Dispatch<React.SetStateAction<Ticket | undefined>>
-    setEditTicket: (ticket: Ticket) => void
-}) => {
-    const queryClient = useQueryClient()
-    const onSort = ({ active, over }: DragEndEvent) => {
-        if (over?.id && active.id !== over.id) {
-            const placeAbove: boolean = active.data.current?.sortable.index > over.data.current?.sortable.index
-            updatePriority({ id: +active.id, newIndexId: +over.id, placeAbove }).then(() => {
-                queryClient.invalidateQueries(['tickets']).then()
-            })
-        }
-    }
-
-    return (
-        <CustomSuspense isReady={!isFetching}>
-            {data && data.content.length > 0 ? (
-                <TicketTable
-                    data={data?.content.map((ticket) => ({
-                        ...ticket,
-                        timestamp: dateFormat(ticket.timestamp),
-                        deadline: ticket.deadline ? dateFormat(ticket.deadline) : '-',
-                        createdBy: ticket.createdBy?.fullName,
-                        clientName: ticket.client?.fullName,
-                        actions: (
-                            <Space>
-                                <Button icon={<FontAwesomeIcon icon={faPen} />} onClick={() => setEditTicket(ticket)} />
-                            </Space>
-                        ),
-                    }))}
-                    onClick={(ticket) => setSelectedTicket(ticket)}
-                    onSort={onSort}
-                />
-            ) : (
-                <NoDataComponent items='tickets' />
-            )}
-        </CustomSuspense>
-    )
-}
 
 const TicketFilters = ({
     filter,
@@ -227,7 +180,6 @@ const TicketFilters = ({
     const [advanced, setAdvanced] = useState(false)
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
-    // const { data: locations } = useQuery('locations', getAllLocations)
     const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}))
     const { data: users } = useQuery(['users', 'workers'], () => getAllWorkers({}))
     const { data: shops } = useQuery(['shops'], getAllShops)

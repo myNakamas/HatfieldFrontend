@@ -46,7 +46,8 @@ export const EditUserSchema = Yup.object<User>().shape({
 export const AddItemInventorySchema = Yup.object<InventoryItem>().shape({
     model: Yup.object().notRequired(),
     brand: Yup.object().notRequired(),
-    price: Yup.number().positive().notRequired(),
+    purchasePrice: Yup.number().positive().notRequired(),
+    sellPrice: Yup.number().positive().notRequired(),
     count: Yup.number().min(1, 'Invalid count').required('Item count is required'),
 })
 export const EditItemInventorySchema = Yup.object<InventoryItem>().shape({

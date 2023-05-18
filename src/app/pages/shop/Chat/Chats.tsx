@@ -4,7 +4,7 @@ import { Chat, Ticket } from '../../../models/interfaces/ticket'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { useQuery } from 'react-query'
 import { WebSocketContext } from '../../../contexts/WebSocketContext'
-import { fetchAllTickets, getChat, getClientChat } from '../../../axios/http/ticketRequests'
+import { fetchAllActiveTickets, getChat, getClientChat } from '../../../axios/http/ticketRequests'
 import { Drawer, Menu, Skeleton, Space, Typography } from 'antd'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { sortChatByDate } from '../../../utils/helperFunctions'
@@ -13,11 +13,10 @@ import { ChatMessages } from './ChatMessages'
 import { MessageInputField } from './ChatInputField'
 
 export const Chats = () => {
-    const page = { page: 0, pageSize: 10 }
     const { loggedUser } = useContext(AuthContext)
     const navigate = useNavigate()
     const { userChats, setUserChats, notificationCount } = useContext(WebSocketContext)
-    const { data: tickets } = useQuery(['tickets', page], () => fetchAllTickets({ page, filter: {} }))
+    const { data: tickets } = useQuery(['tickets'], () => fetchAllActiveTickets({}))
     const [chat, setChat] = useState<Chat | undefined>()
     const [params] = useSearchParams()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
@@ -43,7 +42,7 @@ export const Chats = () => {
 
     useEffect(() => {
         if (params.get('id')) {
-            setSelectedTicket(tickets?.content.find((ticket) => String(ticket.id) === params.get('id')))
+            setSelectedTicket(tickets?.find((ticket) => String(ticket.id) === params.get('id')))
             setTicketDrawer(false)
         }
     }, [params])
@@ -80,14 +79,14 @@ export const Chats = () => {
                 open={ticketDrawer}
             >
                 <Space direction={'vertical'} className='w-100'>
-                    {tickets && tickets.content.length > 0 ? (
+                    {tickets && tickets.length > 0 ? (
                         <Menu
                             onSelect={(item) => {
-                                setSelectedTicket(tickets?.content.find((ticket) => ticket.id === +item.key))
+                                setSelectedTicket(tickets?.find((ticket) => ticket.id === +item.key))
                             }}
                             defaultSelectedKeys={[String(selectedTicket?.id)]}
                             mode='inline'
-                            items={tickets.content.map((ticket) => ({
+                            items={tickets.map((ticket) => ({
                                 label: `Ticket#${ticket.id}`,
                                 key: ticket.id,
                                 icon:

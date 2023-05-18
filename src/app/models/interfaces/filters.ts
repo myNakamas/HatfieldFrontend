@@ -2,6 +2,7 @@ import { Shop } from './shop'
 import { ItemPropertyView } from './generalModels'
 import { TicketStatus } from '../enums/ticketEnums'
 import { InvoiceType } from '../enums/invoiceEnums'
+import { LogType } from '../enums/logEnums'
 
 export interface Filter {
     searchBy?: string
@@ -50,9 +51,11 @@ export interface InvoiceFilter extends Filter {
     createdBefore?: string
     createdAfter?: string
     type?: InvoiceType
+    valid?: boolean
 }
 export interface LogsFilter extends Filter {
     shopId?: number
+    type?: LogType
 }
 
 export const toUserFilterView = (filter: UserFilter | undefined) => {

@@ -32,23 +32,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const login = (user: User, token: string) => {
+        localStorage.setItem('token', token)
         setLoggedUser(user)
         setToken(token)
-        localStorage.setItem('token', token)
     }
 
     useEffect(() => {
         const tokenFromStorage = localStorage.getItem('token')
-        if ((!loggedUser || !token) && tokenFromStorage) {
+        if (!tokenFromStorage) {
+            navigate('/login', { state: { from: location } })
+            logout()
+        } else {
             setToken(tokenFromStorage)
             getLoggedUser().then((user) => setLoggedUser(user))
         }
-    }, [])
-    useEffect(() => {
-        if (!loggedUser) {
-            navigate('/login', { state: { from: location } })
-        }
-    }, [loggedUser])
+    }, [token])
 
     document.addEventListener('session_expired', () => logout())
 

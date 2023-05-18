@@ -170,7 +170,7 @@ export const ViewTicket = ({
                                         data={ticket.usedParts.map(({ item, usedCount, timestamp }) => ({
                                             item,
                                             usedCount,
-                                            itemDetail: item.brand + ' : ' + item.model,
+                                            itemDetail: item.name,
                                             timestamp: dateFormat(timestamp),
                                         }))}
                                         headers={{

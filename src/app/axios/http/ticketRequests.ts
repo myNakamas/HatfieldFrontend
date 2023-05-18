@@ -56,7 +56,3 @@ export const getClientChat = ({ ticketId }: { ticketId?: number }): Promise<Chat
 export const createUsedItems = (usedItem: CreateUsedItem) => {
     return backendClient.post('ticket/part/use', usedItem)
 }
-
-export const updatePriority = (params: { id: number; newIndexId: number; placeAbove: boolean }) => {
-    return backendClient.patch('ticket/priority', {}, { params })
-}
