@@ -106,13 +106,13 @@ const InventoryInner = ({
             data={data.content.map((item) => ({
                 ...item,
                 name: item.name ?? '-',
-                price: item.price?.toFixed(2) ?? '-',
+                sell: item.sellPrice?.toFixed(2) ?? '-',
                 type: item.categoryView?.itemType ?? '-',
                 actions: <Button onClick={() => setEditItem(item)} icon={<FontAwesomeIcon icon={faPen} />} />,
             }))}
             headers={{
                 name: 'Name',
-                price: 'Price',
+                sell: 'Price',
                 type: 'Item type',
                 count: 'Count',
                 actions: 'Actions',

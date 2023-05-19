@@ -132,12 +132,17 @@ export const ItemDescriptions = ({ inventoryItem, extra }: { inventoryItem: Inve
                 <Descriptions.Item label={'Model'}>{inventoryItem.model}</Descriptions.Item>
                 <Descriptions.Item label={'Brand'}>{inventoryItem.brand}</Descriptions.Item>
                 <Descriptions.Item label={'Current count in shop'}>{inventoryItem.count}</Descriptions.Item>
-                {inventoryItem.price && (
-                    <Descriptions.Item label={'Price'} className='bold'>
-                        {inventoryItem.price.toFixed(2)}
+                {inventoryItem?.sellPrice && (
+                    <Descriptions.Item label={'Selling Price'} className='bold'>
+                        {inventoryItem.sellPrice.toFixed(2)}
                     </Descriptions.Item>
                 )}
-                {inventoryItem.categoryView && (
+                {inventoryItem?.purchasePrice && (
+                    <Descriptions.Item label={'Purchased for'} className='bold'>
+                        {inventoryItem.purchasePrice.toFixed(2)}
+                    </Descriptions.Item>
+                )}
+                {inventoryItem?.categoryView && (
                     <>
                         <Descriptions.Item label={'Type'}>{inventoryItem.categoryView.itemType}</Descriptions.Item>
                         <Descriptions.Item label={'Category name'}>{inventoryItem.categoryView.name}</Descriptions.Item>

@@ -53,7 +53,7 @@ export const AddInvoice = ({
               itemId: item.id,
               deviceBrand: item.brand,
               deviceModel: item.model,
-              totalPrice: item.price,
+              totalPrice: item.sellPrice,
               type: 'SELL' as InvoiceType,
           }
         : defaultInvoice
