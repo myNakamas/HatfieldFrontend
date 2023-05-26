@@ -16,7 +16,7 @@ export const Login = () => {
     const { login } = useContext(AuthContext)
     const navigate = useNavigate()
     const { state } = useLocation()
-    const pageToRedirectTo = state?.from && state?.from !== '/login' ? state.from : '/welcome'
+    const pageToRedirectTo = state?.from && state?.from !== '/login' ? state.from : '/home'
     const {
         register,
         handleSubmit,

@@ -1,13 +1,8 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHouse } from '@fortawesome/free-solid-svg-icons/faHouse'
-import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
 import { faCommentDots } from '@fortawesome/free-solid-svg-icons/faCommentDots'
-import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket'
-import { faDashboard } from '@fortawesome/free-solid-svg-icons/faDashboard'
 import React, { useContext } from 'react'
-import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
-import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield'
 import {
     faBuildingUser,
     faClockRotateLeft,
@@ -16,6 +11,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { Drawer, Menu, MenuProps, Space, Typography } from 'antd'
 import { WebSocketContext } from '../../contexts/WebSocketContext'
+import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
+import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield'
+import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
+import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket'
+import { checkRole } from '../../routes/RoleRestrictionRoute'
 
 export type MenuItem = Required<MenuProps>['items'][number]
 
@@ -31,14 +31,8 @@ export const SideNavigation = ({
     const { pathname } = useLocation()
     const totalNotificationCount = Object.values(notificationCount).reduce((a, b) => a + b, 0)
     const items: MenuItem[] = [
-        { label: 'Home', key: '/welcome', icon: <FontAwesomeIcon icon={faHouse} /> },
-        { label: 'Dashboard', key: '/dashboard', icon: <FontAwesomeIcon icon={faDashboard} /> },
-        { label: 'Inventory', key: '/inventory', icon: <FontAwesomeIcon icon={faStore} /> },
-        { label: 'Workers', key: '/workers', icon: <FontAwesomeIcon icon={faUserShield} /> },
-        { label: 'Shops', key: '/shops', icon: <FontAwesomeIcon icon={faBuildingUser} /> },
-        { label: 'Clients', key: '/clients', icon: <FontAwesomeIcon icon={faUsers} /> },
+        { label: 'Home', key: '/home', icon: <FontAwesomeIcon icon={faHouse} /> },
         { label: 'Tickets', key: '/tickets', icon: <FontAwesomeIcon icon={faTicket} /> },
-        { label: 'Invoices', key: '/invoices', icon: <FontAwesomeIcon icon={faFileInvoice} /> },
         {
             label: 'Chats',
             key: '/chats',
@@ -51,17 +45,28 @@ export const SideNavigation = ({
                 </Space>
             ),
         },
-        {
-            label: 'Logs',
-            key: '/logs',
-            icon: <FontAwesomeIcon icon={faClockRotateLeft} />,
-        },
-        {
-            label: 'About us',
-            key: '/about',
-            icon: <FontAwesomeIcon icon={faPersonCircleQuestion} />,
-        },
     ]
+    if (checkRole({ role: ['ENGINEER', 'SALESMAN', 'ADMIN'] }))
+        items.push(
+            { label: 'Inventory', key: '/inventory', icon: <FontAwesomeIcon icon={faStore} /> },
+            { label: 'Clients', key: '/clients', icon: <FontAwesomeIcon icon={faUsers} /> },
+            { label: 'Invoices', key: '/invoices', icon: <FontAwesomeIcon icon={faFileInvoice} /> },
+            {
+                label: 'Logs',
+                key: '/logs',
+                icon: <FontAwesomeIcon icon={faClockRotateLeft} />,
+            }
+        )
+    if (checkRole({ role: ['ADMIN'] }))
+        items.push(
+            { label: 'Workers', key: '/workers', icon: <FontAwesomeIcon icon={faUserShield} /> },
+            { label: 'Shops', key: '/shops', icon: <FontAwesomeIcon icon={faBuildingUser} /> }
+        )
+    items.push({
+        label: 'About us',
+        key: '/about',
+        icon: <FontAwesomeIcon icon={faPersonCircleQuestion} />,
+    })
     return (
         <Drawer
             title='Hatfield'
