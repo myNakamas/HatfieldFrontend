@@ -27,6 +27,7 @@ export const Router = () => {
             <Route path='/' element={<PrivateRoute />}>
                 <Route path='/home' element={RoleRestrictionHomeRoute()} />
                 <Route path='/chats' element={<Chats />} />
+                <Route path='/tickets' element={<Tickets />} />
                 <Route path='/about' element={<About />} />
                 <Route path='/privacy' element={<Privacy />} />
                 <Route path='/profile' element={<Profile />} />
@@ -36,7 +37,6 @@ export const Router = () => {
                     <Route path='/inventory/:shopId/shopping-list' element={<ShoppingListView />} />
                     <Route path='/inventory/required' element={<EditShoppingList />} />
                     <Route path='/clients' element={<Clients />} />
-                    <Route path='/tickets' element={<Tickets />} />
                     <Route path='/invoices' element={<Invoices />} />
                     <Route path='/invoices/:id' element={<InvoiceView />} />
                     <Route path='/categories' element={<CategorySettings />} />

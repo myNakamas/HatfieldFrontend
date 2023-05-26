@@ -12,11 +12,14 @@ export const RoleRestrictionHomeRoute = () => {
 }
 
 export const RoleRestrictionRoute = ({ role }: { role: Role[] }) => {
-    const { loggedUser } = useContext(AuthContext)
-    console.log(loggedUser?.role)
-    if (loggedUser && role.includes(loggedUser.role)) {
+    if (checkRole({ role })) {
         return <Outlet />
     }
     return <Navigate to='/home' />
     //todo : make 403 page
+}
+
+export const checkRole = ({ role }: { role: Role[] }) => {
+    const { loggedUser } = useContext(AuthContext)
+    return loggedUser && role.includes(loggedUser.role)
 }
