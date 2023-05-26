@@ -4,7 +4,6 @@ import { faHouse } from '@fortawesome/free-solid-svg-icons/faHouse'
 import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
 import { faCommentDots } from '@fortawesome/free-solid-svg-icons/faCommentDots'
 import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket'
-import { faDashboard } from '@fortawesome/free-solid-svg-icons/faDashboard'
 import React, { useContext } from 'react'
 import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
 import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield'
@@ -31,8 +30,7 @@ export const SideNavigation = ({
     const { pathname } = useLocation()
     const totalNotificationCount = Object.values(notificationCount).reduce((a, b) => a + b, 0)
     const items: MenuItem[] = [
-        { label: 'Home', key: '/welcome', icon: <FontAwesomeIcon icon={faHouse} /> },
-        { label: 'Dashboard', key: '/dashboard', icon: <FontAwesomeIcon icon={faDashboard} /> },
+        { label: 'Home', key: '/home', icon: <FontAwesomeIcon icon={faHouse} /> },
         { label: 'Inventory', key: '/inventory', icon: <FontAwesomeIcon icon={faStore} /> },
         { label: 'Workers', key: '/workers', icon: <FontAwesomeIcon icon={faUserShield} /> },
         { label: 'Shops', key: '/shops', icon: <FontAwesomeIcon icon={faBuildingUser} /> },
