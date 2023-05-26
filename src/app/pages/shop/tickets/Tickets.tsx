@@ -186,12 +186,13 @@ const TicketFilters = ({
     filter: TicketFilter
     setFilter: (value: ((prevState: TicketFilter) => TicketFilter) | TicketFilter) => void
 }) => {
+    const { loggedUser } = useContext(AuthContext)
     const [advanced, setAdvanced] = useState(false)
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}))
     const { data: users } = useQuery(['users', 'workers'], () => getAllWorkers({}))
-    const { data: shops } = useQuery(['shops'], getAllShops)
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: loggedUser?.role === 'ADMIN' })
     return advanced ? (
         <div className='largeFilter'>
             <div className='filterColumn'>
@@ -263,17 +264,19 @@ const TicketFilters = ({
                     getOptionLabel={getUserString}
                     getOptionValue={(user) => String(user.userId)}
                 />
-                <Select<Shop, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter.shopId === id) ?? null}
-                    options={shops ?? []}
-                    placeholder='Filter by shop'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
-                    getOptionLabel={(shop) => shop.shopName}
-                    getOptionValue={(shop) => String(shop.id)}
-                />
+                {loggedUser?.role === 'ADMIN' && (
+                    <Select<Shop, false>
+                        theme={SelectTheme}
+                        styles={SelectStyles()}
+                        value={shops?.find(({ id }) => filter.shopId === id) ?? null}
+                        options={shops ?? []}
+                        placeholder='Filter by shop'
+                        isClearable
+                        onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                        getOptionLabel={(shop) => shop.shopName}
+                        getOptionValue={(shop) => String(shop.id)}
+                    />
+                )}
             </div>
             <div className='filterColumn' title={'Filter by date'}>
                 <h4>Filter by date</h4>

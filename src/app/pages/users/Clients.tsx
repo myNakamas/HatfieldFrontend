@@ -20,6 +20,14 @@ import { EditClient } from '../../components/modals/users/EditClient'
 import { PageRequest } from '../../models/interfaces/generalModels'
 import { defaultPage } from '../../models/enums/defaultValues'
 
+const clientsTableHeaders = {
+    username: 'username',
+    fullName: 'Full name',
+    role: 'role',
+    email: 'email',
+    actions: 'Actions',
+}
+
 export const Clients = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
     const refsArray = Array.from({ length: 4 }, () => useRef(null))
@@ -28,10 +36,9 @@ export const Clients = () => {
     const [viewUser, setViewUser] = useState<User | undefined>()
     const [selectedUser, setSelectedUser] = useState<User | undefined>()
     const [showCreateModal, setShowCreateModal] = useState(false)
-    const { data: shops } = useQuery(['shops'], getAllShops)
+    const { data: shops } = useQuery(['shops'], getAllShops, { enabled: loggedUser?.role === 'ADMIN' })
     const [filter, setFilter] = useState<UserFilter>({
         banned: false,
-        shop: shops?.find(({ id }) => loggedUser?.shopId === id),
     })
     const queryClient = useQueryClient()
 
@@ -60,14 +67,11 @@ export const Clients = () => {
             <div className='tableWrapper' ref={refsArray[2]}>
                 {clients && clients.totalCount > 0 ? (
                     <CustomTable<User>
-                        headers={{
-                            username: 'username',
-                            fullName: 'Full name',
-                            role: 'role',
-                            email: 'email',
-                            shop: 'Shop name',
-                            actions: 'Actions',
-                        }}
+                        headers={
+                            loggedUser?.role === 'ADMIN'
+                                ? { ...clientsTableHeaders, shop: 'Shop name' }
+                                : clientsTableHeaders
+                        }
                         data={clients.content.map((user) => {
                             return {
                                 ...user,

@@ -1,7 +1,7 @@
 import { Log, Shop } from '../models/interfaces/shop'
 import { CustomTable } from '../components/table/CustomTable'
 import { defaultPage } from '../models/enums/defaultValues'
-import React, { Suspense, useState } from 'react'
+import React, { Suspense, useContext, useState } from 'react'
 import { Filter, LogsFilter } from '../models/interfaces/filters'
 import { useQuery } from 'react-query'
 import { getAllLogs, getAllShops } from '../axios/http/shopRequests'
@@ -15,6 +15,7 @@ import { NoDataComponent } from '../components/table/NoDataComponent'
 import { InfinitySpin } from 'react-loader-spinner'
 import { LogDetails } from '../components/modals/LogDetails'
 import { LogType, LogTypeList } from '../models/enums/logEnums'
+import { AuthContext } from '../contexts/AuthContext'
 
 export const Logs = () => {
     const [page, setPage] = useState(defaultPage)
@@ -73,21 +74,24 @@ const LogsFilters = ({
     filter: LogsFilter
     setFilter: React.Dispatch<React.SetStateAction<LogsFilter>>
 }) => {
-    const { data: shops } = useQuery('shops', getAllShops)
+    const { loggedUser } = useContext(AuthContext)
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: loggedUser?.role === 'ADMIN' })
     return (
         <Space>
             <div className='filterField'>
-                <Select<Shop, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter.shopId === id) ?? null}
-                    options={shops ?? []}
-                    placeholder='Filter by shop'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
-                    getOptionLabel={(shop) => shop.shopName}
-                    getOptionValue={(shop) => String(shop.id)}
-                />
+                {loggedUser?.role === 'ADMIN' && (
+                    <Select<Shop, false>
+                        theme={SelectTheme}
+                        styles={SelectStyles()}
+                        value={shops?.find(({ id }) => filter.shopId === id) ?? null}
+                        options={shops ?? []}
+                        placeholder='Filter by shop'
+                        isClearable
+                        onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                        getOptionLabel={(shop) => shop.shopName}
+                        getOptionValue={(shop) => String(shop.id)}
+                    />
+                )}
             </div>
             <div className='filterField'>
                 <Select<ItemPropertyView, false>

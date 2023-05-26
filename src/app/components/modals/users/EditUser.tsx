@@ -29,9 +29,9 @@ export const EditUser = ({
     isModalOpen: boolean
     closeModal: () => void
 }) => {
-    const { data: shops } = useQuery('shops', getAllShops)
     const { loggedUser, setLoggedUser } = useContext(AuthContext)
     const isSelfEdit = () => loggedUser?.userId === user?.userId
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: !isSelfEdit() })
 
     const formRef = useRef<HTMLFormElement>(null)
     const queryClient = useQueryClient()

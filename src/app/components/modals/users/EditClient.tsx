@@ -25,9 +25,9 @@ export const EditClient = ({
     isModalOpen: boolean
     closeModal: () => void
 }) => {
-    const formRef = useRef<HTMLFormElement>(null)
-    const { data: shops } = useQuery('shops', getAllShops)
     const { loggedUser } = useContext(AuthContext)
+    const formRef = useRef<HTMLFormElement>(null)
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: loggedUser?.role === 'ADMIN' })
 
     const queryClient = useQueryClient()
 

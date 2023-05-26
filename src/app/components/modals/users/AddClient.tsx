@@ -29,10 +29,10 @@ export const AddClient = ({
     closeModal: () => void
     onSuccess?: (user: User) => void
 }) => {
+    const { loggedUser } = useContext(AuthContext)
     const formRef = useRef<HTMLFormElement>(null)
     const [showResponse, setShowResponse] = useState<User | undefined>()
-    const { data: shops } = useQuery('shops', getAllShops)
-    const { loggedUser } = useContext(AuthContext)
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: loggedUser?.role === 'ADMIN' })
 
     const queryClient = useQueryClient()
 
