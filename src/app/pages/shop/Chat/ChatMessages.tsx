@@ -87,7 +87,7 @@ const ChatMessageRow = ({ message, sender }: { message: ChatMessage; sender?: Us
                     </div>
                 )}
 
-                <ProfileImage profileImg={profileImg} />
+                <ProfileImage className={'chatProfileIcon'} profileImg={profileImg} />
                 {Icon}
             </div>
         </div>

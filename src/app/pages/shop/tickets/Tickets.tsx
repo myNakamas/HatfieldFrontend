@@ -1,11 +1,11 @@
 import { CustomSuspense } from '../../../components/CustomSuspense'
 import { CustomTable } from '../../../components/table/CustomTable'
 import { NoDataComponent } from '../../../components/table/NoDataComponent'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Ticket } from '../../../models/interfaces/ticket'
 import { useQuery } from 'react-query'
 import { ItemPropertyView, Page, PageRequest } from '../../../models/interfaces/generalModels'
-import { fetchAllTickets, fetchTicketById } from '../../../axios/http/ticketRequests'
+import { fetchAllTickets, fetchClientTickets, fetchTicketById } from '../../../axios/http/ticketRequests'
 import { AddTicket } from '../../../components/modals/ticket/AddTicket'
 import dateFormat from 'dateformat'
 import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
@@ -30,8 +30,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons/faPen'
 import { getUserString } from '../../../utils/helperFunctions'
 import { defaultPage } from '../../../models/enums/defaultValues'
+import { AuthContext } from '../../../contexts/AuthContext'
 
 export const Tickets = () => {
+    const { loggedUser } = useContext(AuthContext)
     const [params] = useSearchParams()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [ticketView, setTicketView] = useState('view')
@@ -41,9 +43,16 @@ export const Tickets = () => {
     const onSelectedTicketUpdate = (data: Page<Ticket>) => {
         setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
     }
-    const tickets = useQuery(['tickets', filter, page], () => fetchAllTickets({ page, filter }), {
-        onSuccess: onSelectedTicketUpdate,
-    })
+    const tickets = useQuery(
+        ['tickets', filter, page],
+        () => {
+            const query = loggedUser?.role == 'CLIENT' ? fetchClientTickets : fetchAllTickets
+            return query({ page, filter })
+        },
+        {
+            onSuccess: onSelectedTicketUpdate,
+        }
+    )
     useEffect(() => {
         params.get('ticketId') && fetchTicketById(Number(params.get('ticketId'))).then(setSelectedTicket)
     }, [])
