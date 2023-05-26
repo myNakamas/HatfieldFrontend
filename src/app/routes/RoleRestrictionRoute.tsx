@@ -15,8 +15,7 @@ export const RoleRestrictionRoute = ({ role }: { role: Role[] }) => {
     if (checkRole({ role })) {
         return <Outlet />
     }
-    return <Navigate to='/home' />
-    //todo : make 403 page
+    return <Navigate to='/denied' />
 }
 
 export const checkRole = ({ role }: { role: Role[] }) => {

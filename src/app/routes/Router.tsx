@@ -19,6 +19,7 @@ import { Logs } from '../pages/Logs'
 import { Users } from '../pages/users/Users'
 import { Shops } from '../pages/shop/Shops'
 import { ShopView } from '../pages/shop/ShopView'
+import { PageNotFound } from '../pages/PageNotFound'
 
 export const Router = () => {
     return (
@@ -31,6 +32,8 @@ export const Router = () => {
                 <Route path='/about' element={<About />} />
                 <Route path='/privacy' element={<Privacy />} />
                 <Route path='/profile' element={<Profile />} />
+                <Route path='/notFound' element={<PageNotFound />} />
+                <Route path='*' element={<PageNotFound />} />
                 <Route path='/profile/change-password' element={<ChangePassword />} />
                 <Route path='/' element={<RoleRestrictionRoute role={['ENGINEER', 'SALESMAN', 'ADMIN']} />}>
                     <Route path='/inventory' element={<Inventory />} />
