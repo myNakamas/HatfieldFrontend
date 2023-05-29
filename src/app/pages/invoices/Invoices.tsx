@@ -115,11 +115,13 @@ function InvoiceFilters({
     filter: InvoiceFilter
     setFilter: React.Dispatch<React.SetStateAction<InvoiceFilter>>
 }) {
-    const { loggedUser } = useContext(AuthContext)
+    const { loggedUser, isWorker } = useContext(AuthContext)
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     // const { data: locations } = useQuery('locations', getAllLocations)
-    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}))
+    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
+        enabled: isWorker(),
+    })
     const { data: users } = useQuery(['users', 'workers'], () => getAllWorkers({}))
     const { data: shops } = useQuery('shops', getAllShops, { enabled: loggedUser?.role === 'ADMIN' })
     const [advanced, setAdvanced] = useState(false)

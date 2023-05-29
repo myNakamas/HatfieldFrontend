@@ -190,13 +190,17 @@ const TicketFilters = ({
     filter: TicketFilter
     setFilter: (value: ((prevState: TicketFilter) => TicketFilter) | TicketFilter) => void
 }) => {
-    const { loggedUser } = useContext(AuthContext)
+    const { loggedUser, isWorker, isAdmin } = useContext(AuthContext)
     const [advanced, setAdvanced] = useState(false)
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
-    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}))
-    const { data: users } = useQuery(['users', 'workers'], () => getAllWorkers({}))
-    const { data: shops } = useQuery('shops', getAllShops, { enabled: loggedUser?.role === 'ADMIN' })
+    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
+        enabled: isWorker(),
+    })
+    const { data: users } = useQuery(['users', 'workers'], () => getAllWorkers({}), {
+        enabled: isAdmin(),
+    })
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
     return advanced ? (
         <div className='largeFilter'>
             <div className='filterColumn'>

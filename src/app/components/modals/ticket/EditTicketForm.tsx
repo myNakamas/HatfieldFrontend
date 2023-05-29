@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { FormField } from '../../form/Field'
 import { Dictaphone } from '../../form/Dictaphone'
@@ -23,6 +23,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
 import { EditTicketSchema } from '../../../models/validators/FormValidators'
 import { getUserString } from '../../../utils/helperFunctions'
+import { AuthContext } from '../../../contexts/AuthContext'
 
 export const EditTicketForm = ({
     ticket,
@@ -33,6 +34,7 @@ export const EditTicketForm = ({
     onComplete: (ticket: CreateTicket) => Promise<void>
     onCancel: () => void
 }) => {
+    const { isWorker } = useContext(AuthContext)
     const {
         register,
         handleSubmit,
@@ -44,7 +46,9 @@ export const EditTicketForm = ({
         watch,
     } = useForm<CreateTicket>({ defaultValues: ticket, resolver: yupResolver(EditTicketSchema) })
     const { data: brands } = useQuery('brands', getAllBrands)
-    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}))
+    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
+        enabled: isWorker(),
+    })
     const models = brands?.find((b) => b.value === watch('deviceBrand'))?.models ?? []
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [tempText, setTempText] = useState('')
