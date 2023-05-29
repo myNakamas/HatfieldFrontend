@@ -41,7 +41,7 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
     }))
     return (
         <Card
-            style={{ minWidth: 350 }}
+            style={{ minWidth: 250 }}
             title={
                 chartType == 'COUNT'
                     ? `Created invoices: ${report?.totalCount}`

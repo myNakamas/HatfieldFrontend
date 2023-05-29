@@ -148,34 +148,38 @@ const TicketsTab = ({
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
 }) => (
     <CustomSuspense isReady={!isLoading}>
-        {data && data.content.length > 0 ? (
-            <CustomTable<Ticket>
-                data={data.content.map((ticket) => ({
-                    ...ticket,
-                    timestamp: dateFormat(ticket.timestamp),
-                    deadline: ticket.deadline ? dateFormat(ticket.deadline) : '-',
-                    createdByName: ticket.createdBy?.fullName,
-                    clientName: ticket.client?.fullName,
-                    actions: <Button icon={<FontAwesomeIcon icon={faPen} />} onClick={() => setEditTicket(ticket)} />,
-                }))}
-                headers={{
-                    id: 'Ticket Id',
-                    timestamp: 'Creation date',
-                    deadline: 'Deadline',
-                    status: 'Ticket status',
-                    totalPrice: 'Total Price',
-                    createdByName: 'Created by',
-                    clientName: 'Client name',
-                    actions: 'Actions',
-                }}
-                onClick={(ticket) => setSelectedTicket(ticket)}
-                pagination={page}
-                onPageChange={setPage}
-                totalCount={data.totalCount}
-            />
-        ) : (
-            <NoDataComponent items='tickets' />
-        )}
+        <div className={'tableWrapper'}>
+            {data && data.content.length > 0 ? (
+                <CustomTable<Ticket>
+                    data={data.content.map((ticket) => ({
+                        ...ticket,
+                        timestamp: dateFormat(ticket.timestamp),
+                        deadline: ticket.deadline ? dateFormat(ticket.deadline) : '-',
+                        createdByName: ticket.createdBy?.fullName,
+                        clientName: ticket.client?.fullName,
+                        actions: (
+                            <Button icon={<FontAwesomeIcon icon={faPen} />} onClick={() => setEditTicket(ticket)} />
+                        ),
+                    }))}
+                    headers={{
+                        id: 'Ticket Id',
+                        timestamp: 'Creation date',
+                        deadline: 'Deadline',
+                        status: 'Ticket status',
+                        totalPrice: 'Total Price',
+                        createdByName: 'Created by',
+                        clientName: 'Client name',
+                        actions: 'Actions',
+                    }}
+                    onClick={(ticket) => setSelectedTicket(ticket)}
+                    pagination={page}
+                    onPageChange={setPage}
+                    totalCount={data.totalCount}
+                />
+            ) : (
+                <NoDataComponent items='tickets' />
+            )}
+        </div>
     </CustomSuspense>
 )
 

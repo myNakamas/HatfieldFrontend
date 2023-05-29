@@ -7,19 +7,18 @@ import { CustomSuspense } from '../CustomSuspense'
 import React from 'react'
 import NoFound from 'antd/es/result/noFound'
 
-
 export const RepairsReport = ({ filter }: { filter: TicketFilter }) => {
     const navigate = useNavigate()
-    const { data:report, isLoading } = useQuery(['invoices', filter, 'report'], () => getInvoicesReport({ filter,  }))
+    const { data: report, isLoading } = useQuery(['invoices', filter, 'report'], () => getInvoicesReport({ filter }))
 
     return (
         <Card
-            style={{ minWidth: 350, height:'100%' }}
+            style={{ minWidth: 250, height: '100%' }}
             title='Completed repairs'
             extra={<Button type='link' onClick={() => navigate('/tickets')} children={'See All Tickets'} />}
         >
             <CustomSuspense isReady={!isLoading}>
-                <NoFound/>
+                <NoFound />
                 <h4>Work in progress</h4>
             </CustomSuspense>
         </Card>
