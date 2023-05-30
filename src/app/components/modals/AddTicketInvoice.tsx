@@ -80,7 +80,7 @@ export const AddTicketInvoice = ({
             })
     }
     return (
-        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'}>
+        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'} isForbidden={!isWorker()}>
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice)}>
                 <AddClient
                     isModalOpen={showCreateModal}

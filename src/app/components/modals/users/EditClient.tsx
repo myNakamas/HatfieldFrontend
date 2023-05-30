@@ -25,7 +25,7 @@ export const EditClient = ({
     isModalOpen: boolean
     closeModal: () => void
 }) => {
-    const { loggedUser } = useContext(AuthContext)
+    const { loggedUser, isWorker } = useContext(AuthContext)
     const formRef = useRef<HTMLFormElement>(null)
     const { data: shops } = useQuery('shops', getAllShops, { enabled: loggedUser?.role === 'ADMIN' })
 
@@ -64,7 +64,7 @@ export const EditClient = ({
     }
 
     return (
-        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title='Edit client '>
+        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title='Edit client ' isForbidden={!isWorker()}>
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit((data) => onSaveNew(data))}>
                 <UserForm {...{ register, control, watch, setValue, getValues, errors }} />
 

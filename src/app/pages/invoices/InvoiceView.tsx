@@ -13,12 +13,13 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
 import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExclamationTriangle'
+import ServerError from 'antd/es/result/serverError'
 
 export const InvoiceView = () => {
     const { id } = useParams()
     const navigate = useNavigate()
     if (!id) return <NoDataComponent items={'information'} />
-    const { data: invoice } = useQuery(['invoices', id], () => getInvoiceById(+id))
+    const { data: invoice, error, isError, isLoading } = useQuery(['invoices', id], () => getInvoiceById(+id), {})
     const queryClient = useQueryClient()
 
     const openPdf = async (invoiceId: number) => {
@@ -40,8 +41,9 @@ export const InvoiceView = () => {
 
     return (
         <div className='mainScreen'>
-            <CustomSuspense isReady={!!invoice}>
-                {invoice && (
+            <CustomSuspense isReady={!isLoading}>
+                {isError && <ServerError />}
+                {!isError && invoice && (
                     <Space>
                         <Space direction={'vertical'}>
                             {!invoice.valid && (

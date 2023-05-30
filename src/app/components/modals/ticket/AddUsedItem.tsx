@@ -28,7 +28,7 @@ export const AddUsedItem = ({
     closeModal: () => void
     usedItem: CreateUsedItem
 }) => {
-    const { loggedUser } = useContext(AuthContext)
+    const { loggedUser, isWorker } = useContext(AuthContext)
     const { data: tickets } = useQuery(['tickets', 'active'], () => fetchAllActiveTickets({}))
     const { data: items } = useQuery(['shopItems', 'short', loggedUser?.shopId], () =>
         getAllShopItems(loggedUser?.shopId)
@@ -66,7 +66,13 @@ export const AddUsedItem = ({
     }
 
     return (
-        <AppModal isModalOpen={show} closeModal={closeModal} title={'Use item for ticket'} size='S'>
+        <AppModal
+            isModalOpen={show}
+            closeModal={closeModal}
+            title={'Use item for ticket'}
+            size='S'
+            isForbidden={!isWorker()}
+        >
             <Space direction='vertical' style={{ width: '100%' }}>
                 <CustomSuspense isReady={!!tickets && !!items}>
                     <Form className='modalForm' onSubmitCapture={handleSubmit(createUsedItem)}>

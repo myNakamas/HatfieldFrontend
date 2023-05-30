@@ -22,7 +22,7 @@ export const ChatMessages = ({
     selectedTicket?: Ticket
     chat?: Chat
 }) => {
-    const { data: users } = useQuery(['users'], () => getAllUsers({}))
+    const { data: users } = useQuery(['users'], () => getSimpleUsers({}))
 
     return (
         <div className='chatBox'>

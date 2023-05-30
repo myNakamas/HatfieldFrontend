@@ -72,7 +72,13 @@ export const AddClient = ({
     }
 
     return (
-        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title='Create a new client' size='S'>
+        <AppModal
+            isModalOpen={isModalOpen}
+            closeModal={closeModal}
+            title='Create a new client'
+            size='S'
+            isForbidden={!isWorker()}
+        >
             {showResponse ? (
                 <Typography style={{ textAlign: 'left' }}>
                     <h4>Username:</h4>

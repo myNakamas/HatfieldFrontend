@@ -95,7 +95,7 @@ export const AddInvoice = ({
             })
     }
     return (
-        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'}>
+        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'} isForbidden={!isWorker()}>
             <AddClient
                 isModalOpen={showCreateModal}
                 closeModal={() => setShowCreateModal(false)}

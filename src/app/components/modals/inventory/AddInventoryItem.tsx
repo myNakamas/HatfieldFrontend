@@ -7,22 +7,23 @@ import { useQuery, useQueryClient } from 'react-query'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { AppModal } from '../AppModal'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import CreatableSelect from 'react-select/creatable'
 import { FormField } from '../../form/Field'
-import { ItemPropertyView } from '../../../models/interfaces/generalModels'
+import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
 import { Button, Space } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { AddEditCategory } from '../AddEditCategory'
+import { AuthContext } from '../../../contexts/AuthContext'
 
 export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
     const formRef = useRef<HTMLFormElement>(null)
-
+    const { isWorker } = useContext(AuthContext)
     const queryClient = useQueryClient()
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: categories } = useQuery(['allCategories'], getAllCategories)
@@ -87,7 +88,7 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
     }, [watch('categoryId'), watch('brand'), watch('model')])
 
     return (
-        <AppModal {...{ isModalOpen, closeModal }} title={'Add inventory item'}>
+        <AppModal {...{ isModalOpen, closeModal }} title={'Add inventory item'} isForbidden={!isWorker()}>
             <AddEditCategory
                 closeModal={() => setShowCategoryModal(false)}
                 isModalOpen={showCategoryModal}
