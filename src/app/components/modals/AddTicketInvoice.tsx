@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from './ToastProps'
 import { CreateTicketInvoice } from '../../models/interfaces/invoice'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useQuery, useQueryClient } from 'react-query'
 import { TextField } from '../form/TextField'
@@ -21,6 +21,7 @@ import { AddClient } from './users/AddClient'
 import { TicketInvoiceSchema } from '../../models/validators/FormValidators'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { getUserString } from '../../utils/helperFunctions'
+import { AuthContext } from '../../contexts/AuthContext'
 
 export const AddTicketInvoice = ({
     ticketId,
@@ -31,9 +32,12 @@ export const AddTicketInvoice = ({
     isModalOpen: boolean
     closeModal: () => void
 }) => {
+    const { isWorker } = useContext(AuthContext)
     const formRef = useRef<HTMLFormElement>(null)
     const queryClient = useQueryClient()
-    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}))
+    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
+        enabled: isWorker(),
+    })
     const { data: ticket } = useQuery(['ticket', ticketId], () => fetchTicketById(ticketId), { enabled: !!ticketId })
     const [showCreateModal, setShowCreateModal] = useState(false)
     const defaultValue = {
@@ -76,7 +80,7 @@ export const AddTicketInvoice = ({
             })
     }
     return (
-        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'}>
+        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'} isForbidden={!isWorker()}>
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice)}>
                 <AddClient
                     isModalOpen={showCreateModal}

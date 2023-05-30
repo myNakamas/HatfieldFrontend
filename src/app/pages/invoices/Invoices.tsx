@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { InventoryItem, Shop } from '../../models/interfaces/shop'
 import { useNavigate } from 'react-router-dom'
 import { InvoiceFilter } from '../../models/interfaces/filters'
@@ -23,6 +23,16 @@ import { AddInvoice } from '../../components/modals/AddInvoice'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 import { getUserString } from '../../utils/helperFunctions'
 import { FormField } from '../../components/form/Field'
+import { AuthContext } from '../../contexts/AuthContext'
+
+export const openPdf = async (invoiceId: number) => {
+    const pdfBlob = await getInvoicePdf(invoiceId)
+    if (pdfBlob) {
+        const fileUrl = URL.createObjectURL(pdfBlob)
+        const pdfPage = window.open(fileUrl)
+        if (pdfPage) pdfPage.document.title = 'Hatfield Invoice ' + invoiceId
+    }
+}
 
 export const Invoices = () => {
     const navigate = useNavigate()
@@ -31,14 +41,6 @@ export const Invoices = () => {
     const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
     const { data: invoices, isLoading } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }))
 
-    const openPdf = async (invoiceId: number) => {
-        const pdfBlob = await getInvoicePdf(invoiceId)
-        if (pdfBlob) {
-            const fileUrl = URL.createObjectURL(pdfBlob)
-            const pdfPage = window.open(fileUrl)
-            if (pdfPage) pdfPage.document.title = 'Hatfield Invoice ' + invoiceId
-        }
-    }
     return (
         <div className='mainScreen'>
             <Space className={'button-bar'}>
@@ -114,12 +116,14 @@ function InvoiceFilters({
     filter: InvoiceFilter
     setFilter: React.Dispatch<React.SetStateAction<InvoiceFilter>>
 }) {
+    const { isWorker, isAdmin } = useContext(AuthContext)
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
-    // const { data: locations } = useQuery('locations', getAllLocations)
-    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}))
+    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
+        enabled: isWorker(),
+    })
     const { data: users } = useQuery(['users', 'workers'], () => getAllWorkers({}))
-    const { data: shops } = useQuery(['shops'], getAllShops)
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
     const [advanced, setAdvanced] = useState(false)
 
     return advanced ? (
@@ -188,17 +192,19 @@ function InvoiceFilters({
                     getOptionLabel={getUserString}
                     getOptionValue={(user) => String(user.userId)}
                 />
-                <Select<Shop, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter.shopId === id) ?? null}
-                    options={shops ?? []}
-                    placeholder='Filter by shop'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
-                    getOptionLabel={(shop) => shop.shopName}
-                    getOptionValue={(shop) => String(shop.id)}
-                />
+                {isAdmin() && (
+                    <Select<Shop, false>
+                        theme={SelectTheme}
+                        styles={SelectStyles()}
+                        value={shops?.find(({ id }) => filter.shopId === id) ?? null}
+                        options={shops ?? []}
+                        placeholder='Filter by shop'
+                        isClearable
+                        onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                        getOptionLabel={(shop) => shop.shopName}
+                        getOptionValue={(shop) => String(shop.id)}
+                    />
+                )}
             </div>
             <div className='filterColumn' title={'Filter by date'}>
                 <h4>Filter by date</h4>

@@ -4,7 +4,12 @@ import { Chat, Ticket } from '../../../models/interfaces/ticket'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { useQuery } from 'react-query'
 import { WebSocketContext } from '../../../contexts/WebSocketContext'
-import { fetchAllActiveTickets, getChat, getClientChat } from '../../../axios/http/ticketRequests'
+import {
+    fetchAllActiveTickets,
+    fetchClientActiveTickets,
+    getChat,
+    getClientChat,
+} from '../../../axios/http/ticketRequests'
 import { Drawer, Menu, Skeleton, Space, Typography } from 'antd'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { sortChatByDate } from '../../../utils/helperFunctions'
@@ -13,10 +18,13 @@ import { ChatMessages } from './ChatMessages'
 import { MessageInputField } from './ChatInputField'
 
 export const Chats = () => {
-    const { loggedUser } = useContext(AuthContext)
+    const { loggedUser, isClient } = useContext(AuthContext)
     const navigate = useNavigate()
     const { userChats, setUserChats, notificationCount } = useContext(WebSocketContext)
-    const { data: tickets } = useQuery(['tickets'], () => fetchAllActiveTickets({}))
+    const { data: tickets } = useQuery(['tickets'], () => {
+        const query = isClient() ? fetchClientActiveTickets : fetchAllActiveTickets
+        return query({})
+    })
     const [chat, setChat] = useState<Chat | undefined>()
     const [params] = useSearchParams()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
@@ -25,7 +33,7 @@ export const Chats = () => {
     const { data: oldMessages } = useQuery(
         ['messages', selectedTicket?.id],
         () => {
-            const request = loggedUser?.role === 'CLIENT' ? getClientChat : getChat
+            const request = isClient() ? getClientChat : getChat
             return request({ ticketId: selectedTicket?.id })
         },
         {

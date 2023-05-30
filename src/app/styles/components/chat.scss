@@ -50,6 +50,7 @@
   }
 }
 
+
 .message-receiver {
   display: flex;
   width: 100%;
@@ -114,4 +115,11 @@
 }
 .span {
   font-size: small;
+}
+
+.chatProfileIcon{
+  height: 40px;
+  width: 40px;
+  object-fit: contain;
+  border-radius: 100%;
 }

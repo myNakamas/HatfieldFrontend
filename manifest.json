@@ -1,0 +1,22 @@
+{
+  "name": "Phone Repair Shop",
+  "short_name": "Repair Shop",
+  "description": "A convenient and reliable phone repair service in London.",
+  "icons": [
+    {
+      "src": "public/icon.png",
+      "sizes": "any",
+      "type": "image/svg"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#003366",
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "web"
+    }
+  ]
+}

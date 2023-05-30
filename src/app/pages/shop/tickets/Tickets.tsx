@@ -1,11 +1,11 @@
 import { CustomSuspense } from '../../../components/CustomSuspense'
 import { CustomTable } from '../../../components/table/CustomTable'
 import { NoDataComponent } from '../../../components/table/NoDataComponent'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Ticket } from '../../../models/interfaces/ticket'
 import { useQuery } from 'react-query'
 import { ItemPropertyView, Page, PageRequest } from '../../../models/interfaces/generalModels'
-import { fetchAllTickets, fetchTicketById } from '../../../axios/http/ticketRequests'
+import { fetchAllTickets, fetchClientTickets, fetchTicketById } from '../../../axios/http/ticketRequests'
 import { AddTicket } from '../../../components/modals/ticket/AddTicket'
 import dateFormat from 'dateformat'
 import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
@@ -30,8 +30,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons/faPen'
 import { getUserString } from '../../../utils/helperFunctions'
 import { defaultPage } from '../../../models/enums/defaultValues'
+import { AuthContext } from '../../../contexts/AuthContext'
 
 export const Tickets = () => {
+    const { isClient, isWorker } = useContext(AuthContext)
     const [params] = useSearchParams()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [ticketView, setTicketView] = useState('view')
@@ -41,9 +43,16 @@ export const Tickets = () => {
     const onSelectedTicketUpdate = (data: Page<Ticket>) => {
         setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
     }
-    const tickets = useQuery(['tickets', filter, page], () => fetchAllTickets({ page, filter }), {
-        onSuccess: onSelectedTicketUpdate,
-    })
+    const tickets = useQuery(
+        ['tickets', filter, page],
+        () => {
+            const query = isClient() ? fetchClientTickets : fetchAllTickets
+            return query({ page, filter })
+        },
+        {
+            onSuccess: onSelectedTicketUpdate,
+        }
+    )
     useEffect(() => {
         params.get('ticketId') && fetchTicketById(Number(params.get('ticketId'))).then(setSelectedTicket)
     }, [])
@@ -103,9 +112,11 @@ export const Tickets = () => {
             <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} />
             <TicketFilters {...{ filter, setFilter }} />
             <Space className='button-bar'>
-                <Button type={'primary'} onClick={() => setShowNewModal(true)}>
-                    Add Ticket
-                </Button>
+                {isWorker() && (
+                    <Button type={'primary'} onClick={() => setShowNewModal(true)}>
+                        Add Ticket
+                    </Button>
+                )}
             </Space>
             <Tabs
                 animated
@@ -139,34 +150,38 @@ const TicketsTab = ({
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
 }) => (
     <CustomSuspense isReady={!isLoading}>
-        {data && data.content.length > 0 ? (
-            <CustomTable<Ticket>
-                data={data.content.map((ticket) => ({
-                    ...ticket,
-                    timestamp: dateFormat(ticket.timestamp),
-                    deadline: ticket.deadline ? dateFormat(ticket.deadline) : '-',
-                    createdByName: ticket.createdBy?.fullName,
-                    clientName: ticket.client?.fullName,
-                    actions: <Button icon={<FontAwesomeIcon icon={faPen} />} onClick={() => setEditTicket(ticket)} />,
-                }))}
-                headers={{
-                    id: 'Ticket Id',
-                    timestamp: 'Creation date',
-                    deadline: 'Deadline',
-                    status: 'Ticket status',
-                    totalPrice: 'Total Price',
-                    createdByName: 'Created by',
-                    clientName: 'Client name',
-                    actions: 'Actions',
-                }}
-                onClick={(ticket) => setSelectedTicket(ticket)}
-                pagination={page}
-                onPageChange={setPage}
-                totalCount={data.totalCount}
-            />
-        ) : (
-            <NoDataComponent items='tickets' />
-        )}
+        <div className={'tableWrapper'}>
+            {data && data.content.length > 0 ? (
+                <CustomTable<Ticket>
+                    data={data.content.map((ticket) => ({
+                        ...ticket,
+                        timestamp: dateFormat(ticket.timestamp),
+                        deadline: ticket.deadline ? dateFormat(ticket.deadline) : '-',
+                        createdByName: ticket.createdBy?.fullName,
+                        clientName: ticket.client?.fullName,
+                        actions: (
+                            <Button icon={<FontAwesomeIcon icon={faPen} />} onClick={() => setEditTicket(ticket)} />
+                        ),
+                    }))}
+                    headers={{
+                        id: 'Ticket Id',
+                        timestamp: 'Creation date',
+                        deadline: 'Deadline',
+                        status: 'Ticket status',
+                        totalPrice: 'Total Price',
+                        createdByName: 'Created by',
+                        clientName: 'Client name',
+                        actions: 'Actions',
+                    }}
+                    onClick={(ticket) => setSelectedTicket(ticket)}
+                    pagination={page}
+                    onPageChange={setPage}
+                    totalCount={data.totalCount}
+                />
+            ) : (
+                <NoDataComponent items='tickets' />
+            )}
+        </div>
     </CustomSuspense>
 )
 
@@ -177,12 +192,17 @@ const TicketFilters = ({
     filter: TicketFilter
     setFilter: (value: ((prevState: TicketFilter) => TicketFilter) | TicketFilter) => void
 }) => {
+    const { isWorker, isAdmin } = useContext(AuthContext)
     const [advanced, setAdvanced] = useState(false)
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
-    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}))
-    const { data: users } = useQuery(['users', 'workers'], () => getAllWorkers({}))
-    const { data: shops } = useQuery(['shops'], getAllShops)
+    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
+        enabled: isWorker(),
+    })
+    const { data: users } = useQuery(['users', 'workers'], () => getAllWorkers({}), {
+        enabled: isAdmin(),
+    })
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
     return advanced ? (
         <div className='largeFilter'>
             <div className='filterColumn'>
@@ -254,17 +274,19 @@ const TicketFilters = ({
                     getOptionLabel={getUserString}
                     getOptionValue={(user) => String(user.userId)}
                 />
-                <Select<Shop, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter.shopId === id) ?? null}
-                    options={shops ?? []}
-                    placeholder='Filter by shop'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
-                    getOptionLabel={(shop) => shop.shopName}
-                    getOptionValue={(shop) => String(shop.id)}
-                />
+                {isAdmin() && (
+                    <Select<Shop, false>
+                        theme={SelectTheme}
+                        styles={SelectStyles()}
+                        value={shops?.find(({ id }) => filter.shopId === id) ?? null}
+                        options={shops ?? []}
+                        placeholder='Filter by shop'
+                        isClearable
+                        onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                        getOptionLabel={(shop) => shop.shopName}
+                        getOptionValue={(shop) => String(shop.id)}
+                    />
+                )}
             </div>
             <div className='filterColumn' title={'Filter by date'}>
                 <h4>Filter by date</h4>

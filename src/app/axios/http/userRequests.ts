@@ -22,6 +22,10 @@ export const useLogin = ({ username, password }: UsernamePassword): Promise<{ us
 export const getLoggedUser = (): Promise<User> => {
     return backendClient.get('user/profile')
 }
+export const getSimpleUsers = ({ filter }: { filter?: UserFilter }): Promise<User[]> => {
+    const userFilter = toUserFilterView(filter)
+    return backendClient.get('user/all', { params: userFilter })
+}
 export const getAllUsers = ({ filter }: { filter?: UserFilter }): Promise<User[]> => {
     const userFilter = toUserFilterView(filter)
     return backendClient.get('user/worker/all', { params: userFilter })

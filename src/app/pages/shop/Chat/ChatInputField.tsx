@@ -13,7 +13,7 @@ import { getBase64, getCurrentTime } from '../../../utils/helperFunctions'
 import { RcFile } from 'antd/es/upload'
 
 export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?: Ticket }) => {
-    const { loggedUser } = useContext(AuthContext)
+    const { loggedUser, isWorker } = useContext(AuthContext)
     const [messageText, setMessageText] = useState('')
     const [showToClient, setShowToClient] = useState(false)
     const { addUnsentMessage, removeUnsentMessage } = useContext(WebSocketContext)
@@ -100,7 +100,7 @@ export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?:
                     autoFocus
                 />
             )}
-            {loggedUser?.role !== 'CLIENT' && (
+            {isWorker() && (
                 <div>
                     <div className='span'>Send to client</div>
                     <Switch checked={showToClient} onChange={() => setShowToClient((prev) => !prev)} />

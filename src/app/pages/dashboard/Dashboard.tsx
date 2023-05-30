@@ -35,25 +35,28 @@ export const Dashboard = () => {
     )
 
     return (
-        <Space direction='vertical' className='w-100'>
+        <Space direction='vertical' className='w-100' wrap>
             <ViewTicket ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
             <AddTicket isModalOpen={showNewTicketModal} closeModal={() => setShowNewTicketModal(false)} />
-            <Space className='w-100 justify-between p-2'>
+            <Space
+                className='w-100 justify-between p-2'
+                direction={window.innerWidth < 768 ? 'vertical' : 'horizontal'}
+            >
                 <h2>Dashboard</h2>
                 <DashboardFilters {...{ filter, setFilter }} />
             </Space>
             <Row wrap>
-                <Col span={12} offset={1}>
+                <Col span={12} offset={1} className={'grid-card'}>
                     <InvoicesReport filter={filter} />
                 </Col>
-                <Col span={8} offset={1}>
+                <Col span={8} offset={1} className={'grid-card'}>
                     <RepairsReport filter={filter} />
                 </Col>
             </Row>
             <Row wrap>
-                <Col span={12} offset={1}>
+                <Col span={12} offset={1} className={'grid-card'}>
                     <Card
-                        style={{ minWidth: 350 }}
+                        style={{ minWidth: 250 }}
                         title={`Active Tickets: ${tickets?.length ?? 0} `}
                         extra={
                             <Space>
@@ -88,22 +91,25 @@ export const DashboardFilters = ({
     filter: TicketFilter
     setFilter: (value: ((prevState: TicketFilter) => TicketFilter) | TicketFilter) => void
 }) => {
-    const { data: shops } = useQuery('shops', getAllShops)
+    const { isAdmin } = useContext(AuthContext)
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
 
     return (
         <Space>
             <div className='filterField'>
-                <Select<Shop, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter.shopId === id) ?? null}
-                    options={shops ?? []}
-                    placeholder='Filter by shop'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
-                    getOptionLabel={(shop) => shop.shopName}
-                    getOptionValue={(shop) => String(shop.id)}
-                />
+                {isAdmin() && (
+                    <Select<Shop, false>
+                        theme={SelectTheme}
+                        styles={SelectStyles()}
+                        value={shops?.find(({ id }) => filter.shopId === id) ?? null}
+                        options={shops ?? []}
+                        placeholder='Filter by shop'
+                        isClearable
+                        onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                        getOptionLabel={(shop) => shop.shopName}
+                        getOptionValue={(shop) => String(shop.id)}
+                    />
+                )}
             </div>
             <DateTimeFilter
                 filter={filter}

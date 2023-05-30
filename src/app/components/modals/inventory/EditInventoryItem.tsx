@@ -18,7 +18,7 @@ import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import CreatableSelect from 'react-select/creatable'
 import { FormField } from '../../form/Field'
-import { ItemPropertyView } from '../../../models/interfaces/generalModels'
+import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { Button, Space } from 'antd'
@@ -78,8 +78,8 @@ export const EditInventoryItem = ({
                     closeModal()
                     queryClient.invalidateQueries(['shopItems']).then()
                 })
-                .catch((error) => {
-                    setError('root', error)
+                .catch((error: AppError) => {
+                    setError('root', { message: error.detail })
                 })
         } else {
             setError('root', { type: 'shopId', message: 'You are not assigned to any shop' })

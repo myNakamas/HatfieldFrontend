@@ -33,21 +33,19 @@ export const DateTimeFilter = ({
     }
 
     return (
-        <div>
-            <RangePicker
-                size={'large'}
-                placeholder={placeholder ? [placeholder + ' after', placeholder + ' before'] : undefined}
-                allowEmpty={[true, true]}
-                value={dates}
-                onCalendarChange={(dates) => {
-                    setDates(dates)
-                    updateFilter(dates)
-                }}
-                onChange={(dates) => {
-                    setDates(dates)
-                    updateFilter(dates)
-                }}
-            />
-        </div>
+        <RangePicker
+            size={'large'}
+            placeholder={placeholder ? [placeholder + ' after', placeholder + ' before'] : undefined}
+            allowEmpty={[true, true]}
+            value={dates}
+            onCalendarChange={(dates) => {
+                setDates(dates)
+                updateFilter(dates)
+            }}
+            onChange={(dates) => {
+                setDates(dates)
+                updateFilter(dates)
+            }}
+        />
     )
 }

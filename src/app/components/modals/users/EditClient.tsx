@@ -15,6 +15,7 @@ import { toast } from 'react-toastify'
 import { updateClient } from '../../../axios/http/userRequests'
 import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { TextField } from '../../form/TextField'
+import { AppError } from '../../../models/interfaces/generalModels'
 
 export const EditClient = ({
     client,
@@ -25,9 +26,9 @@ export const EditClient = ({
     isModalOpen: boolean
     closeModal: () => void
 }) => {
+    const { loggedUser, isAdmin, isWorker } = useContext(AuthContext)
     const formRef = useRef<HTMLFormElement>(null)
-    const { data: shops } = useQuery('shops', getAllShops)
-    const { loggedUser } = useContext(AuthContext)
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
 
     const queryClient = useQueryClient()
 
@@ -52,19 +53,21 @@ export const EditClient = ({
 
     const onSaveNew = (formValue: User) => {
         const user = { ...formValue, shopId: loggedUser?.shopId } as User
-        return toast
-            .promise(updateClient(user), toastUpdatePromiseTemplate('client'), toastProps)
-            .then(() => {
-                closeModal()
-                queryClient.invalidateQueries(['users', 'clients']).then()
-            })
-            .catch((message: string) => {
-                setError('root', { message })
-            })
+        return (
+            toast
+                .promise(updateClient(user), toastUpdatePromiseTemplate('client'), toastProps)
+                .then(() => {
+                    closeModal()
+                    queryClient.invalidateQueries(['users', 'clients']).then()
+                })
+                .catch((error: AppError) => {
+                    setError('root', { message: error.detail })
+                })
+        )
     }
 
     return (
-        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title='Edit client '>
+        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title='Edit client ' isForbidden={!isWorker()}>
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit((data) => onSaveNew(data))}>
                 <UserForm {...{ register, control, watch, setValue, getValues, errors }} />
 

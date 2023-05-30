@@ -14,8 +14,11 @@ import { Button, Space } from 'antd'
 import { FormField } from '../form/Field'
 import { HexColorPicker } from 'react-colorful'
 import { ThemeContext } from '../../contexts/ThemeContext'
+import { AuthContext } from '../../contexts/AuthContext'
+import { AppError } from '../../models/interfaces/generalModels'
 
 export const AddShop = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
+    const { isAdmin } = useContext(AuthContext)
     const formRef = useRef<HTMLFormElement>(null)
     const queryClient = useQueryClient()
     const { colors } = useContext(ThemeContext)
@@ -41,8 +44,8 @@ export const AddShop = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
                 closeModal()
                 queryClient.invalidateQueries(['shops']).then()
             })
-            .catch((message: string) => {
-                setError('root', { message })
+            .catch((error: AppError) => {
+                setError('root', { message: error.detail })
             })
     }
 
@@ -52,7 +55,7 @@ export const AddShop = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
     }, [colors])
 
     return (
-        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Shop'}>
+        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Shop'} isForbidden={!isAdmin()}>
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit((data) => saveShop(data))}>
                 <div className='card'>
                     <TextField label={'Shop name'} register={register('shopName')} error={errors.shopName} />

@@ -1,5 +1,5 @@
 import { CreateInvoice } from '../../models/interfaces/invoice'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useQuery, useQueryClient } from 'react-query'
 import { TextField } from '../form/TextField'
@@ -17,7 +17,7 @@ import {
     PaymentMethodList,
     WarrantyPeriodList,
 } from '../../models/enums/invoiceEnums'
-import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { AppError, ItemPropertyView } from '../../models/interfaces/generalModels'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { AddClient } from './users/AddClient'
@@ -31,6 +31,7 @@ import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import { FormError } from '../form/FormError'
 import { getUserString } from '../../utils/helperFunctions'
+import { AuthContext } from '../../contexts/AuthContext'
 
 export const AddInvoice = ({
     item,
@@ -41,9 +42,12 @@ export const AddInvoice = ({
     isModalOpen: boolean
     closeModal: () => void
 }) => {
+    const { isWorker } = useContext(AuthContext)
     const formRef = useRef<HTMLFormElement>(null)
     const navigate = useNavigate()
-    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}))
+    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
+        enabled: isWorker(),
+    })
     const queryClient = useQueryClient()
     const [showCreateModal, setShowCreateModal] = useState(false)
     const defaultValues = item
@@ -86,18 +90,18 @@ export const AddInvoice = ({
                 closeModal()
                 queryClient.invalidateQueries(['invoices']).then(() => navigate('/invoices/' + id))
             })
-            .catch((message: string) => {
-                setError('root', { message })
+            .catch((error: AppError) => {
+                setError('root', { message: error.detail })
             })
     }
     return (
-        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'}>
+        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'} isForbidden={!isWorker()}>
             <AddClient
                 isModalOpen={showCreateModal}
                 closeModal={() => setShowCreateModal(false)}
                 onSuccess={(client) => setValue('clientId', client.userId)}
             />
-            <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice, console.log)}>
+            <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice)}>
                 <Space direction='vertical' className='w-100'>
                     <Controller
                         control={control}
@@ -198,12 +202,13 @@ export const AddInvoice = ({
                                 error={errors.count}
                                 type='number'
                             />
-                            {watch('count') ==1 &&
-                            <TextField
-                                label={'Serial number'}
-                                register={register('serialNumber')}
-                                error={errors.serialNumber}
-                            />}
+                            {watch('count') == 1 && (
+                                <TextField
+                                    label={'Serial number'}
+                                    register={register('serialNumber')}
+                                    error={errors.serialNumber}
+                                />
+                            )}
                         </Space>
                     </Card>
                     <Card>

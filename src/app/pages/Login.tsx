@@ -16,7 +16,7 @@ export const Login = () => {
     const { login } = useContext(AuthContext)
     const navigate = useNavigate()
     const { state } = useLocation()
-    const pageToRedirectTo = state?.from && state?.from !== '/login' ? state.from : '/welcome'
+    const pageToRedirectTo = state?.from && state?.from !== '/login' ? state.from : '/home'
     const {
         register,
         handleSubmit,
@@ -28,7 +28,6 @@ export const Login = () => {
         useLogin(formValues)
             .then(({ user, token }) => {
                 login(user, token)
-                console.log(pageToRedirectTo)
                 navigate(pageToRedirectTo, { replace: true })
             })
             .catch(() => {

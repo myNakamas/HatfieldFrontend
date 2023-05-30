@@ -6,7 +6,7 @@ import {
     Ticket,
     UsedItemView,
 } from '../../../models/interfaces/ticket'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import dateFormat from 'dateformat'
 import { EditTicketForm } from './EditTicketForm'
 import { putCompleteTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
@@ -30,6 +30,7 @@ import { useNavigate } from 'react-router-dom'
 import { AddTicketInvoice } from '../AddTicketInvoice'
 import Select from 'react-select'
 import { postPrintTicket, postPrintTicketLabel } from '../../../axios/http/documentRequests'
+import { AuthContext } from '../../../contexts/AuthContext'
 
 export const ViewTicket = ({
     ticket,
@@ -48,6 +49,7 @@ export const ViewTicket = ({
     const [showInvoiceModal, setShowInvoiceModal] = useState(false)
     const [ticketStatus, setTicketStatus] = useState(ticket?.status ?? '')
     const queryClient = useQueryClient()
+    const { isWorker } = useContext(AuthContext)
     useEffect(() => {
         if (view) setMode(view)
         else setMode('view')
@@ -127,18 +129,24 @@ export const ViewTicket = ({
         >
             {ticket && (
                 <>
-                    <AddUsedItem
-                        usedItem={{ itemId: undefined, count: 1, ticketId: ticket.id } as unknown as CreateUsedItem}
-                        closeModal={() => setIsUseModalOpen(false)}
-                        show={isUseModalOpen}
-                    />
-                    <AddTicketInvoice
-                        ticketId={ticket.id}
-                        closeModal={() => setShowInvoiceModal(false)}
-                        isModalOpen={showInvoiceModal}
-                    />
+                    {isWorker() && (
+                        <>
+                            <AddUsedItem
+                                usedItem={
+                                    { itemId: undefined, count: 1, ticketId: ticket.id } as unknown as CreateUsedItem
+                                }
+                                closeModal={() => setIsUseModalOpen(false)}
+                                show={isUseModalOpen}
+                            />
+                            <AddTicketInvoice
+                                ticketId={ticket.id}
+                                closeModal={() => setShowInvoiceModal(false)}
+                                isModalOpen={showInvoiceModal}
+                            />
+                        </>
+                    )}
                     <div className='flex-100 justify-end '>
-                        {mode !== 'edit' ? (
+                        {mode !== 'edit' && isWorker() ? (
                             <Button
                                 icon={<FontAwesomeIcon icon={faPenToSquare} size={'lg'} />}
                                 onClick={() => setMode('edit')}
@@ -164,120 +172,124 @@ export const ViewTicket = ({
                     {mode === 'view' && (
                         <div className='viewModal'>
                             <TicketDescription ticket={ticket} />
-                            <Card title='Used items'>
-                                {ticket.usedParts.length > 0 ? (
-                                    <CustomTable<UsedItemView>
-                                        data={ticket.usedParts.map(({ item, usedCount, timestamp }) => ({
-                                            item,
-                                            usedCount,
-                                            itemDetail: item.name,
-                                            timestamp: dateFormat(timestamp),
-                                        }))}
-                                        headers={{
-                                            itemDetail: 'item',
-                                            usedCount: 'Used count',
-                                            timestamp: 'Used at',
-                                        }}
-                                        onClick={() => console.log('todo:Display Used item data')}
-                                    />
-                                ) : (
-                                    <NoDataComponent items={'used items'}>
-                                        <Button type='primary' onClick={() => setIsUseModalOpen(true)}>
-                                            Add an item
-                                        </Button>
-                                    </NoDataComponent>
-                                )}
-                            </Card>
-
-                            {/*Actions with ticket*/}
-                            <Space wrap>
-                                <Space direction='vertical' className='card'>
-                                    <h3>Ticket status</h3>
-                                    <div className='ticketActions'>
-                                        <div>Start the repair</div>
-                                        <Button
-                                            onClick={() => startTicket(ticket.id)}
-                                            disabled={ticket.status !== 'PENDING'}
-                                        >
-                                            Start repair
-                                        </Button>
-                                    </div>
-                                    <div>Change ticket status</div>
-                                    <Space>
-                                        <Select<ItemPropertyView, false>
-                                            theme={SelectTheme}
-                                            styles={SelectStyles()}
-                                            value={
-                                                (TicketStatusesArray.find(
-                                                    ({ value }) => value === ticketStatus
-                                                ) as ItemPropertyView) ?? null
-                                            }
-                                            options={TicketStatusesArray ?? []}
-                                            placeholder='New Status'
-                                            isClearable
-                                            onChange={(value) => setTicketStatus(value?.value as TicketStatus)}
-                                            getOptionLabel={(status) => status.value}
-                                            getOptionValue={(status) => String(status.id)}
-                                        />
-                                        <Button
-                                            onClick={() => updateTicketStatus(ticket.id, ticketStatus as TicketStatus)}
-                                        >
-                                            Change status
-                                        </Button>
+                            {isWorker() && (
+                                <>
+                                    <Card title='Used items'>
+                                        {ticket.usedParts.length > 0 ? (
+                                            <CustomTable<UsedItemView>
+                                                data={ticket.usedParts.map(({ item, usedCount, timestamp }) => ({
+                                                    item,
+                                                    usedCount,
+                                                    itemDetail: item.name,
+                                                    timestamp: dateFormat(timestamp),
+                                                }))}
+                                                headers={{
+                                                    itemDetail: 'item',
+                                                    usedCount: 'Used count',
+                                                    timestamp: 'Used at',
+                                                }}
+                                                //todo:Display Used item data
+                                                onClick={() => {}}
+                                            />
+                                        ) : (
+                                            <NoDataComponent items={'used items'}>
+                                                <Button type='primary' onClick={() => setIsUseModalOpen(true)}>
+                                                    Add an item
+                                                </Button>
+                                            </NoDataComponent>
+                                        )}
+                                    </Card>
+                                    <Space wrap>
+                                        <Space direction='vertical' className='card'>
+                                            <h3>Ticket status</h3>
+                                            <div className='ticketActions'>
+                                                <div>Start the repair</div>
+                                                <Button
+                                                    onClick={() => startTicket(ticket.id)}
+                                                    disabled={ticket.status !== 'PENDING'}
+                                                >
+                                                    Start repair
+                                                </Button>
+                                            </div>
+                                            <div>Change ticket status</div>
+                                            <Space>
+                                                <Select<ItemPropertyView, false>
+                                                    theme={SelectTheme}
+                                                    styles={SelectStyles()}
+                                                    value={
+                                                        (TicketStatusesArray.find(
+                                                            ({ value }) => value === ticketStatus
+                                                        ) as ItemPropertyView) ?? null
+                                                    }
+                                                    options={TicketStatusesArray ?? []}
+                                                    placeholder='New Status'
+                                                    isClearable
+                                                    onChange={(value) => setTicketStatus(value?.value as TicketStatus)}
+                                                    getOptionLabel={(status) => status.value}
+                                                    getOptionValue={(status) => String(status.id)}
+                                                />
+                                                <Button
+                                                    onClick={() =>
+                                                        updateTicketStatus(ticket.id, ticketStatus as TicketStatus)
+                                                    }
+                                                >
+                                                    Change status
+                                                </Button>
+                                            </Space>
+                                            <FormError error={deviceLocationError} />
+                                            <div>Complete the repair</div>
+                                            <Space className='justify-between w-100'>
+                                                <CreatableSelect<ItemPropertyView, false>
+                                                    isClearable
+                                                    theme={SelectTheme}
+                                                    styles={SelectStyles<ItemPropertyView>()}
+                                                    options={DeviceLocationArray}
+                                                    formatCreateLabel={(value) => 'Add a new location: ' + value}
+                                                    placeholder='New location'
+                                                    value={
+                                                        deviceLocation
+                                                            ? {
+                                                                  value: deviceLocation,
+                                                                  id: -1,
+                                                              }
+                                                            : null
+                                                    }
+                                                    onCreateOption={(item) => setDeviceLocation(item)}
+                                                    onChange={(newValue) => setDeviceLocation(newValue?.value ?? '')}
+                                                    getOptionLabel={(item) => item.value}
+                                                    getOptionValue={(item) => item.id + item.value}
+                                                />
+                                                <Button onClick={() => completeTicket(ticket.id)}>Finish repair</Button>
+                                            </Space>
+                                            <Space className='ticketActions'>
+                                                <div>Mark as collected</div>
+                                                <Button onClick={() => setShowInvoiceModal(true)}>Collected</Button>
+                                            </Space>
+                                        </Space>
+                                        <Space direction='vertical' className='card'>
+                                            <h3>Other actions</h3>
+                                            <Space className='ticketActions'>
+                                                <div>Open the chat with the customer</div>
+                                                <Button onClick={() => navigate('/chats?id=' + ticket.id)}>Chat</Button>
+                                            </Space>
+                                            <Space className='ticketActions'>
+                                                <div>Print ticket repair tag</div>
+                                                <Button onClick={printTicketLabel}>Print repair tag</Button>
+                                            </Space>
+                                            <Space className='ticketActions'>
+                                                <div>Print ticket</div>
+                                                <Button onClick={printTicket}>Print ticket</Button>
+                                            </Space>
+                                            <Space className='ticketActions'>
+                                                <div>Use an item for ticket</div>
+                                                <Button type='primary' onClick={() => setIsUseModalOpen(true)}>
+                                                    Add an item from inventory
+                                                </Button>
+                                            </Space>
+                                        </Space>
                                     </Space>
-                                    <FormError error={deviceLocationError} />
-                                    <div>Complete the repair</div>
-                                    <Space className='justify-between w-100'>
-                                        <CreatableSelect<ItemPropertyView, false>
-                                            isClearable
-                                            theme={SelectTheme}
-                                            styles={SelectStyles<ItemPropertyView>()}
-                                            options={DeviceLocationArray}
-                                            formatCreateLabel={(value) => 'Add a new location: ' + value}
-                                            placeholder='New location'
-                                            value={
-                                                deviceLocation
-                                                    ? {
-                                                          value: deviceLocation,
-                                                          id: -1,
-                                                      }
-                                                    : null
-                                            }
-                                            onCreateOption={(item) => setDeviceLocation(item)}
-                                            onChange={(newValue) => setDeviceLocation(newValue?.value ?? '')}
-                                            getOptionLabel={(item) => item.value}
-                                            getOptionValue={(item) => item.id + item.value}
-                                        />
-                                        <Button onClick={() => completeTicket(ticket.id)}>Finish repair</Button>
-                                    </Space>
-                                    <Space className='ticketActions'>
-                                        <div>Mark as collected</div>
-                                        <Button onClick={() => setShowInvoiceModal(true)}>Collected</Button>
-                                    </Space>
-                                </Space>
-
-                                <Space direction='vertical' className='card'>
-                                    <h3>Other actions</h3>
-                                    <Space className='ticketActions'>
-                                        <div>Open the chat with the customer</div>
-                                        <Button onClick={() => navigate('/chats?id=' + ticket.id)}>Chat</Button>
-                                    </Space>
-                                    <Space className='ticketActions'>
-                                        <div>Print ticket repair tag</div>
-                                        <Button onClick={printTicketLabel}>Print repair tag</Button>
-                                    </Space>
-                                    <Space className='ticketActions'>
-                                        <div>Print ticket</div>
-                                        <Button onClick={printTicket}>Print ticket</Button>
-                                    </Space>
-                                    <Space className='ticketActions'>
-                                        <div>Use an item for ticket</div>
-                                        <Button type='primary' onClick={() => setIsUseModalOpen(true)}>
-                                            Add an item from inventory
-                                        </Button>
-                                    </Space>
-                                </Space>
-                            </Space>
+                                </>
+                            )}
                         </div>
                     )}
                 </>

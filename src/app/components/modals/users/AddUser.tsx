@@ -20,15 +20,15 @@ import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
 import { SimpleUserSchema } from '../../../models/validators/FormValidators'
 import { UserForm } from './UserForm'
 import { defaultUser } from '../../../models/enums/defaultValues'
+import { AppError } from '../../../models/interfaces/generalModels'
 
 export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
     const formRef = useRef<HTMLFormElement>(null)
     const { data: shops } = useQuery('shops', getAllShops)
-    const { loggedUser } = useContext(AuthContext)
-    const isLoggedUserAdmin = loggedUser?.role === 'ADMIN'
+    const { loggedUser, isAdmin } = useContext(AuthContext)
 
     const queryClient = useQueryClient()
-    const defaultValues = isLoggedUserAdmin ? defaultUser : { ...defaultUser, shopId: loggedUser?.shopId }
+    const defaultValues = isAdmin() ? defaultUser : { ...defaultUser, shopId: loggedUser?.shopId }
     const {
         register,
         handleSubmit,
@@ -49,7 +49,7 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
     }, [isModalOpen])
 
     const onSaveNew = (formValue: User) => {
-        const user = isLoggedUserAdmin ? formValue : ({ ...formValue, shopId: loggedUser?.shopId } as User)
+        const user = isAdmin() ? formValue : ({ ...formValue, shopId: loggedUser?.shopId } as User)
         return toast
             .promise(
                 user.role === 'CLIENT' ? createClient(user) : createWorkerUser(user),
@@ -61,8 +61,8 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
                 reset({})
                 queryClient.invalidateQueries(['users']).then()
             })
-            .catch((message: string) => {
-                setError('root', { message })
+            .catch((error: AppError) => {
+                setError('root', { message: error.detail })
             })
     }
 
@@ -82,7 +82,7 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
                     label={'Full name'}
                 />
                 <UserForm {...{ register, control, watch, setValue, getValues, errors }} />
-                {isLoggedUserAdmin ? (
+                {isAdmin() ? (
                     <Controller
                         control={control}
                         name='shopId'
@@ -91,7 +91,6 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
                                 <Select<Shop, false>
                                     theme={SelectTheme}
                                     options={shops}
-                                    isDisabled={loggedUser?.role !== 'ADMIN'}
                                     value={shops?.find((shop) => shop.id === field.value) ?? null}
                                     getOptionLabel={({ shopName }) => shopName}
                                     getOptionValue={({ id }) => id + ''}
