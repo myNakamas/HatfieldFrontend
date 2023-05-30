@@ -6,9 +6,8 @@ import { Role } from '../models/enums/userEnums'
 import { Navigate, Outlet } from 'react-router-dom'
 
 export const RoleRestrictionHomeRoute = () => {
-    const { loggedUser } = useContext(AuthContext)
-    console.log(loggedUser?.role)
-    return loggedUser?.role === 'CLIENT' ? <WelcomePage /> : <Dashboard />
+    const { isClient } = useContext(AuthContext)
+    return isClient() ? <WelcomePage /> : <Dashboard />
 }
 
 export const RoleRestrictionRoute = ({ role }: { role: Role[] }) => {

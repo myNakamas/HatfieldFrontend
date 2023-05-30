@@ -33,7 +33,7 @@ import { defaultPage } from '../../../models/enums/defaultValues'
 import { AuthContext } from '../../../contexts/AuthContext'
 
 export const Tickets = () => {
-    const { loggedUser } = useContext(AuthContext)
+    const { isClient } = useContext(AuthContext)
     const [params] = useSearchParams()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [ticketView, setTicketView] = useState('view')
@@ -46,7 +46,7 @@ export const Tickets = () => {
     const tickets = useQuery(
         ['tickets', filter, page],
         () => {
-            const query = loggedUser?.role == 'CLIENT' ? fetchClientTickets : fetchAllTickets
+            const query = isClient() ? fetchClientTickets : fetchAllTickets
             return query({ page, filter })
         },
         {
@@ -190,7 +190,7 @@ const TicketFilters = ({
     filter: TicketFilter
     setFilter: (value: ((prevState: TicketFilter) => TicketFilter) | TicketFilter) => void
 }) => {
-    const { loggedUser, isWorker, isAdmin } = useContext(AuthContext)
+    const { isWorker, isAdmin } = useContext(AuthContext)
     const [advanced, setAdvanced] = useState(false)
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
@@ -272,7 +272,7 @@ const TicketFilters = ({
                     getOptionLabel={getUserString}
                     getOptionValue={(user) => String(user.userId)}
                 />
-                {loggedUser?.role === 'ADMIN' && (
+                {isAdmin() && (
                     <Select<Shop, false>
                         theme={SelectTheme}
                         styles={SelectStyles()}

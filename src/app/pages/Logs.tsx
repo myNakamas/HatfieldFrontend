@@ -74,12 +74,12 @@ const LogsFilters = ({
     filter: LogsFilter
     setFilter: React.Dispatch<React.SetStateAction<LogsFilter>>
 }) => {
-    const { loggedUser } = useContext(AuthContext)
-    const { data: shops } = useQuery('shops', getAllShops, { enabled: loggedUser?.role === 'ADMIN' })
+    const {isAdmin } = useContext(AuthContext)
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
     return (
         <Space>
             <div className='filterField'>
-                {loggedUser?.role === 'ADMIN' && (
+                {isAdmin() && (
                     <Select<Shop, false>
                         theme={SelectTheme}
                         styles={SelectStyles()}

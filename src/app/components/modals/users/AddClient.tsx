@@ -29,10 +29,10 @@ export const AddClient = ({
     closeModal: () => void
     onSuccess?: (user: User) => void
 }) => {
-    const { loggedUser } = useContext(AuthContext)
+    const { loggedUser, isAdmin } = useContext(AuthContext)
     const formRef = useRef<HTMLFormElement>(null)
     const [showResponse, setShowResponse] = useState<User | undefined>()
-    const { data: shops } = useQuery('shops', getAllShops, { enabled: loggedUser?.role === 'ADMIN' })
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
 
     const queryClient = useQueryClient()
 
@@ -95,7 +95,7 @@ export const AddClient = ({
                         label={'Full name'}
                     />
                     <UserForm {...{ register, control, watch, setValue, getValues, errors }} />
-                    {loggedUser?.role === 'ADMIN' && (
+                    {isAdmin() && (
                         <FormField label='Shop to add the client to'>
                             <input
                                 className='input'

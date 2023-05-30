@@ -91,14 +91,13 @@ export const DashboardFilters = ({
     filter: TicketFilter
     setFilter: (value: ((prevState: TicketFilter) => TicketFilter) | TicketFilter) => void
 }) => {
-    const { loggedUser } = useContext(AuthContext)
-    //todo: use checkRole function.
-    const { data: shops } = useQuery('shops', getAllShops, { enabled: loggedUser?.role === 'ADMIN' })
+    const { isAdmin } = useContext(AuthContext)
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
 
     return (
         <Space>
             <div className='filterField'>
-                {loggedUser?.role === 'ADMIN' && (
+                {isAdmin() && (
                     <Select<Shop, false>
                         theme={SelectTheme}
                         styles={SelectStyles()}

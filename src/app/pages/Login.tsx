@@ -28,7 +28,6 @@ export const Login = () => {
         useLogin(formValues)
             .then(({ user, token }) => {
                 login(user, token)
-                console.log(pageToRedirectTo)
                 navigate(pageToRedirectTo, { replace: true })
             })
             .catch(() => {

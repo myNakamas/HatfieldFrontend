@@ -31,12 +31,12 @@ const clientsTableHeaders = {
 export const Clients = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
     const refsArray = Array.from({ length: 4 }, () => useRef(null))
-    const { loggedUser } = useContext(AuthContext)
+    const { isAdmin } = useContext(AuthContext)
     const [page, setPage] = useState<PageRequest>(defaultPage)
     const [viewUser, setViewUser] = useState<User | undefined>()
     const [selectedUser, setSelectedUser] = useState<User | undefined>()
     const [showCreateModal, setShowCreateModal] = useState(false)
-    const { data: shops } = useQuery(['shops'], getAllShops, { enabled: loggedUser?.role === 'ADMIN' })
+    const { data: shops } = useQuery(['shops'], getAllShops, { enabled: isAdmin() })
     const [filter, setFilter] = useState<UserFilter>({
         banned: false,
     })
@@ -68,7 +68,7 @@ export const Clients = () => {
                 {clients && clients.totalCount > 0 ? (
                     <CustomTable<User>
                         headers={
-                            loggedUser?.role === 'ADMIN'
+                            isAdmin()
                                 ? { ...clientsTableHeaders, shop: 'Shop name' }
                                 : clientsTableHeaders
                         }

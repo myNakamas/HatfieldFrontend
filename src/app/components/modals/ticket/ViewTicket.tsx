@@ -188,7 +188,8 @@ export const ViewTicket = ({
                                                     usedCount: 'Used count',
                                                     timestamp: 'Used at',
                                                 }}
-                                                onClick={() => console.log('todo:Display Used item data')}
+                                                //todo:Display Used item data
+                                                onClick={() => {}}
                                             />
                                         ) : (
                                             <NoDataComponent items={'used items'}>

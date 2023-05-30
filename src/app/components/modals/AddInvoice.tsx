@@ -101,7 +101,7 @@ export const AddInvoice = ({
                 closeModal={() => setShowCreateModal(false)}
                 onSuccess={(client) => setValue('clientId', client.userId)}
             />
-            <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice, console.log)}>
+            <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice)}>
                 <Space direction='vertical' className='w-100'>
                     <Controller
                         control={control}

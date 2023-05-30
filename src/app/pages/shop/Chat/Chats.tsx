@@ -18,11 +18,11 @@ import { ChatMessages } from './ChatMessages'
 import { MessageInputField } from './ChatInputField'
 
 export const Chats = () => {
-    const { loggedUser } = useContext(AuthContext)
+    const { loggedUser, isClient } = useContext(AuthContext)
     const navigate = useNavigate()
     const { userChats, setUserChats, notificationCount } = useContext(WebSocketContext)
     const { data: tickets } = useQuery(['tickets'], () => {
-        const query = loggedUser?.role == 'CLIENT' ? fetchClientActiveTickets : fetchAllActiveTickets
+        const query = isClient() ? fetchClientActiveTickets : fetchAllActiveTickets
         return query({})
     })
     const [chat, setChat] = useState<Chat | undefined>()
@@ -33,7 +33,7 @@ export const Chats = () => {
     const { data: oldMessages } = useQuery(
         ['messages', selectedTicket?.id],
         () => {
-            const request = loggedUser?.role === 'CLIENT' ? getClientChat : getChat
+            const request = isClient() ? getClientChat : getChat
             return request({ ticketId: selectedTicket?.id })
         },
         {

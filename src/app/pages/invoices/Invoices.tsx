@@ -115,15 +115,14 @@ function InvoiceFilters({
     filter: InvoiceFilter
     setFilter: React.Dispatch<React.SetStateAction<InvoiceFilter>>
 }) {
-    const { loggedUser, isWorker } = useContext(AuthContext)
+    const { isWorker, isAdmin } = useContext(AuthContext)
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
-    // const { data: locations } = useQuery('locations', getAllLocations)
     const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
         enabled: isWorker(),
     })
     const { data: users } = useQuery(['users', 'workers'], () => getAllWorkers({}))
-    const { data: shops } = useQuery('shops', getAllShops, { enabled: loggedUser?.role === 'ADMIN' })
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
     const [advanced, setAdvanced] = useState(false)
 
     return advanced ? (
@@ -192,7 +191,7 @@ function InvoiceFilters({
                     getOptionLabel={getUserString}
                     getOptionValue={(user) => String(user.userId)}
                 />
-                {loggedUser?.role === 'ADMIN' && (
+                {isAdmin() && (
                     <Select<Shop, false>
                         theme={SelectTheme}
                         styles={SelectStyles()}
