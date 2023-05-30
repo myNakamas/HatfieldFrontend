@@ -13,13 +13,16 @@ export const AppModal = ({
     closeModal,
     title,
     size,
+    isForbidden,
 }: {
     children: React.ReactNode
     isModalOpen: boolean
     closeModal: () => void
     title?: string
     size?: 'S' | 'M' | 'L'
+    isForbidden?: boolean
 }) => {
+    if (isForbidden) return <></>
     return (
         <Modal
             open={isModalOpen}

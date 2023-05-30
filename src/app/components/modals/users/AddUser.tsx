@@ -20,6 +20,7 @@ import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
 import { SimpleUserSchema } from '../../../models/validators/FormValidators'
 import { UserForm } from './UserForm'
 import { defaultUser } from '../../../models/enums/defaultValues'
+import { AppError } from '../../../models/interfaces/generalModels'
 
 export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
     const formRef = useRef<HTMLFormElement>(null)
@@ -60,8 +61,8 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
                 reset({})
                 queryClient.invalidateQueries(['users']).then()
             })
-            .catch((message: string) => {
-                setError('root', { message })
+            .catch((error: AppError) => {
+                setError('root', { message: error.detail })
             })
     }
 

@@ -8,9 +8,10 @@ import 'react-datetime/css/react-datetime.css'
 import Modal from 'react-modal'
 import { ToastContainer } from 'react-toastify'
 import { WebSocketContextProvider } from './app/contexts/WebSocketContext'
+import { defaultQueryClientConfig } from './app/axios/reactQueryProps'
 
 export const App = () => {
-    const client = new QueryClient()
+    const client = new QueryClient(defaultQueryClientConfig)
     Modal.setAppElement('#root')
 
     return (

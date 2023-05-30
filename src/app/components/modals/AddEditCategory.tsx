@@ -4,7 +4,7 @@ import { CategorySchema } from '../../models/validators/FormValidators'
 import { Category } from '../../models/interfaces/shop'
 import { TextField } from '../form/TextField'
 import { AppModal } from './AppModal'
-import React, { useEffect, useRef } from 'react'
+import React, { useContext, useEffect, useRef } from 'react'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { ItemTypesArray } from '../../models/enums/shopEnums'
@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
 import { Button, Typography } from 'antd'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
+import { AuthContext } from '../../contexts/AuthContext'
 
 export const AddEditCategory = ({
     isModalOpen,
@@ -26,6 +27,7 @@ export const AddEditCategory = ({
     category?: Category
     onComplete: (formValue: Category) => Promise<void>
 }) => {
+    const { isWorker } = useContext(AuthContext)
     const formRef = useRef<HTMLFormElement>(null)
     const defaultValue = { ...category, columns: category?.columns ?? [] }
     const {
@@ -71,7 +73,7 @@ export const AddEditCategory = ({
     }
 
     return (
-        <AppModal {...{ isModalOpen, closeModal }} title={'Category'}>
+        <AppModal {...{ isModalOpen, closeModal }} title={'Category'} isForbidden={!isWorker()}>
             {category && (
                 <form ref={formRef} className='modalForm' onSubmit={handleSubmit(onComplete)}>
                     <TextField register={register('name')} error={errors.name} label={'Category name'} />

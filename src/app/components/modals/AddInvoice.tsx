@@ -17,7 +17,7 @@ import {
     PaymentMethodList,
     WarrantyPeriodList,
 } from '../../models/enums/invoiceEnums'
-import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { AppError, ItemPropertyView } from '../../models/interfaces/generalModels'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { AddClient } from './users/AddClient'
@@ -90,12 +90,12 @@ export const AddInvoice = ({
                 closeModal()
                 queryClient.invalidateQueries(['invoices']).then(() => navigate('/invoices/' + id))
             })
-            .catch((message: string) => {
-                setError('root', { message })
+            .catch((error: AppError) => {
+                setError('root', { message: error.detail })
             })
     }
     return (
-        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'}>
+        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'} isForbidden={!isWorker()}>
             <AddClient
                 isModalOpen={showCreateModal}
                 closeModal={() => setShowCreateModal(false)}

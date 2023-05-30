@@ -35,13 +35,13 @@ export const Router = () => {
                 <Route path='/notFound' element={<PageNotFound />} />
                 <Route path='*' element={<PageNotFound />} />
                 <Route path='/profile/change-password' element={<ChangePassword />} />
+                <Route path='/invoices/:id' element={<InvoiceView />} />
                 <Route path='/' element={<RoleRestrictionRoute role={['ENGINEER', 'SALESMAN', 'ADMIN']} />}>
                     <Route path='/inventory' element={<Inventory />} />
                     <Route path='/inventory/:shopId/shopping-list' element={<ShoppingListView />} />
                     <Route path='/inventory/required' element={<EditShoppingList />} />
                     <Route path='/clients' element={<Clients />} />
                     <Route path='/invoices' element={<Invoices />} />
-                    <Route path='/invoices/:id' element={<InvoiceView />} />
                     <Route path='/categories' element={<CategorySettings />} />
                     <Route path='/logs' element={<Logs />} />
                 </Route>

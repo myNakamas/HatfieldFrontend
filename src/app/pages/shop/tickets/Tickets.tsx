@@ -33,7 +33,7 @@ import { defaultPage } from '../../../models/enums/defaultValues'
 import { AuthContext } from '../../../contexts/AuthContext'
 
 export const Tickets = () => {
-    const { isClient } = useContext(AuthContext)
+    const { isClient, isWorker } = useContext(AuthContext)
     const [params] = useSearchParams()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [ticketView, setTicketView] = useState('view')
@@ -112,9 +112,11 @@ export const Tickets = () => {
             <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} />
             <TicketFilters {...{ filter, setFilter }} />
             <Space className='button-bar'>
-                <Button type={'primary'} onClick={() => setShowNewModal(true)}>
-                    Add Ticket
-                </Button>
+                {isWorker() && (
+                    <Button type={'primary'} onClick={() => setShowNewModal(true)}>
+                        Add Ticket
+                    </Button>
+                )}
             </Space>
             <Tabs
                 animated

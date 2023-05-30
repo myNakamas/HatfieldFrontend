@@ -19,6 +19,7 @@ import { TextField } from '../../form/TextField'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPrint } from '@fortawesome/free-solid-svg-icons'
 import { printUserLabel } from '../../../axios/http/documentRequests'
+import { AppError } from '../../../models/interfaces/generalModels'
 
 export const AddClient = ({
     isModalOpen,
@@ -29,7 +30,7 @@ export const AddClient = ({
     closeModal: () => void
     onSuccess?: (user: User) => void
 }) => {
-    const { loggedUser, isAdmin } = useContext(AuthContext)
+    const { loggedUser, isAdmin, isWorker } = useContext(AuthContext)
     const formRef = useRef<HTMLFormElement>(null)
     const [showResponse, setShowResponse] = useState<User | undefined>()
     const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
@@ -66,13 +67,19 @@ export const AddClient = ({
                     onSuccess && onSuccess(user)
                 })
             })
-            .catch((message: string) => {
-                setError('root', { message })
+            .catch((error: AppError) => {
+                setError('root', { message: error.detail })
             })
     }
 
     return (
-        <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title='Create a new client' size='S'>
+        <AppModal
+            isModalOpen={isModalOpen}
+            closeModal={closeModal}
+            title='Create a new client'
+            size='S'
+            isForbidden={!isWorker()}
+        >
             {showResponse ? (
                 <Typography style={{ textAlign: 'left' }}>
                     <h4>Username:</h4>

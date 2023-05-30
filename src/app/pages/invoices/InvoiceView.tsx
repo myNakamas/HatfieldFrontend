@@ -6,19 +6,26 @@ import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { getInvoiceById, getInvoicePdf, invalidateInvoice } from '../../axios/http/invoiceRequests'
 import dateFormat from 'dateformat'
 import { invoiceTypeIcon, paymentMethodIcon } from '../../models/enums/invoiceEnums'
-import { Button, Descriptions, Space, Typography } from 'antd'
+import { Button, Descriptions, Result, Space, Typography } from 'antd'
 import { faPrint } from '@fortawesome/free-solid-svg-icons'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
 import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExclamationTriangle'
+import { AppError } from '../../models/interfaces/generalModels'
+import { Invoice } from '../../models/interfaces/invoice'
+import { disabledRefetching } from '../../axios/reactQueryProps'
 
 export const InvoiceView = () => {
     const { id } = useParams()
     const navigate = useNavigate()
     if (!id) return <NoDataComponent items={'information'} />
-    const { data: invoice } = useQuery(['invoices', id], () => getInvoiceById(+id))
+    const {
+        data: invoice,
+        isError,
+        isLoading,
+    } = useQuery<Invoice, AppError>(['invoices', id], () => getInvoiceById(+id), disabledRefetching)
     const queryClient = useQueryClient()
 
     const openPdf = async (invoiceId: number) => {
@@ -40,8 +47,9 @@ export const InvoiceView = () => {
 
     return (
         <div className='mainScreen'>
-            <CustomSuspense isReady={!!invoice}>
-                {invoice && (
+            <CustomSuspense isReady={!isLoading}>
+                {isError && <InvoiceAccessError />}
+                {!isError && invoice && (
                     <Space>
                         <Space direction={'vertical'}>
                             {!invoice.valid && (
@@ -107,5 +115,20 @@ export const InvoiceView = () => {
                 )}
             </CustomSuspense>
         </div>
+    )
+}
+/**
+ * The {@link Result} can be used together with the status to display interactive icons.
+ * This is an example usage of the component
+ */
+const InvoiceAccessError = () => {
+    const navigate = useNavigate()
+    return (
+        <Result
+            status='403'
+            title='Forbidden access'
+            subTitle='Sorry, you do not have permission to view this invoice.'
+            extra={<Button onClick={() => navigate('/home')}>Go home</Button>}
+        />
     )
 }

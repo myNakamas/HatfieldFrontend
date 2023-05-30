@@ -25,7 +25,7 @@ backendClient.interceptors.response.use(
         if (error.response?.status == 404) {
             toast.error("Oh no! Page doesn't exist.", toastProps)
         }
-        return Promise.reject(error.response?.data.detail)
+        return Promise.reject(error.response?.data)
     }
 )
 

@@ -5,7 +5,7 @@ import { Chat, ChatMessage, Ticket } from '../../../models/interfaces/ticket'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { User } from '../../../models/interfaces/user'
 import { useQuery } from 'react-query'
-import { getAllUsers, getProfilePicture } from '../../../axios/http/userRequests'
+import { getProfilePicture, getSimpleUsers } from '../../../axios/http/userRequests'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import dateFormat from 'dateformat'
 import { faArrowRight, faCheckDouble, faCircleCheck, faSpinner } from '@fortawesome/free-solid-svg-icons'
@@ -22,7 +22,7 @@ export const ChatMessages = ({
     selectedTicket?: Ticket
     chat?: Chat
 }) => {
-    const { data: users } = useQuery(['users'], () => getAllUsers({}))
+    const { data: users } = useQuery(['users'], () => getSimpleUsers({}))
 
     return (
         <div className='chatBox'>
