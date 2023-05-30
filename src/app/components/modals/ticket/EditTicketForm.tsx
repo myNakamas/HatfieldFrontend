@@ -3,7 +3,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { FormField } from '../../form/Field'
 import { Dictaphone } from '../../form/Dictaphone'
 import Select from 'react-select'
-import { ItemPropertyView } from '../../../models/interfaces/generalModels'
+import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import { DeviceLocationArray, TicketStatusesArray } from '../../../models/enums/ticketEnums'
 import CreatableSelect from 'react-select/creatable'
@@ -68,8 +68,8 @@ export const EditTicketForm = ({
                 id='editTicketForm'
                 className='modalForm'
                 onSubmit={handleSubmit((data) => {
-                    onComplete(data).catch((message: string) => {
-                        setError('root', { message })
+                    onComplete(data).catch((error: AppError) => {
+                        setError('root', { message: error.detail })
                     })
                     reset()
                 })}

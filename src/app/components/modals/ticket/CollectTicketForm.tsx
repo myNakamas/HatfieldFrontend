@@ -42,8 +42,8 @@ export const CollectTicketForm = ({
             onSubmit={handleSubmit((data) =>
                 onComplete(data, ticket.id)
                     .then(() => reset())
-                    .catch((message: string) => {
-                        setError('root', { message })
+                    .catch((error: AppError) => {
+                        setError('root', { message: error.detail })
                     })
             )}
         >

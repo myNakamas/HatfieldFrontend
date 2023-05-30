@@ -19,6 +19,7 @@ import { SelectTheme } from '../../../styles/components/stylesTS'
 import { TextField } from '../../form/TextField'
 import { UserRolesArray } from '../../../models/enums/userEnums'
 import { getAllShops } from '../../../axios/http/shopRequests'
+import { AppError } from '../../../models/interfaces/generalModels'
 
 export const EditUser = ({
     isModalOpen,
@@ -62,8 +63,8 @@ export const EditUser = ({
                 closeModal()
                 queryClient.invalidateQueries(['users']).then()
             })
-            .catch((message: string) => {
-                setError('root', { message })
+            .catch((error: AppError) => {
+                setError('root', { message: error.detail })
             })
     const onSelfEdit = (user: User) => {
         toast
@@ -72,8 +73,8 @@ export const EditUser = ({
                 setLoggedUser(updatedUser)
                 closeModal()
             })
-            .catch((message: string) => {
-                setError('root', { message })
+            .catch((error: AppError) => {
+                setError('root', { message: error.detail })
             })
     }
 

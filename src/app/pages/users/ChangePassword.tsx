@@ -28,7 +28,7 @@ export const ChangePassword = () => {
                 toastProps
             )
             .then(() => navigate('/profile'))
-            .catch((reason) => setError('root', { message: reason }))
+            .catch(({ details }) => setError('root', { message: details }))
     }
 
     return (

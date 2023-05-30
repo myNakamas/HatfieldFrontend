@@ -65,8 +65,8 @@ export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boo
                     queryClient.invalidateQueries(['shopItems']).then()
                     queryClient.invalidateQueries(['brands']).then()
                 })
-                .catch((error) => {
-                    setError('root', error)
+                .catch((error: AppError) => {
+                    setError('root', { message: error.detail })
                 })
         } else {
             setError('root', { type: 'shopId', message: 'You are not assigned to any shop' })

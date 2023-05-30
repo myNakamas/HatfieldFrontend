@@ -44,8 +44,8 @@ export const AddShop = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
                 closeModal()
                 queryClient.invalidateQueries(['shops']).then()
             })
-            .catch((message: string) => {
-                setError('root', { message })
+            .catch((error: AppError) => {
+                setError('root', { message: error.detail })
             })
     }
 

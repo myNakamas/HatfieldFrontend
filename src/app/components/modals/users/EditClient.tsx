@@ -15,6 +15,7 @@ import { toast } from 'react-toastify'
 import { updateClient } from '../../../axios/http/userRequests'
 import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { TextField } from '../../form/TextField'
+import { AppError } from '../../../models/interfaces/generalModels'
 
 export const EditClient = ({
     client,
@@ -52,15 +53,18 @@ export const EditClient = ({
 
     const onSaveNew = (formValue: User) => {
         const user = { ...formValue, shopId: loggedUser?.shopId } as User
-        return toast
-            .promise(updateClient(user), toastUpdatePromiseTemplate('client'), toastProps)
-            .then(() => {
-                closeModal()
-                queryClient.invalidateQueries(['users', 'clients']).then()
-            })
-            .catch((message: string) => {
-                setError('root', { message })
-            })
+        return (
+            toast
+                .promise(updateClient(user), toastUpdatePromiseTemplate('client'), toastProps)
+                .then(() => {
+                    closeModal()
+                    queryClient.invalidateQueries(['users', 'clients']).then()
+                })
+                //todo: Refactor each catch to not work with just message, but whole object
+                .catch((error: AppError) => {
+                    setError('root', { message: error.detail })
+                })
+        )
     }
 
     return (

@@ -18,6 +18,7 @@ import { UsedItemSchema } from '../../../models/validators/FormValidators'
 import { toastProps } from '../ToastProps'
 import { toast } from 'react-toastify'
 import { FormError } from '../../form/FormError'
+import { AppError } from '../../../models/interfaces/generalModels'
 
 export const AddUsedItem = ({
     show,
@@ -62,7 +63,7 @@ export const AddUsedItem = ({
                 await queryClient.invalidateQueries(['shopItems', 'short'])
                 closeModal()
             })
-            .catch((reason) => setError('root', { message: reason }))
+            .catch((error: AppError) => setError('root', { message: error.detail }))
     }
 
     return (
