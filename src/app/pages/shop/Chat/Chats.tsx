@@ -16,18 +16,31 @@ import { sortChatByDate } from '../../../utils/helperFunctions'
 import { TicketChatInfo } from './ChatTicketDetails'
 import { ChatMessages } from './ChatMessages'
 import { MessageInputField } from './ChatInputField'
+import { CustomSuspense } from '../../../components/CustomSuspense'
 
 export const Chats = () => {
-    const { loggedUser, isClient } = useContext(AuthContext)
-    const navigate = useNavigate()
-    const { userChats, setUserChats, notificationCount } = useContext(WebSocketContext)
-    const { data: tickets } = useQuery(['tickets'], () => {
+    const { isClient } = useContext(AuthContext)
+    const { data: tickets, isLoading } = useQuery(['tickets'], () => {
         const query = isClient() ? fetchClientActiveTickets : fetchAllActiveTickets
         return query({})
     })
+    return (
+        <CustomSuspense isReady={!isLoading}>
+            <InnerChats tickets={tickets} />
+        </CustomSuspense>
+    )
+}
+
+export const InnerChats = ({ tickets }: { tickets?: Ticket[] }) => {
+    const { loggedUser, isClient } = useContext(AuthContext)
+    const navigate = useNavigate()
+    const { userChats, setUserChats, notificationCount } = useContext(WebSocketContext)
+
     const [chat, setChat] = useState<Chat | undefined>()
     const [params] = useSearchParams()
-    const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
+    const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>(
+        tickets?.find((ticket) => String(ticket.id) === params.get('id'))
+    )
     const [ticketDrawer, setTicketDrawer] = useState(!selectedTicket)
 
     const { data: oldMessages } = useQuery(
@@ -47,13 +60,6 @@ export const Chats = () => {
             },
         }
     )
-
-    useEffect(() => {
-        if (params.get('id')) {
-            setSelectedTicket(tickets?.find((ticket) => String(ticket.id) === params.get('id')))
-            setTicketDrawer(false)
-        }
-    }, [params])
     useEffect(() => {
         if (selectedTicket) {
             navigate({ search: 'id=' + selectedTicket.id })
