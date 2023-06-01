@@ -42,7 +42,7 @@ export const SideNavigation = ({
     setShowNav: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
     const { notificationCount } = useContext(WebSocketContext)
-    const { isWorker, isAdmin } = useContext(AuthContext)
+    const { loggedUser, isWorker, isAdmin } = useContext(AuthContext)
     const navigate = useNavigate()
     const { pathname } = useLocation()
     const totalNotificationCount = Object.values(notificationCount).reduce((a, b) => a + b, 0)
@@ -72,7 +72,7 @@ export const SideNavigation = ({
 
     return (
         <Drawer
-            title='Hatfield'
+            title={loggedUser?.shopName}
             placement={'left'}
             closable={true}
             bodyStyle={{ padding: 0 }}
