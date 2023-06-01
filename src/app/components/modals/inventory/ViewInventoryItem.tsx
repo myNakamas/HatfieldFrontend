@@ -1,4 +1,4 @@
-import { InventoryItem } from '../../../models/interfaces/shop'
+import { InventoryItem, TransferItem } from '../../../models/interfaces/shop'
 import { AppModal } from '../AppModal'
 import { Button, Card, Descriptions, Divider, Space, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -9,15 +9,19 @@ import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
 import { postPrintItemLabel } from '../../../axios/http/documentRequests'
 import { AddUsedItem } from '../ticket/AddUsedItem'
 import { CreateUsedItem } from '../../../models/interfaces/ticket'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { TextField } from '../../form/TextField'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { UpdateItemCountSchema } from '../../../models/validators/FormValidators'
-import { updateItemQuantity } from '../../../axios/http/shopRequests'
+import { SendItemToShopSchema, UpdateItemCountSchema } from '../../../models/validators/FormValidators'
+import { getWorkerShops, sendToShop, updateItemQuantity } from '../../../axios/http/shopRequests'
 import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
-import { useQueryClient } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { AddInvoice } from '../AddInvoice'
+import { FormField } from '../../form/Field'
+import Select from 'react-select'
+import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
+import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
 
 export const ViewInventoryItem = ({
     inventoryItem,
@@ -113,9 +117,7 @@ export const ViewInventoryItem = ({
                             </Space>
                             <Divider />
                             <Space>
-                                <Typography>Send to another shop</Typography>
-                                {/*    todo: add logic*/}
-                                <Button disabled>Send</Button>
+                                <SendItemToShop item={inventoryItem} />
                             </Space>
                         </Card>
                     </Space>
@@ -192,6 +194,69 @@ const UpdateItemCountForm = ({ item, onComplete }: { item: InventoryItem; onComp
                     Update
                 </Button>
             </Space>
+        </form>
+    )
+}
+
+const SendItemToShop = ({ item }: { item: InventoryItem }) => {
+    const { data: shops } = useQuery('shops', getWorkerShops)
+    const {
+        formState: { errors },
+        control,
+        register,
+        handleSubmit,
+        setError,
+        reset,
+    } = useForm<TransferItem>({
+        resolver: yupResolver(SendItemToShopSchema),
+    })
+    const queryClient = useQueryClient()
+    const submit = (formValue: TransferItem) => {
+        const itemInfo = { ...formValue, itemId: item.id }
+        toast
+            .promise(sendToShop({ item: itemInfo }), toastUpdatePromiseTemplate('item'), toastProps)
+            .then(() => {
+                queryClient.invalidateQueries(['shopItems']).then()
+            })
+            .catch((error: AppError) => {
+                setError('root', { message: error.detail })
+            })
+    }
+
+    useEffect(() => {
+        reset()
+    }, [item])
+
+    return (
+        <form onSubmit={handleSubmit(submit)} className={'modalForm'}>
+            <Typography>Send to another shop</Typography>
+            <Controller
+                control={control}
+                name={'shopId'}
+                render={({ field: { value, onChange }, fieldState }) => (
+                    <FormField label='Shop' error={fieldState.error}>
+                        <Select<ItemPropertyView, false>
+                            isClearable
+                            theme={SelectTheme}
+                            styles={SelectStyles()}
+                            options={shops}
+                            placeholder='Shop'
+                            value={shops?.find(({ id }) => value === id) ?? null}
+                            onChange={(value) => onChange(value?.id)}
+                            getOptionLabel={(shops) => shops.value}
+                            getOptionValue={(shops) => String(shops.id)}
+                        />
+                    </FormField>
+                )}
+            />
+            <TextField
+                min={0}
+                defaultValue={item.count}
+                register={register('count')}
+                error={errors.count}
+                type='number'
+            />
+            <Button htmlType={'submit'}>Send</Button>
         </form>
     )
 }

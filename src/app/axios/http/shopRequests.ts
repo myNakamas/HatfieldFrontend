@@ -1,7 +1,15 @@
 import backendClient from '../backendClient'
 import { ItemPropertyView, Page, PageRequest } from '../../models/interfaces/generalModels'
 import { Filter, InventoryFilter } from '../../models/interfaces/filters'
-import { Brand, Category, CreateInventoryItem, InventoryItem, Log, Shop } from '../../models/interfaces/shop'
+import {
+    Brand,
+    Category,
+    CreateInventoryItem,
+    InventoryItem,
+    Log,
+    Shop,
+    TransferItem,
+} from '../../models/interfaces/shop'
 
 export const getAllShops = (): Promise<Shop[]> => {
     return backendClient.get('shop/admin/all')
@@ -67,6 +75,12 @@ export const getAllModels = (): Promise<ItemPropertyView[]> => {
 }
 export const getAllBrands = (): Promise<Brand[]> => {
     return backendClient.get('inventory/brand/all')
+}
+export const getWorkerShops = (): Promise<ItemPropertyView[]> => {
+    return backendClient.get('shop/worker/all')
+}
+export const sendToShop = ({ item }: { item: TransferItem }) => {
+    return backendClient.post('inventory/item/sendToShop', [], { params: item })
 }
 export const addNewItem = ({
     item: { model, brand, ...rest },
