@@ -5,14 +5,14 @@ import { Dictaphone } from '../../form/Dictaphone'
 import Select from 'react-select'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
-import { DeviceLocationArray, TicketStatusesArray } from '../../../models/enums/ticketEnums'
+import { TicketStatusesArray } from '../../../models/enums/ticketEnums'
 import CreatableSelect from 'react-select/creatable'
 import DateTime from 'react-datetime'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { CreateTicket, Ticket } from '../../../models/interfaces/ticket'
 import { useQuery } from 'react-query'
-import { getAllBrands } from '../../../axios/http/shopRequests'
+import { getAllBrands, getAllDeviceLocations } from '../../../axios/http/shopRequests'
 
 export const CollectTicketForm = ({
     ticket,
@@ -33,6 +33,7 @@ export const CollectTicketForm = ({
         watch,
     } = useForm<CreateTicket>({ defaultValues: ticket })
     const { data: brands } = useQuery('brands', getAllBrands)
+    const { data: locations } = useQuery('deviceLocations', getAllDeviceLocations)
     const models = brands?.find((b) => b.value === watch('deviceBrand'))?.models ?? []
 
     const [tempText, setTempText] = useState('')
@@ -98,11 +99,11 @@ export const CollectTicketForm = ({
                                         isClearable
                                         theme={SelectTheme}
                                         styles={SelectStyles<ItemPropertyView>()}
-                                        options={DeviceLocationArray}
+                                        options={locations}
                                         formatCreateLabel={(value) => 'Add a new location: ' + value}
                                         placeholder='Where is the location of the device?'
                                         value={
-                                            DeviceLocationArray.find(({ value }) => field.value === value) ?? {
+                                            locations?.find(({ value }) => field.value === value) ?? {
                                                 value: field.value,
                                                 id: -1,
                                             }

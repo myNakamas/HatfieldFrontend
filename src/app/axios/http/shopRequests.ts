@@ -76,6 +76,9 @@ export const getAllModels = (): Promise<ItemPropertyView[]> => {
 export const getAllBrands = (): Promise<Brand[]> => {
     return backendClient.get('inventory/brand/all')
 }
+export const getAllDeviceLocations = (): Promise<ItemPropertyView[]> => {
+    return backendClient.get('inventory/location/all')
+}
 export const getWorkerShops = (): Promise<ItemPropertyView[]> => {
     return backendClient.get('shop/worker/all')
 }

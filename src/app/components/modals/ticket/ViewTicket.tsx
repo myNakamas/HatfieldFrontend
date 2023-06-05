@@ -10,12 +10,12 @@ import React, { useContext, useEffect, useState } from 'react'
 import dateFormat from 'dateformat'
 import { EditTicketForm } from './EditTicketForm'
 import { putCompleteTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
-import { useQueryClient } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { dateTimeMask } from '../../../models/enums/appEnums'
 import CreatableSelect from 'react-select/creatable'
 import { ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
-import { DeviceLocationArray, TicketStatus, TicketStatusesArray } from '../../../models/enums/ticketEnums'
+import { activeTicketStatuses, TicketStatus, TicketStatusesArray } from '../../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { FormError } from '../../form/FormError'
@@ -31,6 +31,7 @@ import { AddTicketInvoice } from '../AddTicketInvoice'
 import Select from 'react-select'
 import { postPrintTicket, postPrintTicketLabel } from '../../../axios/http/documentRequests'
 import { AuthContext } from '../../../contexts/AuthContext'
+import { getAllDeviceLocations } from '../../../axios/http/shopRequests'
 
 export const ViewTicket = ({
     ticket,
@@ -43,6 +44,8 @@ export const ViewTicket = ({
 }) => {
     const navigate = useNavigate()
     const [mode, setMode] = useState('view')
+    const { data: locations } = useQuery('deviceLocations', getAllDeviceLocations)
+
     const [deviceLocation, setDeviceLocation] = useState('')
     const [deviceLocationError, setDeviceLocationError] = useState('')
     const [isUseModalOpen, setIsUseModalOpen] = useState(false)
@@ -243,7 +246,7 @@ export const ViewTicket = ({
                                                     isClearable
                                                     theme={SelectTheme}
                                                     styles={SelectStyles<ItemPropertyView>()}
-                                                    options={DeviceLocationArray}
+                                                    options={locations}
                                                     formatCreateLabel={(value) => 'Add a new location: ' + value}
                                                     placeholder='New location'
                                                     value={
@@ -282,7 +285,11 @@ export const ViewTicket = ({
                                             </Space>
                                             <Space className='ticketActions'>
                                                 <div>Use an item for ticket</div>
-                                                <Button type='primary' onClick={() => setIsUseModalOpen(true)}>
+                                                <Button
+                                                    type='primary'
+                                                    disabled={!activeTicketStatuses.includes(ticket.status)}
+                                                    onClick={() => setIsUseModalOpen(true)}
+                                                >
                                                     Add an item from inventory
                                                 </Button>
                                             </Space>
