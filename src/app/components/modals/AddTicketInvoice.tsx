@@ -14,7 +14,7 @@ import Select from 'react-select'
 import { User } from '../../models/interfaces/user'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { PaymentMethod, PaymentMethodList, WarrantyPeriod, WarrantyPeriodList } from '../../models/enums/invoiceEnums'
-import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { AppError, ItemPropertyView } from '../../models/interfaces/generalModels'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { AddClient } from './users/AddClient'
@@ -75,8 +75,8 @@ export const AddTicketInvoice = ({
                 closeModal()
                 queryClient.invalidateQueries(['tickets']).then()
             })
-            .catch((message: string) => {
-                setError('root', { message })
+            .catch(({ detail }: AppError) => {
+                setError('root', { message: detail })
             })
     }
     return (
