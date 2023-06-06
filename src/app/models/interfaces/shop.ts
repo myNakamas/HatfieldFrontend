@@ -82,3 +82,9 @@ export interface Log extends Entity {
 export interface Brand extends ItemPropertyView {
     models: ItemPropertyView[]
 }
+
+export interface TransferItem {
+    itemId: number
+    shopId: number
+    count: number
+}

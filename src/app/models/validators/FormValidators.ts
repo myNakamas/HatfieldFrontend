@@ -110,3 +110,8 @@ export const TicketInvoiceSchema = Yup.object().shape({
     paymentMethod: Yup.string().oneOf(PaymentMethods).required(),
     warrantyPeriod: Yup.string().oneOf(WarrantyPeriods).required(),
 })
+
+export const SendItemToShopSchema = Yup.object().shape({
+    shopId: Yup.number().required(),
+    count: Yup.number().min(1).required(),
+})

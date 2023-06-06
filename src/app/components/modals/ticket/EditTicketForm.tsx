@@ -5,14 +5,14 @@ import { Dictaphone } from '../../form/Dictaphone'
 import Select from 'react-select'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
-import { DeviceLocationArray, TicketStatusesArray } from '../../../models/enums/ticketEnums'
+import { TicketStatusesArray } from '../../../models/enums/ticketEnums'
 import CreatableSelect from 'react-select/creatable'
 import DateTime from 'react-datetime'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { CreateTicket } from '../../../models/interfaces/ticket'
 import { useQuery } from 'react-query'
-import { getAllBrands } from '../../../axios/http/shopRequests'
+import { getAllBrands, getAllDeviceLocations } from '../../../axios/http/shopRequests'
 import { User } from '../../../models/interfaces/user'
 import { getAllClients } from '../../../axios/http/userRequests'
 import moment from 'moment/moment'
@@ -46,6 +46,7 @@ export const EditTicketForm = ({
         watch,
     } = useForm<CreateTicket>({ defaultValues: ticket, resolver: yupResolver(EditTicketSchema) })
     const { data: brands } = useQuery('brands', getAllBrands)
+    const { data: locations } = useQuery('deviceLocations', getAllDeviceLocations)
     const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
         enabled: isWorker(),
     })
@@ -150,11 +151,11 @@ export const EditTicketForm = ({
                                                 isClearable
                                                 theme={SelectTheme}
                                                 styles={SelectStyles<ItemPropertyView>()}
-                                                options={DeviceLocationArray}
+                                                options={locations}
                                                 formatCreateLabel={(value) => 'Add a new location: ' + value}
                                                 placeholder='Where is the location of the device?'
                                                 value={
-                                                    DeviceLocationArray.find(({ value }) => field.value === value) ?? {
+                                                    locations?.find(({ value }) => field.value === value) ?? {
                                                         value: field.value,
                                                         id: -1,
                                                     }

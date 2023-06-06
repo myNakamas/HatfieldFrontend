@@ -15,9 +15,24 @@ import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
 import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield'
 import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
 import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket'
-import { checkRole } from '../../routes/RoleRestrictionRoute'
+import { AuthContext } from '../../contexts/AuthContext'
 
 export type MenuItem = Required<MenuProps>['items'][number]
+
+const AdminLinks: MenuItem[] = [
+    { label: 'Workers', key: '/workers', icon: <FontAwesomeIcon icon={faUserShield} /> },
+    { label: 'Shops', key: '/shops', icon: <FontAwesomeIcon icon={faBuildingUser} /> },
+]
+const WorkerLinks: MenuItem[] = [
+    { label: 'Inventory', key: '/inventory', icon: <FontAwesomeIcon icon={faStore} /> },
+    { label: 'Clients', key: '/clients', icon: <FontAwesomeIcon icon={faUsers} /> },
+    { label: 'Invoices', key: '/invoices', icon: <FontAwesomeIcon icon={faFileInvoice} /> },
+    {
+        label: 'Logs',
+        key: '/logs',
+        icon: <FontAwesomeIcon icon={faClockRotateLeft} />,
+    },
+]
 
 export const SideNavigation = ({
     showNavigation,
@@ -27,6 +42,7 @@ export const SideNavigation = ({
     setShowNav: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
     const { notificationCount } = useContext(WebSocketContext)
+    const { loggedUser, isWorker, isAdmin } = useContext(AuthContext)
     const navigate = useNavigate()
     const { pathname } = useLocation()
     const totalNotificationCount = Object.values(notificationCount).reduce((a, b) => a + b, 0)
@@ -45,31 +61,18 @@ export const SideNavigation = ({
                 </Space>
             ),
         },
+        ...(isAdmin() ? AdminLinks : []),
+        ...(isWorker() ? WorkerLinks : []),
+        {
+            label: 'About us',
+            key: '/about',
+            icon: <FontAwesomeIcon icon={faPersonCircleQuestion} />,
+        },
     ]
-    if (checkRole({ role: ['ENGINEER', 'SALESMAN', 'ADMIN'] }))
-        items.push(
-            { label: 'Inventory', key: '/inventory', icon: <FontAwesomeIcon icon={faStore} /> },
-            { label: 'Clients', key: '/clients', icon: <FontAwesomeIcon icon={faUsers} /> },
-            { label: 'Invoices', key: '/invoices', icon: <FontAwesomeIcon icon={faFileInvoice} /> },
-            {
-                label: 'Logs',
-                key: '/logs',
-                icon: <FontAwesomeIcon icon={faClockRotateLeft} />,
-            }
-        )
-    if (checkRole({ role: ['ADMIN'] }))
-        items.push(
-            { label: 'Workers', key: '/workers', icon: <FontAwesomeIcon icon={faUserShield} /> },
-            { label: 'Shops', key: '/shops', icon: <FontAwesomeIcon icon={faBuildingUser} /> }
-        )
-    items.push({
-        label: 'About us',
-        key: '/about',
-        icon: <FontAwesomeIcon icon={faPersonCircleQuestion} />,
-    })
+
     return (
         <Drawer
-            title='Hatfield'
+            title={loggedUser?.shopName}
             placement={'left'}
             closable={true}
             bodyStyle={{ padding: 0 }}
