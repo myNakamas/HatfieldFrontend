@@ -18,6 +18,9 @@ export const ShoppingListView = () => {
     const filter: InventoryFilter = { shopId: Number(shopId) }
     const { data: items } = useQuery(['shopItems', 'shoppingList', filter], () => getShoppingList({ filter }), {
         suspense: true,
+        onSuccess: (newItems) => {
+            if (selectedItem) setSelectedItem((item) => newItems.find(({ id }) => item?.id === id) ?? item)
+        },
     })
 
     return (

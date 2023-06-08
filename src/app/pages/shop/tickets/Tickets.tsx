@@ -150,7 +150,7 @@ const TicketsTab = ({
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
 }) => (
     <CustomSuspense isReady={!isLoading}>
-        <div className={'tableWrapper'}>
+        <div>
             {data && data.content.length > 0 ? (
                 <CustomTable<Ticket>
                     data={data.content.map((ticket) => ({

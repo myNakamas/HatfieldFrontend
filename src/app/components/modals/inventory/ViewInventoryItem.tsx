@@ -1,9 +1,9 @@
 import { InventoryItem, TransferItem } from '../../../models/interfaces/shop'
 import { AppModal } from '../AppModal'
-import { Button, Card, Descriptions, Divider, Space, Typography } from 'antd'
+import { Button, Card, Collapse, Descriptions, Divider, Space, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons'
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { ReactNode, useContext, useEffect, useState } from 'react'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
 import { postPrintItemLabel } from '../../../axios/http/documentRequests'
@@ -28,6 +28,8 @@ import { FormField } from '../../form/Field'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
+import CollapsePanel from 'antd/es/collapse/CollapsePanel'
+import { AuthContext } from '../../../contexts/AuthContext'
 
 export const ViewInventoryItem = ({
     inventoryItem,
@@ -126,21 +128,20 @@ export const ViewInventoryItem = ({
                                 </Button>
                             </Space>
                         </Card>
-                        <Card title={'Modify item quantity'}>
-                            <UpdateItemCountForm item={inventoryItem} onComplete={closeModal} />
-                            <Divider />
-                            <Space>
-                                <Typography>Mark as damaged</Typography>
-                                <Button onClick={() => markItemAsDamaged(inventoryItem.id)}>Remove</Button>
-                            </Space>
-                            <Divider />
-                            <Space>
-                                <Typography>Mark as defective</Typography>
-                                <Button onClick={() => markItemAsDefective(inventoryItem.id)}>Remove</Button>
-                            </Space>
-                            <Divider />
-                            <Space>
-                                <SendItemToShop item={inventoryItem} />
+                        <Card size={'small'} title={'Modify item quantity'}>
+                            <Space direction={'vertical'}>
+                                <UpdateItemCountForm item={inventoryItem} onComplete={closeModal} />
+                                <Space>
+                                    <Typography>Mark as damaged</Typography>
+                                    <Button onClick={() => markItemAsDamaged(inventoryItem.id)}>Remove</Button>
+                                </Space>
+                                <Space>
+                                    <Typography>Mark as defective</Typography>
+                                    <Button onClick={() => markItemAsDefective(inventoryItem.id)}>Remove</Button>
+                                </Space>
+                                <Space>
+                                    <SendItemToShop item={inventoryItem} />
+                                </Space>
                             </Space>
                         </Card>
                     </Space>
@@ -223,6 +224,7 @@ const UpdateItemCountForm = ({ item, onComplete }: { item: InventoryItem; onComp
 
 const SendItemToShop = ({ item }: { item: InventoryItem }) => {
     const { data: shops } = useQuery('shops', getWorkerShops)
+    const { loggedUser } = useContext(AuthContext)
     const {
         formState: { errors },
         control,
@@ -252,34 +254,37 @@ const SendItemToShop = ({ item }: { item: InventoryItem }) => {
 
     return (
         <form onSubmit={handleSubmit(submit)} className={'modalForm'}>
-            <Typography>Send to another shop</Typography>
-            <Controller
-                control={control}
-                name={'shopId'}
-                render={({ field: { value, onChange }, fieldState }) => (
-                    <FormField label='Shop' error={fieldState.error}>
-                        <Select<ItemPropertyView, false>
-                            isClearable
-                            theme={SelectTheme}
-                            styles={SelectStyles()}
-                            options={shops}
-                            placeholder='Shop'
-                            value={shops?.find(({ id }) => value === id) ?? null}
-                            onChange={(value) => onChange(value?.id)}
-                            getOptionLabel={(shops) => shops.value}
-                            getOptionValue={(shops) => String(shops.id)}
-                        />
-                    </FormField>
-                )}
-            />
-            <TextField
-                min={0}
-                defaultValue={item.count}
-                register={register('count')}
-                error={errors.count}
-                type='number'
-            />
-            <Button htmlType={'submit'}>Send</Button>
+            <Collapse>
+                <CollapsePanel key={'1'} header={'Send to another shop'}>
+                    <Controller
+                        control={control}
+                        name={'shopId'}
+                        render={({ field: { value, onChange }, fieldState }) => (
+                            <FormField label='Shop' error={fieldState.error}>
+                                <Select<ItemPropertyView, false>
+                                    isClearable
+                                    theme={SelectTheme}
+                                    styles={SelectStyles()}
+                                    options={shops?.filter((shop) => shop.id !== loggedUser?.shopId)}
+                                    placeholder='Shop'
+                                    value={shops?.find(({ id }) => value === id) ?? null}
+                                    onChange={(value) => onChange(value?.id)}
+                                    getOptionLabel={(shops) => shops.value}
+                                    getOptionValue={(shops) => String(shops.id)}
+                                />
+                            </FormField>
+                        )}
+                    />
+                    <TextField
+                        min={0}
+                        defaultValue={item.count}
+                        register={register('count')}
+                        error={errors.count}
+                        type='number'
+                    />
+                    <Button htmlType={'submit'}>Send</Button>
+                </CollapsePanel>
+            </Collapse>
         </form>
     )
 }

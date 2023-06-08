@@ -60,7 +60,7 @@ export const Users = () => {
                     Add a new user
                 </Button>
             </Space>
-            <div className='tableWrapper' ref={refsArray[2]}>
+            <div ref={refsArray[2]}>
                 <Tabs animated defaultActiveKey='active' items={tabs} />
             </div>
             <Tour

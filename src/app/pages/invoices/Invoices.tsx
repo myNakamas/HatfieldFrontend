@@ -55,7 +55,7 @@ export const Invoices = () => {
                 />
             </Space>
             <AddInvoice isModalOpen={addInvoiceModalOpen} closeModal={() => setAddInvoiceModalOpen(false)} />
-            <div className='tableWrapper'>
+            <div>
                 {isLoading ? (
                     <Skeleton loading />
                 ) : invoices && invoices.content.length > 0 ? (

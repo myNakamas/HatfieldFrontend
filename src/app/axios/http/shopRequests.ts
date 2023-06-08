@@ -119,8 +119,8 @@ export const getAllLogs = ({ filter, page }: { filter: Filter; page: PageRequest
 }
 
 export const postMarkItemAsDamaged = (params: { itemId: number }) => {
-    return backendClient.post('items/mark/damaged', {}, { params })
+    return backendClient.patch('inventory/item/mark/damaged', {}, { params })
 }
 export const postMarkItemAsDefective = (params: { itemId: number }) => {
-    return backendClient.post('items/mark/defective', {}, { params })
+    return backendClient.patch('inventory/item/mark/defective', {}, { params })
 }

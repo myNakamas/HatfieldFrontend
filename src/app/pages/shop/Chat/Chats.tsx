@@ -115,7 +115,7 @@ export const InnerChats = ({ tickets }: { tickets?: Ticket[] }) => {
                             }))}
                         />
                     ) : (
-                        <NoDataComponent items={'tickets'} />
+                        <NoDataComponent items={'active tickets'} />
                     )}
                 </Space>
             </Drawer>

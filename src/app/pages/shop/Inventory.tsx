@@ -65,7 +65,7 @@ export const Inventory = () => {
                     Return List
                 </Button>
             </Space>
-            <div className='tableWrapper'>
+            <div>
                 <Suspense fallback={<Skeleton active loading />}>
                     <InventoryInner
                         {...{ setSelectedItem, setEditItem, page, setPage, filter }}
@@ -92,7 +92,12 @@ const InventoryInner = ({
     page: PageRequest
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
 }) => {
-    const { data } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), { suspense: true })
+    const { data } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), {
+        suspense: true,
+        onSuccess: (newItems) => {
+            setSelectedItem((item) => newItems.content.find(({ id }) => item?.id === id) ?? item)
+        },
+    })
     const { data: categories } = useQuery('allCategories', getAllCategories)
     const [additionalHeaders, setAdditionalHeaders] = useState({})
     const [params] = useSearchParams()

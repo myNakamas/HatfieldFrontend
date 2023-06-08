@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { PrivateRoute } from './PrivateRoute'
 import { Login } from '../pages/Login'
 import { Profile } from '../pages/users/Profile'
@@ -26,6 +26,7 @@ export const Router = () => {
         <Routes>
             <Route path='/login' element={<Login />} />
             <Route path='/' element={<PrivateRoute />}>
+                <Route path='/' element={<Navigate to={'/home'} />} />
                 <Route path='/home' element={RoleRestrictionHomeRoute()} />
                 <Route path='/chats' element={<Chats />} />
                 <Route path='/tickets' element={<Tickets />} />

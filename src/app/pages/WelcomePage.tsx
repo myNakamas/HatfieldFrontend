@@ -105,7 +105,7 @@ function InnerInvoices({ filter }: { filter: TicketFilter }) {
     })
     if (!invoices?.content || invoices.content.length == 0) return <NoDataComponent items={'invoices'} />
     return (
-        <div className='tableWrapper'>
+        <div>
             {isLoading ? (
                 <Skeleton loading />
             ) : invoices && invoices.content.length > 0 ? (
