@@ -22,6 +22,9 @@ export const getInvoiceById = (invoiceId?: number): Promise<Invoice> => {
 export const getInvoicePdf = (invoiceId: number): Promise<Blob> => {
     return backendClient.post('document/print/invoice', {}, { params: { invoiceId }, responseType: 'blob' })
 }
+export const getClientInvoicePdf = (invoiceId: number): Promise<Blob> => {
+    return backendClient.get('document/client/print/invoice', { params: { invoiceId }, responseType: 'blob' })
+}
 export const invalidateInvoice = (invoiceId: number): Promise<Blob> => {
     return backendClient.delete('invoice/invalidate', { params: { id: invoiceId } })
 }
