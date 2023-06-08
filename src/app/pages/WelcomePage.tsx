@@ -13,14 +13,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPrint, faQuestion } from '@fortawesome/free-solid-svg-icons'
 import { welcomePageTourSteps } from '../models/enums/userEnums'
 import { getShopData } from '../axios/http/shopRequests'
-import { getAllInvoices } from '../axios/http/invoiceRequests'
+import { getAllInvoices, getClientInvoicePdf, getInvoicePdf } from '../axios/http/invoiceRequests'
 import { defaultPage } from '../models/enums/defaultValues'
 import { CustomTable } from '../components/table/CustomTable'
 import { NoDataComponent } from '../components/table/NoDataComponent'
 import { InventoryItem } from '../models/interfaces/shop'
 import { invoiceTypeIcon, paymentMethodIcon } from '../models/enums/invoiceEnums'
 import dateFormat from 'dateformat'
-import { openPdf } from './invoices/Invoices'
 
 export const WelcomePage = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
@@ -92,6 +91,15 @@ export const WelcomePage = () => {
 function InnerInvoices({ filter }: { filter: TicketFilter }) {
     const [page, setPage] = useState(defaultPage)
     const navigate = useNavigate()
+    const { isClient } = useContext(AuthContext)
+    const openPdf = async (invoiceId: number) => {
+        const pdfBlob = isClient() ? await getClientInvoicePdf(invoiceId) : await getInvoicePdf(invoiceId)
+        if (pdfBlob) {
+            const fileUrl = URL.createObjectURL(pdfBlob)
+            const pdfPage = window.open(fileUrl)
+            if (pdfPage) pdfPage.document.title = 'Hatfield Invoice ' + invoiceId
+        }
+    }
     const { data: invoices, isLoading } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }), {
         suspense: true,
     })

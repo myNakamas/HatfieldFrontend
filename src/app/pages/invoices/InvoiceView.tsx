@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from 'react-query'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -16,8 +16,10 @@ import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExcla
 import { AppError } from '../../models/interfaces/generalModels'
 import { Invoice } from '../../models/interfaces/invoice'
 import { disabledRefetching } from '../../axios/reactQueryProps'
+import { AuthContext } from '../../contexts/AuthContext'
 
 export const InvoiceView = () => {
+    const { isWorker } = useContext(AuthContext)
     const { id } = useParams()
     const navigate = useNavigate()
     if (!id) return <NoDataComponent items={'information'} />
@@ -105,7 +107,7 @@ export const InvoiceView = () => {
                             <Button icon={<FontAwesomeIcon icon={faPrint} />} onClick={() => openPdf(invoice.id)}>
                                 Open document for print
                             </Button>
-                            {invoice.valid && (
+                            {invoice.valid && isWorker() && (
                                 <Button icon={<FontAwesomeIcon icon={faTrash} />} onClick={() => onDelete(invoice.id)}>
                                     Invalidate invoice
                                 </Button>
