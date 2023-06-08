@@ -10,13 +10,14 @@ import {
     getChat,
     getClientChat,
 } from '../../../axios/http/ticketRequests'
-import { Drawer, Menu, Skeleton, Space, Typography } from 'antd'
+import { Drawer, Menu, Space, Typography } from 'antd'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { sortChatByDate } from '../../../utils/helperFunctions'
 import { TicketChatInfo } from './ChatTicketDetails'
 import { ChatMessages } from './ChatMessages'
 import { MessageInputField } from './ChatInputField'
 import { CustomSuspense } from '../../../components/CustomSuspense'
+import { NoDataComponent } from '../../../components/table/NoDataComponent'
 
 export const Chats = () => {
     const { isClient } = useContext(AuthContext)
@@ -114,7 +115,7 @@ export const InnerChats = ({ tickets }: { tickets?: Ticket[] }) => {
                             }))}
                         />
                     ) : (
-                        <Skeleton loading={true} />
+                        <NoDataComponent items={'tickets'} />
                     )}
                 </Space>
             </Drawer>

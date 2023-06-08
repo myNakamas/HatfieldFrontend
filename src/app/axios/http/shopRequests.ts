@@ -117,3 +117,10 @@ export const addCategory = (category: Category): Promise<Category> => {
 export const getAllLogs = ({ filter, page }: { filter: Filter; page: PageRequest }): Promise<Page<Log>> => {
     return backendClient.get('logs/all', { params: { ...filter, ...page } })
 }
+
+export const postMarkItemAsDamaged = (params: { itemId: number }) => {
+    return backendClient.post('items/mark/damaged', {}, { params })
+}
+export const postMarkItemAsDefective = (params: { itemId: number }) => {
+    return backendClient.post('items/mark/defective', {}, { params })
+}

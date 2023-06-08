@@ -13,7 +13,13 @@ import { Controller, useForm } from 'react-hook-form'
 import { TextField } from '../../form/TextField'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { SendItemToShopSchema, UpdateItemCountSchema } from '../../../models/validators/FormValidators'
-import { getWorkerShops, sendToShop, updateItemQuantity } from '../../../axios/http/shopRequests'
+import {
+    getWorkerShops,
+    postMarkItemAsDamaged,
+    postMarkItemAsDefective,
+    sendToShop,
+    updateItemQuantity,
+} from '../../../axios/http/shopRequests'
 import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { useQuery, useQueryClient } from 'react-query'
@@ -34,12 +40,29 @@ export const ViewInventoryItem = ({
 }) => {
     const [sellModalOpen, setSellModalOpen] = useState(false)
     const [isUseModalOpen, setIsUseModalOpen] = useState(false)
+    const queryClient = useQueryClient()
     const printSellDocument = async () => {
         const blob = await postPrintItemLabel(inventoryItem?.id)
         if (blob) {
             const fileUrl = URL.createObjectURL(blob)
             window.open(fileUrl)
         }
+    }
+
+    const markItemAsDamaged = (id: number) => {
+        toast
+            .promise(postMarkItemAsDamaged({ itemId: id }), toastUpdatePromiseTemplate('item'), toastProps)
+            .then(() => {
+                queryClient.invalidateQueries(['shopItems']).then()
+            })
+    }
+
+    const markItemAsDefective = (id: number) => {
+        toast
+            .promise(postMarkItemAsDefective({ itemId: id }), toastUpdatePromiseTemplate('item'), toastProps)
+            .then(() => {
+                queryClient.invalidateQueries(['shopItems']).then()
+            })
     }
 
     return (
@@ -108,12 +131,12 @@ export const ViewInventoryItem = ({
                             <Divider />
                             <Space>
                                 <Typography>Mark as damaged</Typography>
-                                <Button disabled>Remove</Button>
+                                <Button onClick={() => markItemAsDamaged(inventoryItem.id)}>Remove</Button>
                             </Space>
                             <Divider />
                             <Space>
                                 <Typography>Mark as defective</Typography>
-                                <Button disabled>Remove</Button>
+                                <Button onClick={() => markItemAsDefective(inventoryItem.id)}>Remove</Button>
                             </Space>
                             <Divider />
                             <Space>
