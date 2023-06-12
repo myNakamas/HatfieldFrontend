@@ -4,9 +4,8 @@ import { InvoiceType, PaymentMethod, WarrantyPeriod } from '../enums/invoiceEnum
 
 export interface Invoice extends Entity {
     type: InvoiceType
-    deviceModel: string
-    deviceBrand: string
     serialNumber: string
+    deviceName: string
     timestamp: Date
     ticketId: number
     notes: string
@@ -17,28 +16,26 @@ export interface Invoice extends Entity {
     warrantyPeriod: WarrantyPeriod
     valid: boolean
 }
-
-export interface CreateTicketInvoice {
-    ticketId: number
-    notes?: string
-    totalPrice: number
-    clientId: string
-    paymentMethod: PaymentMethod
-    warrantyPeriod: WarrantyPeriod
-}
-
 export interface CreateInvoice {
-    itemId?: number
     type: InvoiceType
-    deviceModel: string
-    deviceBrand: string
-    serialNumber: string
-    count: number
     notes?: string
     totalPrice: number
     clientId?: string
     paymentMethod: PaymentMethod
     warrantyPeriod: WarrantyPeriod
+    deviceName: string
+    deviceModel: string
+    deviceBrand: string
+}
+
+export interface CreateTicketInvoice extends CreateInvoice {
+    ticketId: number
+}
+
+export interface CreateItemInvoice extends CreateInvoice {
+    itemId?: number
+    serialNumber: string
+    count: number
 }
 
 export interface InvoicesReport {

@@ -34,7 +34,6 @@ export const ShoppingListView = () => {
                         name: 'Name',
                         count: 'Current count in shop',
                         missingCount: 'Number of items to buy',
-                        requiredReason: 'Reason for buying',
                         action: 'Actions',
                     }}
                     data={items.map((item) => ({

@@ -14,7 +14,7 @@ import { ThemeContext } from '../../contexts/ThemeContext'
 import { toast } from 'react-toastify'
 import { FormError } from '../../components/form/FormError'
 import { toastProps } from '../../components/modals/ToastProps'
-import { Button, Space } from 'antd'
+import { Button, Card, Space, Switch } from 'antd'
 
 export const ShopView = () => {
     const { id } = useParams()
@@ -33,6 +33,7 @@ export const ShopView = () => {
         formState: { errors },
         setError,
         reset,
+        watch,
     } = useForm<Shop>({
         resolver: yupResolver(ShopSchema),
         defaultValues: {
@@ -73,95 +74,180 @@ export const ShopView = () => {
         <div className='mainScreen'>
             <CustomSuspense isReady={!isLoading}>
                 <form className='modalForm width-m' onSubmit={handleSubmit(submitShop)}>
-                    <h3>Shop information</h3>
-                    <div className='card'>
-                        <TextField label={'Shop name'} register={register('shopName')} error={errors.shopName} />
-                        <TextField label={'Address'} register={register('address')} error={errors.address} />
-                        <TextField
-                            label={'Company Email'}
-                            register={register('email')}
-                            inputMode={'email'}
-                            error={errors.email}
-                            type='email'
-                        />
-                        <TextField
-                            label={'Phone number'}
-                            register={register('phone')}
-                            inputMode={'tel'}
-                            error={errors.phone}
-                        />
-                        <TextField label={'REG number'} register={register('regNumber')} error={errors.regNumber} />
-                        <TextField label={'VAT number'} register={register('vatNumber')} error={errors.vatNumber} />
-                    </div>
-
-                    <h3>Shop Colors</h3>
-                    <div className='colors'>
-                        <div>
-                            <Controller
-                                control={control}
-                                name='shopSettingsView.primaryColor'
-                                render={({ field, fieldState }) => (
-                                    <FormField label={'Primary color of the shop'} error={fieldState.error}>
-                                        <HexColorPicker
-                                            color={field.value}
-                                            onChange={(color) => {
-                                                if (primaryColorSample) primaryColorSample.style.backgroundColor = color
-                                                field.onChange(color)
-                                            }}
-                                        />
-                                        <input className='input' onChange={field.onChange} value={field.value ?? ''} />
-                                    </FormField>
-                                )}
-                            />
+                    <div className='justify-around flex-100 flex-wrap align-start'>
+                        <div className='w-100'>
+                            <Card title={'Shop information'} className='w-100'>
+                                <TextField
+                                    label={'Shop name'}
+                                    register={register('shopName')}
+                                    error={errors.shopName}
+                                />
+                                <TextField label={'Address'} register={register('address')} error={errors.address} />
+                                <TextField
+                                    label={'Company Email'}
+                                    register={register('email')}
+                                    inputMode={'email'}
+                                    error={errors.email}
+                                    type='email'
+                                />
+                                <TextField
+                                    label={'Phone number'}
+                                    register={register('phone')}
+                                    inputMode={'tel'}
+                                    error={errors.phone}
+                                />
+                                <TextField
+                                    label={'REG number'}
+                                    register={register('regNumber')}
+                                    error={errors.regNumber}
+                                />
+                                <TextField
+                                    label={'VAT number'}
+                                    register={register('vatNumber')}
+                                    error={errors.vatNumber}
+                                />
+                            </Card>
                         </div>
-                        <div>
-                            <Controller
-                                control={control}
-                                name='shopSettingsView.secondaryColor'
-                                render={({ field, fieldState }) => (
-                                    <FormField label={'Secondary color of the shop'} error={fieldState.error}>
-                                        <HexColorPicker
-                                            color={field.value}
-                                            onChange={(color) => {
-                                                if (secondaryColorSample)
-                                                    secondaryColorSample.style.backgroundColor = color
-                                                field.onChange(color)
-                                            }}
-                                        />
-                                        <input className='input' onChange={field.onChange} value={field.value ?? ''} />
-                                    </FormField>
-                                )}
-                            />
+                        <div className='w-100'>
+                            <Card title={'Shop Colors'} className='w-100'>
+                                <Space className='w-100 justify-around align-center' direction={'horizontal'} wrap>
+                                    <Controller
+                                        control={control}
+                                        name='shopSettingsView.primaryColor'
+                                        render={({ field, fieldState }) => (
+                                            <FormField label={'Primary color of the shop'} error={fieldState.error}>
+                                                <HexColorPicker
+                                                    color={field.value}
+                                                    onChange={(color) => {
+                                                        if (primaryColorSample)
+                                                            primaryColorSample.style.backgroundColor = color
+                                                        field.onChange(color)
+                                                    }}
+                                                />
+                                                <input
+                                                    className='input '
+                                                    onChange={field.onChange}
+                                                    value={field.value ?? ''}
+                                                />
+                                            </FormField>
+                                        )}
+                                    />
+                                    <Controller
+                                        control={control}
+                                        name='shopSettingsView.secondaryColor'
+                                        render={({ field, fieldState }) => (
+                                            <FormField label={'Secondary color of the shop'} error={fieldState.error}>
+                                                <HexColorPicker
+                                                    color={field.value}
+                                                    onChange={(color) => {
+                                                        if (secondaryColorSample)
+                                                            secondaryColorSample.style.backgroundColor = color
+                                                        field.onChange(color)
+                                                    }}
+                                                />
+                                                <input
+                                                    className='input'
+                                                    onChange={field.onChange}
+                                                    value={field.value ?? ''}
+                                                />
+                                            </FormField>
+                                        )}
+                                    />
+                                    <div className={'flex-wrap'}>
+                                        <h4>Color sample:</h4>
+                                        <div id='primaryColorSample' className='colorSample' />
+                                        <div id='secondaryColorSample' className='colorSample' />
+                                    </div>
+                                </Space>
+                            </Card>
                         </div>
-
-                        <Space>
-                            <h4>Color sample:</h4>
-                            <div id='primaryColorSample' className='colorSample' />
-                            <div id='secondaryColorSample' className='colorSample' />
-                        </Space>
+                        <div className='w-100'>
+                            <h3>System Settings</h3>
+                            <Card
+                                title={'Print configuration'}
+                                extra={
+                                    <Controller
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Space>
+                                                {field.value ? 'Enabled' : 'Disabled'}
+                                                <Switch checked={field.value} onChange={field.onChange} />
+                                            </Space>
+                                        )}
+                                        name={'shopSettingsView.printEnabled'}
+                                    />
+                                }
+                            >
+                                <TextField
+                                    disabled={!watch('shopSettingsView.printEnabled')}
+                                    label='Printer IP (Local)'
+                                    inputMode={'numeric'}
+                                    register={register('shopSettingsView.printerIp')}
+                                    error={errors.shopSettingsView?.printerIp}
+                                />
+                                <TextField
+                                    disabled={!watch('shopSettingsView.printEnabled')}
+                                    label='Printer Model'
+                                    register={register('shopSettingsView.printerModel')}
+                                    error={errors.shopSettingsView?.printerModel}
+                                />
+                            </Card>
+                            <Card
+                                title={'Email notifications'}
+                                extra={
+                                    <Controller
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Space>
+                                                {field.value ? 'Enabled' : 'Disabled'}
+                                                <Switch checked={field.value} onChange={field.onChange} />
+                                            </Space>
+                                        )}
+                                        name={'shopSettingsView.emailNotificationsEnabled'}
+                                    />
+                                }
+                            >
+                                <TextField
+                                    disabled={!watch('shopSettingsView.emailNotificationsEnabled')}
+                                    label='Notification email'
+                                    inputMode={'email'}
+                                    register={register('shopSettingsView.gmail')}
+                                    error={errors.shopSettingsView?.gmail}
+                                />
+                                <TextField
+                                    disabled={!watch('shopSettingsView.emailNotificationsEnabled')}
+                                    label='Notification email password'
+                                    register={register('shopSettingsView.gmailPassword')}
+                                    type='password'
+                                    error={errors.shopSettingsView?.gmailPassword}
+                                />
+                            </Card>
+                            <Card
+                                title={'SMS notifications'}
+                                extra={
+                                    <Controller
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Space>
+                                                {field.value ? 'Enabled' : 'Disabled'}
+                                                <Switch checked={field.value} onChange={field.onChange} />
+                                            </Space>
+                                        )}
+                                        name={'shopSettingsView.smsNotificationsEnabled'}
+                                    />
+                                }
+                            >
+                                <TextField
+                                    disabled={!watch('shopSettingsView.smsNotificationsEnabled')}
+                                    label='SMS API key'
+                                    register={register('shopSettingsView.smsApiKey')}
+                                    type='password'
+                                    error={errors.shopSettingsView?.smsApiKey}
+                                />
+                            </Card>
+                        </div>
                     </div>
 
-                    <h3>Shop Settings</h3>
-                    <div className='card'>
-                        <TextField
-                            label='Notification email'
-                            inputMode={'email'}
-                            register={register('shopSettingsView.gmail')}
-                            error={errors.shopSettingsView?.gmail}
-                        />
-                        <TextField
-                            label='Notification email password'
-                            register={register('shopSettingsView.gmailPassword')}
-                            type='password'
-                            error={errors.shopSettingsView?.gmailPassword}
-                        />
-                        <TextField
-                            label='SMS API key'
-                            register={register('shopSettingsView.smsApiKey')}
-                            type='password'
-                            error={errors.shopSettingsView?.smsApiKey}
-                        />
-                    </div>
                     <FormError error={errors.root?.message} />
                     <div className='flex-100 justify-end'>
                         <Button type='primary' onClick={handleSubmit(submitShop)}>

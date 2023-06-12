@@ -52,7 +52,7 @@ export const InvoiceView = () => {
             <CustomSuspense isReady={!isLoading}>
                 {isError && <InvoiceAccessError />}
                 {!isError && invoice && (
-                    <Space>
+                    <Space wrap className={'justify-around flex-100'}>
                         <Space direction={'vertical'}>
                             {!invoice.valid && (
                                 <Space className='warning-box'>
@@ -92,8 +92,7 @@ export const InvoiceView = () => {
                                 <Descriptions.Item label={'Notes'}>{invoice.notes}</Descriptions.Item>
                             </Descriptions>
                             <Descriptions bordered title={'Device properties '}>
-                                <Descriptions.Item label={'Brand:'}>{invoice.deviceBrand}</Descriptions.Item>
-                                <Descriptions.Item label={'Model:'}>{invoice.deviceModel}</Descriptions.Item>
+                                <Descriptions.Item label={'Device name:'}>{invoice.deviceName}</Descriptions.Item>
                                 <Descriptions.Item label={'Serial number/IMEI'}>
                                     {invoice.serialNumber}
                                 </Descriptions.Item>

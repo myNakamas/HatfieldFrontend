@@ -3,7 +3,7 @@ import { fetchAllActiveTickets } from '../axios/http/ticketRequests'
 import { TicketFilter } from '../models/interfaces/filters'
 import { AuthContext } from '../contexts/AuthContext'
 import React, { ReactNode, Suspense, useContext, useRef, useState } from 'react'
-import { Button, Card, Col, FloatButton, Row, Skeleton, Space, Spin, Tour } from 'antd'
+import { Button, Card, Col, FloatButton, Skeleton, Space, Spin, Tour } from 'antd'
 import { CustomSuspense } from '../components/CustomSuspense'
 import { ShortTicketTable } from '../components/table/ShortTicketTable'
 import { useNavigate } from 'react-router-dom'
@@ -38,41 +38,38 @@ export const WelcomePage = () => {
     return (
         <div className={'mainScreen'}>
             <ViewTicket ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
-            <Row justify={'space-around'} className={'w-100'}>
-                <GridCol>
-                    <Card
-                        ref={refsArray[1]}
-                        style={{ minWidth: 350 }}
-                        title={`Your Active Tickets: `}
-                        extra={
-                            <Space>
-                                <Button
-                                    ref={refsArray[2]}
-                                    type='link'
-                                    onClick={() => navigate('/tickets')}
-                                    children={'See All Tickets'}
-                                />
-                            </Space>
-                        }
-                    >
-                        <CustomSuspense isReady={!isLoading}>
-                            <ShortTicketTable
-                                data={tickets}
-                                onClick={({ id }) =>
-                                    setSelectedTicket(tickets?.find(({ id: ticketId }) => id === ticketId))
-                                }
+            <div className={'dashboard-items'}>
+                <Card
+                    ref={refsArray[1]}
+                    style={{ minWidth: 350 }}
+                    title={`Your Active Tickets: `}
+                    extra={
+                        <Space>
+                            <Button
+                                ref={refsArray[2]}
+                                type='link'
+                                onClick={() => navigate('/tickets')}
+                                children={'See All Tickets'}
                             />
-                        </CustomSuspense>
-                    </Card>
-                </GridCol>
-                <GridCol>
-                    <Card ref={refsArray[3]} style={{ minWidth: 350 }} title={`Invoices: `}>
-                        <Suspense fallback={<Spin />}>
-                            <InnerInvoices {...{ filter }} />
-                        </Suspense>
-                    </Card>
-                </GridCol>
-            </Row>
+                        </Space>
+                    }
+                >
+                    <CustomSuspense isReady={!isLoading}>
+                        <ShortTicketTable
+                            data={tickets}
+                            onClick={({ id }) =>
+                                setSelectedTicket(tickets?.find(({ id: ticketId }) => id === ticketId))
+                            }
+                        />
+                    </CustomSuspense>
+                </Card>
+                <Card ref={refsArray[3]} style={{ minWidth: 350 }} title={`Invoices: `}>
+                    <Suspense fallback={<Spin />}>
+                        <InnerInvoices {...{ filter }} />
+                    </Suspense>
+                </Card>
+            </div>
+
             <Tour
                 type={'primary'}
                 open={tourIsOpen}
