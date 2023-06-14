@@ -81,11 +81,12 @@ export const ShopSchema = Yup.object().shape({
     shopSettingsView: Yup.object().shape({
         primaryColor: Yup.string().required('Required field'),
         secondaryColor: Yup.string().required('Required field'),
-        gmail: Yup.string().email('Must be a valid email').required('Required field'),
+        gmail: Yup.string().email('Must be a valid email').notRequired(),
         gmailPassword: Yup.string().notRequired(),
         smsApiKey: Yup.string().notRequired(),
     }),
 })
+
 export const UsedItemSchema = Yup.object().shape({
     itemId: Yup.number().required(),
     ticketId: Yup.number().required(),

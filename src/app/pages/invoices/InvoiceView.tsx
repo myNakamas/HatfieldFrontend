@@ -6,7 +6,7 @@ import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { getInvoiceById, getInvoicePdf, invalidateInvoice } from '../../axios/http/invoiceRequests'
 import dateFormat from 'dateformat'
 import { invoiceTypeIcon, paymentMethodIcon } from '../../models/enums/invoiceEnums'
-import { Button, Descriptions, Result, Space, Typography } from 'antd'
+import { Breadcrumb, Button, Descriptions, Result, Space, Typography } from 'antd'
 import { faPrint } from '@fortawesome/free-solid-svg-icons'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
@@ -49,6 +49,15 @@ export const InvoiceView = () => {
 
     return (
         <div className='mainScreen'>
+            <Breadcrumb>
+                <Breadcrumb.Item>
+                    <a onClick={() => navigate('/home')}>Home</a>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <a onClick={() => navigate('/invoices')}>Shops</a>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>Invoice #{invoice?.id}</Breadcrumb.Item>
+            </Breadcrumb>
             <CustomSuspense isReady={!isLoading}>
                 {isError && <InvoiceAccessError />}
                 {!isError && invoice && (

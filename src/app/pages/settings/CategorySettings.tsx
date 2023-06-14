@@ -4,18 +4,20 @@ import { Category } from '../../models/interfaces/shop'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import { CustomTable } from '../../components/table/CustomTable'
 import { AddEditCategory } from '../../components/modals/AddEditCategory'
-import { useState } from 'react'
-import { Button, Popconfirm, Space } from 'antd'
+import React, { useState } from 'react'
+import { Breadcrumb, Button, Popconfirm, Space } from 'antd'
 import { faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { deleteCategory } from '../../axios/http/settingsRequests'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { toast } from 'react-toastify'
 import { toastProps } from '../../components/modals/ToastProps'
+import { useNavigate } from 'react-router-dom'
 
 export const CategorySettings = () => {
     const { data: allCategories, isLoading } = useQuery(['allCategories'], () => getAllCategories())
     const queryClient = useQueryClient()
+    const navigate = useNavigate()
     const [showModal, setShowModal] = useState(false)
     const [selectedCategory, setSelectedCategory] = useState<Category | undefined>()
 
@@ -36,6 +38,15 @@ export const CategorySettings = () => {
 
     return (
         <div className='mainScreen'>
+            <Breadcrumb>
+                <Breadcrumb.Item>
+                    <a onClick={() => navigate('/home')}>Home</a>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <a onClick={() => navigate('/inventory')}>Inventory</a>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>Categories</Breadcrumb.Item>
+            </Breadcrumb>
             <Space className='button-bar'>
                 <Button onClick={() => setShowModal(true)}>Add new category</Button>
             </Space>

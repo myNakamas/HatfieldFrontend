@@ -10,7 +10,7 @@ import {
     getChat,
     getClientChat,
 } from '../../../axios/http/ticketRequests'
-import { Drawer, Menu, Space, Typography } from 'antd'
+import { Badge, Drawer, Menu, Space } from 'antd'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { sortChatByDate } from '../../../utils/helperFunctions'
 import { TicketChatInfo } from './ChatTicketDetails'
@@ -104,14 +104,7 @@ export const InnerChats = ({ tickets }: { tickets?: Ticket[] }) => {
                             items={tickets.map((ticket) => ({
                                 label: `Ticket#${ticket.id}`,
                                 key: ticket.id,
-                                icon:
-                                    notificationCount[ticket.id] > 0 ? (
-                                        <Typography className={'icon-s abs-icon'}>
-                                            {notificationCount[ticket.id]}
-                                        </Typography>
-                                    ) : (
-                                        <></>
-                                    ),
+                                icon: <Badge count={notificationCount[ticket.id]} />,
                             }))}
                         />
                     ) : (

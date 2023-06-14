@@ -18,7 +18,7 @@ import { CategorySettings } from '../pages/settings/CategorySettings'
 import { Logs } from '../pages/Logs'
 import { Users } from '../pages/users/Users'
 import { Shops } from '../pages/shop/Shops'
-import { ShopView } from '../pages/shop/ShopView'
+import { ShopSettingsView } from '../pages/shop/ShopSettingsView'
 import { PageNotFound } from '../pages/PageNotFound'
 
 export const Router = () => {
@@ -49,7 +49,7 @@ export const Router = () => {
                 <Route path='/' element={<RoleRestrictionRoute role={['ADMIN']} />}>
                     <Route path='/workers' element={<Users />} />
                     <Route path='/shops' element={<Shops />} />
-                    <Route path='/shops/:id' element={<ShopView />} />
+                    <Route path='/shops/:id' element={<ShopSettingsView />} />
                 </Route>
             </Route>
         </Routes>
