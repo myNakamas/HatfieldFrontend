@@ -32,10 +32,13 @@ export const CustomTable = <T extends object>({
             }
         },
     })
+
     return (
         <Table<T>
+            size={window.innerWidth < 768 ? 'small' : 'large'}
             dataSource={data.map((value, index) => ({ key: 'dataKey' + index, ...value }))}
             columns={columns}
+            scroll={{ x: true, scrollToFirstRowOnChange: true }}
             onRow={getComponentProps}
             pagination={
                 pagination

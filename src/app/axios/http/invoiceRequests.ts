@@ -1,9 +1,9 @@
 import backendClient from '../backendClient'
 import { Page, PageRequest } from '../../models/interfaces/generalModels'
 import { Filter, InvoiceFilter } from '../../models/interfaces/filters'
-import { CreateInvoice, Invoice, InvoicesReport } from '../../models/interfaces/invoice'
+import { CreateItemInvoice, Invoice, InvoicesReport } from '../../models/interfaces/invoice'
 
-export const createInvoice = (value: CreateInvoice): Promise<number> => {
+export const createInvoice = (value: CreateItemInvoice): Promise<number> => {
     return backendClient.post('invoice/create', value)
 }
 export const getAllInvoices = ({ page, filter }: { page: PageRequest; filter: Filter }): Promise<Page<Invoice>> => {
@@ -21,6 +21,9 @@ export const getInvoiceById = (invoiceId?: number): Promise<Invoice> => {
 }
 export const getInvoicePdf = (invoiceId: number): Promise<Blob> => {
     return backendClient.post('document/print/invoice', {}, { params: { invoiceId }, responseType: 'blob' })
+}
+export const getClientInvoicePdf = (invoiceId: number): Promise<Blob> => {
+    return backendClient.get('document/client/print/invoice', { params: { invoiceId }, responseType: 'blob' })
 }
 export const invalidateInvoice = (invoiceId: number): Promise<Blob> => {
     return backendClient.delete('invoice/invalidate', { params: { id: invoiceId } })

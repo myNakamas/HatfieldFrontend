@@ -65,7 +65,7 @@ export const Inventory = () => {
                     Return List
                 </Button>
             </Space>
-            <div className='tableWrapper'>
+            <div>
                 <Suspense fallback={<Skeleton active loading />}>
                     <InventoryInner
                         {...{ setSelectedItem, setEditItem, page, setPage, filter }}
@@ -92,14 +92,30 @@ const InventoryInner = ({
     page: PageRequest
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
 }) => {
-    const { data } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), { suspense: true })
+    const { data } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), {
+        suspense: true,
+        onSuccess: (newItems) => {
+            setSelectedItem((item) => newItems.content.find(({ id }) => item?.id === id) ?? item)
+        },
+    })
+    const { data: categories } = useQuery('allCategories', getAllCategories)
+    const [additionalHeaders, setAdditionalHeaders] = useState({})
     const [params] = useSearchParams()
 
     useEffect(() => {
         if (params.get('itemId')) {
             setSelectedItem(data?.content.find(({ id }) => String(id) === params.get('itemId')))
         }
-    }, [])
+        const category = categories?.find(({ id }) => filter.categoryId === id)
+        setAdditionalHeaders(
+            category?.columns.reduce((obj, field) => {
+                return {
+                    ...obj,
+                    [field]: field,
+                }
+            }, {}) ?? {}
+        )
+    }, [filter.categoryId])
 
     return data && data.content.length > 0 ? (
         <CustomTable<InventoryItem>
@@ -108,6 +124,7 @@ const InventoryInner = ({
                 name: item.name ?? '-',
                 sell: item.sellPrice?.toFixed(2) ?? '-',
                 type: item.categoryView?.itemType ?? '-',
+                ...item.columns,
                 actions: <Button onClick={() => setEditItem(item)} icon={<FontAwesomeIcon icon={faPen} />} />,
             }))}
             headers={{
@@ -115,6 +132,7 @@ const InventoryInner = ({
                 sell: 'Price',
                 type: 'Item type',
                 count: 'Count',
+                ...additionalHeaders,
                 actions: 'Actions',
             }}
             onClick={({ id }) => setSelectedItem(data?.content.find((row) => row.id === id))}

@@ -64,14 +64,10 @@ export const Clients = () => {
                     Add a new client
                 </Button>
             </Space>
-            <div className='tableWrapper' ref={refsArray[2]}>
+            <div ref={refsArray[2]}>
                 {clients && clients.totalCount > 0 ? (
                     <CustomTable<User>
-                        headers={
-                            isAdmin()
-                                ? { ...clientsTableHeaders, shop: 'Shop name' }
-                                : clientsTableHeaders
-                        }
+                        headers={isAdmin() ? { ...clientsTableHeaders, shop: 'Shop name' } : clientsTableHeaders}
                         data={clients.content.map((user) => {
                             return {
                                 ...user,

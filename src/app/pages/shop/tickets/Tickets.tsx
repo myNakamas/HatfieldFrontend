@@ -38,7 +38,7 @@ export const Tickets = () => {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [ticketView, setTicketView] = useState('view')
     const [showNewModal, setShowNewModal] = useState(false)
-    const [filter, setFilter] = useState<TicketFilter>({})
+    const [filter, setFilter] = useState<TicketFilter>({ ticketStatuses: activeTicketStatuses })
     const [page, setPage] = useState<PageRequest>(defaultPage)
     const onSelectedTicketUpdate = (data: Page<Ticket>) => {
         setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
@@ -150,7 +150,7 @@ const TicketsTab = ({
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
 }) => (
     <CustomSuspense isReady={!isLoading}>
-        <div className={'tableWrapper'}>
+        <div>
             {data && data.content.length > 0 ? (
                 <CustomTable<Ticket>
                     data={data.content.map((ticket) => ({
@@ -317,9 +317,7 @@ const TicketFilters = ({
     ) : (
         <div className='flex'>
             <SearchComponent {...{ filter, setFilter }} />
-            <Button type={'link'} onClick={() => setAdvanced(true)}>
-                Advanced search
-            </Button>
+            <Button type={'link'} onClick={() => setAdvanced(true)} children={'Advanced search'} />
         </div>
     )
 }

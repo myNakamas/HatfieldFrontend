@@ -25,21 +25,21 @@ import { getUserString } from '../../utils/helperFunctions'
 import { FormField } from '../../components/form/Field'
 import { AuthContext } from '../../contexts/AuthContext'
 
-export const openPdf = async (invoiceId: number) => {
-    const pdfBlob = await getInvoicePdf(invoiceId)
-    if (pdfBlob) {
-        const fileUrl = URL.createObjectURL(pdfBlob)
-        const pdfPage = window.open(fileUrl)
-        if (pdfPage) pdfPage.document.title = 'Hatfield Invoice ' + invoiceId
-    }
-}
-
 export const Invoices = () => {
     const navigate = useNavigate()
     const [filter, setFilter] = useState<InvoiceFilter>({ valid: true })
     const [addInvoiceModalOpen, setAddInvoiceModalOpen] = useState(false)
     const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
     const { data: invoices, isLoading } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }))
+
+    const openPdf = async (invoiceId: number) => {
+        const pdfBlob = await getInvoicePdf(invoiceId)
+        if (pdfBlob) {
+            const fileUrl = URL.createObjectURL(pdfBlob)
+            const pdfPage = window.open(fileUrl)
+            if (pdfPage) pdfPage.document.title = 'Hatfield Invoice ' + invoiceId
+        }
+    }
 
     return (
         <div className='mainScreen'>
@@ -55,7 +55,7 @@ export const Invoices = () => {
                 />
             </Space>
             <AddInvoice isModalOpen={addInvoiceModalOpen} closeModal={() => setAddInvoiceModalOpen(false)} />
-            <div className='tableWrapper'>
+            <div>
                 {isLoading ? (
                     <Skeleton loading />
                 ) : invoices && invoices.content.length > 0 ? (

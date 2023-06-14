@@ -6,38 +6,19 @@ import React, { useContext, useState } from 'react'
 import { useQuery } from 'react-query'
 import { getAllShops } from '../../axios/http/shopRequests'
 import { DateTimeFilter } from '../../components/filters/DateTimeFilter'
-import { Button, Card, Col, Row, Space } from 'antd'
-import { ShortTicketTable } from '../../components/table/ShortTicketTable'
-import { Ticket } from '../../models/interfaces/ticket'
-import { fetchAllActiveTickets } from '../../axios/http/ticketRequests'
-import { CustomSuspense } from '../../components/CustomSuspense'
-import { useNavigate } from 'react-router-dom'
-import { ViewTicket } from '../../components/modals/ticket/ViewTicket'
-import { AddTicket } from '../../components/modals/ticket/AddTicket'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
+import { Space } from 'antd'
 import { AuthContext } from '../../contexts/AuthContext'
 import { defaultDashboardFilter } from '../../models/enums/defaultValues'
 import { InvoicesReport } from '../../components/reports/InvoicesReport'
-import { RepairsReport } from '../../components/reports/RepairsReport'
+import { ActiveTickets } from './ActiveTickets'
+import { ShoppingListCard } from './ShoppingListCard'
 
 export const Dashboard = () => {
     const { loggedUser } = useContext(AuthContext)
     const [filter, setFilter] = useState<TicketFilter>(defaultDashboardFilter(loggedUser?.shopId))
-    const navigate = useNavigate()
-
-    const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
-    const [showNewTicketModal, setShowNewTicketModal] = useState(false)
-
-    // const { data: users } = useQuery(['users'], () => getAllUsers({}))
-    const { data: tickets, isLoading } = useQuery(['tickets', 'active', filter], () =>
-        fetchAllActiveTickets({ filter })
-    )
 
     return (
         <Space direction='vertical' className='w-100' wrap>
-            <ViewTicket ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
-            <AddTicket isModalOpen={showNewTicketModal} closeModal={() => setShowNewTicketModal(false)} />
             <Space
                 className='w-100 justify-between p-2'
                 direction={window.innerWidth < 768 ? 'vertical' : 'horizontal'}
@@ -45,41 +26,11 @@ export const Dashboard = () => {
                 <h2>Dashboard</h2>
                 <DashboardFilters {...{ filter, setFilter }} />
             </Space>
-            <Row wrap>
-                <Col span={12} offset={1} className={'grid-card'}>
-                    <InvoicesReport filter={filter} />
-                </Col>
-                <Col span={8} offset={1} className={'grid-card'}>
-                    <RepairsReport filter={filter} />
-                </Col>
-            </Row>
-            <Row wrap>
-                <Col span={12} offset={1} className={'grid-card'}>
-                    <Card
-                        style={{ minWidth: 250 }}
-                        title={`Active Tickets: ${tickets?.length ?? 0} `}
-                        extra={
-                            <Space>
-                                <Button
-                                    type='primary'
-                                    onClick={() => setShowNewTicketModal(true)}
-                                    icon={<FontAwesomeIcon icon={faPlus} />}
-                                />
-                                <Button type='link' onClick={() => navigate('/tickets')} children={'See All Tickets'} />
-                            </Space>
-                        }
-                    >
-                        <CustomSuspense isReady={!isLoading}>
-                            <ShortTicketTable
-                                data={tickets}
-                                onClick={({ id }) =>
-                                    setSelectedTicket(tickets?.find(({ id: ticketId }) => id === ticketId))
-                                }
-                            />
-                        </CustomSuspense>
-                    </Card>
-                </Col>
-            </Row>
+            <div className={'dashboard-items'}>
+                <ActiveTickets filter={filter} />
+                <InvoicesReport filter={filter} />
+                <ShoppingListCard />
+            </div>
         </Space>
     )
 }

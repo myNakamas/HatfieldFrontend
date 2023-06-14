@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from 'react-query'
 import { TextField } from '../form/TextField'
 import { AppModal } from './AppModal'
 import { fetchTicketById, putCollectTicket } from '../../axios/http/ticketRequests'
-import { Button } from 'antd'
+import { Button, Typography } from 'antd'
 import { getAllClients } from '../../axios/http/userRequests'
 import { FormField } from '../form/Field'
 import Select from 'react-select'
@@ -22,6 +22,7 @@ import { TicketInvoiceSchema } from '../../models/validators/FormValidators'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { getUserString } from '../../utils/helperFunctions'
 import { AuthContext } from '../../contexts/AuthContext'
+import { getAllBrands } from '../../axios/http/shopRequests'
 
 export const AddTicketInvoice = ({
     ticketId,
@@ -43,6 +44,8 @@ export const AddTicketInvoice = ({
     const defaultValue = {
         paymentMethod: 'CARD' as PaymentMethod,
         ticketId: ticket?.id,
+        deviceBrand: ticket?.deviceBrand,
+        deviceModel: ticket?.deviceModel,
         totalPrice: ticket?.totalPrice && ticket.deposit ? ticket?.totalPrice - ticket?.deposit : ticket?.totalPrice,
         clientId: ticket?.client?.userId,
         warrantyPeriod: 'ONE_MONTH' as WarrantyPeriod,
@@ -55,19 +58,24 @@ export const AddTicketInvoice = ({
         setError,
         reset,
         setValue,
+        watch,
     } = useForm<CreateTicketInvoice>({
         defaultValues: ticket ? defaultValue : {},
         resolver: yupResolver(TicketInvoiceSchema),
     })
+    const { data: brands } = useQuery('brands', getAllBrands)
+    const models = brands?.find((b) => b.value === watch('deviceBrand'))?.models ?? []
+
     useEffect(() => {
         formRef.current?.reset()
         reset(defaultValue)
     }, [isModalOpen])
 
     const saveInvoice = (data: CreateTicketInvoice) => {
+        const invoice: CreateTicketInvoice = { ...data, deviceName: data.deviceBrand + ' ' + data.deviceModel }
         toast
             .promise(
-                putCollectTicket({ id: data.ticketId, invoice: data }),
+                putCollectTicket({ id: data.ticketId, invoice }),
                 toastCreatePromiseTemplate('invoice'),
                 toastProps
             )
@@ -87,78 +95,124 @@ export const AddTicketInvoice = ({
                     closeModal={() => setShowCreateModal(false)}
                     onSuccess={(user) => setValue('clientId', user.userId)}
                 />
+                <Typography>
+                    <FormField label={'Ticket Id'} error={errors.ticketId}>
+                        <input readOnly className='input' disabled defaultValue={ticketId} />
+                    </FormField>
+                    <Controller
+                        control={control}
+                        name={'clientId'}
+                        render={({ field, fieldState }) => (
+                            <FormField label='Client' error={fieldState.error}>
+                                <Select<User, false>
+                                    isClearable
+                                    theme={SelectTheme}
+                                    styles={SelectStyles<User>()}
+                                    options={clients}
+                                    placeholder='Client'
+                                    value={clients?.find(({ userId }) => field.value === userId) ?? null}
+                                    onChange={(newValue) => field.onChange(newValue?.userId)}
+                                    getOptionLabel={getUserString}
+                                    getOptionValue={(item) => item.userId}
+                                />
+                            </FormField>
+                        )}
+                    />
+                    <Button icon={<FontAwesomeIcon icon={faPlus} />} onClick={() => setShowCreateModal(true)}>
+                        Create client
+                    </Button>
 
-                <FormField label={'Ticket Id'} error={errors.ticketId}>
-                    <input readOnly className='input' disabled defaultValue={ticketId} />
-                </FormField>
-                <Controller
-                    control={control}
-                    name={'clientId'}
-                    render={({ field, fieldState }) => (
-                        <FormField label='Client' error={fieldState.error}>
-                            <Select<User, false>
-                                isClearable
-                                theme={SelectTheme}
-                                styles={SelectStyles<User>()}
-                                options={clients}
-                                placeholder='Client'
-                                value={clients?.find(({ userId }) => field.value === userId) ?? null}
-                                onChange={(newValue) => field.onChange(newValue?.userId)}
-                                getOptionLabel={getUserString}
-                                getOptionValue={(item) => item.userId}
-                            />
-                        </FormField>
-                    )}
-                />
-                <Button icon={<FontAwesomeIcon icon={faPlus} />} onClick={() => setShowCreateModal(true)}>
-                    Create client
-                </Button>
-                <Controller
-                    control={control}
-                    name={'paymentMethod'}
-                    render={({ field, fieldState }) => (
-                        <FormField label='Payment method' error={fieldState.error}>
-                            <Select<ItemPropertyView, false>
-                                isClearable
-                                theme={SelectTheme}
-                                styles={SelectStyles<ItemPropertyView>()}
-                                options={PaymentMethodList}
-                                placeholder='Select a payment method'
-                                value={PaymentMethodList?.find(({ value }) => value === field.value) ?? null}
-                                onChange={(newValue) => field.onChange(newValue?.value)}
-                                getOptionLabel={(item) => item.value}
-                                getOptionValue={(item) => String(item.id)}
-                            />
-                        </FormField>
-                    )}
-                />
-                <Controller
-                    control={control}
-                    name={'warrantyPeriod'}
-                    render={({ field, fieldState }) => (
-                        <FormField label='Warranty period' error={fieldState.error}>
-                            <Select<ItemPropertyView, false>
-                                isClearable
-                                theme={SelectTheme}
-                                styles={SelectStyles<ItemPropertyView>()}
-                                options={WarrantyPeriodList}
-                                placeholder='Warranty period'
-                                value={WarrantyPeriodList?.find(({ value }) => value === field.value) ?? null}
-                                onChange={(newValue) => field.onChange(newValue?.value)}
-                                getOptionLabel={(item) => item.value}
-                                getOptionValue={(item) => String(item.id)}
-                            />
-                        </FormField>
-                    )}
-                />
-                <TextField label={'Notes'} register={register('notes')} error={errors.notes} />
-                <TextField label={'Invoice price'} register={register('totalPrice')} error={errors.totalPrice} />
-                <FormField label={'Deposit'} error={errors.ticketId}>
-                    <input readOnly className='input' disabled defaultValue={ticket?.deposit} />
-                </FormField>
-                <FormField label={'Total Price'} error={errors.ticketId}>
-                    <input readOnly className='input' disabled defaultValue={ticket?.totalPrice} />
-                </FormField>
+                    <div className='flex-100 flex-wrap justify-around'>
+                        <Controller
+                            control={control}
+                            name={'deviceBrand'}
+                            render={({ field, fieldState }) => (
+                                <FormField label='Brand' error={fieldState.error}>
+                                    <Select<ItemPropertyView, false>
+                                        isClearable
+                                        theme={SelectTheme}
+                                        styles={SelectStyles<ItemPropertyView>()}
+                                        options={brands}
+                                        placeholder='Select or add a new brand'
+                                        value={
+                                            brands?.find(({ value }) => field.value === value) ?? {
+                                                value: field.value,
+                                                id: -1,
+                                            }
+                                        }
+                                        onChange={(newValue) => field.onChange(newValue?.value)}
+                                        getOptionLabel={(item) => item.value}
+                                        getOptionValue={(item) => item.id + item.value}
+                                    />
+                                </FormField>
+                            )}
+                        />
+                        <Controller
+                            control={control}
+                            name={'deviceModel'}
+                            render={({ field, fieldState }) => (
+                                <FormField label='Model' error={fieldState.error}>
+                                    <Select<ItemPropertyView, false>
+                                        isClearable
+                                        theme={SelectTheme}
+                                        styles={SelectStyles<ItemPropertyView>()}
+                                        options={models}
+                                        placeholder='Select or add a new brand'
+                                        value={
+                                            models?.find(({ value }) => field.value === value) ?? {
+                                                value: field.value,
+                                                id: -1,
+                                            }
+                                        }
+                                        onChange={(newValue) => field.onChange(newValue?.value)}
+                                        getOptionLabel={(item) => item.value}
+                                        getOptionValue={(item) => item.id + item.value}
+                                    />
+                                </FormField>
+                            )}
+                        />
+                    </div>
+                    <Controller
+                        control={control}
+                        name={'paymentMethod'}
+                        render={({ field, fieldState }) => (
+                            <FormField label='Payment method' error={fieldState.error}>
+                                <Select<ItemPropertyView, false>
+                                    isClearable
+                                    theme={SelectTheme}
+                                    styles={SelectStyles<ItemPropertyView>()}
+                                    options={PaymentMethodList}
+                                    placeholder='Select a payment method'
+                                    value={PaymentMethodList?.find(({ value }) => value === field.value) ?? null}
+                                    onChange={(newValue) => field.onChange(newValue?.value)}
+                                    getOptionLabel={(item) => item.value}
+                                    getOptionValue={(item) => String(item.id)}
+                                />
+                            </FormField>
+                        )}
+                    />
+                    <Controller
+                        control={control}
+                        name={'warrantyPeriod'}
+                        render={({ field, fieldState }) => (
+                            <FormField label='Warranty period' error={fieldState.error}>
+                                <Select<ItemPropertyView, false>
+                                    isClearable
+                                    theme={SelectTheme}
+                                    styles={SelectStyles<ItemPropertyView>()}
+                                    options={WarrantyPeriodList}
+                                    placeholder='Warranty period'
+                                    value={WarrantyPeriodList?.find(({ value }) => value === field.value) ?? null}
+                                    onChange={(newValue) => field.onChange(newValue?.value)}
+                                    getOptionLabel={(item) => item.value}
+                                    getOptionValue={(item) => String(item.id)}
+                                />
+                            </FormField>
+                        )}
+                    />
+                    <TextField label={'Notes'} register={register('notes')} error={errors.notes} />
+                    <TextField label={'Invoice price'} register={register('totalPrice')} error={errors.totalPrice} />
+                </Typography>
                 <div className='flex-100 justify-end'>
                     <Button type='primary' htmlType='submit'>
                         Save and show

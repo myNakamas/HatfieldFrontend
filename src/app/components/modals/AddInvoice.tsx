@@ -1,4 +1,4 @@
-import { CreateInvoice } from '../../models/interfaces/invoice'
+import { CreateItemInvoice } from '../../models/interfaces/invoice'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useQuery, useQueryClient } from 'react-query'
@@ -71,7 +71,7 @@ export const AddInvoice = ({
         reset,
         setError,
         watch,
-    } = useForm<CreateInvoice>({
+    } = useForm<CreateItemInvoice>({
         defaultValues,
         resolver: yupResolver(NewInvoiceSchema),
     })
@@ -82,10 +82,14 @@ export const AddInvoice = ({
         reset(defaultValues)
     }, [isModalOpen])
 
-    const saveInvoice = (data: CreateInvoice) => {
-        if (item) data.itemId = item.id
+    const saveInvoice = (data: CreateItemInvoice) => {
+        const body: CreateItemInvoice = {
+            ...data,
+            deviceName: data.deviceBrand + ' ' + data.deviceModel,
+            itemId: item?.id,
+        }
         toast
-            .promise(createInvoice(data), toastCreatePromiseTemplate('invoice'), toastProps)
+            .promise(createInvoice(body), toastCreatePromiseTemplate('invoice'), toastProps)
             .then((id) => {
                 closeModal()
                 queryClient.invalidateQueries(['invoices']).then(() => navigate('/invoices/' + id))

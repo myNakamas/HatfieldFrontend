@@ -19,7 +19,6 @@ import { activeTicketStatuses, TicketStatus, TicketStatusesArray } from '../../.
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { FormError } from '../../form/FormError'
-import { CollectTicketForm } from './CollectTicketForm'
 import { Button, Card, Descriptions, Space } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
@@ -88,16 +87,6 @@ export const ViewTicket = ({
         }
     }
 
-    const collectTicket = (invoice: {}, id: number) => {
-        return toast
-            .promise(
-                putCompleteTicket({ id, location: deviceLocation }),
-                toastUpdatePromiseTemplate('ticket'),
-                toastProps
-            )
-            .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
-    }
-
     const updateTicketStatus = (id: number, ticketStatus: TicketStatus) => {
         return toast
             .promise(
@@ -162,13 +151,6 @@ export const ViewTicket = ({
                         <EditTicketForm
                             onComplete={editTicket}
                             ticket={createTicketFromTicket(ticket)}
-                            onCancel={() => setMode('view')}
-                        />
-                    )}
-                    {mode === 'collect' && (
-                        <CollectTicketForm
-                            onComplete={collectTicket}
-                            ticket={ticket}
                             onCancel={() => setMode('view')}
                         />
                     )}

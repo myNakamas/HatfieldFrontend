@@ -134,7 +134,8 @@
   grid-template-columns: 100%;
   justify-content: center;
   justify-items: center;
-  width: 30%;
+  width: 40%;
+  max-width: 450px;
   @media (max-width: 700px) {
     width: 100%;
   }

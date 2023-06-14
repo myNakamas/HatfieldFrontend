@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from 'react-query'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -6,7 +6,7 @@ import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { getInvoiceById, getInvoicePdf, invalidateInvoice } from '../../axios/http/invoiceRequests'
 import dateFormat from 'dateformat'
 import { invoiceTypeIcon, paymentMethodIcon } from '../../models/enums/invoiceEnums'
-import { Button, Descriptions, Result, Space, Typography } from 'antd'
+import { Breadcrumb, Button, Descriptions, Result, Space, Typography } from 'antd'
 import { faPrint } from '@fortawesome/free-solid-svg-icons'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
@@ -16,8 +16,10 @@ import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExcla
 import { AppError } from '../../models/interfaces/generalModels'
 import { Invoice } from '../../models/interfaces/invoice'
 import { disabledRefetching } from '../../axios/reactQueryProps'
+import { AuthContext } from '../../contexts/AuthContext'
 
 export const InvoiceView = () => {
+    const { isWorker } = useContext(AuthContext)
     const { id } = useParams()
     const navigate = useNavigate()
     if (!id) return <NoDataComponent items={'information'} />
@@ -47,10 +49,19 @@ export const InvoiceView = () => {
 
     return (
         <div className='mainScreen'>
+            <Breadcrumb>
+                <Breadcrumb.Item>
+                    <a onClick={() => navigate('/home')}>Home</a>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <a onClick={() => navigate('/invoices')}>Shops</a>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>Invoice #{invoice?.id}</Breadcrumb.Item>
+            </Breadcrumb>
             <CustomSuspense isReady={!isLoading}>
                 {isError && <InvoiceAccessError />}
                 {!isError && invoice && (
-                    <Space>
+                    <Space wrap className={'justify-around flex-100'}>
                         <Space direction={'vertical'}>
                             {!invoice.valid && (
                                 <Space className='warning-box'>
@@ -90,8 +101,7 @@ export const InvoiceView = () => {
                                 <Descriptions.Item label={'Notes'}>{invoice.notes}</Descriptions.Item>
                             </Descriptions>
                             <Descriptions bordered title={'Device properties '}>
-                                <Descriptions.Item label={'Brand:'}>{invoice.deviceBrand}</Descriptions.Item>
-                                <Descriptions.Item label={'Model:'}>{invoice.deviceModel}</Descriptions.Item>
+                                <Descriptions.Item label={'Device name:'}>{invoice.deviceName}</Descriptions.Item>
                                 <Descriptions.Item label={'Serial number/IMEI'}>
                                     {invoice.serialNumber}
                                 </Descriptions.Item>
@@ -105,7 +115,7 @@ export const InvoiceView = () => {
                             <Button icon={<FontAwesomeIcon icon={faPrint} />} onClick={() => openPdf(invoice.id)}>
                                 Open document for print
                             </Button>
-                            {invoice.valid && (
+                            {invoice.valid && isWorker() && (
                                 <Button icon={<FontAwesomeIcon icon={faTrash} />} onClick={() => onDelete(invoice.id)}>
                                     Invalidate invoice
                                 </Button>

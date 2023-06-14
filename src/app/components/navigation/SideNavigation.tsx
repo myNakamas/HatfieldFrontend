@@ -9,13 +9,15 @@ import {
     faFileInvoice,
     faPersonCircleQuestion,
 } from '@fortawesome/free-solid-svg-icons'
-import { Drawer, Menu, MenuProps, Space, Typography } from 'antd'
+import { Badge, Drawer, Menu, MenuProps, Space } from 'antd'
 import { WebSocketContext } from '../../contexts/WebSocketContext'
 import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
 import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield'
 import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
 import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket'
 import { AuthContext } from '../../contexts/AuthContext'
+import Button from 'antd/es/button'
+import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs'
 
 export type MenuItem = Required<MenuProps>['items'][number]
 
@@ -54,10 +56,9 @@ export const SideNavigation = ({
             key: '/chats',
             icon: (
                 <Space className={'sideNavIcon'}>
-                    <FontAwesomeIcon icon={faCommentDots} />
-                    {totalNotificationCount > 0 && (
-                        <Typography className={'icon-s abs-icon'}>{totalNotificationCount}</Typography>
-                    )}
+                    <Badge count={totalNotificationCount}>
+                        <FontAwesomeIcon icon={faCommentDots} />
+                    </Badge>
                 </Space>
             ),
         },
@@ -79,15 +80,31 @@ export const SideNavigation = ({
             onClose={() => setShowNav(false)}
             open={showNavigation}
         >
-            <Menu
-                selectedKeys={[pathname]}
-                onClick={(item) => {
-                    navigate(item.key)
-                }}
-                onSelect={() => setShowNav(false)}
-                mode='inline'
-                items={items}
-            />
+            <div className='sideNav' style={{ height: '100%' }}>
+                <Menu
+                    selectedKeys={[pathname]}
+                    onClick={(item) => {
+                        navigate(item.key)
+                    }}
+                    onSelect={() => setShowNav(false)}
+                    mode='inline'
+                    items={items}
+                />
+
+                {isAdmin() && (
+                    <Space className={'justify-around mb-1'}>
+                        <Button
+                            icon={<FontAwesomeIcon icon={faCogs} />}
+                            onClick={() => {
+                                navigate(`/shops/${loggedUser?.shopId}`)
+                                setShowNav(false)
+                            }}
+                        >
+                            Shop settings
+                        </Button>
+                    </Space>
+                )}
+            </div>
         </Drawer>
     )
 }

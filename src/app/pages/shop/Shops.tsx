@@ -20,7 +20,7 @@ export const Shops = () => {
             <Space className=' button-bar'>
                 <Button onClick={() => setModalIsOpen(true)}>Add a new Shop</Button>
             </Space>
-            <div className='tableWrapper'>
+            <div>
                 <CustomSuspense isReady={isSuccess}>
                     {data && data.length > 0 ? (
                         <CustomTable<Shop>

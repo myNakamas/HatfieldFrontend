@@ -70,7 +70,7 @@ export const EditTicketForm = ({
                 className='modalForm'
                 onSubmit={handleSubmit((data) => {
                     onComplete(data).catch((error: AppError) => {
-                        setError('root', { message: error.detail })
+                        setError('root', { message: error?.detail })
                     })
                     reset()
                 })}

@@ -10,13 +10,14 @@ import {
     getChat,
     getClientChat,
 } from '../../../axios/http/ticketRequests'
-import { Drawer, Menu, Skeleton, Space, Typography } from 'antd'
+import { Badge, Drawer, Menu, Space } from 'antd'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { sortChatByDate } from '../../../utils/helperFunctions'
 import { TicketChatInfo } from './ChatTicketDetails'
 import { ChatMessages } from './ChatMessages'
 import { MessageInputField } from './ChatInputField'
 import { CustomSuspense } from '../../../components/CustomSuspense'
+import { NoDataComponent } from '../../../components/table/NoDataComponent'
 
 export const Chats = () => {
     const { isClient } = useContext(AuthContext)
@@ -103,18 +104,11 @@ export const InnerChats = ({ tickets }: { tickets?: Ticket[] }) => {
                             items={tickets.map((ticket) => ({
                                 label: `Ticket#${ticket.id}`,
                                 key: ticket.id,
-                                icon:
-                                    notificationCount[ticket.id] > 0 ? (
-                                        <Typography className={'icon-s abs-icon'}>
-                                            {notificationCount[ticket.id]}
-                                        </Typography>
-                                    ) : (
-                                        <></>
-                                    ),
+                                icon: <Badge count={notificationCount[ticket.id]} />,
                             }))}
                         />
                     ) : (
-                        <Skeleton loading={true} />
+                        <NoDataComponent items={'active tickets'} />
                     )}
                 </Space>
             </Drawer>

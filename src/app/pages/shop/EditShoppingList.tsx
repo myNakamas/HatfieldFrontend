@@ -155,6 +155,7 @@ export const EditShoppingList = () => {
                     return (
                         <Table<InventoryItem>
                             rowSelection={rowSelection}
+                            scroll={{ x: true, scrollToFirstRowOnChange: true }}
                             columns={(direction === 'left' ? nonRequiredColumns : requiredColumns).map(
                                 (item, index) => ({ ...item, key: index })
                             )}

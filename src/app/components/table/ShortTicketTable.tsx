@@ -12,13 +12,7 @@ const Deadline = ({ deadline }: { deadline: Date }) => {
     return <Countdown title={dateFormat(deadline)} value={deadline.valueOf()} />
 }
 
-export const ShortTicketTable = ({
-    data,
-    onClick,
-}: {
-    data?: Ticket[]
-    onClick: (ticket: Ticket) => void
-}) => {
+export const ShortTicketTable = ({ data, onClick }: { data?: Ticket[]; onClick: (ticket: Ticket) => void }) => {
     if (!data || data.length === 0) return <NoDataComponent items={'active tickets'} />
     const columns = ['creation date', 'due', 'status', 'client'].map((string, index) => ({
         title: string,
@@ -46,6 +40,7 @@ export const ShortTicketTable = ({
             columns={columns}
             onRow={getComponentProps}
             pagination={false}
+            scroll={{ x: true, scrollToFirstRowOnChange: true }}
             rowClassName={({ deadline }: Ticket) => (moment(deadline).isBefore(moment()) ? 'dangerBg' : '')}
         />
     )

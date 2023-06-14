@@ -10,9 +10,8 @@ import { createShop } from '../../axios/http/shopRequests'
 import { TextField } from '../form/TextField'
 import { FormError } from '../form/FormError'
 import { useQueryClient } from 'react-query'
-import { Button, Space } from 'antd'
+import { Button, Card, ColorPicker, Space } from 'antd'
 import { FormField } from '../form/Field'
-import { HexColorPicker } from 'react-colorful'
 import { ThemeContext } from '../../contexts/ThemeContext'
 import { AuthContext } from '../../contexts/AuthContext'
 import { AppError } from '../../models/interfaces/generalModels'
@@ -65,52 +64,28 @@ export const AddShop = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
                     <TextField label={'REG number'} register={register('regNumber')} error={errors.regNumber} />
                     <TextField label={'VAT number'} register={register('vatNumber')} error={errors.vatNumber} />
 
-                    <h3>Shop Colors</h3>
-                    <div className='colors'>
-                        <div>
+                    <Card title={'Shop Colors'} className='w-100'>
+                        <Space className='w-100 justify-around align-center' direction={'horizontal'} wrap>
                             <Controller
                                 control={control}
                                 name='shopSettingsView.primaryColor'
                                 render={({ field, fieldState }) => (
                                     <FormField label={'Primary color of the shop'} error={fieldState.error}>
-                                        <HexColorPicker
-                                            color={field.value}
-                                            onChange={(color) => {
-                                                if (primaryColorSample) primaryColorSample.style.backgroundColor = color
-                                                field.onChange(color)
-                                            }}
-                                        />
-                                        <input className='input' onChange={field.onChange} value={field.value ?? ''} />
+                                        <ColorPicker value={field.value} onChange={field.onChange} />
                                     </FormField>
                                 )}
                             />
-                        </div>
-                        <div>
                             <Controller
                                 control={control}
                                 name='shopSettingsView.secondaryColor'
                                 render={({ field, fieldState }) => (
                                     <FormField label={'Secondary color of the shop'} error={fieldState.error}>
-                                        <HexColorPicker
-                                            color={field.value}
-                                            onChange={(color) => {
-                                                if (secondaryColorSample)
-                                                    secondaryColorSample.style.backgroundColor = color
-                                                field.onChange(color)
-                                            }}
-                                        />
-                                        <input className='input' onChange={field.onChange} value={field.value ?? ''} />
+                                        <ColorPicker value={field.value} onChange={field.onChange} />
                                     </FormField>
                                 )}
                             />
-                        </div>
-
-                        <Space>
-                            <h4>Color sample:</h4>
-                            <div id='primaryColorSample' className='colorSample' />
-                            <div id='secondaryColorSample' className='colorSample' />
                         </Space>
-                    </div>
+                    </Card>
 
                     <TextField
                         label='Notification email'

@@ -8,9 +8,14 @@ export interface ThemeColors {
 }
 
 export interface ShopSettingsModel extends Entity, ThemeColors {
+    emailNotificationsEnabled: boolean
     gmail: string
     gmailPassword: string
+    smsNotificationsEnabled: boolean
     smsApiKey: string
+    printEnabled: boolean
+    printerIp: string
+    printerModel: string
     // logoURL:string;
     // backgroundImageURL:string;
 }
