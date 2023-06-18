@@ -8,6 +8,7 @@ import {
     InventoryItem,
     Log,
     Shop,
+    ShoppingList,
     TransferItem,
 } from '../../models/interfaces/shop'
 
@@ -28,7 +29,7 @@ export const getAllShopItems = (shopId?: number): Promise<InventoryItem[]> => {
     const filter: InventoryFilter = { shopId }
     return backendClient.get('inventory/item/short', { params: filter })
 }
-export const getShoppingList = ({ filter }: { filter: InventoryFilter }): Promise<InventoryItem[]> => {
+export const getShoppingList = ({ filter }: { filter: InventoryFilter }): Promise<ShoppingList> => {
     return backendClient.get('inventory/item/required', { params: filter })
 }
 

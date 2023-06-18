@@ -6,7 +6,7 @@ import { InventoryItem } from '../../models/interfaces/shop'
 import { ViewInventoryItem } from '../../components/modals/inventory/ViewInventoryItem'
 import { useQuery, useQueryClient } from 'react-query'
 import { changeMultipleNeed, changeNeed, getShoppingList, useGetShopItems } from '../../axios/http/shopRequests'
-import { Breadcrumb, Button, Space, Table, Transfer } from 'antd'
+import { Breadcrumb, Button, Space, Statistic, Table, Transfer } from 'antd'
 import { TransferDirection } from 'antd/es/transfer'
 import { defaultPage } from '../../models/enums/defaultValues'
 import { TableRowSelection } from 'antd/es/table/interface'
@@ -50,9 +50,13 @@ export const EditShoppingList = () => {
     const { data: allItems } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), {
         suspense: true,
     })
-    const { data: neededItems } = useQuery(['shopItems', 'shoppingList', filter], () => getShoppingList({ filter }), {
-        suspense: true,
-    })
+    const { data: shoppingList, isLoading } = useQuery(
+        ['shopItems', 'shoppingList', filter],
+        () => getShoppingList({ filter }),
+        {
+            suspense: true,
+        }
+    )
 
     const [selectedKeys, setSelectedKeys] = useState<string[]>([])
 
@@ -101,7 +105,7 @@ export const EditShoppingList = () => {
                 dataSource={allItems?.content}
                 titles={['Not needed items', 'Shopping list']}
                 rowKey={getInventoryItemKey}
-                targetKeys={neededItems?.map(getInventoryItemKey)}
+                targetKeys={shoppingList?.items.map(getInventoryItemKey)}
                 selectedKeys={selectedKeys}
                 onChange={onChange}
                 onSelectChange={onSelectChange}
@@ -185,6 +189,7 @@ export const EditShoppingList = () => {
                     )
                 }}
             </Transfer>
+            <Statistic title={'Total price:'} loading={isLoading} value={shoppingList?.totalPrice} precision={2} />
         </div>
     )
 }

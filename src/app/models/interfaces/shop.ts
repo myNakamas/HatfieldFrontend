@@ -44,9 +44,15 @@ export interface InventoryItem extends Entity {
     purchasePrice?: number
     sellPrice?: number
     shopId: number
+    missingCount: number
     requiredItem?: RequiredItem
     categoryView: Category
     columns: CategoryProperties
+}
+
+export interface ShoppingList {
+    items: InventoryItem[]
+    totalPrice: number
 }
 
 export interface CreateInventoryItem {

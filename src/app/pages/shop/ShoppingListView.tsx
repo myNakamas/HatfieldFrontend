@@ -1,7 +1,7 @@
 import { InventoryItem } from '../../models/interfaces/shop'
 import { CustomTable } from '../../components/table/CustomTable'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { Breadcrumb, Button, Card, Space } from 'antd'
+import { Breadcrumb, Button, Card, Popover, Space, Statistic } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons'
 import React, { useState } from 'react'
@@ -17,12 +17,16 @@ export const ShoppingListView = () => {
     const navigate = useNavigate()
     const [selectedItem, setSelectedItem] = useState<InventoryItem | undefined>()
     const filter: InventoryFilter = { shopId: Number(shopId) }
-    const { data: items } = useQuery(['shopItems', 'shoppingList', filter], () => getShoppingList({ filter }), {
-        suspense: true,
-        onSuccess: (newItems) => {
-            if (selectedItem) setSelectedItem((item) => newItems.find(({ id }) => item?.id === id) ?? item)
-        },
-    })
+    const { data: shoppingList, isLoading } = useQuery(
+        ['shopItems', 'shoppingList', filter],
+        () => getShoppingList({ filter }),
+        {
+            suspense: true,
+            onSuccess: ({ items }) => {
+                if (selectedItem) setSelectedItem((item) => items.find(({ id }) => item?.id === id) ?? item)
+            },
+        }
+    )
 
     return (
         <div className={'mainScreen'}>
@@ -44,24 +48,40 @@ export const ShoppingListView = () => {
                 }
                 extra={<Button icon={<FontAwesomeIcon icon={faPen} />} onClick={() => navigate('/inventory')} />}
             >
-                {items ? (
-                    <CustomTable<InventoryItem>
-                        headers={{
-                            name: 'Name',
-                            count: 'Current count in shop',
-                            missingCount: 'Number of items to buy',
-                            action: 'Actions',
-                        }}
-                        data={items.map((item) => ({
-                            ...item,
-                            ...item.requiredItem,
-                            missingCount: Math.max((item.requiredItem?.requiredAmount ?? item.count) - item.count, 0),
-                            action: (
-                                <Button icon={<FontAwesomeIcon icon={faPen} />} onClick={() => setSelectedItem(item)} />
-                            ),
-                        }))}
-                        onClick={setSelectedItem}
-                    />
+                {shoppingList ? (
+                    <>
+                        <CustomTable<InventoryItem>
+                            headers={{
+                                name: 'Name',
+                                count: 'Current count in shop',
+                                missingCount: 'Number of items to buy',
+                                price: 'Price',
+                                action: 'Actions',
+                            }}
+                            data={shoppingList?.items.map((item) => ({
+                                ...item,
+                                ...item.requiredItem,
+                                price: item.purchasePrice ? (
+                                    item.purchasePrice * item?.missingCount
+                                ) : (
+                                    <Popover content={'Purchase price of item is not specified'}>Unknown</Popover>
+                                ),
+                                action: (
+                                    <Button
+                                        icon={<FontAwesomeIcon icon={faPen} />}
+                                        onClick={() => setSelectedItem(item)}
+                                    />
+                                ),
+                            }))}
+                            onClick={setSelectedItem}
+                        />
+                        <Statistic
+                            title={'Total price:'}
+                            loading={isLoading}
+                            value={shoppingList.totalPrice}
+                            precision={2}
+                        />
+                    </>
                 ) : (
                     <NoDataComponent items={'items in shopping list'} />
                 )}
