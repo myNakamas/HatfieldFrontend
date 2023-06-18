@@ -78,3 +78,6 @@ export const updateUser = (user: User): Promise<User> => {
 export const banClient = (id: string, status: boolean) => {
     return backendClient.put('user/admin/updateBan', {}, { params: { id, status } })
 }
+export const deletePersonalAccount = () => {
+    return backendClient.delete('user/profile')
+}

@@ -46,7 +46,7 @@ export const DashboardFilters = ({
     const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
 
     return (
-        <Space>
+        <Space wrap>
             <div className='filterField'>
                 {isAdmin() && (
                     <Select<Shop, false>

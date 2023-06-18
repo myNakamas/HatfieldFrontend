@@ -6,7 +6,7 @@ import { InventoryItem } from '../../models/interfaces/shop'
 import { ViewInventoryItem } from '../../components/modals/inventory/ViewInventoryItem'
 import { useQuery, useQueryClient } from 'react-query'
 import { changeMultipleNeed, changeNeed, getShoppingList, useGetShopItems } from '../../axios/http/shopRequests'
-import { Button, Space, Table, Transfer } from 'antd'
+import { Breadcrumb, Button, Space, Table, Transfer } from 'antd'
 import { TransferDirection } from 'antd/es/transfer'
 import { defaultPage } from '../../models/enums/defaultValues'
 import { TableRowSelection } from 'antd/es/table/interface'
@@ -80,6 +80,15 @@ export const EditShoppingList = () => {
         <div className='mainScreen'>
             <ViewInventoryItem inventoryItem={selectedItem} closeModal={() => setSelectedItem(undefined)} />
             <EditRequiredItem inventoryItem={editRequiredItem} closeModal={() => setEditRequiredItem(undefined)} />
+            <Breadcrumb>
+                <Breadcrumb.Item>
+                    <a onClick={() => navigate('/home')}>Home</a>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <a onClick={() => navigate('/inventory')}>Inventory</a>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>Shopping list</Breadcrumb.Item>
+            </Breadcrumb>
             <Space className={'button-bar'}>
                 <Button
                     icon={<FontAwesomeIcon icon={faListCheck} />}

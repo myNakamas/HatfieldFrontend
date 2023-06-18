@@ -1,4 +1,4 @@
-import { Button, Switch } from 'antd'
+import { Button, Space, Switch } from 'antd'
 import { Controller, useForm } from 'react-hook-form'
 import React, { useContext, useEffect, useRef } from 'react'
 import { AppModal } from '../AppModal'
@@ -154,14 +154,14 @@ export const EditUser = ({
 
                 <FormError error={errors.root?.message} />
 
-                <div className='flex-100 justify-end'>
+                <Space className='flex-100 justify-end'>
                     <Button type='primary' htmlType='submit'>
                         Save
                     </Button>
                     <Button htmlType='button' onClick={closeModal}>
                         Close
                     </Button>
-                </div>
+                </Space>
             </form>
         </AppModal>
     )

@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { capitalizeFirst } from '../../utils/helperFunctions'
-import { Avatar, Dropdown, MenuProps, Space } from 'antd'
+import { Dropdown, MenuProps, Space } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCogs, faSignOut } from '@fortawesome/free-solid-svg-icons'
 import { ProfileImage } from './ProfileImage'
@@ -14,7 +14,7 @@ export const ProfileDropdown = () => {
     const [smallScreen, setSmallScreen] = useState<boolean>(window.innerWidth < 768)
     window.addEventListener('resize', () => setSmallScreen(window.innerWidth < 768))
     const navigate = useNavigate()
-    const { data: profileImg } = useQuery(
+    const { data: profileImg, isLoading } = useQuery(
         ['profileImg', loggedUser?.userId],
         () => getProfilePicture({ id: loggedUser?.userId }),
         { retry: false }
@@ -38,9 +38,7 @@ export const ProfileDropdown = () => {
     return (
         <Dropdown menu={{ items }} arrow>
             <Space>
-                <div className='icon-s'>
-                    <Avatar icon={<ProfileImage profileImg={profileImg} />} />
-                </div>
+                <ProfileImage profileImg={profileImg} isLoading={isLoading} />
                 {!smallScreen && (
                     <div className='menu '>
                         <div className='username'>{capitalizeFirst(loggedUser?.username)}</div>
