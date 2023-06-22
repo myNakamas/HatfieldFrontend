@@ -125,3 +125,7 @@ export const postMarkItemAsDamaged = (params: { itemId: number }) => {
 export const postMarkItemAsDefective = (params: { itemId: number }) => {
     return backendClient.patch('inventory/item/mark/defective', {}, { params })
 }
+
+export const exchangeDefectiveItem = (params: { itemId: number; count?: number }) => {
+    return backendClient.patch('inventory/item/mark/defective/replace', {}, { params })
+}

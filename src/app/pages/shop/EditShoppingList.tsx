@@ -29,15 +29,8 @@ const requiredColumns = [
     { dataIndex: 'count', title: 'Current Count' },
     { dataIndex: 'requiredAmount', title: 'Needed Count' },
     { dataIndex: 'missingCount', title: 'Missing amount' },
-    { dataIndex: 'requiredReason', title: 'Reason' },
-    { dataIndex: 'status', title: 'Status' },
     { dataIndex: 'action', title: 'Actions' },
 ]
-
-export interface ItemRequest {
-    itemId: string
-    count: number
-}
 
 export const EditShoppingList = () => {
     const queryClient = useQueryClient()
@@ -189,7 +182,15 @@ export const EditShoppingList = () => {
                     )
                 }}
             </Transfer>
-            <Statistic title={'Total price:'} loading={isLoading} value={shoppingList?.totalPrice} precision={2} />
+            <Space className={'w-100 align-start justify-start'}>
+                <Statistic
+                    prefix={'£'}
+                    title={'Total price:'}
+                    loading={isLoading}
+                    value={shoppingList?.totalPrice}
+                    precision={2}
+                />
+            </Space>
         </div>
     )
 }

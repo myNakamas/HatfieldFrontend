@@ -48,12 +48,12 @@ export const AddItemInventorySchema = Yup.object<InventoryItem>().shape({
     brand: Yup.object().notRequired(),
     purchasePrice: Yup.number().positive().notRequired(),
     sellPrice: Yup.number().positive().notRequired(),
-    count: Yup.number().min(1, 'Invalid count').required('Item count is required'),
+    count: Yup.number().min(0, 'Invalid count').required('Item count is required'),
 })
 export const EditItemInventorySchema = Yup.object<InventoryItem>().shape({
     model: Yup.string().notRequired(),
     brand: Yup.string().notRequired(),
-    count: Yup.number().min(1, 'Invalid count').required('Item count is required'),
+    count: Yup.number().min(0, 'Invalid count').required('Item count is required'),
 })
 export const UpdateItemCountSchema = Yup.object<InventoryItem>().shape({
     count: Yup.number().min(0, 'Invalid count').required('Item count is required'),

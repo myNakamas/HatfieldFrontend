@@ -69,6 +69,7 @@ export interface CreateInventoryItem {
 
 export interface RequiredItem {
     requiredAmount: number
+    defectiveAmount: number
     isNeeded: boolean
 }
 
