@@ -24,12 +24,13 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 import { getUserString } from '../../utils/helperFunctions'
 import { FormField } from '../../components/form/Field'
 import { AuthContext } from '../../contexts/AuthContext'
+import { defaultPage } from '../../models/enums/defaultValues'
 
 export const Invoices = () => {
     const navigate = useNavigate()
     const [filter, setFilter] = useState<InvoiceFilter>({ valid: true })
     const [addInvoiceModalOpen, setAddInvoiceModalOpen] = useState(false)
-    const [page, setPage] = useState<PageRequest>({ pageSize: 10, page: 1 })
+    const [page, setPage] = useState<PageRequest>(defaultPage)
     const { data: invoices, isLoading } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }))
 
     const openPdf = async (invoiceId: number) => {

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Table } from 'antd'
 import { PageRequest } from '../../models/interfaces/generalModels'
+import { setDefaultPageSize } from '../../models/enums/defaultValues'
 
 export interface CustomTableProps<T> {
     headers: { [key: string]: string }
@@ -10,7 +11,6 @@ export interface CustomTableProps<T> {
     data: any[]
     totalCount?: number
 }
-
 export const CustomTable = <T extends object>({
     data,
     headers,
@@ -35,7 +35,6 @@ export const CustomTable = <T extends object>({
 
     return (
         <Table<T>
-            size={window.innerWidth < 768 ? 'small' : 'large'}
             dataSource={data.map((value, index) => ({ key: 'dataKey' + index, ...value }))}
             columns={columns}
             scroll={{ x: true, scrollToFirstRowOnChange: true }}
@@ -47,8 +46,12 @@ export const CustomTable = <T extends object>({
                           defaultCurrent: 1,
                           pageSize: pagination?.pageSize,
                           current: pagination?.page,
-                          onChange: (page, pageSize) => onPageChange && onPageChange({ page, pageSize }),
-                          pageSizeOptions: [5, 10, 15, 20, 50],
+                          onChange: (page, pageSize) => {
+                              setDefaultPageSize(pageSize)
+                              onPageChange && onPageChange({ page, pageSize })
+                          },
+                          pageSizeOptions: [5, 10, 15, 20, 50, 100],
+                          position: ['topRight', 'bottomRight'],
                           showSizeChanger: true,
                           total: totalCount,
                       }

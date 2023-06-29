@@ -1,19 +1,23 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React, { useContext, useState } from 'react'
+import React, { ReactNode, useContext, useRef, useState } from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { User } from '../../models/interfaces/user'
 import { faUserLock } from '@fortawesome/free-solid-svg-icons'
-import { changeProfilePicture, getProfilePicture } from '../../axios/http/userRequests'
-import { toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
+import { changeProfilePicture, deletePersonalAccount, getProfilePicture } from '../../axios/http/userRequests'
+import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { toast } from 'react-toastify'
 import { useQuery, useQueryClient } from 'react-query'
-import { ProfileImage } from '../../components/user/ProfileImage'
-import { Button, Card } from 'antd'
+import { ProfileImageLarge } from '../../components/user/ProfileImage'
+import { Button, Card, Image, Popconfirm, Space } from 'antd'
 import { EditUser } from '../../components/modals/users/EditUser'
+import { faUpload } from '@fortawesome/free-solid-svg-icons/faUpload'
+import { Text } from 'recharts'
+import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
 
 export const Profile = () => {
-    const { loggedUser } = useContext(AuthContext)
+    const uploadRef = useRef<HTMLInputElement>(null)
+    const { loggedUser, logout } = useContext(AuthContext)
     const queryClient = useQueryClient()
     const [showModal, setShowModal] = useState(false)
     const navigate = useNavigate()
@@ -25,31 +29,42 @@ export const Profile = () => {
             await queryClient.invalidateQueries(['profileImg', loggedUser?.userId])
         }
     }
-    const { data: profileImg } = useQuery(['profileImg', loggedUser?.userId], () =>
+    const { data: profileImg, isLoading: isProfileImageLoading } = useQuery(['profileImg', loggedUser?.userId], () =>
         getProfilePicture({ id: loggedUser?.userId })
     )
 
+    const sendDeleteAccountRequest = () => {
+        toast.promise(deletePersonalAccount, toastUpdatePromiseTemplate('profile'), toastProps).then(logout)
+    }
+
     return (
         <>
-            <div className='setting'>
+            <div className='setting width-m'>
                 {userToEdit && (
                     <EditUser user={userToEdit} isModalOpen={showModal} closeModal={() => setShowModal(false)} />
                 )}
-                <h2>Your info</h2>
-                <Card className='card'>
-                    <div className='flex-100 justify-start '>
-                        <div className='icon-xxl'>
-                            <ProfileImage profileImg={profileImg} />
-                        </div>
+                <Card className='card' title={'Your info'}>
+                    <Space wrap>
+                        <ProfileImageLarge isLoading={isProfileImageLoading} profileImg={profileImg} />
+                        <Image />
                         <div className='p-2 profileDesc'>
                             <p>Personalize your account with a photo:</p>
                             <input
+                                ref={uploadRef}
+                                id={'uploadProfilePic'}
                                 type='file'
-                                className='actionButton'
+                                hidden={true}
                                 onChange={(e) => uploadPicture(e.target.files)}
                             />
+                            <Button
+                                onClick={() => uploadRef.current?.click()}
+                                icon={<FontAwesomeIcon icon={faUpload} />}
+                            >
+                                Upload a new image
+                            </Button>
+                            <Text fontSize={5}>The image size must not exceed 2Mb</Text>
                         </div>
-                    </div>
+                    </Space>
 
                     <SettingsRow name={'Full name'} value={loggedUser?.fullName} />
                 </Card>
@@ -70,15 +85,35 @@ export const Profile = () => {
                 >
                     <SettingsRow name={'Username'} value={loggedUser?.username} />
 
-                    <SettingsRow name={'Email address'} value={loggedUser?.email} />
-
                     {loggedUser?.phones &&
                         loggedUser.phones.length > 0 &&
                         loggedUser.phones.map((phone, index) => (
-                            <SettingsRow key={'phone' + index} name={'Phone number'} value={phone} />
+                            <>
+                                <SettingsRow key={'phone' + index} name={`Phone number ${index}.`} value={phone} />
+                            </>
                         ))}
-                    <SettingsRow name={'Full name'} value={loggedUser?.fullName} />
+                    <SettingsRow name={'Email address'} value={loggedUser?.email} />
+                    <SettingsRow name={'Role'} value={loggedUser?.role} />
+                    <SettingsRow name={'Shop'} value={loggedUser?.shopName} />
                 </SettingsCard>
+                <Card title='Account control'>
+                    <Space className={'flex-100 justify-between'}>
+                        <h4>Account deletion</h4>
+                        <p>Selecting this button will initiate the process of permanently deleting your account</p>
+                        <Popconfirm
+                            title={'Account deletion confirmation'}
+                            description={'Are you sure you want to delete your account? This action is irreversible'}
+                            onConfirm={() => {
+                                sendDeleteAccountRequest()
+                            }}
+                            onCancel={() => toast.success('Thank you for changing your mind 😅')}
+                        >
+                            <Button type={'primary'} danger icon={<FontAwesomeIcon icon={faTrash} />}>
+                                Delete account
+                            </Button>
+                        </Popconfirm>
+                    </Space>
+                </Card>
             </div>
         </>
     )
@@ -98,11 +133,14 @@ export const SettingsCard = ({
         </Card>
     )
 }
-const SettingsRow = ({ name, value }: { name: string; value: string | undefined }) => {
+const SettingsRow = ({ name, value, extra }: { name: string; value: string | undefined; extra?: ReactNode }) => {
     return (
-        <div className='flex-100 row'>
-            <div className='name'>{name}</div>
-            <div className='value'>{value}</div>
-        </div>
+        <>
+            <div className='flex-100 row'>
+                <div className='name'>{name}</div>
+                <div className='value'>{value}</div>
+                {extra ? <div>{extra}</div> : <></>}
+            </div>
+        </>
     )
 }

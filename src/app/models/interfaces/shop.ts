@@ -7,6 +7,10 @@ export interface ThemeColors {
     secondaryColor: string
 }
 
+export interface ShopTemplatesSettings {
+    aboutPage: string
+}
+
 export interface ShopSettingsModel extends Entity, ThemeColors {
     emailNotificationsEnabled: boolean
     gmail: string
@@ -28,6 +32,7 @@ export interface Shop extends Entity {
     vatNumber: string
     regNumber: string
     shopSettingsView: ShopSettingsModel
+    templates: ShopTemplatesSettings
 }
 
 export interface InventoryItem extends Entity {
@@ -39,9 +44,15 @@ export interface InventoryItem extends Entity {
     purchasePrice?: number
     sellPrice?: number
     shopId: number
+    missingCount: number
     requiredItem?: RequiredItem
     categoryView: Category
     columns: CategoryProperties
+}
+
+export interface ShoppingList {
+    items: InventoryItem[]
+    totalPrice: number
 }
 
 export interface CreateInventoryItem {
@@ -58,6 +69,7 @@ export interface CreateInventoryItem {
 
 export interface RequiredItem {
     requiredAmount: number
+    defectiveAmount: number
     isNeeded: boolean
 }
 

@@ -29,7 +29,6 @@ export const Privacy = () => {
                 <ul>
                     <li>To communicate with you about your phone repair status.</li>
                     <li>To send you notifications regarding your phone repair.</li>
-                    <li>To send you updates on our services and promotions (with your explicit consent).</li>
                     <li>To comply with our legal and regulatory obligations.</li>
                 </ul>
 

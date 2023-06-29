@@ -1,5 +1,4 @@
 .setting {
-  background-color: var(--backgroundColor);
   flex-grow: 1;
   text-align: left;
   max-width: 80%;
@@ -7,8 +6,6 @@
 
   .card {
     border-radius: 5px;
-    background-color: var(--backgroundColor10);
-    color: var(--textPrimary);
     width: 100%;
     margin-bottom: 20px;
 

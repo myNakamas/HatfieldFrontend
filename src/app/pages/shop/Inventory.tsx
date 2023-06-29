@@ -57,7 +57,7 @@ export const Inventory = () => {
                 <Button
                     icon={<FontAwesomeIcon icon={faShoppingCart} />}
                     type='primary'
-                    onClick={() => navigate('required')}
+                    onClick={() => navigate(`/inventory/${loggedUser?.shopId}/shopping-list`)}
                 >
                     Shopping List
                 </Button>
