@@ -33,14 +33,6 @@ export const UserForm = ({
 }) => {
     return (
         <>
-            <TextField
-                defaultValue={''}
-                register={register('email')}
-                error={errors.email}
-                inputMode={'email'}
-                label={'Email'}
-                type='email'
-            />
             <Space direction='vertical'>
                 <Typography>Phones</Typography>
                 <Button
@@ -70,7 +62,14 @@ export const UserForm = ({
                         />
                     )
                 })}
-
+                <TextField
+                    defaultValue={''}
+                    register={register('email')}
+                    error={errors.email}
+                    inputMode={'email'}
+                    label={'Email'}
+                    type='email'
+                />
                 <Space>
                     <Controller
                         control={control}

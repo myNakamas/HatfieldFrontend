@@ -4,7 +4,14 @@ import { TicketFilter } from '../interfaces/filters'
 import moment from 'moment/moment'
 import { PageRequest } from '../interfaces/generalModels'
 
-export const defaultPage: PageRequest = { pageSize: 10, page: 1 }
+export const setDefaultPageSize = (pageSize: number) => {
+    localStorage.setItem('pageSize', pageSize + '')
+}
+export const getDefaultPageSize = (): number => {
+    const size = localStorage.getItem('pageSize')
+    return size ? +size : 10
+}
+export const defaultPage: PageRequest = { pageSize: getDefaultPageSize(), page: 1 }
 
 export const defaultTicket = {
     problemExplanation: '',

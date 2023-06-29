@@ -204,7 +204,7 @@ const TicketFilters = ({
     })
     const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
     return advanced ? (
-        <div className='largeFilter'>
+        <Space className='largeFilter'>
             <div className='filterColumn'>
                 <h4>Filters</h4>
                 <SearchComponent {...{ filter, setFilter }} />
@@ -313,11 +313,11 @@ const TicketFilters = ({
                     placeholder={'Deadline'}
                 />
             </div>
-        </div>
+        </Space>
     ) : (
-        <div className='flex'>
+        <Space wrap className='flex'>
             <SearchComponent {...{ filter, setFilter }} />
             <Button type={'link'} onClick={() => setAdvanced(true)} children={'Advanced search'} />
-        </div>
+        </Space>
     )
 }

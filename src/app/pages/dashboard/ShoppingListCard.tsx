@@ -1,4 +1,4 @@
-import { Button, Card, Space } from 'antd'
+import { Button, Card, Space, Statistic } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import React, { useContext, useState } from 'react'
@@ -19,7 +19,7 @@ export const ShoppingListCard = () => {
     const { loggedUser } = useContext(AuthContext)
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [showNewTicketModal, setShowNewTicketModal] = useState(false)
-    const { data: items, isLoading } = useQuery(['shopItems', 'shoppingList'], () =>
+    const { data: shoppingList, isLoading } = useQuery(['shopItems', 'shoppingList'], () =>
         getShoppingList({ filter: { inShoppingList: true, shopId: loggedUser?.shopId } })
     )
     return (
@@ -32,26 +32,41 @@ export const ShoppingListCard = () => {
             }
             extra={
                 <Space>
-                    <Button type='link' onClick={() => navigate('/inventory/required')} children={'See more'} />
+                    <Button
+                        type='link'
+                        onClick={() => navigate(`/inventory/${loggedUser?.shopId}/shopping-list`)}
+                        children={'See more'}
+                    />
                 </Space>
             }
         >
             <ViewTicket ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
             <AddTicket isModalOpen={showNewTicketModal} closeModal={() => setShowNewTicketModal(false)} />
             <CustomSuspense isReady={!isLoading}>
-                {items ? (
-                    <CustomTable<InventoryItem>
-                        headers={{
-                            name: 'Name',
-                            count: 'Current count in shop',
-                            missingCount: 'Number of items to buy',
-                        }}
-                        data={items.map((item) => ({
-                            ...item,
-                            ...item.requiredItem,
-                            missingCount: Math.max((item.requiredItem?.requiredAmount ?? item.count) - item.count, 0),
-                        }))}
-                    />
+                {shoppingList ? (
+                    <>
+                        <CustomTable<InventoryItem>
+                            headers={{
+                                name: 'Name',
+                                count: 'Current count in shop',
+                                missingCount: 'Number of items to buy',
+                            }}
+                            data={shoppingList.items.map((item) => ({
+                                ...item,
+                                ...item.requiredItem,
+                                missingCount: Math.max(
+                                    (item.requiredItem?.requiredAmount ?? item.count) - item.count,
+                                    0
+                                ),
+                            }))}
+                        />
+                        <Statistic
+                            title={'Total price:'}
+                            loading={isLoading}
+                            value={shoppingList.totalPrice}
+                            precision={2}
+                        />
+                    </>
                 ) : (
                     <NoDataComponent items={'items in shopping list'} />
                 )}

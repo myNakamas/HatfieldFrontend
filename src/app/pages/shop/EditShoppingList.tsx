@@ -6,7 +6,7 @@ import { InventoryItem } from '../../models/interfaces/shop'
 import { ViewInventoryItem } from '../../components/modals/inventory/ViewInventoryItem'
 import { useQuery, useQueryClient } from 'react-query'
 import { changeMultipleNeed, changeNeed, getShoppingList, useGetShopItems } from '../../axios/http/shopRequests'
-import { Button, Space, Table, Transfer } from 'antd'
+import { Breadcrumb, Button, Space, Statistic, Table, Transfer } from 'antd'
 import { TransferDirection } from 'antd/es/transfer'
 import { defaultPage } from '../../models/enums/defaultValues'
 import { TableRowSelection } from 'antd/es/table/interface'
@@ -29,15 +29,8 @@ const requiredColumns = [
     { dataIndex: 'count', title: 'Current Count' },
     { dataIndex: 'requiredAmount', title: 'Needed Count' },
     { dataIndex: 'missingCount', title: 'Missing amount' },
-    { dataIndex: 'requiredReason', title: 'Reason' },
-    { dataIndex: 'status', title: 'Status' },
     { dataIndex: 'action', title: 'Actions' },
 ]
-
-export interface ItemRequest {
-    itemId: string
-    count: number
-}
 
 export const EditShoppingList = () => {
     const queryClient = useQueryClient()
@@ -50,9 +43,13 @@ export const EditShoppingList = () => {
     const { data: allItems } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), {
         suspense: true,
     })
-    const { data: neededItems } = useQuery(['shopItems', 'shoppingList', filter], () => getShoppingList({ filter }), {
-        suspense: true,
-    })
+    const { data: shoppingList, isLoading } = useQuery(
+        ['shopItems', 'shoppingList', filter],
+        () => getShoppingList({ filter }),
+        {
+            suspense: true,
+        }
+    )
 
     const [selectedKeys, setSelectedKeys] = useState<string[]>([])
 
@@ -80,6 +77,15 @@ export const EditShoppingList = () => {
         <div className='mainScreen'>
             <ViewInventoryItem inventoryItem={selectedItem} closeModal={() => setSelectedItem(undefined)} />
             <EditRequiredItem inventoryItem={editRequiredItem} closeModal={() => setEditRequiredItem(undefined)} />
+            <Breadcrumb>
+                <Breadcrumb.Item>
+                    <a onClick={() => navigate('/home')}>Home</a>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <a onClick={() => navigate('/inventory')}>Inventory</a>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>Shopping list</Breadcrumb.Item>
+            </Breadcrumb>
             <Space className={'button-bar'}>
                 <Button
                     icon={<FontAwesomeIcon icon={faListCheck} />}
@@ -92,7 +98,7 @@ export const EditShoppingList = () => {
                 dataSource={allItems?.content}
                 titles={['Not needed items', 'Shopping list']}
                 rowKey={getInventoryItemKey}
-                targetKeys={neededItems?.map(getInventoryItemKey)}
+                targetKeys={shoppingList?.items.map(getInventoryItemKey)}
                 selectedKeys={selectedKeys}
                 onChange={onChange}
                 onSelectChange={onSelectChange}
@@ -176,6 +182,15 @@ export const EditShoppingList = () => {
                     )
                 }}
             </Transfer>
+            <Space className={'w-100 align-start justify-start'}>
+                <Statistic
+                    prefix={'£'}
+                    title={'Total price:'}
+                    loading={isLoading}
+                    value={shoppingList?.totalPrice}
+                    precision={2}
+                />
+            </Space>
         </div>
     )
 }

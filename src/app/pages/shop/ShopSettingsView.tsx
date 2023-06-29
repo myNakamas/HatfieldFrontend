@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { getShopById, updateShop } from '../../axios/http/shopRequests'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -9,22 +9,36 @@ import { ShopSchema } from '../../models/validators/FormValidators'
 import { TextField } from '../../components/form/TextField'
 import { FormField } from '../../components/form/Field'
 import { CustomSuspense } from '../../components/CustomSuspense'
-import { ThemeContext } from '../../contexts/ThemeContext'
 import { toast } from 'react-toastify'
 import { FormError } from '../../components/form/FormError'
 import { toastProps } from '../../components/modals/ToastProps'
-import { Anchor, Breadcrumb, Button, Card, ColorPicker, Divider, Space, Switch, Typography } from 'antd'
+import {
+    Anchor,
+    Breadcrumb,
+    Button,
+    Card,
+    ColorPicker,
+    Descriptions,
+    Divider,
+    Popover,
+    Space,
+    Switch,
+    Typography,
+} from 'antd'
+import TextArea from 'antd/es/input/TextArea'
+import ReactMarkdown from 'react-markdown'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faQuestion } from '@fortawesome/free-solid-svg-icons'
+import { AnchorLinkItemProps } from 'antd/es/anchor/Anchor'
+import ButtonGroup from 'antd/es/button/button-group'
 
 export const ShopSettingsView = () => {
     const { id } = useParams()
     const navigate = useNavigate()
-    const { colors } = useContext(ThemeContext)
     const queryClient = useQueryClient()
     const { data: shop, isLoading } = useQuery(['shop', id], () => getShopById(Number(id)), {
         onSuccess: (data) => resetForm(data),
     })
-    const primaryColorSample = document.getElementById('primaryColorSample')
-    const secondaryColorSample = document.getElementById('secondaryColorSample')
     const {
         control,
         register,
@@ -64,11 +78,6 @@ export const ShopSettingsView = () => {
             .then(() => navigate('/shops/'))
     }
 
-    useEffect(() => {
-        if (primaryColorSample) primaryColorSample.style.backgroundColor = colors?.primaryColor ?? ''
-        if (secondaryColorSample) secondaryColorSample.style.backgroundColor = colors?.secondaryColor ?? ''
-    }, [colors])
-
     return (
         <div className='mainScreen'>
             <Breadcrumb>
@@ -82,42 +91,7 @@ export const ShopSettingsView = () => {
             </Breadcrumb>
             <CustomSuspense isReady={!isLoading}>
                 <Space className={'flex-100 align-start justify-around'}>
-                    {window.innerWidth >= 768 && (
-                        <Anchor
-                            items={[
-                                {
-                                    key: 'part-1',
-                                    href: '#shopInf',
-                                    title: 'Shop Information',
-                                },
-                                {
-                                    key: 'part-2',
-                                    href: '#shopCol',
-                                    title: 'Shop Colors',
-                                },
-                                {
-                                    key: 'part-3',
-                                    href: '#sysSettings',
-                                    title: 'System settings',
-                                },
-                                {
-                                    key: 'part-4',
-                                    href: '#printConf',
-                                    title: 'Print configuration',
-                                },
-                                {
-                                    key: 'part-5',
-                                    href: '#emailConf',
-                                    title: 'Email Configuration',
-                                },
-                                {
-                                    key: 'part-6',
-                                    href: '#smsConf',
-                                    title: 'SMS configuration',
-                                },
-                            ]}
-                        />
-                    )}
+                    {window.innerWidth >= 768 && <Anchor items={pageAnchors} />}
                     <form className='modalForm width-m' onSubmit={handleSubmit(submitShop)}>
                         <div className='justify-around flex-100 flex-wrap align-start'>
                             <Divider>Shop Information</Divider>
@@ -192,6 +166,55 @@ export const ShopSettingsView = () => {
                                             )}
                                         />
                                     </Space>
+                                </Card>
+                            </div>
+                            <Divider>Templates</Divider>
+                            <div id={'templates'} className='w-100 mb-1'>
+                                <Card
+                                    className='mb-1'
+                                    id={'aboutPage'}
+                                    title={'About page settings'}
+                                    extra={<AboutPagePopover />}
+                                >
+                                    <Controller
+                                        control={control}
+                                        render={({ field, fieldState }) => {
+                                            const [preview, setPreview] = useState(false)
+                                            return (
+                                                <Space direction={'vertical'} className={'w-100'}>
+                                                    <ButtonGroup>
+                                                        <Button
+                                                            type={preview ? 'primary' : 'default'}
+                                                            onClick={() => setPreview(true)}
+                                                        >
+                                                            Preview
+                                                        </Button>
+                                                        <Button
+                                                            type={preview ? 'default' : 'primary'}
+                                                            onClick={() => setPreview(false)}
+                                                        >
+                                                            Edit
+                                                        </Button>
+                                                    </ButtonGroup>
+                                                    {preview ? (
+                                                        <Card bordered>
+                                                            <ReactMarkdown children={field.value} />
+                                                        </Card>
+                                                    ) : (
+                                                        <TextArea
+                                                            className={'w-100'}
+                                                            onChange={field.onChange}
+                                                            value={field.value ?? ''}
+                                                            size='large'
+                                                            bordered
+                                                            status={fieldState.error ? 'error' : ''}
+                                                        />
+                                                    )}
+                                                </Space>
+                                            )
+                                        }}
+                                        name={'templates.aboutPage'}
+                                    />
                                 </Card>
                             </div>
                             <Divider>System Settings</Divider>
@@ -343,3 +366,71 @@ export const ShopSettingsView = () => {
         </div>
     )
 }
+
+const AboutPagePopover = () => (
+    <Popover
+        overlayClassName={'width-m'}
+        content={
+            <div>
+                <p>You can include the actual shop information to the page using these variables:</p>
+                <Descriptions title={'Variables'}>
+                    <Descriptions.Item label={"The shop's name"} children='${shop.name}' />
+                    <Descriptions.Item label={"The shop's email address"} children='${shop.email}' />
+                    <Descriptions.Item label={"The shop's phone number"} children='${shop.phone}' />
+                    <Descriptions.Item label={"The shop's physical address"} children='${shop.address}' />
+                </Descriptions>
+            </div>
+        }
+    >
+        <Button icon={<FontAwesomeIcon icon={faQuestion} />} />
+    </Popover>
+)
+
+const pageAnchors: AnchorLinkItemProps[] = [
+    {
+        key: 'part-1',
+        href: '#shopInf',
+        title: 'Shop Information',
+        children: [
+            {
+                key: 'part-1-2',
+                href: '#shopCol',
+                title: 'Shop Colors',
+            },
+        ],
+    },
+    {
+        key: 'part-2',
+        href: '#templates',
+        title: 'Templates',
+        children: [
+            {
+                key: 'part-2-1',
+                href: '#aboutPage',
+                title: 'About Page content',
+            },
+        ],
+    },
+    {
+        key: 'part-3',
+        href: '#sysSettings',
+        title: 'System settings',
+        children: [
+            {
+                key: 'part-3-1',
+                href: '#printConf',
+                title: 'Print configuration',
+            },
+            {
+                key: 'part-3-2',
+                href: '#emailConf',
+                title: 'Email Configuration',
+            },
+            {
+                key: 'part-3-3',
+                href: '#smsConf',
+                title: 'SMS configuration',
+            },
+        ],
+    },
+]
