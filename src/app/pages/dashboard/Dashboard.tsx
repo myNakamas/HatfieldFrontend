@@ -9,7 +9,6 @@ import { DateTimeFilter } from '../../components/filters/DateTimeFilter'
 import { Space } from 'antd'
 import { AuthContext } from '../../contexts/AuthContext'
 import { defaultDashboardFilter } from '../../models/enums/defaultValues'
-import { InvoicesReport } from '../../components/reports/InvoicesReport'
 import { ActiveTickets } from './ActiveTickets'
 import { ShoppingListCard } from './ShoppingListCard'
 
@@ -19,13 +18,12 @@ export const Dashboard = () => {
 
     return (
         <Space direction='vertical' className='w-100' wrap>
-            <Space className='w-100 justify-between' direction={window.innerWidth < 768 ? 'vertical' : 'horizontal'}>
+            <Space wrap className='w-100 justify-between'>
                 <h2>Dashboard</h2>
                 <DashboardFilters {...{ filter, setFilter }} />
             </Space>
             <div className={'dashboard-items'}>
                 <ActiveTickets filter={filter} />
-                <InvoicesReport filter={filter} />
                 <ShoppingListCard />
             </div>
         </Space>
@@ -44,21 +42,19 @@ export const DashboardFilters = ({
 
     return (
         <Space wrap>
-            <div className='filterField'>
-                {isAdmin() && (
-                    <Select<Shop, false>
-                        theme={SelectTheme}
-                        styles={SelectStyles()}
-                        value={shops?.find(({ id }) => filter.shopId === id) ?? null}
-                        options={shops ?? []}
-                        placeholder='Filter by shop'
-                        isClearable
-                        onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
-                        getOptionLabel={(shop) => shop.shopName}
-                        getOptionValue={(shop) => String(shop.id)}
-                    />
-                )}
-            </div>
+            {isAdmin() && (
+                <Select<Shop, false>
+                    theme={SelectTheme}
+                    styles={SelectStyles()}
+                    value={shops?.find(({ id }) => filter.shopId === id) ?? null}
+                    options={shops ?? []}
+                    placeholder='Filter by shop'
+                    isClearable
+                    onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                    getOptionLabel={(shop) => shop.shopName}
+                    getOptionValue={(shop) => String(shop.id)}
+                />
+            )}
             <DateTimeFilter
                 filter={filter}
                 setFilter={setFilter}

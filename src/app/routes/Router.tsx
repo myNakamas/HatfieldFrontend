@@ -20,6 +20,7 @@ import { Users } from '../pages/users/Users'
 import { Shops } from '../pages/shop/Shops'
 import { ShopSettingsView } from '../pages/shop/ShopSettingsView'
 import { PageNotFound } from '../pages/PageNotFound'
+import { Statistics } from '../pages/Statistics'
 
 export const Router = () => {
     return (
@@ -28,6 +29,7 @@ export const Router = () => {
             <Route path='/' element={<PrivateRoute />}>
                 <Route path='/' element={<Navigate to={'/home'} />} />
                 <Route path='/home' element={RoleRestrictionHomeRoute()} />
+                <Route path='/stats' element={<Statistics />} />
                 <Route path='/chats' element={<Chats />} />
                 <Route path='/tickets' element={<Tickets />} />
                 <Route path='/about' element={<About />} />

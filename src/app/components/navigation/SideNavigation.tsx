@@ -5,6 +5,7 @@ import { faCommentDots } from '@fortawesome/free-solid-svg-icons/faCommentDots'
 import React, { useContext } from 'react'
 import {
     faBuildingUser,
+    faChartColumn,
     faClockRotateLeft,
     faFileInvoice,
     faPersonCircleQuestion,
@@ -29,6 +30,7 @@ const WorkerLinks: MenuItem[] = [
     { label: 'Inventory', key: '/inventory', icon: <FontAwesomeIcon icon={faStore} /> },
     { label: 'Clients', key: '/clients', icon: <FontAwesomeIcon icon={faUsers} /> },
     { label: 'Invoices', key: '/invoices', icon: <FontAwesomeIcon icon={faFileInvoice} /> },
+    { label: 'Statistics', key: '/stats', icon: <FontAwesomeIcon icon={faChartColumn} /> },
     {
         label: 'Logs',
         key: '/logs',
