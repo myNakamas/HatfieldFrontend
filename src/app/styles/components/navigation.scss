@@ -13,6 +13,9 @@
   background-color: var(--primaryColor);
   height: 80px;
 
+  .button {
+    margin-left: 10px;
+  }
   .toolbar-right {
     display: flex;
     justify-content: space-between;

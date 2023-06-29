@@ -32,7 +32,11 @@ export const ShoppingListCard = () => {
             }
             extra={
                 <Space>
-                    <Button type='link' onClick={() => navigate('/inventory/required')} children={'See more'} />
+                    <Button
+                        type='link'
+                        onClick={() => navigate(`/inventory/${loggedUser?.shopId}/shopping-list`)}
+                        children={'See more'}
+                    />
                 </Space>
             }
         >

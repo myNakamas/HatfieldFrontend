@@ -16,11 +16,14 @@ export const ThemeContext: React.Context<ThemeContextData> = React.createContext
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const [prefersDark, setPrefersDark] = useState(true)
     const [colors, setColors] = useState<ShopSettingsModel>()
+    const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth)
+    window.addEventListener('resize', () => setScreenWidth(window.innerWidth))
+
     const { loggedUser } = useContext(AuthContext)
     const { defaultAlgorithm, darkAlgorithm } = theme
     const { isLoading } = useQuery(['theme'], () => getShopSettings(), {
         retry: false,
-        enabled: loggedUser!=undefined,
+        enabled: loggedUser != undefined,
         onSuccess: (response) => {
             if (response) {
                 const root = document.documentElement
@@ -38,20 +41,28 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     return (
         <CustomSuspense isReady={!isLoading}>
             <ConfigProvider
+                componentSize={screenWidth < 768 ? 'small' : 'middle'}
                 locale={locale}
                 theme={{
                     token: {
                         colorPrimary: colors?.primaryColor ?? 'cyan',
                         colorFill: colors?.secondaryColor ?? '#5258B1',
-                        colorInfo   : colors?.secondaryColor ?? '#5258B1',
+                        colorInfo: colors?.secondaryColor ?? '#5258B1',
                     },
                     algorithm: prefersDark ? darkAlgorithm : defaultAlgorithm,
                 }}
             >
-                <ThemeContext.Provider value={{ colors:{...colors,
-                        primaryColor: colors?.primaryColor ?? 'cyan',
-                        secondaryColor: colors?.secondaryColor ?? '#5258B1',
-                    } as ShopSettingsModel }}>{children}</ThemeContext.Provider>
+                <ThemeContext.Provider
+                    value={{
+                        colors: {
+                            ...colors,
+                            primaryColor: colors?.primaryColor ?? 'cyan',
+                            secondaryColor: colors?.secondaryColor ?? '#5258B1',
+                        } as ShopSettingsModel,
+                    }}
+                >
+                    {children}
+                </ThemeContext.Provider>
             </ConfigProvider>
         </CustomSuspense>
     )

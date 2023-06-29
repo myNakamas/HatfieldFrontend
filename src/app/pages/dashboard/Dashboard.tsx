@@ -19,10 +19,7 @@ export const Dashboard = () => {
 
     return (
         <Space direction='vertical' className='w-100' wrap>
-            <Space
-                className='w-100 justify-between p-2'
-                direction={window.innerWidth < 768 ? 'vertical' : 'horizontal'}
-            >
+            <Space className='w-100 justify-between' direction={window.innerWidth < 768 ? 'vertical' : 'horizontal'}>
                 <h2>Dashboard</h2>
                 <DashboardFilters {...{ filter, setFilter }} />
             </Space>

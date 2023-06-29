@@ -92,7 +92,7 @@ export const EditRequiredItem = ({
                         render={({ field: { value, onChange } }) => {
                             return (
                                 <Space>
-                                    <FormItemLabel prefixCls={''} label={'Required status for the shop:'} />
+                                    <FormItemLabel prefixCls={''} label={'Does the shop require this item'} />
                                     <Switch checked={value} onChange={() => onChange(!value)} />
                                 </Space>
                             )

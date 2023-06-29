@@ -22,15 +22,17 @@ export const ActiveTickets = ({ filter }: { filter: TicketFilter }) => {
     return (
         <Card
             style={{ minWidth: 250 }}
-            title={`Active Tickets: ${tickets?.length ?? 0} `}
+            title={`Active Tickets: ${tickets?.length ?? 0}`}
             extra={
                 <Space>
                     <Button
                         type='primary'
                         onClick={() => setShowNewTicketModal(true)}
                         icon={<FontAwesomeIcon icon={faPlus} />}
-                    />
-                    <Button type='link' onClick={() => navigate('/tickets')} children={'See All Tickets'} />
+                    >
+                        Create new
+                    </Button>
+                    <Button type='link' onClick={() => navigate('/tickets')} children={'See All'} />
                 </Space>
             }
         >
