@@ -29,7 +29,7 @@ export const AddTicketInvoice = ({
     isModalOpen,
     closeModal,
 }: {
-    ticketId: number
+    ticketId?: number
     isModalOpen: boolean
     closeModal: () => void
 }) => {
@@ -170,6 +170,11 @@ export const AddTicketInvoice = ({
                                     />
                                 </FormField>
                             )}
+                        />
+                        <TextField
+                            label={'Serial number'}
+                            register={register('serialNumber')}
+                            error={errors.serialNumber}
                         />
                     </div>
                     <Controller

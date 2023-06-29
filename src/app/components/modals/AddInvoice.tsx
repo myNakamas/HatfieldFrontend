@@ -206,13 +206,11 @@ export const AddInvoice = ({
                                 error={errors.count}
                                 type='number'
                             />
-                            {watch('count') == 1 && (
-                                <TextField
-                                    label={'Serial number'}
-                                    register={register('serialNumber')}
-                                    error={errors.serialNumber}
-                                />
-                            )}
+                            <TextField
+                                label={'Serial number'}
+                                register={register('serialNumber')}
+                                error={errors.serialNumber}
+                            />
                         </Space>
                     </Card>
                     <Card>

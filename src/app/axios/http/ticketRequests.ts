@@ -30,7 +30,7 @@ export const fetchAllActiveTickets = ({ filter }: { filter?: TicketFilter }): Pr
 export const fetchClientActiveTickets = ({ filter }: { filter?: TicketFilter }): Promise<Ticket[]> => {
     return backendClient.get('ticket/client/active', { params: { ...filter } })
 }
-export const fetchTicketById = (id: number): Promise<Ticket> => {
+export const fetchTicketById = (id?: number): Promise<Ticket> => {
     return backendClient.get('ticket/byId', { params: { id } })
 }
 

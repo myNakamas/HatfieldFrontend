@@ -14,6 +14,19 @@ import { ViewInventoryItem } from '../../components/modals/inventory/ViewInvento
 import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 
+function AddCount() {
+    const [count, setCount] = useState(1)
+    return (
+        <Popconfirm
+            title={'Select count to add'}
+            onConfirm={() => {}}
+            description={<Input type='number' value={count} onInput={(e) => setCount(+e.currentTarget.value)} />}
+        >
+            <Button icon={<FontAwesomeIcon icon={faArrowsUpToLine} />} />
+        </Popconfirm>
+    )
+}
+
 export const ShoppingListView = () => {
     const { shopId } = useParams()
     const navigate = useNavigate()
@@ -85,13 +98,7 @@ export const ShoppingListView = () => {
                                         icon={<FontAwesomeIcon icon={faArrowUp} />}
                                         onClick={() => setSelectedItem(item)}
                                     />
-                                    {/*todo: add a way to add multiple*/}
-                                    <Popconfirm
-                                        title={'Select count to add'}
-                                        description={<Input type='number' defaultValue={0} />}
-                                    >
-                                        <Button icon={<FontAwesomeIcon icon={faArrowsUpToLine} />} />
-                                    </Popconfirm>
+                                    <AddCount />
                                 </Space>
                             ),
                         }))}

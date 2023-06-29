@@ -31,6 +31,7 @@ import Select from 'react-select'
 import { postPrintTicket, postPrintTicketLabel } from '../../../axios/http/documentRequests'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { getAllDeviceLocations } from '../../../axios/http/shopRequests'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
 export const ViewTicket = ({
     ticket,
@@ -159,7 +160,19 @@ export const ViewTicket = ({
                             <TicketDescription ticket={ticket} />
                             {isWorker() && (
                                 <>
-                                    <Card title='Used items'>
+                                    <Card
+                                        title='Used items'
+                                        extra={
+                                            <Button
+                                                type='primary'
+                                                icon={<FontAwesomeIcon icon={faPlus} />}
+                                                disabled={!activeTicketStatuses.includes(ticket.status)}
+                                                onClick={() => setIsUseModalOpen(true)}
+                                            >
+                                                Add an item from inventory
+                                            </Button>
+                                        }
+                                    >
                                         {ticket.usedParts.length > 0 ? (
                                             <CustomTable<UsedItemView>
                                                 data={ticket.usedParts.map(({ item, usedCount, timestamp }) => ({
@@ -177,11 +190,7 @@ export const ViewTicket = ({
                                                 onClick={() => {}}
                                             />
                                         ) : (
-                                            <NoDataComponent items={'used items'}>
-                                                <Button type='primary' onClick={() => setIsUseModalOpen(true)}>
-                                                    Add an item
-                                                </Button>
-                                            </NoDataComponent>
+                                            <NoDataComponent items={'used items'} />
                                         )}
                                     </Card>
                                     <Space wrap>
@@ -264,16 +273,6 @@ export const ViewTicket = ({
                                             <Space className='ticketActions'>
                                                 <div>Print ticket</div>
                                                 <Button onClick={printTicket}>Print ticket</Button>
-                                            </Space>
-                                            <Space className='ticketActions'>
-                                                <div>Use an item for ticket</div>
-                                                <Button
-                                                    type='primary'
-                                                    disabled={!activeTicketStatuses.includes(ticket.status)}
-                                                    onClick={() => setIsUseModalOpen(true)}
-                                                >
-                                                    Add an item from inventory
-                                                </Button>
                                             </Space>
                                         </Space>
                                     </Space>
