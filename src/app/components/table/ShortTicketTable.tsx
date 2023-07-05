@@ -15,7 +15,7 @@ const Deadline = ({ deadline }: { deadline: Date }) => {
 
 export const ShortTicketTable = ({ data, onClick }: { data?: Ticket[]; onClick: (ticket: Ticket) => void }) => {
     if (!data || data.length === 0) return <NoDataComponent items={'active tickets'} />
-    const [collectTicketId, setCollectTicketId] = useState<number | undefined>()
+    const [collectTicket, setCollectTicket] = useState<Ticket | undefined>()
     const columns = ['creation date', 'due', 'status', 'client', 'actions'].map((string, index) => ({
         title: string,
         dataIndex: string,
@@ -30,23 +30,21 @@ export const ShortTicketTable = ({ data, onClick }: { data?: Ticket[]; onClick: 
     return (
         <>
             <AddTicketInvoice
-                ticketId={collectTicketId}
-                closeModal={() => setCollectTicketId(undefined)}
-                isModalOpen={!!collectTicketId}
+                ticket={collectTicket}
+                closeModal={() => setCollectTicket(undefined)}
+                isModalOpen={!!collectTicket}
             />
             <Table
                 dataSource={
-                    data.map(({ timestamp, deadline, client, status, ...rest }, index) => ({
+                    data.map((ticket, index) => ({
                         key: 'ticket' + index,
-                        'creation date': dateFormat(timestamp),
-                        deadline: deadline,
-                        due: deadline ? <Deadline deadline={deadline} /> : '-',
-                        status,
-                        client: client?.fullName,
-                        ...rest,
+                        'creation date': dateFormat(ticket.timestamp),
+                        due: ticket.deadline ? <Deadline deadline={ticket.deadline} /> : '-',
+                        ...ticket,
+                        client: ticket.client?.fullName,
                         actions: (
                             <Space>
-                                <Button onClick={() => setCollectTicketId(rest.id)}>Collect</Button>
+                                <Button onClick={() => setCollectTicket(ticket)}>Collect</Button>
                             </Space>
                         ),
                     })) as unknown as Ticket[]

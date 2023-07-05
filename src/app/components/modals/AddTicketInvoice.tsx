@@ -6,7 +6,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useQuery, useQueryClient } from 'react-query'
 import { TextField } from '../form/TextField'
 import { AppModal } from './AppModal'
-import { fetchTicketById, putCollectTicket } from '../../axios/http/ticketRequests'
+import { putCollectTicket } from '../../axios/http/ticketRequests'
 import { Button, Typography } from 'antd'
 import { getAllClients } from '../../axios/http/userRequests'
 import { FormField } from '../form/Field'
@@ -23,13 +23,14 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { getUserString } from '../../utils/helperFunctions'
 import { AuthContext } from '../../contexts/AuthContext'
 import { getAllBrands } from '../../axios/http/shopRequests'
+import { Ticket } from '../../models/interfaces/ticket'
 
 export const AddTicketInvoice = ({
-    ticketId,
+    ticket,
     isModalOpen,
     closeModal,
 }: {
-    ticketId?: number
+    ticket?: Ticket
     isModalOpen: boolean
     closeModal: () => void
 }) => {
@@ -39,7 +40,6 @@ export const AddTicketInvoice = ({
     const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
         enabled: isWorker(),
     })
-    const { data: ticket } = useQuery(['ticket', ticketId], () => fetchTicketById(ticketId), { enabled: !!ticketId })
     const [showCreateModal, setShowCreateModal] = useState(false)
     const defaultValue = {
         paymentMethod: 'CARD' as PaymentMethod,
@@ -48,6 +48,7 @@ export const AddTicketInvoice = ({
         deviceModel: ticket?.deviceModel,
         totalPrice: ticket?.totalPrice && ticket.deposit ? ticket?.totalPrice - ticket?.deposit : ticket?.totalPrice,
         clientId: ticket?.client?.userId,
+        serialNumber: ticket?.serialNumberOrImei,
         warrantyPeriod: 'ONE_MONTH' as WarrantyPeriod,
     }
     const {
@@ -97,7 +98,7 @@ export const AddTicketInvoice = ({
                 />
                 <Typography>
                     <FormField label={'Ticket Id'} error={errors.ticketId}>
-                        <input readOnly className='input' disabled defaultValue={ticketId} />
+                        <input readOnly className='input' disabled defaultValue={ticket?.id} />
                     </FormField>
                     <Controller
                         control={control}

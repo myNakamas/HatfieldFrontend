@@ -132,7 +132,7 @@ export const ViewTicket = ({
                                 show={isUseModalOpen}
                             />
                             <AddTicketInvoice
-                                ticketId={ticket.id}
+                                ticket={ticket}
                                 closeModal={() => setShowInvoiceModal(false)}
                                 isModalOpen={showInvoiceModal}
                             />
