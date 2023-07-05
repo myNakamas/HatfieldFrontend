@@ -3,29 +3,21 @@ import { CustomTable } from '../../components/table/CustomTable'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { Breadcrumb, Button, Divider, Input, Popconfirm, Popover, Space, Statistic } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowsUpToLine, faArrowUp, faCheck, faPen } from '@fortawesome/free-solid-svg-icons'
+import { faArrowsUpToLine, faArrowUp, faCheck, faPen, faXmark } from '@fortawesome/free-solid-svg-icons'
 import React, { useState } from 'react'
 import { faBasketShopping } from '@fortawesome/free-solid-svg-icons/faBasketShopping'
 import { useQuery, useQueryClient } from 'react-query'
-import { exchangeDefectiveItem, getShoppingList } from '../../axios/http/shopRequests'
+import {
+    addItemCount,
+    deleteDefectiveItem,
+    exchangeDefectiveItem,
+    getShoppingList,
+} from '../../axios/http/shopRequests'
 import { InventoryFilter } from '../../models/interfaces/filters'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ViewInventoryItem } from '../../components/modals/inventory/ViewInventoryItem'
 import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
-
-function AddCount() {
-    const [count, setCount] = useState(1)
-    return (
-        <Popconfirm
-            title={'Select count to add'}
-            onConfirm={() => {}}
-            description={<Input type='number' value={count} onInput={(e) => setCount(+e.currentTarget.value)} />}
-        >
-            <Button icon={<FontAwesomeIcon icon={faArrowsUpToLine} />} />
-        </Popconfirm>
-    )
-}
 
 export const ShoppingListView = () => {
     const { shopId } = useParams()
@@ -47,6 +39,11 @@ export const ShoppingListView = () => {
             },
         }
     )
+    const addItem = (id: number, count: number) => {
+        toast
+            .promise(addItemCount({ itemId: id, count }), toastUpdatePromiseTemplate('item count'), toastProps)
+            .then(() => queryClient.invalidateQueries('shopItems'))
+    }
 
     const resolveDefectiveItem = (item: InventoryItem) => {
         toast
@@ -54,20 +51,43 @@ export const ShoppingListView = () => {
             .then(() => queryClient.invalidateQueries('shopItems'))
     }
 
+    const removeDefectiveItem = (item: InventoryItem) => {
+        toast
+            .promise(deleteDefectiveItem({ itemId: item.id }), toastUpdatePromiseTemplate('item count'), toastProps)
+            .then(() => queryClient.invalidateQueries('shopItems'))
+    }
+
+    const AddCount = ({ missingCount, itemId }: { itemId: number; missingCount: number }) => {
+        const [count, setCount] = useState(1)
+        return (
+            <Popconfirm
+                title={'Select count to add'}
+                onConfirm={() => {
+                    addItem(itemId, count)
+                }}
+                description={
+                    <Space>
+                        <Input type='number' value={count} onInput={(e) => setCount(+e.currentTarget.value)} />
+                        <Button onClick={() => setCount(missingCount)}>All</Button>
+                    </Space>
+                }
+            >
+                <Button title={'Buy multiple'} icon={<FontAwesomeIcon icon={faArrowsUpToLine} />} />
+            </Popconfirm>
+        )
+    }
+
     return (
         <div className={'mainScreen'}>
-            <Breadcrumb>
-                <Breadcrumb.Item>
-                    <a onClick={() => navigate('/home')}>Home</a>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>
-                    <a onClick={() => navigate('/inventory')}>Inventory</a>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>Shopping list</Breadcrumb.Item>
-            </Breadcrumb>
+            <Breadcrumb
+                items={[
+                    { title: <a onClick={() => navigate('/home')}>Home</a> },
+                    { title: <a onClick={() => navigate('/inventory')}>Inventory</a> },
+                    { title: 'Shopping list' },
+                ]}
+            />
             <ViewInventoryItem inventoryItem={selectedItem} closeModal={() => setSelectedItem(undefined)} />
             <Divider>
-                {' '}
                 <Space>
                     Shopping list <FontAwesomeIcon icon={faBasketShopping} size={'2xl'} />
                     <Button icon={<FontAwesomeIcon icon={faPen} />} onClick={() => navigate('/inventory/required')} />
@@ -95,10 +115,11 @@ export const ShoppingListView = () => {
                                 // <Button icon={<FontAwesomeIcon icon={faPen} />} onClick={() => setSelectedItem(item)} />
                                 <Space>
                                     <Button
+                                        title={'Buy one'}
                                         icon={<FontAwesomeIcon icon={faArrowUp} />}
-                                        onClick={() => setSelectedItem(item)}
+                                        onClick={() => addItem(item.id, 1)}
                                     />
-                                    <AddCount />
+                                    <AddCount itemId={item.id} missingCount={item.missingCount} />
                                 </Space>
                             ),
                         }))}
@@ -122,10 +143,16 @@ export const ShoppingListView = () => {
                             ...item,
                             ...item.requiredItem,
                             action: (
-                                <Button
-                                    icon={<FontAwesomeIcon icon={faCheck} />}
-                                    onClick={() => resolveDefectiveItem(item)}
-                                />
+                                <Space>
+                                    <Button
+                                        icon={<FontAwesomeIcon icon={faCheck} />}
+                                        onClick={() => resolveDefectiveItem(item)}
+                                    />
+                                    <Button
+                                        icon={<FontAwesomeIcon icon={faXmark} />}
+                                        onClick={() => removeDefectiveItem(item)}
+                                    />
+                                </Space>
                             ),
                         }))}
                         onClick={setSelectedItem}

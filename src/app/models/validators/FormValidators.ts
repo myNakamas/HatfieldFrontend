@@ -86,6 +86,16 @@ export const ShopSchema = Yup.object().shape({
         smsApiKey: Yup.string().notRequired(),
     }),
 })
+export const CreateShopSchema = Yup.object().shape({
+    shopName: Yup.string().required(),
+    address: Yup.string().required('Required field'),
+    phone: Yup.string().min(10, 'Not a valid phone number').required('Required field'),
+    email: Yup.string().email('Must be a valid email!').required('Required field'),
+    shopSettingsView: Yup.object().shape({
+        primaryColor: Yup.string().required('Required field'),
+        secondaryColor: Yup.string().required('Required field'),
+    }),
+})
 
 export const UsedItemSchema = Yup.object().shape({
     itemId: Yup.number().required(),

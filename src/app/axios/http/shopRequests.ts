@@ -126,6 +126,12 @@ export const postMarkItemAsDefective = (params: { itemId: number }) => {
     return backendClient.patch('inventory/item/mark/defective', {}, { params })
 }
 
+export const addItemCount = (params: { itemId: number; count?: number }) => {
+    return backendClient.patch('inventory/item/add', {}, { params })
+}
 export const exchangeDefectiveItem = (params: { itemId: number; count?: number }) => {
     return backendClient.patch('inventory/item/mark/defective/replace', {}, { params })
+}
+export const deleteDefectiveItem = (params: { itemId: number; count?: number }): Promise<void> => {
+    return backendClient.delete('inventory/item/mark/defective', { params })
 }
