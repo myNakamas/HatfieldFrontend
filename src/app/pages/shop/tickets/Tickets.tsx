@@ -110,14 +110,25 @@ export const Tickets = () => {
                 view={ticketView}
             />
             <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} />
-            <TicketFilters {...{ filter, setFilter }} />
-            <Space className='button-bar'>
-                {isWorker() && (
-                    <Button type={'primary'} onClick={() => setShowNewModal(true)}>
-                        Add Ticket
-                    </Button>
-                )}
-            </Space>
+            <div className='buttonHeader'>
+                <Space className='button-bar'>
+                    {isWorker() && (
+                        <Button type={'primary'} onClick={() => setShowNewModal(true)}>
+                            Add Ticket
+                        </Button>
+                    )}
+                </Space>
+
+                <TicketFilters {...{ filter, setFilter }} />
+
+                <Space className='button-bar'>
+                    {isWorker() && (
+                        <Button type={'primary'} disabled>
+                            Scan QR code to open ticket
+                        </Button>
+                    )}
+                </Space>
+            </div>
             <Tabs
                 animated
                 defaultActiveKey='active'
@@ -315,7 +326,7 @@ const TicketFilters = ({
             </div>
         </Space>
     ) : (
-        <Space wrap className='flex'>
+        <Space className='flex'>
             <SearchComponent {...{ filter, setFilter }} />
             <Button type={'link'} onClick={() => setAdvanced(true)} children={'Advanced search'} />
         </Space>
