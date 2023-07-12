@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query'
-import { fetchAllActiveTickets } from '../axios/http/ticketRequests'
+import { fetchClientTickets } from '../axios/http/ticketRequests'
 import { TicketFilter } from '../models/interfaces/filters'
 import { AuthContext } from '../contexts/AuthContext'
 import React, { ReactNode, Suspense, useContext, useRef, useState } from 'react'
@@ -23,15 +23,15 @@ import dateFormat from 'dateformat'
 
 export const WelcomePage = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
+    const [page, setPage] = useState(defaultPage)
+
     const refsArray = Array.from({ length: 5 }, () => useRef(null))
     const { loggedUser } = useContext(AuthContext)
     const navigate = useNavigate()
     const filter: TicketFilter = { clientId: loggedUser?.userId }
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
 
-    const { data: tickets, isLoading } = useQuery(['tickets', 'active', filter], () =>
-        fetchAllActiveTickets({ filter })
-    )
+    const { data: tickets, isLoading } = useQuery(['tickets', filter], () => fetchClientTickets({ page, filter }))
 
     const { data: shop } = useQuery(['currentShop'], getShopData)
 
@@ -42,7 +42,7 @@ export const WelcomePage = () => {
                 <Card
                     ref={refsArray[1]}
                     style={{ minWidth: 350 }}
-                    title={`Your Active Tickets: `}
+                    title={`Your Tickets: `}
                     extra={
                         <Space>
                             <Button
@@ -55,12 +55,18 @@ export const WelcomePage = () => {
                     }
                 >
                     <CustomSuspense isReady={!isLoading}>
-                        <ShortTicketTable
-                            data={tickets}
-                            onClick={({ id }) =>
-                                setSelectedTicket(tickets?.find(({ id: ticketId }) => id === ticketId))
-                            }
-                        />
+                        {tickets && tickets?.content?.length > 0 ? (
+                            <ShortTicketTable
+                                data={tickets}
+                                page={page}
+                                setPage={setPage}
+                                onClick={({ id }) =>
+                                    setSelectedTicket(tickets?.content.find(({ id: ticketId }) => id === ticketId))
+                                }
+                            />
+                        ) : (
+                            <NoDataComponent items={'tickets'} />
+                        )}
                     </CustomSuspense>
                 </Card>
                 <Card ref={refsArray[3]} style={{ minWidth: 350 }} title={`Invoices: `}>

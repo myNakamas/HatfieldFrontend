@@ -18,6 +18,13 @@ import { Invoice } from '../../models/interfaces/invoice'
 import { disabledRefetching } from '../../axios/reactQueryProps'
 import { AuthContext } from '../../contexts/AuthContext'
 
+export const openPdfBlob = (pdfBlob: Blob) => {
+    if (pdfBlob) {
+        const fileUrl = URL.createObjectURL(pdfBlob)
+        window.open(fileUrl)
+    }
+}
+
 export const InvoiceView = () => {
     const { isWorker } = useContext(AuthContext)
     const { id } = useParams()
@@ -32,11 +39,7 @@ export const InvoiceView = () => {
 
     const openPdf = async (invoiceId: number) => {
         const pdfBlob = await getInvoicePdf(invoiceId)
-        if (pdfBlob) {
-            const fileUrl = URL.createObjectURL(pdfBlob)
-            const pdfPage = window.open(fileUrl)
-            if (pdfPage) pdfPage.document.title = 'Hatfield Invoice ' + invoiceId
-        }
+        openPdfBlob(pdfBlob)
     }
 
     const onDelete = (id: number) => {

@@ -14,6 +14,7 @@ export interface Invoice extends Entity {
     client: User
     paymentMethod: PaymentMethod
     warrantyPeriod: WarrantyPeriod
+    warrantyLeft: Date
     valid: boolean
 }
 export interface CreateInvoice {

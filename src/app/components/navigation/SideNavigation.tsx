@@ -51,8 +51,8 @@ export const SideNavigation = ({
     const { pathname } = useLocation()
     const totalNotificationCount = Object.values(notificationCount).reduce((a, b) => a + b, 0)
     const items: MenuItem[] = [
+        ...(isAdmin() ? AdminLinks : []),
         { label: 'Home', key: '/home', icon: <FontAwesomeIcon icon={faHouse} /> },
-        { label: 'Tickets', key: '/tickets', icon: <FontAwesomeIcon icon={faTicket} /> },
         {
             label: 'Chats',
             key: '/chats',
@@ -64,7 +64,7 @@ export const SideNavigation = ({
                 </Space>
             ),
         },
-        ...(isAdmin() ? AdminLinks : []),
+        { label: 'Tickets', key: '/tickets', icon: <FontAwesomeIcon icon={faTicket} /> },
         ...(isWorker() ? WorkerLinks : []),
         {
             label: 'About us',
