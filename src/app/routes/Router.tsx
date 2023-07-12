@@ -6,7 +6,7 @@ import { Chats } from '../pages/shop/Chat/Chats'
 import { ChangePassword } from '../pages/users/ChangePassword'
 import { Privacy } from '../pages/Privacy'
 import { About } from '../pages/About'
-import { RoleRestrictionHomeRoute, RoleRestrictionRoute } from './RoleRestrictionRoute'
+import { HomePage, RoleRestrictionRoute } from './RoleRestrictionRoute'
 import { Inventory } from '../pages/shop/Inventory'
 import { ShoppingListView } from '../pages/shop/ShoppingListView'
 import { EditShoppingList } from '../pages/shop/EditShoppingList'
@@ -28,7 +28,7 @@ export const Router = () => {
             <Route path='/login' element={<Login />} />
             <Route path='/' element={<PrivateRoute />}>
                 <Route path='/' element={<Navigate to={'/home'} />} />
-                <Route path='/home' element={RoleRestrictionHomeRoute()} />
+                <Route path='/home' element={HomePage()} />
                 <Route path='/stats' element={<Statistics />} />
                 <Route path='/chats' element={<Chats />} />
                 <Route path='/tickets' element={<Tickets />} />

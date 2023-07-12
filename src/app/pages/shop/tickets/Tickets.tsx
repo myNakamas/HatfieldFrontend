@@ -18,22 +18,32 @@ import { Shop } from '../../../models/interfaces/shop'
 import { User } from '../../../models/interfaces/user'
 import { getAllClients, getAllWorkers } from '../../../axios/http/userRequests'
 import { DateTimeFilter } from '../../../components/filters/DateTimeFilter'
-import { Button, Space, Statistic, Tabs, TabsProps } from 'antd'
+import { Button, Space, Tabs, TabsProps } from 'antd'
 import {
     activeTicketStatuses,
     completedTicketStatuses,
     TicketStatus,
     TicketStatusesArray,
 } from '../../../models/enums/ticketEnums'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCancel, faMessage, faPen, faPrint, faSnowflake } from '@fortawesome/free-solid-svg-icons'
+import { faPen } from '@fortawesome/free-solid-svg-icons'
 import { getUserString } from '../../../utils/helperFunctions'
 import { defaultPage } from '../../../models/enums/defaultValues'
 import { AuthContext } from '../../../contexts/AuthContext'
-import moment from 'moment/moment'
-import { getInvoicePdf } from '../../../axios/http/invoiceRequests'
-import { openPdfBlob } from '../../invoices/InvoiceView'
+import { QrReaderModal } from '../../../components/modals/QrReaderModal'
+
+const QrReader = ({ title, hidden }: { title: string; hidden?: boolean }) => {
+    const [modalOpen, setModalOpen] = useState(false)
+    return hidden ? (
+        <></>
+    ) : (
+        <>
+            <QrReaderModal isModalOpen={modalOpen} closeModal={() => setModalOpen(false)} />
+            <Button type={'primary'} children={title} onClick={() => setModalOpen((prev) => !prev)} />
+        </>
+    )
+}
 
 export const Tickets = () => {
     const { isClient, isWorker } = useContext(AuthContext)
@@ -66,7 +76,7 @@ export const Tickets = () => {
             key: '1',
             label: 'Active tickets',
             children: (
-                <ActiveTicketsTab
+                <TicketsTab
                     {...{ ...tickets, setSelectedTicket, page, setPage }}
                     setEditTicket={(ticket) => {
                         setSelectedTicket(ticket)
@@ -79,7 +89,7 @@ export const Tickets = () => {
             key: '2',
             label: 'Completed tickets',
             children: (
-                <CompletedTicketsTab
+                <TicketsTab
                     {...{ ...tickets, setSelectedTicket, page, setPage }}
                     setEditTicket={(ticket) => {
                         setSelectedTicket(ticket)
@@ -114,25 +124,19 @@ export const Tickets = () => {
                 view={ticketView}
             />
             <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} />
-            <div className='buttonHeader'>
-                <Space className='button-bar'>
+            <Space className='buttonHeader'>
+                <Space>
                     {isWorker() && (
                         <Button type={'primary'} onClick={() => setShowNewModal(true)}>
                             Add Ticket
                         </Button>
                     )}
                 </Space>
-
-                <TicketFilters {...{ filter, setFilter }} />
-
-                <Space className='button-bar'>
-                    {isWorker() && (
-                        <Button type={'primary'} disabled>
-                            Scan QR code to open ticket
-                        </Button>
-                    )}
+                <Space wrap>
+                    <QrReader title={'Scan QR code to open ticket'} />
+                    <TicketFilters {...{ filter, setFilter }} />
                 </Space>
-            </div>
+            </Space>
             <Tabs
                 animated
                 defaultActiveKey='active'
@@ -199,142 +203,6 @@ const TicketsTab = ({
         </div>
     </CustomSuspense>
 )
-//todo: move to welcome page and redo it by reading the ticket task
-export const ActiveTicketsTab = ({
-    isLoading,
-    data,
-    setSelectedTicket,
-    page,
-    setPage,
-    setEditTicket,
-}: {
-    isLoading: boolean
-    data?: Page<Ticket>
-    setSelectedTicket: React.Dispatch<React.SetStateAction<Ticket | undefined>>
-    setEditTicket: (ticket: Ticket) => void
-    page: PageRequest
-    setPage: React.Dispatch<React.SetStateAction<PageRequest>>
-}) => {
-    const navigate = useNavigate()
-    return (
-        <CustomSuspense isReady={!isLoading}>
-            <div>
-                {data && data.content.length > 0 ? (
-                    <CustomTable<Ticket>
-                        data={data.content.map((ticket) => ({
-                            ...ticket,
-                            timestamp: dateFormat(ticket.timestamp),
-                            deadline: ticket.deadline ? dateFormat(ticket.deadline) : '-',
-                            leftPrice: `£ ${ticket.totalPrice - ticket.deposit}`,
-                            actions: (
-                                <Space>
-                                    <Button
-                                        icon={<FontAwesomeIcon icon={faPen} />}
-                                        onClick={() => setEditTicket(ticket)}
-                                    />
-                                    <Button
-                                        icon={<FontAwesomeIcon icon={faMessage} />}
-                                        onClick={() => navigate('/chats?id=' + ticket.id)}
-                                    />
-                                    <Button icon={<FontAwesomeIcon icon={faSnowflake} />} disabled />
-                                    <Button icon={<FontAwesomeIcon icon={faCancel} />} disabled />
-                                </Space>
-                            ),
-                        }))}
-                        headers={{
-                            timestamp: 'Creation',
-                            deadline: 'Due',
-                            status: 'Status',
-                            leftPrice: 'Left to pay',
-                            actions: 'Actions',
-                        }}
-                        onClick={(ticket) => setSelectedTicket(ticket)}
-                        pagination={page}
-                        onPageChange={setPage}
-                        totalCount={data.totalCount}
-                    />
-                ) : (
-                    <NoDataComponent items='tickets' />
-                )}
-            </div>
-        </CustomSuspense>
-    )
-}
-
-export const CompletedTicketsTab = ({
-    isLoading,
-    data,
-    setSelectedTicket,
-    page,
-    setPage,
-    setEditTicket,
-}: {
-    isLoading: boolean
-    data?: Page<Ticket>
-    setSelectedTicket: React.Dispatch<React.SetStateAction<Ticket | undefined>>
-    setEditTicket: (ticket: Ticket) => void
-    page: PageRequest
-    setPage: React.Dispatch<React.SetStateAction<PageRequest>>
-}) => {
-    const navigate = useNavigate()
-    const openPdf = async (invoiceId: number) => {
-        const pdfBlob = await getInvoicePdf(invoiceId)
-        openPdfBlob(pdfBlob)
-    }
-    return (
-        <CustomSuspense isReady={!isLoading}>
-            <div>
-                {data && data.content.length > 0 ? (
-                    <CustomTable<Ticket>
-                        data={data.content.map((ticket) => ({
-                            ...ticket,
-                            timestamp: dateFormat(ticket.timestamp),
-                            collectedTimestamp: dateFormat(ticket.invoice?.timestamp),
-                            warrantyLeft:
-                                moment(ticket.invoice?.warrantyLeft) > moment() ? (
-                                    <Statistic.Countdown
-                                        title={dateFormat(ticket.invoice?.warrantyLeft)}
-                                        value={ticket.invoice?.warrantyLeft.valueOf()}
-                                    />
-                                ) : (
-                                    <Statistic title={dateFormat(ticket.invoice?.warrantyLeft)} value={'Expired'} />
-                                ),
-                            actions: (
-                                <Space>
-                                    <Button
-                                        icon={<FontAwesomeIcon icon={faPen} />}
-                                        onClick={() => setEditTicket(ticket)}
-                                    />
-                                    <Button
-                                        icon={<FontAwesomeIcon icon={faPrint} />}
-                                        onClick={() => openPdf(ticket.id)}
-                                    />
-                                    <Button
-                                        icon={<FontAwesomeIcon icon={faMessage} />}
-                                        onClick={() => navigate('/chats?id=' + ticket.id)}
-                                    />
-                                </Space>
-                            ),
-                        }))}
-                        headers={{
-                            timestamp: 'Creation',
-                            collectedTimestamp: 'Collected time/date',
-                            status: 'Status',
-                            warrantyLeft: 'Warranty left',
-                            actions: 'Actions',
-                        }}
-                        onClick={(ticket) => setSelectedTicket(ticket)}
-                        pagination={page}
-                        onPageChange={setPage}
-                        totalCount={data.totalCount}
-                    />
-                ) : (
-                    <NoDataComponent items='tickets' />
-                )}
-            </div>
-        </CustomSuspense>
-    )
-}
 
 const TicketFilters = ({
     filter,
@@ -355,7 +223,7 @@ const TicketFilters = ({
     })
     const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
     return advanced ? (
-        <Space className='largeFilter'>
+        <Space className='largeFilter' wrap>
             <div className='filterColumn'>
                 <h4>Filters</h4>
                 <SearchComponent {...{ filter, setFilter }} />
@@ -466,7 +334,7 @@ const TicketFilters = ({
             </div>
         </Space>
     ) : (
-        <Space className='flex'>
+        <Space wrap>
             <SearchComponent {...{ filter, setFilter }} />
             <Button type={'link'} onClick={() => setAdvanced(true)} children={'Advanced search'} />
         </Space>
