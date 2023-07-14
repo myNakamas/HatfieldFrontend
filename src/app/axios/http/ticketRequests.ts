@@ -34,6 +34,9 @@ export const fetchTicketById = (id?: number): Promise<Ticket> => {
     return backendClient.get('ticket/byId', { params: { id } })
 }
 
+export const putFreezeTicket = (params: { id: number }): Promise<number> => {
+    return backendClient.put('ticket/client/freeze', {}, { params })
+}
 export const createTicket = ({ ticket }: { ticket: CreateTicket }): Promise<number> => {
     const deadline = new Date(ticket.deadline).toISOString()
     const body = { ...ticket, deadline }
