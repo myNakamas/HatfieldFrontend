@@ -11,7 +11,6 @@ import dateFormat from 'dateformat'
 import { EditTicketForm } from './EditTicketForm'
 import { putCompleteTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
 import { useQuery, useQueryClient } from 'react-query'
-import { dateTimeMask } from '../../../models/enums/appEnums'
 import CreatableSelect from 'react-select/creatable'
 import { ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
@@ -19,7 +18,7 @@ import { activeTicketStatuses, TicketStatus, TicketStatusesArray } from '../../.
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { FormError } from '../../form/FormError'
-import { Button, Card, Descriptions, Space } from 'antd'
+import { Button, Card, Descriptions, Space, Timeline, Tooltip } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
 import { CustomTable } from '../../table/CustomTable'
@@ -30,8 +29,30 @@ import { AddTicketInvoice } from '../AddTicketInvoice'
 import Select from 'react-select'
 import { postPrintTicket, postPrintTicketLabel } from '../../../axios/http/documentRequests'
 import { AuthContext } from '../../../contexts/AuthContext'
-import { getAllDeviceLocations } from '../../../axios/http/shopRequests'
+import { getAllDeviceLocations, getAllLogs } from '../../../axios/http/shopRequests'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { Deadline } from './Deadline'
+import DescriptionsItem from 'antd/lib/descriptions/Item'
+import { defaultPage } from '../../../models/enums/defaultValues'
+import { LogsFilter } from '../../../models/interfaces/filters'
+
+const ViewTicketAllInfo = ({ ticket, show, closeModal }: { ticket: Ticket; show: boolean; closeModal: () => void }) => {
+    const [page, setPage] = useState(defaultPage)
+    const filter: LogsFilter = {}
+    const { data: logs } = useQuery(['logs', filter, page], () => getAllLogs({ filter, page }))
+
+    return (
+        <AppModal isModalOpen={show} closeModal={closeModal}>
+            <Timeline
+                mode={'alternate'}
+                items={logs?.content.map((log) => ({
+                    label: <Tooltip title={dateFormat(log.timestamp)}>{log.action}</Tooltip>,
+                    position: log.timestamp?.valueOf().toString(),
+                }))}
+            />
+        </AppModal>
+    )
+}
 
 export const ViewTicket = ({
     ticket,
@@ -48,9 +69,9 @@ export const ViewTicket = ({
 
     const [deviceLocation, setDeviceLocation] = useState('')
     const [deviceLocationError, setDeviceLocationError] = useState('')
+    const [ticketLogOpen, setTicketLogOpen] = useState(false)
     const [isUseModalOpen, setIsUseModalOpen] = useState(false)
     const [showInvoiceModal, setShowInvoiceModal] = useState(false)
-    const [ticketStatus, setTicketStatus] = useState(ticket?.status ?? '')
     const queryClient = useQueryClient()
     const { isWorker } = useContext(AuthContext)
     useEffect(() => {
@@ -74,13 +95,13 @@ export const ViewTicket = ({
             .promise(putStartTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps)
             .then(() => queryClient.invalidateQueries(['tickets']).then())
     }
-
+    //todo: make device location dropdown to send async saves and the deviceLocation logic from this function
     const completeTicket = (id: number) => {
         if (!deviceLocation || deviceLocation.trim().length == 0) setDeviceLocationError('New location is required')
         else {
             toast
                 .promise(
-                    putCompleteTicket({ id, location: deviceLocation }),
+                    putCompleteTicket({ id, location: ticket?.deviceLocation ?? '' }),
                     toastUpdatePromiseTemplate('ticket'),
                     toastProps
                 )
@@ -95,7 +116,7 @@ export const ViewTicket = ({
                 toastUpdatePromiseTemplate('ticket status'),
                 toastProps
             )
-            .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
+            .then(() => queryClient.invalidateQueries(['tickets']))
     }
 
     const printTicketLabel = () => {
@@ -122,6 +143,11 @@ export const ViewTicket = ({
         >
             {ticket && (
                 <>
+                    <ViewTicketAllInfo
+                        ticket={ticket}
+                        closeModal={() => setTicketLogOpen(false)}
+                        show={ticketLogOpen}
+                    />
                     {isWorker() && (
                         <>
                             <AddUsedItem
@@ -138,7 +164,7 @@ export const ViewTicket = ({
                             />
                         </>
                     )}
-                    <div className='flex-100 justify-end '>
+                    <div className='editModalButton '>
                         {mode !== 'edit' && isWorker() ? (
                             <Button
                                 icon={<FontAwesomeIcon icon={faPenToSquare} size={'lg'} />}
@@ -157,7 +183,7 @@ export const ViewTicket = ({
                     )}
                     {mode === 'view' && (
                         <div className='viewModal'>
-                            <TicketDescription ticket={ticket} />
+                            <TicketModalDescription ticket={ticket} />
                             {isWorker() && (
                                 <>
                                     <Card
@@ -193,7 +219,7 @@ export const ViewTicket = ({
                                             <NoDataComponent items={'used items'} />
                                         )}
                                     </Card>
-                                    <Space wrap>
+                                    <Space wrap className={'w-100 justify-between align-start'}>
                                         <Space direction='vertical' className='card'>
                                             <h3>Ticket status</h3>
                                             <div className='ticketActions'>
@@ -212,23 +238,18 @@ export const ViewTicket = ({
                                                     styles={SelectStyles()}
                                                     value={
                                                         (TicketStatusesArray.find(
-                                                            ({ value }) => value === ticketStatus
+                                                            ({ value }) => value === ticket.status
                                                         ) as ItemPropertyView) ?? null
                                                     }
                                                     options={TicketStatusesArray ?? []}
                                                     placeholder='New Status'
                                                     isClearable
-                                                    onChange={(value) => setTicketStatus(value?.value as TicketStatus)}
+                                                    onChange={(value) =>
+                                                        updateTicketStatus(ticket.id, value?.value as TicketStatus)
+                                                    }
                                                     getOptionLabel={(status) => status.value}
                                                     getOptionValue={(status) => String(status.id)}
                                                 />
-                                                <Button
-                                                    onClick={() =>
-                                                        updateTicketStatus(ticket.id, ticketStatus as TicketStatus)
-                                                    }
-                                                >
-                                                    Change status
-                                                </Button>
                                             </Space>
                                             <FormError error={deviceLocationError} />
                                             <div>Complete the repair</div>
@@ -274,6 +295,10 @@ export const ViewTicket = ({
                                                 <div>Print ticket</div>
                                                 <Button onClick={printTicket}>Print ticket</Button>
                                             </Space>
+                                            <Space>
+                                                <div>Show ticket history</div>
+                                                <Button children={'Logs'} onClick={() => setTicketLogOpen(true)} />
+                                            </Space>
                                         </Space>
                                     </Space>
                                 </>
@@ -286,63 +311,31 @@ export const ViewTicket = ({
     )
 }
 
-export const TicketDescription = ({ ticket }: { ticket: Ticket }) => {
+export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
     return (
-        <Descriptions bordered size='small' layout='vertical' title={`Ticket#${ticket.id} Info`}>
-            <Descriptions.Item label='Created at'>{dateFormat(ticket.timestamp, dateTimeMask)}</Descriptions.Item>
-            <Descriptions.Item label='Deadline'>{dateFormat(ticket.deadline, dateTimeMask)}</Descriptions.Item>
-            <Descriptions.Item label='Status'>{ticket.status}</Descriptions.Item>
-            <Descriptions.Item label='Location'>{ticket.deviceLocation}</Descriptions.Item>
-            {ticket.client && (
-                <Descriptions.Item label='Client'>
-                    {ticket.client.fullName} {ticket.client.email}
-                </Descriptions.Item>
-            )}
-            <Descriptions.Item label='Problem'>{ticket.problemExplanation}</Descriptions.Item>
-            <Descriptions.Item label='Customer Request'>{ticket.customerRequest}</Descriptions.Item>
-            <Descriptions.Item label='Created by'>{ticket.createdBy.fullName}</Descriptions.Item>
-            <Descriptions.Item label='Payment'>
-                {ticket.deposit && `Deposit: ${ticket.deposit?.toFixed(2)}`}
-                <br />
-                {ticket.totalPrice && `Total price: ${ticket.totalPrice?.toFixed(2)}`}
-            </Descriptions.Item>
-            <Descriptions.Item label='Notes'>{ticket.notes}</Descriptions.Item>
-
-            <Descriptions.Item label='Device Info'>
-                {ticket.deviceModel && (
-                    <>
-                        Device model: {ticket.deviceModel}
-                        <br />
-                    </>
+        <Space direction={'vertical'}>
+            <Space className={'justify-between w-100'}>
+                <Space align={'start'}>
+                    <Card title={'Deadline'} size={'small'}>
+                        <Deadline deadline={ticket.deadline} />
+                    </Card>
+                    {ticket.deviceBrand && ticket.deviceModel && (
+                        <Card
+                            size={'small'}
+                            title={'Device brand & model'}
+                            children={`${ticket.deviceBrand ?? ''}  ${ticket.deviceModel ?? ''}`}
+                        />
+                    )}
+                </Space>
+                {ticket.devicePassword && <Card size={'small'} title={'Password'} children={ticket.devicePassword} />}
+            </Space>
+            <Descriptions bordered layout={'vertical'} className={'w-100'}>
+                <DescriptionsItem span={2} label={'Problem'} children={ticket.problemExplanation} />
+                {ticket.customerRequest?.length > 0 && (
+                    <DescriptionsItem span={1} label={'Customer Request'} children={ticket.customerRequest} />
                 )}
-                {ticket.deviceBrand && (
-                    <>
-                        Device brand: {ticket.deviceBrand} <br />
-                    </>
-                )}
-                {ticket.deviceCondition && (
-                    <>
-                        Condition: {ticket.deviceCondition} <br />
-                    </>
-                )}
-                {ticket.devicePassword && (
-                    <>
-                        Password: {ticket.devicePassword}
-                        <br />
-                    </>
-                )}
-                {ticket.serialNumberOrImei && (
-                    <>
-                        Serial number / Imei: {ticket.serialNumberOrImei}
-                        <br />
-                    </>
-                )}
-                {ticket.accessories && (
-                    <>
-                        Accessories: {ticket.accessories} <br />
-                    </>
-                )}
-            </Descriptions.Item>
-        </Descriptions>
+                {ticket.notes?.length > 0 && <DescriptionsItem span={1} label={'Notes'} children={ticket.notes} />}
+            </Descriptions>
+        </Space>
     )
 }

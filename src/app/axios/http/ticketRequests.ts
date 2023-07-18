@@ -34,10 +34,10 @@ export const fetchTicketById = (id?: number): Promise<Ticket> => {
     return backendClient.get('ticket/byId', { params: { id } })
 }
 
-export const putFreezeTicket = (params: { id: number }): Promise<number> => {
+export const putFreezeTicket = (params: { id: number }): Promise<void> => {
     return backendClient.put('ticket/client/freeze', {}, { params })
 }
-export const putCancelTicket = (params: { id: number }): Promise<number> => {
+export const putCancelTicket = (params: { id: number }): Promise<void> => {
     return backendClient.put('ticket/client/cancel', {}, { params })
 }
 export const createTicket = ({ ticket }: { ticket: CreateTicket }): Promise<number> => {

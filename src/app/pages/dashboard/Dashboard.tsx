@@ -14,10 +14,10 @@ import { ShoppingListCard } from './ShoppingListCard'
 import { QrReaderModal } from '../../components/modals/QrReaderModal'
 
 export const Dashboard = () => {
-    const { loggedUser } = useContext(AuthContext)
+    const { loggedUser, isWorker } = useContext(AuthContext)
     const [filter, setFilter] = useState<TicketFilter>(defaultDashboardFilter(loggedUser?.shopId))
     const [qrOpen, setQrOpen] = useState(false)
-
+    if (!isWorker()) return <></>
     return (
         <Space direction='vertical' className='w-100' wrap>
             <QrReaderModal isModalOpen={qrOpen} closeModal={() => setQrOpen(false)} />

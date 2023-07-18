@@ -97,6 +97,7 @@ export const ClientTicketTable = ({
                 {tickets && tickets?.content?.length > 0 ? (
                     showCompletedTickets ? (
                         <CompletedTicketsTable
+                            data={tickets}
                             isLoading={isLoading}
                             setSelectedTicket={setSelectedTicket}
                             page={page}
@@ -104,6 +105,7 @@ export const ClientTicketTable = ({
                         />
                     ) : (
                         <ActiveTicketsTable
+                            data={tickets}
                             isLoading={isLoading}
                             setSelectedTicket={setSelectedTicket}
                             page={page}
