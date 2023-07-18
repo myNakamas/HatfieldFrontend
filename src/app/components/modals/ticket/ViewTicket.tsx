@@ -18,7 +18,7 @@ import { activeTicketStatuses, TicketStatus, TicketStatusesArray } from '../../.
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { FormError } from '../../form/FormError'
-import { Button, Card, Descriptions, Space, Timeline, Tooltip } from 'antd'
+import { Button, Card, Collapse, Descriptions, Pagination, Space, Timeline, Tooltip } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
 import { CustomTable } from '../../table/CustomTable'
@@ -35,21 +35,50 @@ import { Deadline } from './Deadline'
 import DescriptionsItem from 'antd/lib/descriptions/Item'
 import { defaultPage } from '../../../models/enums/defaultValues'
 import { LogsFilter } from '../../../models/interfaces/filters'
+import CollapsePanel from 'antd/es/collapse/CollapsePanel'
+import { UserDescription } from '../users/ViewUser'
 
 const ViewTicketAllInfo = ({ ticket, show, closeModal }: { ticket: Ticket; show: boolean; closeModal: () => void }) => {
     const [page, setPage] = useState(defaultPage)
-    const filter: LogsFilter = {}
+    const filter: LogsFilter = { ticketId: ticket.id }
     const { data: logs } = useQuery(['logs', filter, page], () => getAllLogs({ filter, page }))
 
     return (
-        <AppModal isModalOpen={show} closeModal={closeModal}>
-            <Timeline
-                mode={'alternate'}
-                items={logs?.content.map((log) => ({
-                    label: <Tooltip title={dateFormat(log.timestamp)}>{log.action}</Tooltip>,
-                    position: log.timestamp?.valueOf().toString(),
-                }))}
-            />
+        <AppModal title={'More details'} isModalOpen={show} closeModal={closeModal}>
+            <Space direction={'vertical'} className={'w-100'}>
+                <Collapse>
+                    {ticket.client && (
+                        <CollapsePanel key='1' header={`Client Details:`} showArrow>
+                            <UserDescription user={ticket.client} />
+                        </CollapsePanel>
+                    )}
+                </Collapse>
+                <Descriptions>
+                    <DescriptionsItem label={'Created by'}>{ticket.createdBy.fullName}</DescriptionsItem>
+                    <DescriptionsItem label={'At'}>{dateFormat(ticket.timestamp)}</DescriptionsItem>
+                </Descriptions>
+                <Descriptions title={'Device information'} bordered layout={'vertical'}>
+                    {ticket.deviceModel && <DescriptionsItem label={'Model'}>{ticket.deviceModel}</DescriptionsItem>}
+                    {ticket.deviceBrand && <DescriptionsItem label={'Brand'}>{ticket.deviceBrand}</DescriptionsItem>}
+                    {ticket.deviceCondition && (
+                        <DescriptionsItem label={'Condition'}>{ticket.deviceCondition}</DescriptionsItem>
+                    )}
+                    {ticket.devicePassword && (
+                        <DescriptionsItem label={'Password'}>{ticket.devicePassword}</DescriptionsItem>
+                    )}
+                </Descriptions>
+
+                <Card title={'Activity'}>
+                    <Timeline
+                        mode={'alternate'}
+                        items={logs?.content.map((log) => ({
+                            label: <Tooltip title={dateFormat(log.timestamp)}>{log.action}</Tooltip>,
+                            position: log.timestamp?.valueOf().toString(),
+                        }))}
+                    />
+                    <Pagination total={logs?.totalCount} onChange={(page, pageSize) => setPage({ page, pageSize })} />
+                </Card>
+            </Space>
         </AppModal>
     )
 }
@@ -319,13 +348,11 @@ export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
                     <Card title={'Deadline'} size={'small'}>
                         <Deadline deadline={ticket.deadline} />
                     </Card>
-                    {ticket.deviceBrand && ticket.deviceModel && (
-                        <Card
-                            size={'small'}
-                            title={'Device brand & model'}
-                            children={`${ticket.deviceBrand ?? ''}  ${ticket.deviceModel ?? ''}`}
-                        />
-                    )}
+                    <Card
+                        size={'small'}
+                        title={'Device brand & model'}
+                        children={`${ticket.deviceBrand ?? ''}  ${ticket.deviceModel ?? ''}`}
+                    />
                 </Space>
                 {ticket.devicePassword && <Card size={'small'} title={'Password'} children={ticket.devicePassword} />}
             </Space>

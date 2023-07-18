@@ -1,9 +1,9 @@
-import { useQuery } from 'react-query'
-import { fetchClientTickets } from '../../axios/http/ticketRequests'
+import { useQuery, useQueryClient } from 'react-query'
+import { fetchClientTickets, putCancelTicket, putFreezeTicket } from '../../axios/http/ticketRequests'
 import { TicketFilter } from '../../models/interfaces/filters'
 import { AuthContext } from '../../contexts/AuthContext'
 import React, { Suspense, useContext, useRef, useState } from 'react'
-import { Button, Card, FloatButton, Skeleton, Space, Spin, Statistic, Switch, Tour } from 'antd'
+import { Button, Card, FloatButton, Popconfirm, Skeleton, Space, Spin, Statistic, Switch, Tour } from 'antd'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import { useNavigate } from 'react-router-dom'
 import { ViewTicket } from '../../components/modals/ticket/ViewTicket'
@@ -23,6 +23,8 @@ import { Page, PageRequest } from '../../models/interfaces/generalModels'
 import { openPdfBlob } from '../invoices/InvoiceView'
 import moment from 'moment'
 import { activeTicketStatuses, completedTicketStatuses } from '../../models/enums/ticketEnums'
+import { toast } from 'react-toastify'
+import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 
 export const ClientDashboard = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
@@ -133,6 +135,19 @@ export const ActiveTicketsTable = ({
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
 }) => {
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
+
+    const freezeTicket = (ticket: Ticket) => {
+        toast
+            .promise(putFreezeTicket({ id: ticket.id }), toastUpdatePromiseTemplate('ticket'), toastProps)
+            .then(() => queryClient.invalidateQueries(['tickets']))
+    }
+    const cancelTicket = (ticket: Ticket) => {
+        toast
+            .promise(putCancelTicket({ id: ticket.id }), toastUpdatePromiseTemplate('ticket'), toastProps)
+            .then(() => queryClient.invalidateQueries(['tickets']))
+    }
+
     return (
         <CustomSuspense isReady={!isLoading}>
             <div>
@@ -149,8 +164,20 @@ export const ActiveTicketsTable = ({
                                         icon={<FontAwesomeIcon icon={faMessage} />}
                                         onClick={() => navigate('/chats?id=' + ticket.id)}
                                     />
-                                    <Button icon={<FontAwesomeIcon icon={faSnowflake} />} disabled />
-                                    <Button icon={<FontAwesomeIcon icon={faCancel} />} disabled />
+                                    <Popconfirm
+                                        title={'Freeze the ticket'}
+                                        description={'Are you sure?'}
+                                        onConfirm={() => freezeTicket(ticket)}
+                                    >
+                                        <Button icon={<FontAwesomeIcon icon={faSnowflake} />} />
+                                    </Popconfirm>
+                                    <Popconfirm
+                                        title={'Cancel the ticket'}
+                                        description={'Are you sure? By agreeing you will stop the repairment process.'}
+                                        onConfirm={() => cancelTicket(ticket)}
+                                    >
+                                        <Button icon={<FontAwesomeIcon icon={faCancel} />} />
+                                    </Popconfirm>
                                 </Space>
                             ),
                         }))}

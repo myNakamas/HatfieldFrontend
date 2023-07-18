@@ -55,6 +55,7 @@ export interface InvoiceFilter extends Filter {
 }
 export interface LogsFilter extends Filter {
     shopId?: number
+    ticketId?: number
     type?: LogType
 }
 

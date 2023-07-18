@@ -57,7 +57,7 @@ export const LogDetails = ({
                 )}
                 {item && (
                     <CollapsePanel key='3' header={`Item ${item?.name} info`} showArrow>
-                        <ItemDescriptions inventoryItem={item} />
+                        <ItemDescriptions inventoryItem={item} showCount />
                     </CollapsePanel>
                 )}
                 {invoice && (
