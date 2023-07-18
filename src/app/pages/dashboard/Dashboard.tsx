@@ -6,27 +6,24 @@ import React, { useContext, useState } from 'react'
 import { useQuery } from 'react-query'
 import { getAllShops } from '../../axios/http/shopRequests'
 import { DateTimeFilter } from '../../components/filters/DateTimeFilter'
-import { Button, Space } from 'antd'
+import { Space } from 'antd'
 import { AuthContext } from '../../contexts/AuthContext'
 import { defaultDashboardFilter } from '../../models/enums/defaultValues'
 import { ActiveTickets } from './ActiveTickets'
 import { ShoppingListCard } from './ShoppingListCard'
-import { QrReaderModal } from '../../components/modals/QrReaderModal'
 
 export const Dashboard = () => {
     const { loggedUser, isWorker } = useContext(AuthContext)
     const [filter, setFilter] = useState<TicketFilter>(defaultDashboardFilter(loggedUser?.shopId))
-    const [qrOpen, setQrOpen] = useState(false)
+
     if (!isWorker()) return <></>
     return (
         <Space direction='vertical' className='w-100' wrap>
-            <QrReaderModal isModalOpen={qrOpen} closeModal={() => setQrOpen(false)} />
             <Space wrap className='w-100 justify-between'>
                 <h2>Dashboard</h2>
                 <DashboardFilters {...{ filter, setFilter }} />
             </Space>
             <div className={'dashboard-items'}>
-                <Button onClick={() => setQrOpen(true)}>Read QR</Button>
                 <ActiveTickets filter={filter} />
                 <ShoppingListCard />
             </div>
@@ -46,19 +43,17 @@ export const DashboardFilters = ({
 
     return (
         <Space wrap>
-            {isAdmin() && (
-                <Select<Shop, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter.shopId === id) ?? null}
-                    options={shops ?? []}
-                    placeholder='Filter by shop'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
-                    getOptionLabel={(shop) => shop.shopName}
-                    getOptionValue={(shop) => String(shop.id)}
-                />
-            )}
+            <Select<Shop, false>
+                theme={SelectTheme}
+                styles={SelectStyles()}
+                value={shops?.find(({ id }) => filter.shopId === id) ?? null}
+                options={shops ?? []}
+                placeholder='Filter by shop'
+                isClearable
+                onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                getOptionLabel={(shop) => shop.shopName}
+                getOptionValue={(shop) => String(shop.id)}
+            />
             <DateTimeFilter
                 filter={filter}
                 setFilter={setFilter}
