@@ -3,14 +3,14 @@ import { InventoryItem, Shop } from '../../models/interfaces/shop'
 import { useNavigate } from 'react-router-dom'
 import { InvoiceFilter } from '../../models/interfaces/filters'
 import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalModels'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CustomTable } from '../../components/table/CustomTable'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { getAllInvoices, getInvoicePdf } from '../../axios/http/invoiceRequests'
+import { getAllInvoices, getInvoicePdf, invalidateInvoice } from '../../axios/http/invoiceRequests'
 import dateFormat from 'dateformat'
 import { InvoiceType, invoiceTypeIcon, InvoiceTypesArray, paymentMethodIcon } from '../../models/enums/invoiceEnums'
-import { Button, Skeleton, Space, Switch } from 'antd'
+import { Button, Popconfirm, Skeleton, Space, Switch } from 'antd'
 import { faPrint } from '@fortawesome/free-solid-svg-icons'
 import { getAllBrands, getAllModels, getAllShops } from '../../axios/http/shopRequests'
 import { getAllClients, getAllWorkers } from '../../axios/http/userRequests'
@@ -25,8 +25,12 @@ import { getUserString } from '../../utils/helperFunctions'
 import { FormField } from '../../components/form/Field'
 import { AuthContext } from '../../contexts/AuthContext'
 import { defaultPage } from '../../models/enums/defaultValues'
+import { toast } from 'react-toastify'
+import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
+import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
 
 export const Invoices = () => {
+    const { isWorker } = useContext(AuthContext)
     const navigate = useNavigate()
     const [filter, setFilter] = useState<InvoiceFilter>({ valid: true })
     const [addInvoiceModalOpen, setAddInvoiceModalOpen] = useState(false)
@@ -40,6 +44,14 @@ export const Invoices = () => {
             const pdfPage = window.open(fileUrl)
             if (pdfPage) pdfPage.document.title = 'Hatfield Invoice ' + invoiceId
         }
+    }
+    const queryClient = useQueryClient()
+    const onDelete = (id: number) => {
+        toast.promise(invalidateInvoice(id), toastUpdatePromiseTemplate('invoice'), toastProps).then(() => {
+            queryClient.invalidateQueries(['invoices']).then(() => {
+                navigate('/invoices')
+            })
+        })
     }
 
     return (
@@ -84,6 +96,20 @@ export const Invoices = () => {
                                         icon={<FontAwesomeIcon icon={faPrint} />}
                                         onClick={() => openPdf(invoice.id)}
                                     />
+                                    {invoice.valid && isWorker() && (
+                                        <Popconfirm
+                                            title={'Account deletion confirmation'}
+                                            description={
+                                                'Are you sure you want to delete this invoice? This action is irreversible.'
+                                            }
+                                            onConfirm={() => {
+                                                onDelete(invoice.id)
+                                            }}
+                                            onCancel={() => toast.success('The invoice was NOT invalidated 😅')}
+                                        >
+                                            <Button icon={<FontAwesomeIcon icon={faTrash} />}></Button>
+                                        </Popconfirm>
+                                    )}
                                 </Space>
                             ),
                         }))}
@@ -98,7 +124,6 @@ export const Invoices = () => {
                             actions: 'Actions',
                         }}
                         totalCount={invoices.totalCount}
-                        onClick={({ id }) => navigate('' + id)}
                         pagination={page}
                         onPageChange={setPage}
                     />
