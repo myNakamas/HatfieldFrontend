@@ -1,12 +1,18 @@
 import React, { Suspense, useContext, useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
-import { getAllBrands, getAllCategories, getAllModels, useGetShopItems } from '../../axios/http/shopRequests'
+import {
+    getAllBrands,
+    getAllCategories,
+    getAllModels,
+    getAllShops,
+    useGetShopItems,
+} from '../../axios/http/shopRequests'
 import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalModels'
 import { InventoryFilter } from '../../models/interfaces/filters'
 import { CustomTable } from '../../components/table/CustomTable'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { AddInventoryItem } from '../../components/modals/inventory/AddInventoryItem'
-import { Category, InventoryItem } from '../../models/interfaces/shop'
+import { Category, InventoryItem, Shop } from '../../models/interfaces/shop'
 import { ViewInventoryItem } from '../../components/modals/inventory/ViewInventoryItem'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { SearchComponent } from '../../components/filters/SearchComponent'
@@ -156,13 +162,30 @@ const InventoryFilters = ({
     filter: InventoryFilter
     setFilter: (value: ((prevState: InventoryFilter) => InventoryFilter) | InventoryFilter) => void
 }) => {
+    const { isAdmin } = useContext(AuthContext)
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: categories } = useQuery('allCategories', getAllCategories)
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin(), suspense: true })
 
     return (
         <div className='filterRow'>
             <SearchComponent {...{ filter, setFilter }} />
+            {isAdmin() && (
+                <div className='filterField'>
+                    <Select<Shop, false>
+                        theme={SelectTheme}
+                        styles={SelectStyles()}
+                        value={shops?.find(({ id }) => filter.shopId === id) ?? null}
+                        options={shops ?? []}
+                        placeholder='Filter by shop'
+                        isClearable
+                        onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                        getOptionLabel={(shop) => shop.shopName}
+                        getOptionValue={(shop) => String(shop.id)}
+                    />
+                </div>
+            )}
             <div className='filterField'>
                 <Select<ItemPropertyView, false>
                     theme={SelectTheme}

@@ -98,8 +98,9 @@ export const ViewInventoryItem = ({
                         />
                     )}
                     <ItemDescriptions inventoryItem={inventoryItem} />
+                    <Divider />
 
-                    <Space wrap className={'justify-between w-100'}>
+                    <Space wrap align={'start'} className={'justify-between w-100'}>
                         <Card title={'Actions'}>
                             <Space direction={'vertical'}>
                                 <Space>
@@ -186,7 +187,7 @@ export const ItemDescriptions = ({
                     </Space>
                 )}
             </Space>
-            <div className={'justify-around flex-100 flex-wrap'}>
+            <div className={'justify-around align-start flex-100 flex-wrap'}>
                 <Card title={'Pricing'} style={{ flex: 1 }}>
                     {inventoryItem?.sellPrice && (
                         <>
@@ -199,18 +200,15 @@ export const ItemDescriptions = ({
                     )}
                 </Card>
                 <Space wrap className={'w-100 justify-around'} style={{ flex: 3 }} align={'start'}>
-                    <Descriptions
-                        layout={'vertical'}
-                        style={{ flex: 1, width: '100%' }}
-                        bordered
-                        title={<Divider>Properties</Divider>}
-                    >
-                        {Object.entries(inventoryItem.columns).map(([name, value], index) => (
-                            <Descriptions.Item key={name + index} label={name}>
-                                {value}
-                            </Descriptions.Item>
-                        ))}
-                    </Descriptions>
+                    <Card title={'Properties'}>
+                        <Descriptions layout={'horizontal'} style={{ flex: 1, width: '100%' }}>
+                            {Object.entries(inventoryItem.columns).map(([name, value], index) => (
+                                <Descriptions.Item key={name + index} label={name}>
+                                    {value}
+                                </Descriptions.Item>
+                            ))}
+                        </Descriptions>
+                    </Card>
                 </Space>
             </div>
         </Space>
