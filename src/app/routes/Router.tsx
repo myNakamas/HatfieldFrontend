@@ -13,7 +13,6 @@ import { EditShoppingList } from '../pages/shop/EditShoppingList'
 import { Clients } from '../pages/users/Clients'
 import { Tickets } from '../pages/shop/tickets/Tickets'
 import { Invoices } from '../pages/invoices/Invoices'
-import { InvoiceView } from '../pages/invoices/InvoiceView'
 import { CategorySettings } from '../pages/settings/CategorySettings'
 import { Logs } from '../pages/Logs'
 import { Users } from '../pages/users/Users'
@@ -38,7 +37,6 @@ export const Router = () => {
                 <Route path='/notFound' element={<PageNotFound />} />
                 <Route path='*' element={<PageNotFound />} />
                 <Route path='/profile/change-password' element={<ChangePassword />} />
-                <Route path='/invoices/:id' element={<InvoiceView />} />
                 <Route path='/' element={<RoleRestrictionRoute role={['ENGINEER', 'SALESMAN', 'ADMIN']} />}>
                     <Route path='/inventory' element={<Inventory />} />
                     <Route path='/inventory/:shopId/shopping-list' element={<ShoppingListView />} />
