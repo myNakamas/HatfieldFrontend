@@ -4,9 +4,9 @@ import dateFormat from 'dateformat'
 import React from 'react'
 import { StatisticProps } from 'antd/es/statistic/Statistic'
 
-export const Deadline = ({ deadline, ...rest }: { deadline: Date } & StatisticProps) => {
+export const Deadline = ({ deadline, ...rest }: { deadline?: Date } & StatisticProps) => {
     return moment(deadline) > moment() ? (
-        <Statistic.Countdown {...rest} title={dateFormat(deadline)} value={deadline.valueOf()} />
+        <Statistic.Countdown {...rest} title={dateFormat(deadline)} value={deadline?.valueOf()} />
     ) : (
         <Statistic {...rest} title={dateFormat(deadline)} value={'Passed'} />
     )

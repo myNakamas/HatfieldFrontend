@@ -3,7 +3,7 @@ import { fetchClientTickets, putCancelTicket, putFreezeTicket } from '../../axio
 import { TicketFilter } from '../../models/interfaces/filters'
 import { AuthContext } from '../../contexts/AuthContext'
 import React, { Suspense, useContext, useRef, useState } from 'react'
-import { Button, Card, FloatButton, Popconfirm, Skeleton, Space, Spin, Statistic, Switch, Tour } from 'antd'
+import { Button, Card, FloatButton, Popconfirm, Skeleton, Space, Spin, Switch, Tour } from 'antd'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import { useNavigate } from 'react-router-dom'
 import { ViewTicket } from '../../components/modals/ticket/ViewTicket'
@@ -20,11 +20,10 @@ import { InventoryItem } from '../../models/interfaces/shop'
 import { invoiceTypeIcon, paymentMethodIcon } from '../../models/enums/invoiceEnums'
 import dateFormat from 'dateformat'
 import { Page, PageRequest } from '../../models/interfaces/generalModels'
-import { openPdfBlob } from '../invoices/InvoiceView'
-import moment from 'moment'
 import { activeTicketStatuses, completedTicketStatuses } from '../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
+import { Deadline } from '../../components/modals/ticket/Deadline'
 
 export const ClientDashboard = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
@@ -201,6 +200,11 @@ export const ActiveTicketsTable = ({
     )
 }
 
+export const openPdfBlob = (pdfBlob: Blob) => {
+    const fileUrl = URL.createObjectURL(pdfBlob)
+    window.open(fileUrl)
+}
+
 export const CompletedTicketsTable = ({
     isLoading,
     data,
@@ -228,15 +232,7 @@ export const CompletedTicketsTable = ({
                             ...ticket,
                             timestamp: dateFormat(ticket.timestamp),
                             collectedTimestamp: dateFormat(ticket.invoice?.timestamp),
-                            warrantyLeft:
-                                moment(ticket.invoice?.warrantyLeft) > moment() ? (
-                                    <Statistic.Countdown
-                                        title={dateFormat(ticket.invoice?.warrantyLeft)}
-                                        value={ticket.invoice?.warrantyLeft.valueOf()}
-                                    />
-                                ) : (
-                                    <Statistic title={dateFormat(ticket.invoice?.warrantyLeft)} value={'Expired'} />
-                                ),
+                            warrantyLeft: <Deadline deadline={ticket.invoice?.warrantyLeft} />,
                             actions: (
                                 <Space>
                                     <Button

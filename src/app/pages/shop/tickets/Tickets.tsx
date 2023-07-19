@@ -31,30 +31,21 @@ import { faPen } from '@fortawesome/free-solid-svg-icons'
 import { getUserString } from '../../../utils/helperFunctions'
 import { defaultPage } from '../../../models/enums/defaultValues'
 import { AuthContext } from '../../../contexts/AuthContext'
-import { QrReaderModal } from '../../../components/modals/QrReaderModal'
+import { QrReaderButton } from '../../../components/modals/QrReaderModal'
 import moment from 'moment/moment'
 import { AddTicketInvoice } from '../../../components/modals/AddTicketInvoice'
 
-const QrReader = ({ title, hidden }: { title: string; hidden?: boolean }) => {
-    const [modalOpen, setModalOpen] = useState(false)
-    return hidden ? (
-        <></>
-    ) : (
-        <>
-            <QrReaderModal isModalOpen={modalOpen} closeModal={() => setModalOpen(false)} />
-            <Button type={'primary'} children={title} onClick={() => setModalOpen((prev) => !prev)} />
-        </>
-    )
-}
-
 export const Tickets = () => {
-    const { isClient, isWorker } = useContext(AuthContext)
+    const { loggedUser, isClient, isWorker } = useContext(AuthContext)
     const [params] = useSearchParams()
     const [collectTicket, setCollectTicket] = useState<Ticket | undefined>()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [ticketView, setTicketView] = useState('view')
     const [showNewModal, setShowNewModal] = useState(false)
-    const [filter, setFilter] = useState<TicketFilter>({ ticketStatuses: activeTicketStatuses })
+    const [filter, setFilter] = useState<TicketFilter>({
+        ticketStatuses: activeTicketStatuses,
+        shopId: loggedUser?.shopId,
+    })
     const [page, setPage] = useState<PageRequest>(defaultPage)
     const onSelectedTicketUpdate = (data: Page<Ticket>) => {
         setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
@@ -123,7 +114,7 @@ export const Tickets = () => {
                     )}
                 </Space>
                 <Space wrap>
-                    <QrReader title={'Scan QR code to open ticket'} />
+                    <QrReaderButton title={'Scan QR code to open ticket'} />
                     <TicketFilters {...{ filter, setFilter }} />
                 </Space>
             </Space>

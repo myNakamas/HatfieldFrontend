@@ -2,11 +2,11 @@ import { InventoryItem, TransferItem } from '../../../models/interfaces/shop'
 import { AppModal } from '../AppModal'
 import { Button, Card, Collapse, Descriptions, Divider, Input, Space, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBoltLightning, faFileCircleExclamation, faPen } from '@fortawesome/free-solid-svg-icons'
+import { faBoltLightning, faEye, faFileCircleExclamation, faPen } from '@fortawesome/free-solid-svg-icons'
 import React, { useContext, useEffect, useState } from 'react'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
-import { postPrintItemLabel } from '../../../axios/http/documentRequests'
+import { getPrintItemLabel, postPrintItemLabel } from '../../../axios/http/documentRequests'
 import { AddUsedItem } from '../ticket/AddUsedItem'
 import { CreateUsedItem } from '../../../models/interfaces/ticket'
 import { Controller, useForm } from 'react-hook-form'
@@ -45,6 +45,13 @@ export const ViewInventoryItem = ({
     const queryClient = useQueryClient()
     const printSellDocument = async () => {
         const blob = await postPrintItemLabel(inventoryItem?.id)
+        if (blob) {
+            const fileUrl = URL.createObjectURL(blob)
+            window.open(fileUrl)
+        }
+    }
+    const previewSellDocument = async () => {
+        const blob = await getPrintItemLabel(inventoryItem?.id)
         if (blob) {
             const fileUrl = URL.createObjectURL(blob)
             window.open(fileUrl)
@@ -105,9 +112,12 @@ export const ViewInventoryItem = ({
                             <Space direction={'vertical'}>
                                 <Space>
                                     <Typography>Print the label for the item</Typography>
-                                    <Button onClick={printSellDocument} icon={<FontAwesomeIcon icon={faPrint} />}>
-                                        Print
-                                    </Button>
+                                    <Button.Group>
+                                        <Button onClick={printSellDocument} icon={<FontAwesomeIcon icon={faPrint} />}>
+                                            Print
+                                        </Button>
+                                        <Button onClick={previewSellDocument} icon={<FontAwesomeIcon icon={faEye} />} />
+                                    </Button.Group>
                                 </Space>
                                 <Space>
                                     <Typography>Sell as an item</Typography>
