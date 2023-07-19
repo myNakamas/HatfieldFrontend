@@ -41,7 +41,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     return (
         <CustomSuspense isReady={!isLoading}>
             <ConfigProvider
-                componentSize={screenWidth < 768 ? 'small' : 'middle'}
+                componentSize={screenWidth < 768 ? 'small' : screenWidth < 1200 ? 'middle' : 'large'}
                 locale={locale}
                 theme={{
                     token: {

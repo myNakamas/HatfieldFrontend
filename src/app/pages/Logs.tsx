@@ -5,7 +5,7 @@ import React, { Suspense, useContext, useState } from 'react'
 import { Filter, LogsFilter } from '../models/interfaces/filters'
 import { useQuery } from 'react-query'
 import { getAllLogs, getAllShops } from '../axios/http/shopRequests'
-import { Space } from 'antd'
+import { Input, Space } from 'antd'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../styles/components/stylesTS'
 import { DateTimeFilter } from '../components/filters/DateTimeFilter'
@@ -74,7 +74,7 @@ const LogsFilters = ({
     filter: LogsFilter
     setFilter: React.Dispatch<React.SetStateAction<LogsFilter>>
 }) => {
-    const {isAdmin } = useContext(AuthContext)
+    const { isAdmin } = useContext(AuthContext)
     const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
     return (
         <Space>
@@ -104,6 +104,16 @@ const LogsFilters = ({
                     onChange={(value) => setFilter({ ...filter, type: value?.value as LogType })}
                     getOptionLabel={(item) => item.value}
                     getOptionValue={(item) => String(item.value)}
+                />
+            </div>
+            <div className='filterField'>
+                <Input
+                    placeholder='Filter by ticket id'
+                    value={filter.ticketId}
+                    onChange={(value) =>
+                        setFilter({ ...filter, ticketId: +value.target.value ? +value.target.value : undefined })
+                    }
+                    inputMode={'numeric'}
                 />
             </div>
             <DateTimeFilter filter={filter} setFilter={setFilter} />

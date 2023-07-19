@@ -1,6 +1,7 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass';
-import { Filter } from '../../models/interfaces/filters';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass'
+import { Filter } from '../../models/interfaces/filters'
+import { Input } from 'antd'
 
 export const SearchComponent = ({ filter, setFilter }: { filter: Filter; setFilter: (value: Filter) => void }) => {
     const onChange = (value: string) => {
@@ -8,13 +9,11 @@ export const SearchComponent = ({ filter, setFilter }: { filter: Filter; setFilt
     }
 
     return (
-        <div className='filterField search'>
-            <input
-                value={filter.searchBy ?? ''}
-                onChange={(e) => onChange(e.target.value)}
-                placeholder='Search here...'
-            />
-            <FontAwesomeIcon className='icon' icon={faMagnifyingGlass} />
-        </div>
+        <Input
+            prefix={<FontAwesomeIcon className='icon' icon={faMagnifyingGlass} />}
+            value={filter.searchBy ?? ''}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder='Search here...'
+        />
     )
 }

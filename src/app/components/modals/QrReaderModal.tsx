@@ -51,3 +51,15 @@ export const QrReaderModal = ({ isModalOpen, closeModal }: { isModalOpen: boolea
         </AppModal>
     )
 }
+
+export const QrReaderButton = ({ title, hidden }: { title: string; hidden?: boolean }) => {
+    const [modalOpen, setModalOpen] = useState(false)
+    return hidden ? (
+        <></>
+    ) : (
+        <>
+            <QrReaderModal isModalOpen={modalOpen} closeModal={() => setModalOpen(false)} />
+            <Button type={'primary'} children={title} onClick={() => setModalOpen((prev) => !prev)} />
+        </>
+    )
+}

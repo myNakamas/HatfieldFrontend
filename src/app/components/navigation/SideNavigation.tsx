@@ -10,7 +10,7 @@ import {
     faFileInvoice,
     faPersonCircleQuestion,
 } from '@fortawesome/free-solid-svg-icons'
-import { Badge, Drawer, Menu, MenuProps, Space } from 'antd'
+import { Badge, Drawer, Menu, MenuProps } from 'antd'
 import { WebSocketContext } from '../../contexts/WebSocketContext'
 import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
 import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield'
@@ -21,22 +21,6 @@ import Button from 'antd/es/button'
 import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs'
 
 export type MenuItem = Required<MenuProps>['items'][number]
-
-const AdminLinks: MenuItem[] = [
-    { label: 'Workers', key: '/workers', icon: <FontAwesomeIcon icon={faUserShield} /> },
-    { label: 'Shops', key: '/shops', icon: <FontAwesomeIcon icon={faBuildingUser} /> },
-]
-const WorkerLinks: MenuItem[] = [
-    { label: 'Inventory', key: '/inventory', icon: <FontAwesomeIcon icon={faStore} /> },
-    { label: 'Clients', key: '/clients', icon: <FontAwesomeIcon icon={faUsers} /> },
-    { label: 'Invoices', key: '/invoices', icon: <FontAwesomeIcon icon={faFileInvoice} /> },
-    { label: 'Statistics', key: '/stats', icon: <FontAwesomeIcon icon={faChartColumn} /> },
-    {
-        label: 'Logs',
-        key: '/logs',
-        icon: <FontAwesomeIcon icon={faClockRotateLeft} />,
-    },
-]
 
 export const SideNavigation = ({
     showNavigation,
@@ -50,22 +34,43 @@ export const SideNavigation = ({
     const navigate = useNavigate()
     const { pathname } = useLocation()
     const totalNotificationCount = Object.values(notificationCount).reduce((a, b) => a + b, 0)
-    const items: MenuItem[] = [
-        { label: 'Home', key: '/home', icon: <FontAwesomeIcon icon={faHouse} /> },
+    const ClientLinks: MenuItem[] = [
         { label: 'Tickets', key: '/tickets', icon: <FontAwesomeIcon icon={faTicket} /> },
+
         {
             label: 'Chats',
             key: '/chats',
             icon: (
-                <Space className={'sideNavIcon'}>
-                    <Badge count={totalNotificationCount}>
-                        <FontAwesomeIcon icon={faCommentDots} />
-                    </Badge>
-                </Space>
+                <Badge count={totalNotificationCount}>
+                    <FontAwesomeIcon icon={faCommentDots} />
+                </Badge>
             ),
         },
-        ...(isAdmin() ? AdminLinks : []),
-        ...(isWorker() ? WorkerLinks : []),
+    ]
+    const WorkerLinks: MenuItem[] = [
+        { label: 'Clients', key: '/clients', icon: <FontAwesomeIcon icon={faUsers} /> },
+        { label: 'Inventory', key: '/inventory', icon: <FontAwesomeIcon icon={faStore} /> },
+        ...ClientLinks,
+        { label: 'Invoices', key: '/invoices', icon: <FontAwesomeIcon icon={faFileInvoice} /> },
+    ]
+    const WorkerLinks2: MenuItem[] = [
+        { label: 'Statistics', key: '/stats', icon: <FontAwesomeIcon icon={faChartColumn} /> },
+        {
+            label: 'Logs',
+            key: '/logs',
+            icon: <FontAwesomeIcon icon={faClockRotateLeft} />,
+        },
+    ]
+    const AdminLinks: MenuItem[] = [
+        { label: 'Workers', key: '/workers', icon: <FontAwesomeIcon icon={faUserShield} /> },
+        ...WorkerLinks,
+        { label: 'Shops', key: '/shops', icon: <FontAwesomeIcon icon={faBuildingUser} /> },
+        ...WorkerLinks2,
+    ]
+
+    const items: MenuItem[] = [
+        { label: 'Home', key: '/home', icon: <FontAwesomeIcon icon={faHouse} /> },
+        ...(isAdmin() ? AdminLinks : isWorker() ? WorkerLinks.concat(WorkerLinks2) : ClientLinks),
         {
             label: 'About us',
             key: '/about',
@@ -94,17 +99,16 @@ export const SideNavigation = ({
                 />
 
                 {isAdmin() && (
-                    <Space className={'justify-around mb-1'}>
-                        <Button
-                            icon={<FontAwesomeIcon icon={faCogs} />}
-                            onClick={() => {
-                                navigate(`/shops/${loggedUser?.shopId}`)
-                                setShowNav(false)
-                            }}
-                        >
-                            Shop settings
-                        </Button>
-                    </Space>
+                    <Button
+                        style={{ position: 'absolute', bottom: 20, right: 20 }}
+                        icon={<FontAwesomeIcon icon={faCogs} />}
+                        onClick={() => {
+                            navigate(`/shops/${loggedUser?.shopId}`)
+                            setShowNav(false)
+                        }}
+                    >
+                        Shop settings
+                    </Button>
                 )}
             </div>
         </Drawer>

@@ -1,6 +1,12 @@
 import React, { Suspense, useContext, useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
-import { getAllBrands, getAllCategories, getAllModels, useGetShopItems } from '../../axios/http/shopRequests'
+import {
+    getAllBrands,
+    getAllCategories,
+    getAllModels,
+    getWorkerShops,
+    useGetShopItems,
+} from '../../axios/http/shopRequests'
 import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalModels'
 import { InventoryFilter } from '../../models/interfaces/filters'
 import { CustomTable } from '../../components/table/CustomTable'
@@ -156,13 +162,28 @@ const InventoryFilters = ({
     filter: InventoryFilter
     setFilter: (value: ((prevState: InventoryFilter) => InventoryFilter) | InventoryFilter) => void
 }) => {
+    const { isClient } = useContext(AuthContext)
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: categories } = useQuery('allCategories', getAllCategories)
+    const { data: shops } = useQuery('shops', getWorkerShops, { enabled: !isClient() })
 
     return (
         <div className='filterRow'>
             <SearchComponent {...{ filter, setFilter }} />
+            <div className='filterField'>
+                <Select<ItemPropertyView, false>
+                    theme={SelectTheme}
+                    styles={SelectStyles()}
+                    value={shops?.find(({ id }) => filter.shopId === id) ?? null}
+                    options={shops ?? []}
+                    placeholder='Filter by shop'
+                    isClearable
+                    onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                    getOptionLabel={(shop) => shop.value}
+                    getOptionValue={(shop) => String(shop.id)}
+                />
+            </div>
             <div className='filterField'>
                 <Select<ItemPropertyView, false>
                     theme={SelectTheme}
