@@ -9,7 +9,7 @@ import {
 import React, { useContext, useEffect, useState } from 'react'
 import dateFormat from 'dateformat'
 import { EditTicketForm } from './EditTicketForm'
-import { putCompleteTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
+import { putCompleteTicket, putFreezeTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
 import { useQuery, useQueryClient } from 'react-query'
 import CreatableSelect from 'react-select/creatable'
 import { ItemPropertyView } from '../../../models/interfaces/generalModels'
@@ -17,7 +17,6 @@ import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import { activeTicketStatuses, TicketStatus, TicketStatusesArray } from '../../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
-import { FormError } from '../../form/FormError'
 import { Button, Card, Collapse, Descriptions, Pagination, Space, Timeline, Tooltip } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
@@ -27,16 +26,32 @@ import { AddUsedItem } from './AddUsedItem'
 import { useNavigate } from 'react-router-dom'
 import { AddTicketInvoice } from '../AddTicketInvoice'
 import Select from 'react-select'
-import { postPrintTicket, postPrintTicketLabel } from '../../../axios/http/documentRequests'
+import {
+    getTicketImage,
+    getTicketLabelImage,
+    postPrintTicket,
+    postPrintTicketLabel,
+} from '../../../axios/http/documentRequests'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { getAllDeviceLocations, getAllLogs } from '../../../axios/http/shopRequests'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import {
+    faCheck,
+    faEye,
+    faFileInvoiceDollar,
+    faHistory,
+    faMessage,
+    faPlay,
+    faPlus,
+    faSnowflake,
+} from '@fortawesome/free-solid-svg-icons'
 import { Deadline } from './Deadline'
 import DescriptionsItem from 'antd/lib/descriptions/Item'
 import { defaultPage } from '../../../models/enums/defaultValues'
 import { LogsFilter } from '../../../models/interfaces/filters'
 import CollapsePanel from 'antd/es/collapse/CollapsePanel'
 import { UserDescription } from '../users/ViewUser'
+import { FormField } from '../../form/Field'
+import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
 
 const ViewTicketAllInfo = ({ ticket, show, closeModal }: { ticket: Ticket; show: boolean; closeModal: () => void }) => {
     const [page, setPage] = useState(defaultPage)
@@ -95,9 +110,6 @@ export const ViewTicket = ({
     const navigate = useNavigate()
     const [mode, setMode] = useState('view')
     const { data: locations } = useQuery('deviceLocations', getAllDeviceLocations)
-
-    const [deviceLocation, setDeviceLocation] = useState('')
-    const [deviceLocationError, setDeviceLocationError] = useState('')
     const [ticketLogOpen, setTicketLogOpen] = useState(false)
     const [isUseModalOpen, setIsUseModalOpen] = useState(false)
     const [showInvoiceModal, setShowInvoiceModal] = useState(false)
@@ -124,20 +136,17 @@ export const ViewTicket = ({
             .promise(putStartTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps)
             .then(() => queryClient.invalidateQueries(['tickets']).then())
     }
-    //todo: make device location dropdown to send async saves and the deviceLocation logic from this function
-    const completeTicket = (id: number) => {
-        if (!deviceLocation || deviceLocation.trim().length == 0) setDeviceLocationError('New location is required')
-        else {
-            toast
-                .promise(
-                    putCompleteTicket({ id, location: ticket?.deviceLocation ?? '' }),
-                    toastUpdatePromiseTemplate('ticket'),
-                    toastProps
-                )
-                .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
-        }
+    const freezeTicket = (id: number) => {
+        toast
+            .promise(putFreezeTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps)
+            .then(() => queryClient.invalidateQueries(['tickets']).then())
     }
 
+    const completeTicket = (id: number) => {
+        toast
+            .promise(putCompleteTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps)
+            .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
+    }
     const updateTicketStatus = (id: number, ticketStatus: TicketStatus) => {
         return toast
             .promise(
@@ -148,14 +157,37 @@ export const ViewTicket = ({
             .then(() => queryClient.invalidateQueries(['tickets']))
     }
 
+    const updateDeviceLocation = (id: number, deviceLocation?: string) => {
+        if (deviceLocation) {
+            toast
+                .promise(
+                    updateTicket({ id, ticket: { id, deviceLocation } as unknown as CreateTicket }),
+                    toastUpdatePromiseTemplate('device location'),
+                    toastProps
+                )
+                .then(() => queryClient.invalidateQueries(['tickets']))
+        }
+    }
     const printTicketLabel = () => {
         toast.promise(postPrintTicketLabel(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
             const fileUrl = URL.createObjectURL(blob)
             window.open(fileUrl)
         })
     }
+    const previewTicketLabel = () => {
+        toast.promise(getTicketLabelImage(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
+            const fileUrl = URL.createObjectURL(blob)
+            window.open(fileUrl)
+        })
+    }
     const printTicket = () => {
         toast.promise(postPrintTicket(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
+            const fileUrl = URL.createObjectURL(blob)
+            window.open(fileUrl)
+        })
+    }
+    const previewTicket = () => {
+        toast.promise(getTicketImage(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
             const fileUrl = URL.createObjectURL(blob)
             window.open(fileUrl)
         })
@@ -249,19 +281,8 @@ export const ViewTicket = ({
                                         )}
                                     </Card>
                                     <Space wrap className={'w-100 justify-between align-start'}>
-                                        <Space direction='vertical' className='card'>
-                                            <h3>Ticket status</h3>
-                                            <div className='ticketActions'>
-                                                <div>Start the repair</div>
-                                                <Button
-                                                    onClick={() => startTicket(ticket.id)}
-                                                    disabled={ticket.status !== 'PENDING'}
-                                                >
-                                                    Start repair
-                                                </Button>
-                                            </div>
-                                            <div>Change ticket status</div>
-                                            <Space>
+                                        <Space direction={'vertical'} className='card'>
+                                            <FormField label={'Change ticket status'}>
                                                 <Select<ItemPropertyView, false>
                                                     theme={SelectTheme}
                                                     styles={SelectStyles()}
@@ -279,10 +300,8 @@ export const ViewTicket = ({
                                                     getOptionLabel={(status) => status.value}
                                                     getOptionValue={(status) => String(status.id)}
                                                 />
-                                            </Space>
-                                            <FormError error={deviceLocationError} />
-                                            <div>Complete the repair</div>
-                                            <Space className='justify-between w-100'>
+                                            </FormField>
+                                            <FormField label={'Change device location'}>
                                                 <CreatableSelect<ItemPropertyView, false>
                                                     isClearable
                                                     theme={SelectTheme}
@@ -290,44 +309,90 @@ export const ViewTicket = ({
                                                     options={locations}
                                                     formatCreateLabel={(value) => 'Add a new location: ' + value}
                                                     placeholder='New location'
-                                                    value={
-                                                        deviceLocation
-                                                            ? {
-                                                                  value: deviceLocation,
-                                                                  id: -1,
-                                                              }
-                                                            : null
+                                                    value={{ id: 0, value: ticket.deviceLocation } ?? null}
+                                                    onCreateOption={(item) => updateDeviceLocation(ticket.id, item)}
+                                                    onChange={(newValue) =>
+                                                        updateDeviceLocation(ticket.id, newValue?.value)
                                                     }
-                                                    onCreateOption={(item) => setDeviceLocation(item)}
-                                                    onChange={(newValue) => setDeviceLocation(newValue?.value ?? '')}
                                                     getOptionLabel={(item) => item.value}
                                                     getOptionValue={(item) => item.id + item.value}
                                                 />
-                                                <Button onClick={() => completeTicket(ticket.id)}>Finish repair</Button>
-                                            </Space>
-                                            <Space className='ticketActions'>
-                                                <div>Mark as collected</div>
-                                                <Button onClick={() => setShowInvoiceModal(true)}>Collected</Button>
-                                            </Space>
+                                            </FormField>
                                         </Space>
                                         <Space direction='vertical' className='card'>
+                                            <h3>Ticket status</h3>
+                                            <Space.Compact direction={'vertical'}>
+                                                <Button
+                                                    onClick={() => startTicket(ticket.id)}
+                                                    disabled={ticket.status !== 'PENDING'}
+                                                    icon={<FontAwesomeIcon icon={faPlay} />}
+                                                >
+                                                    Start repair
+                                                </Button>
+                                                <Button
+                                                    icon={<FontAwesomeIcon icon={faSnowflake} />}
+                                                    onClick={() => freezeTicket(ticket.id)}
+                                                >
+                                                    Freeze ticket
+                                                </Button>{' '}
+                                                <Button
+                                                    icon={<FontAwesomeIcon icon={faCheck} />}
+                                                    onClick={() => completeTicket(ticket.id)}
+                                                >
+                                                    Finish repair
+                                                </Button>
+                                                <Button
+                                                    icon={<FontAwesomeIcon icon={faFileInvoiceDollar} />}
+                                                    onClick={() => setShowInvoiceModal(true)}
+                                                >
+                                                    Mark as Collected
+                                                </Button>
+                                            </Space.Compact>
+                                        </Space>
+
+                                        <Space direction='vertical' className='card'>
                                             <h3>Other actions</h3>
-                                            <Space className='ticketActions'>
-                                                <div>Open the chat with the customer</div>
-                                                <Button onClick={() => navigate('/chats?id=' + ticket.id)}>Chat</Button>
-                                            </Space>
-                                            <Space className='ticketActions'>
-                                                <div>Print ticket repair tag</div>
-                                                <Button onClick={printTicketLabel}>Print repair tag</Button>
-                                            </Space>
-                                            <Space className='ticketActions'>
-                                                <div>Print ticket</div>
-                                                <Button onClick={printTicket}>Print ticket</Button>
-                                            </Space>
-                                            <Space>
-                                                <div>Show ticket history</div>
-                                                <Button children={'Logs'} onClick={() => setTicketLogOpen(true)} />
-                                            </Space>
+
+                                            <Space.Compact direction={'vertical'}>
+                                                <Button
+                                                    icon={<FontAwesomeIcon icon={faMessage} />}
+                                                    onClick={() => navigate('/chats?id=' + ticket.id)}
+                                                >
+                                                    Open Chat
+                                                </Button>
+                                                <Space.Compact className={'w-100 justify-between'}>
+                                                    <Button
+                                                        style={{ flex: 1 }}
+                                                        icon={<FontAwesomeIcon icon={faPrint} />}
+                                                        onClick={printTicketLabel}
+                                                    >
+                                                        Print repair tag
+                                                    </Button>
+                                                    <Button
+                                                        icon={<FontAwesomeIcon icon={faEye} />}
+                                                        onClick={previewTicketLabel}
+                                                    />
+                                                </Space.Compact>
+                                                <Space.Compact className={'w-100 justify-between'}>
+                                                    <Button
+                                                        style={{ flex: 1 }}
+                                                        icon={<FontAwesomeIcon icon={faPrint} />}
+                                                        onClick={printTicket}
+                                                    >
+                                                        Print ticket
+                                                    </Button>
+                                                    <Button
+                                                        icon={<FontAwesomeIcon icon={faEye} />}
+                                                        onClick={previewTicket}
+                                                    />
+                                                </Space.Compact>
+
+                                                <Button
+                                                    icon={<FontAwesomeIcon icon={faHistory} />}
+                                                    children={'More details'}
+                                                    onClick={() => setTicketLogOpen(true)}
+                                                />
+                                            </Space.Compact>
                                         </Space>
                                     </Space>
                                 </>

@@ -60,6 +60,12 @@ export const EditTicketForm = ({
         reset(ticket)
     }, [ticket])
 
+    const onSubmit = (data: CreateTicket) => {
+        onComplete(data).catch((error: AppError) => {
+            setError('root', { message: error?.detail })
+        })
+    }
+
     return (
         <>
             <AddClient
@@ -67,16 +73,7 @@ export const EditTicketForm = ({
                 closeModal={() => setShowCreateModal(false)}
                 onSuccess={(user) => setValue('clientId', user.userId)}
             />
-            <form
-                id='editTicketForm'
-                className='modalForm'
-                onSubmit={handleSubmit((data) => {
-                    onComplete(data).catch((error: AppError) => {
-                        setError('root', { message: error?.detail })
-                    })
-                    reset()
-                })}
-            >
+            <form id='editTicketForm' className='modalForm' onSubmit={handleSubmit(onSubmit)}>
                 <div className='modalContainer'>
                     <div className='card'>
                         <Controller
@@ -150,7 +147,10 @@ export const EditTicketForm = ({
                                                     }
                                                 }
                                                 onCreateOption={(item) => field.onChange(item)}
-                                                onChange={(newValue) => field.onChange(newValue?.value)}
+                                                onChange={(newValue) => {
+                                                    if (field.value !== newValue?.value) setValue('deviceModel', '')
+                                                    field.onChange(newValue?.value)
+                                                }}
                                                 getOptionLabel={(item) => item.value}
                                                 getOptionValue={(item) => item.id + item.value}
                                             />
