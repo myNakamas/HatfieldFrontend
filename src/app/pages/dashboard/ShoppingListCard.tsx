@@ -13,14 +13,15 @@ import { CustomTable } from '../../components/table/CustomTable'
 import { InventoryItem } from '../../models/interfaces/shop'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { faShoppingBasket } from '@fortawesome/free-solid-svg-icons/faShoppingBasket'
+import { InvoiceFilter } from '../../models/interfaces/filters'
 
-export const ShoppingListCard = () => {
+export const ShoppingListCard = ({ filter }: { filter?: InvoiceFilter }) => {
     const navigate = useNavigate()
     const { loggedUser } = useContext(AuthContext)
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [showNewTicketModal, setShowNewTicketModal] = useState(false)
-    const { data: shoppingList, isLoading } = useQuery(['shopItems', 'shoppingList'], () =>
-        getShoppingList({ filter: { inShoppingList: true, shopId: loggedUser?.shopId } })
+    const { data: shoppingList, isLoading } = useQuery(['shopItems', 'shoppingList', filter], () =>
+        getShoppingList({ filter: { ...filter, inShoppingList: true } })
     )
     return (
         <Card
