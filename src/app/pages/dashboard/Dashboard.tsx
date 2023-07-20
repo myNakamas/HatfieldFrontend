@@ -25,7 +25,7 @@ export const Dashboard = () => {
             </Space>
             <div className={'dashboard-items'}>
                 <ActiveTickets filter={filter} />
-                <ShoppingListCard />
+                <ShoppingListCard filter={filter} />
             </div>
         </Space>
     )

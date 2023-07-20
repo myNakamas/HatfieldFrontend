@@ -67,9 +67,6 @@ export const Inventory = () => {
                 >
                     Shopping List
                 </Button>
-                <Button disabled type='primary' onClick={() => navigate('/categories')}>
-                    Return List
-                </Button>
             </Space>
             <div>
                 <Suspense fallback={<Skeleton active loading />}>
