@@ -63,7 +63,7 @@ export const InnerChats = ({ tickets }: { tickets?: Ticket[] }) => {
     )
     useEffect(() => {
         if (selectedTicket) {
-            navigate({ search: 'id=' + selectedTicket.id })
+            navigate({ search: 'id=' + selectedTicket.id }, { replace: true })
             const userMessages = selectedTicket?.id ? userChats[selectedTicket.id] ?? [] : []
             const messagesByUser = oldMessages?.concat(userMessages).sort(sortChatByDate)
             setChat((prev) => ({ ...prev, chat: messagesByUser } as Chat))

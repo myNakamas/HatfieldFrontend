@@ -204,13 +204,13 @@ export const ViewTicket = ({
         >
             {ticket && (
                 <>
-                    <ViewTicketAllInfo
-                        ticket={ticket}
-                        closeModal={() => setTicketLogOpen(false)}
-                        show={ticketLogOpen}
-                    />
                     {isWorker() && (
                         <>
+                            <ViewTicketAllInfo
+                                ticket={ticket}
+                                closeModal={() => setTicketLogOpen(false)}
+                                show={ticketLogOpen}
+                            />
                             <AddUsedItem
                                 usedItem={
                                     { itemId: undefined, count: 1, ticketId: ticket.id } as unknown as CreateUsedItem
