@@ -13,10 +13,11 @@ import { FormError } from '../components/form/FormError'
 
 export const Login = () => {
     const [params] = useSearchParams()
-    const { login } = useContext(AuthContext)
+    const { login, loggedUser } = useContext(AuthContext)
     const navigate = useNavigate()
     const { state } = useLocation()
-    const pageToRedirectTo = state?.from && state?.from !== '/login' ? state.from : '/home'
+    const previousPageLocation: Location | undefined = state?.from
+    const previousParams: URLSearchParams | undefined = new URLSearchParams(previousPageLocation?.search)
     const {
         register,
         handleSubmit,
@@ -28,17 +29,19 @@ export const Login = () => {
         useLogin(formValues)
             .then(({ user, token }) => {
                 login(user, token)
-                navigate(pageToRedirectTo, { replace: true })
+                navigate(getPageToRedirectTo(previousPageLocation), { replace: true })
             })
             .catch(() => {
                 setError('root', { type: 'value', message: 'Invalid credentials' })
             })
     }
     useEffect(() => {
-        if (params.has('username') && params.has('password')) {
-            onSubmit({ username: params.get('username'), password: params.get('password') } as UsernamePassword)
+        if (loggedUser || localStorage.getItem('token'))
+            navigate(getPageToRedirectTo(previousPageLocation), { replace: true })
+        const usernamePassword = getUsernamePassword(params) ?? getUsernamePassword(previousParams)
+        if (usernamePassword) {
+            onSubmit(usernamePassword)
         }
-        if (localStorage.getItem('token')) navigate(pageToRedirectTo, { replace: true })
     }, [])
 
     return (
@@ -69,4 +72,26 @@ export const Login = () => {
             </form>
         </div>
     )
+}
+
+const getUsernamePassword = (params?: URLSearchParams): UsernamePassword | undefined => {
+    const username = params?.get('username')
+    const password = params?.get('password')
+    if (username && password) {
+        return { username, password }
+    }
+    return undefined
+}
+
+const clearParams = (params?: URLSearchParams): string => {
+    params?.delete('username')
+    params?.delete('password')
+    console.log(params?.toString())
+    return params?.toString() ?? ''
+}
+
+const getPageToRedirectTo = (previousPageLocation: Location | undefined) => {
+    const pageToRedirectTo = previousPageLocation?.origin ?? '/home'
+    const previousParams: URLSearchParams | undefined = new URLSearchParams(previousPageLocation?.search)
+    return `${pageToRedirectTo}?${clearParams(previousParams)}`
 }

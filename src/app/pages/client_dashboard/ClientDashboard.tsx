@@ -1,11 +1,11 @@
 import { useQuery, useQueryClient } from 'react-query'
-import { fetchClientTickets, putCancelTicket, putFreezeTicket } from '../../axios/http/ticketRequests'
+import { fetchClientTickets, fetchTicketById, putCancelTicket, putFreezeTicket } from '../../axios/http/ticketRequests'
 import { TicketFilter } from '../../models/interfaces/filters'
 import { AuthContext } from '../../contexts/AuthContext'
-import React, { Suspense, useContext, useRef, useState } from 'react'
+import React, { Suspense, useContext, useEffect, useRef, useState } from 'react'
 import { Button, Card, FloatButton, Popconfirm, Skeleton, Space, Spin, Switch, Tour } from 'antd'
 import { CustomSuspense } from '../../components/CustomSuspense'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ViewTicket } from '../../components/modals/ticket/ViewTicket'
 import { Ticket } from '../../models/interfaces/ticket'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -27,6 +27,7 @@ import { Deadline } from '../../components/modals/ticket/Deadline'
 
 export const ClientDashboard = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
+    const [params] = useSearchParams()
 
     const refsArray = Array.from({ length: 5 }, () => useRef(null))
     const { loggedUser } = useContext(AuthContext)
@@ -34,6 +35,9 @@ export const ClientDashboard = () => {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
 
     const { data: shop } = useQuery(['currentShop'], getShopData)
+    useEffect(() => {
+        params.get('ticketId') && fetchTicketById(Number(params.get('ticketId'))).then(setSelectedTicket)
+    }, [])
 
     return (
         <div className={'mainScreen'}>
@@ -268,7 +272,6 @@ export const CompletedTicketsTable = ({
 
 function InnerInvoices({ filter }: { filter: TicketFilter }) {
     const [page, setPage] = useState(defaultPage)
-    const navigate = useNavigate()
     const { isClient } = useContext(AuthContext)
     const openPdf = async (invoiceId: number) => {
         const pdfBlob = isClient() ? await getClientInvoicePdf(invoiceId) : await getInvoicePdf(invoiceId)
@@ -318,7 +321,6 @@ function InnerInvoices({ filter }: { filter: TicketFilter }) {
                         actions: 'Actions',
                     }}
                     totalCount={invoices.totalCount}
-                    onClick={({ id }) => navigate('/invoices/' + id)}
                     pagination={page}
                     onPageChange={setPage}
                 />

@@ -200,7 +200,7 @@ export const ViewTicket = ({
                 setMode('view')
                 closeModal()
             }}
-            title={'Ticket'}
+            title={`Ticket #${ticket?.id}`}
         >
             {ticket && (
                 <>
