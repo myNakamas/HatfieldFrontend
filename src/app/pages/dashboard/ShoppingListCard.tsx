@@ -4,9 +4,7 @@ import { CustomSuspense } from '../../components/CustomSuspense'
 import React, { useContext, useState } from 'react'
 import { useQuery } from 'react-query'
 import { useNavigate } from 'react-router-dom'
-import { ViewTicket } from '../../components/modals/ticket/ViewTicket'
 import { AddTicket } from '../../components/modals/ticket/AddTicket'
-import { Ticket } from '../../models/interfaces/ticket'
 import { getShoppingList } from '../../axios/http/shopRequests'
 import { AuthContext } from '../../contexts/AuthContext'
 import { CustomTable } from '../../components/table/CustomTable'
@@ -18,7 +16,6 @@ import { InvoiceFilter } from '../../models/interfaces/filters'
 export const ShoppingListCard = ({ filter }: { filter?: InvoiceFilter }) => {
     const navigate = useNavigate()
     const { loggedUser } = useContext(AuthContext)
-    const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [showNewTicketModal, setShowNewTicketModal] = useState(false)
     const { data: shoppingList, isLoading } = useQuery(['shopItems', 'shoppingList', filter], () =>
         getShoppingList({ filter: { ...filter, inShoppingList: true } })
@@ -41,7 +38,6 @@ export const ShoppingListCard = ({ filter }: { filter?: InvoiceFilter }) => {
                 </Space>
             }
         >
-            <ViewTicket ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
             <AddTicket isModalOpen={showNewTicketModal} closeModal={() => setShowNewTicketModal(false)} />
             <CustomSuspense isReady={!isLoading}>
                 {shoppingList ? (

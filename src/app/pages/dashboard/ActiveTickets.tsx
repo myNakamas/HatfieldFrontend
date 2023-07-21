@@ -16,8 +16,13 @@ export const ActiveTickets = ({ filter }: { filter: TicketFilter }) => {
     const navigate = useNavigate()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [showNewTicketModal, setShowNewTicketModal] = useState(false)
-    const { data: tickets, isLoading } = useQuery(['tickets', 'active', filter], () =>
-        fetchAllActiveTickets({ filter })
+    const onSelectedTicketUpdate = (data: Ticket[]) => {
+        setSelectedTicket((ticket) => (ticket ? data.find(({ id }) => ticket.id === id) : undefined))
+    }
+    const { data: tickets, isLoading } = useQuery(
+        ['tickets', 'active', filter],
+        () => fetchAllActiveTickets({ filter }),
+        { onSuccess: onSelectedTicketUpdate }
     )
     return (
         <Card

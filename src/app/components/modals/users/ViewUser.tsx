@@ -68,10 +68,13 @@ export const UserDescription = ({ user }: { user?: User }) => {
             <Descriptions.Item label='Username'>{user.username}</Descriptions.Item>
             <Descriptions.Item label='Email'>{user.email}</Descriptions.Item>
             <Descriptions.Item label='Shop'>{user.shopName}</Descriptions.Item>
-            <Descriptions.Item label='Permissions'>
-                Sms permission : <Checkbox checked={user.smsPermission} disabled /> <br />
-                Email permission : <Checkbox checked={user.emailPermission} disabled />
-            </Descriptions.Item>
+
+            {user.role == 'CLIENT' && (
+                <Descriptions.Item label='Permissions'>
+                    Sms permission : <Checkbox checked={user.smsPermission} disabled /> <br />
+                    Email permission : <Checkbox checked={user.emailPermission} disabled />
+                </Descriptions.Item>
+            )}
             <Descriptions.Item label='Phones'>
                 {user.phones.length > 0
                     ? user.phones.map((phone, index) => (
