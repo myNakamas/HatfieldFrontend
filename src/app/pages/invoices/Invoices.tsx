@@ -1,16 +1,16 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { InventoryItem, Shop } from '../../models/interfaces/shop'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { InvoiceFilter } from '../../models/interfaces/filters'
 import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalModels'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CustomTable } from '../../components/table/CustomTable'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { getAllInvoices, getInvoicePdf } from '../../axios/http/invoiceRequests'
+import { getAllInvoices, getInvoicePdf, invalidateInvoice } from '../../axios/http/invoiceRequests'
 import dateFormat from 'dateformat'
 import { InvoiceType, invoiceTypeIcon, InvoiceTypesArray, paymentMethodIcon } from '../../models/enums/invoiceEnums'
-import { Button, Skeleton, Space, Switch } from 'antd'
+import { Button, Popconfirm, Skeleton, Space, Switch } from 'antd'
 import { faPrint } from '@fortawesome/free-solid-svg-icons'
 import { getAllBrands, getAllModels, getAllShops } from '../../axios/http/shopRequests'
 import { getAllClients, getAllWorkers } from '../../axios/http/userRequests'
@@ -25,35 +25,55 @@ import { getUserString } from '../../utils/helperFunctions'
 import { FormField } from '../../components/form/Field'
 import { AuthContext } from '../../contexts/AuthContext'
 import { defaultPage } from '../../models/enums/defaultValues'
+import { toast } from 'react-toastify'
+import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
+import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
+import { QrReaderButton } from '../../components/modals/QrReaderModal'
+import { Deadline } from '../../components/modals/ticket/Deadline'
 
+export const openInvoicePdf = async (invoiceId: number) => {
+    const pdfBlob = await getInvoicePdf(invoiceId)
+    if (pdfBlob) {
+        const fileUrl = URL.createObjectURL(pdfBlob)
+        const pdfPage = window.open(fileUrl)
+        if (pdfPage) pdfPage.document.title = 'Hatfield Invoice ' + invoiceId
+    }
+}
 export const Invoices = () => {
+    const { isWorker } = useContext(AuthContext)
     const navigate = useNavigate()
+    const [params] = useSearchParams()
     const [filter, setFilter] = useState<InvoiceFilter>({ valid: true })
     const [addInvoiceModalOpen, setAddInvoiceModalOpen] = useState(false)
     const [page, setPage] = useState<PageRequest>(defaultPage)
     const { data: invoices, isLoading } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }))
 
-    const openPdf = async (invoiceId: number) => {
-        const pdfBlob = await getInvoicePdf(invoiceId)
-        if (pdfBlob) {
-            const fileUrl = URL.createObjectURL(pdfBlob)
-            const pdfPage = window.open(fileUrl)
-            if (pdfPage) pdfPage.document.title = 'Hatfield Invoice ' + invoiceId
-        }
+    const queryClient = useQueryClient()
+    const onDelete = (id: number) => {
+        toast.promise(invalidateInvoice(id), toastUpdatePromiseTemplate('invoice'), toastProps).then(() => {
+            queryClient.invalidateQueries(['invoices']).then(() => {
+                navigate('/invoices')
+            })
+        })
     }
 
+    useEffect(() => {
+        const invoiceId = params.get('invoiceId')
+        if (invoiceId) setFilter({ searchBy: invoiceId })
+    }, [])
     return (
         <div className='mainScreen'>
-            <Space className={'button-bar'}>
-                <InvoiceFilters {...{ filter, setFilter }} />
-            </Space>
-            <Space className={'button-bar'}>
+            <Space className={'button-bar justify-between w-100'}>
                 <Button
                     type='primary'
                     icon={<FontAwesomeIcon icon={faPlus} />}
                     children='Add a new invoice'
                     onClick={() => setAddInvoiceModalOpen(true)}
                 />
+                <Space>
+                    <QrReaderButton title={'Scan QR code to open invoice'} />
+                    <InvoiceFilters {...{ filter, setFilter }} />
+                </Space>
             </Space>
             <AddInvoice isModalOpen={addInvoiceModalOpen} closeModal={() => setAddInvoiceModalOpen(false)} />
             <div>
@@ -78,27 +98,42 @@ export const Invoices = () => {
                                     {invoice.paymentMethod}
                                 </>
                             ),
+                            warrantyLeftFormatted: <Deadline deadline={invoice.warrantyLeft} />,
                             actions: (
                                 <Space>
                                     <Button
                                         icon={<FontAwesomeIcon icon={faPrint} />}
-                                        onClick={() => openPdf(invoice.id)}
+                                        onClick={() => openInvoicePdf(invoice.id)}
                                     />
+                                    {invoice.valid && isWorker() && (
+                                        <Popconfirm
+                                            title={'Account deletion confirmation'}
+                                            description={
+                                                'Are you sure you want to delete this invoice? This action is irreversible.'
+                                            }
+                                            onConfirm={() => {
+                                                onDelete(invoice.id)
+                                            }}
+                                            onCancel={() => toast.success('The invoice was NOT invalidated 😅')}
+                                        >
+                                            <Button icon={<FontAwesomeIcon icon={faTrash} />}></Button>
+                                        </Popconfirm>
+                                    )}
                                 </Space>
                             ),
                         }))}
                         headers={{
-                            type: 'Invoice type',
-                            timestamp: 'Created at',
-                            price: 'Total price',
+                            type: 'Type',
                             createdBy: 'Created by',
+                            timestamp: 'Created at',
+                            deviceName: 'Device Brand & Model',
+                            price: 'Total price',
                             client: 'Client name',
                             payment: 'Payment method',
-                            warrantyPeriod: 'Warranty period',
+                            warrantyLeftFormatted: 'Warranty left',
                             actions: 'Actions',
                         }}
                         totalCount={invoices.totalCount}
-                        onClick={({ id }) => navigate('' + id)}
                         pagination={page}
                         onPageChange={setPage}
                     />

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef } from 'react'
 import { AppModal } from './AppModal'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
-import { ShopSchema } from '../../models/validators/FormValidators'
+import { CreateShopSchema } from '../../models/validators/FormValidators'
 import { Shop } from '../../models/interfaces/shop'
 import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from './ToastProps'
@@ -30,7 +30,7 @@ export const AddShop = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
         formState: { errors },
         setError,
     } = useForm<Shop>({
-        resolver: yupResolver(ShopSchema),
+        resolver: yupResolver(CreateShopSchema),
     })
     useEffect(() => {
         formRef.current?.reset()
@@ -61,17 +61,19 @@ export const AddShop = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
                     <TextField label={'Address'} register={register('address')} error={errors.address} />
                     <TextField label={'Company Email'} register={register('email')} error={errors.email} type='email' />
                     <TextField label={'Phone number'} register={register('phone')} error={errors.phone} />
-                    <TextField label={'REG number'} register={register('regNumber')} error={errors.regNumber} />
-                    <TextField label={'VAT number'} register={register('vatNumber')} error={errors.vatNumber} />
 
-                    <Card title={'Shop Colors'} className='w-100'>
-                        <Space className='w-100 justify-around align-center' direction={'horizontal'} wrap>
+                    <Card id={'shopCol'} title={'Shop Colors'} className='w-100'>
+                        <Space className='w-100 justify-start align-start' direction={'vertical'}>
                             <Controller
                                 control={control}
                                 name='shopSettingsView.primaryColor'
                                 render={({ field, fieldState }) => (
                                     <FormField label={'Primary color of the shop'} error={fieldState.error}>
-                                        <ColorPicker value={field.value} onChange={field.onChange} />
+                                        <ColorPicker
+                                            format={'hex'}
+                                            value={field.value}
+                                            onChange={(val, hex) => field.onChange(hex)}
+                                        />
                                     </FormField>
                                 )}
                             />
@@ -80,30 +82,16 @@ export const AddShop = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
                                 name='shopSettingsView.secondaryColor'
                                 render={({ field, fieldState }) => (
                                     <FormField label={'Secondary color of the shop'} error={fieldState.error}>
-                                        <ColorPicker value={field.value} onChange={field.onChange} />
+                                        <ColorPicker
+                                            format={'hex'}
+                                            value={field.value}
+                                            onChange={(val, hex) => field.onChange(hex)}
+                                        />
                                     </FormField>
                                 )}
                             />
                         </Space>
                     </Card>
-
-                    <TextField
-                        label='Notification email'
-                        register={register('shopSettingsView.gmail')}
-                        error={errors.shopSettingsView?.gmail}
-                    />
-                    <TextField
-                        label='Notification email password'
-                        register={register('shopSettingsView.gmailPassword')}
-                        type='password'
-                        error={errors.shopSettingsView?.gmailPassword}
-                    />
-                    <TextField
-                        label='SMS API key'
-                        register={register('shopSettingsView.smsApiKey')}
-                        type='password'
-                        error={errors.shopSettingsView?.smsApiKey}
-                    />
                     <FormError error={errors.root?.message} />
                     <div className='flex-100 justify-end'>
                         <Button type='primary' onClick={handleSubmit(saveShop)}>

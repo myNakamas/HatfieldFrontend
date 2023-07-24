@@ -2,6 +2,7 @@ import { Entity } from './generalModels'
 import { TicketStatus } from '../enums/ticketEnums'
 import { User } from './user'
 import { InventoryItem } from './shop'
+import { Invoice } from './invoice'
 
 export interface Ticket extends Entity {
     deviceModel: string
@@ -22,6 +23,7 @@ export interface Ticket extends Entity {
     createdBy: User
     client: User
     usedParts: UsedItemView[]
+    invoice?: Invoice
 }
 
 export interface CreateTicket {

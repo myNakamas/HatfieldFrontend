@@ -1,12 +1,12 @@
 import { InventoryItem, TransferItem } from '../../../models/interfaces/shop'
 import { AppModal } from '../AppModal'
-import { Button, Card, Collapse, Descriptions, Divider, Space, Typography } from 'antd'
+import { Button, Card, Collapse, Descriptions, Divider, Input, Space, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPen } from '@fortawesome/free-solid-svg-icons'
-import React, { ReactNode, useContext, useEffect, useState } from 'react'
+import { faBoltLightning, faEye, faFileCircleExclamation, faPen } from '@fortawesome/free-solid-svg-icons'
+import React, { useContext, useEffect, useState } from 'react'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
-import { postPrintItemLabel } from '../../../axios/http/documentRequests'
+import { getPrintItemLabel, postPrintItemLabel } from '../../../axios/http/documentRequests'
 import { AddUsedItem } from '../ticket/AddUsedItem'
 import { CreateUsedItem } from '../../../models/interfaces/ticket'
 import { Controller, useForm } from 'react-hook-form'
@@ -50,6 +50,13 @@ export const ViewInventoryItem = ({
             window.open(fileUrl)
         }
     }
+    const previewSellDocument = async () => {
+        const blob = await getPrintItemLabel(inventoryItem?.id)
+        if (blob) {
+            const fileUrl = URL.createObjectURL(blob)
+            window.open(fileUrl)
+        }
+    }
 
     const markItemAsDamaged = (id: number) => {
         toast
@@ -87,58 +94,66 @@ export const ViewInventoryItem = ({
             )}
             {inventoryItem && (
                 <Space direction='vertical' style={{ width: '100%' }}>
-                    <ItemDescriptions
-                        inventoryItem={inventoryItem}
-                        extra={
-                            openEditModal && (
-                                <Button
-                                    onClick={() => {
-                                        closeModal()
-                                        openEditModal(inventoryItem)
-                                    }}
-                                    icon={<FontAwesomeIcon icon={faPen} />}
-                                />
-                            )
-                        }
-                    />
+                    {openEditModal && (
+                        <Button
+                            className={'editModalButton'}
+                            onClick={() => {
+                                closeModal()
+                                openEditModal(inventoryItem)
+                            }}
+                            icon={<FontAwesomeIcon icon={faPen} />}
+                        />
+                    )}
+                    <ItemDescriptions inventoryItem={inventoryItem} />
+                    <Divider />
 
-                    <Space wrap>
+                    <Space wrap align={'start'} className={'justify-between w-100'}>
                         <Card title={'Actions'}>
-                            <Space>
-                                <Typography>Print the label for the item</Typography>
-                                <Button onClick={printSellDocument} icon={<FontAwesomeIcon icon={faPrint} />}>
-                                    Print
-                                </Button>
-                            </Space>
-                            <Divider />
-                            <Space>
-                                <Typography>Sell as an item</Typography>
-                                <Button
-                                    icon={<FontAwesomeIcon icon={faShoppingCart} />}
-                                    onClick={() => setSellModalOpen(true)}
-                                >
-                                    Sell
-                                </Button>
-                            </Space>
-                            <Divider />
-                            <Space>
-                                <Typography>Use in a ticket</Typography>
-                                <Button onClick={() => setIsUseModalOpen(true)} type={'primary'}>
-                                    Add to ticket
-                                </Button>
+                            <Space direction={'vertical'}>
+                                <Space>
+                                    <Typography>Print the label for the item</Typography>
+                                    <Button.Group>
+                                        <Button onClick={printSellDocument} icon={<FontAwesomeIcon icon={faPrint} />}>
+                                            Print
+                                        </Button>
+                                        <Button onClick={previewSellDocument} icon={<FontAwesomeIcon icon={faEye} />} />
+                                    </Button.Group>
+                                </Space>
+                                <Space>
+                                    <Typography>Sell as an item</Typography>
+                                    <Button
+                                        icon={<FontAwesomeIcon icon={faShoppingCart} />}
+                                        onClick={() => setSellModalOpen(true)}
+                                    >
+                                        Sell
+                                    </Button>
+                                </Space>
+                                <Space>
+                                    <Typography>Use in a ticket</Typography>
+                                    <Button onClick={() => setIsUseModalOpen(true)} type={'primary'}>
+                                        Add to ticket
+                                    </Button>
+                                </Space>
                             </Space>
                         </Card>
                         <Card size={'small'} title={'Modify item quantity'}>
                             <Space direction={'vertical'}>
-                                <UpdateItemCountForm item={inventoryItem} onComplete={closeModal} />
                                 <Space>
-                                    <Typography>Mark as damaged</Typography>
-                                    <Button onClick={() => markItemAsDamaged(inventoryItem.id)}>Remove</Button>
+                                    <Typography>Mark one as damaged</Typography>
+                                    <Button
+                                        onClick={() => markItemAsDamaged(inventoryItem.id)}
+                                        icon={<FontAwesomeIcon icon={faBoltLightning} />}
+                                    />
                                 </Space>
                                 <Space>
-                                    <Typography>Mark as defective</Typography>
-                                    <Button onClick={() => markItemAsDefective(inventoryItem.id)}>Remove</Button>
+                                    <Typography>Mark one as defective</Typography>
+                                    <Button
+                                        onClick={() => markItemAsDefective(inventoryItem.id)}
+                                        icon={<FontAwesomeIcon icon={faFileCircleExclamation} />}
+                                    />
                                 </Space>
+                                <UpdateItemCountForm item={inventoryItem} />
+
                                 <Space>
                                     <SendItemToShop item={inventoryItem} />
                                 </Space>
@@ -151,47 +166,71 @@ export const ViewInventoryItem = ({
     )
 }
 
-export const ItemDescriptions = ({ inventoryItem, extra }: { inventoryItem: InventoryItem; extra?: ReactNode }) => {
+export const ItemDescriptions = ({
+    inventoryItem,
+    showCount,
+}: {
+    inventoryItem: InventoryItem
+    showCount?: boolean
+}) => {
     return (
-        <>
-            <Descriptions size={'middle'} layout={'vertical'} column={3} bordered extra={extra}>
-                <Descriptions.Item label={'Model'}>{inventoryItem.model}</Descriptions.Item>
-                <Descriptions.Item label={'Brand'}>{inventoryItem.brand}</Descriptions.Item>
-                <Descriptions.Item label={'Current count in shop'}>{inventoryItem.count}</Descriptions.Item>
-                {inventoryItem?.sellPrice && (
-                    <Descriptions.Item label={'Selling Price'} className='bold'>
-                        {inventoryItem.sellPrice.toFixed(2)}
-                    </Descriptions.Item>
-                )}
-                {inventoryItem?.purchasePrice && (
-                    <Descriptions.Item label={'Purchased for'} className='bold'>
-                        {inventoryItem.purchasePrice.toFixed(2)}
-                    </Descriptions.Item>
+        <Space direction={'vertical'} className={'w-100'}>
+            <Space wrap align={'start'} className={'justify-between w-100'}>
+                <Card
+                    size={'small'}
+                    title={'Device brand & model'}
+                    children={`${inventoryItem.brand ?? ''}  ${inventoryItem.model ?? ''}`}
+                />
+                {showCount && (
+                    <Card size={'small'} title={'Current count in shop'}>
+                        {inventoryItem.count}
+                    </Card>
                 )}
                 {inventoryItem?.categoryView && (
-                    <>
-                        <Descriptions.Item label={'Type'}>{inventoryItem.categoryView.itemType}</Descriptions.Item>
-                        <Descriptions.Item label={'Category name'}>{inventoryItem.categoryView.name}</Descriptions.Item>
-                    </>
+                    <Space wrap>
+                        <Card size={'small'} title={'Type'}>
+                            {inventoryItem.categoryView.itemType}
+                        </Card>
+                        <Card size={'small'} title={'Category'}>
+                            {inventoryItem.categoryView.name}
+                        </Card>
+                    </Space>
                 )}
-            </Descriptions>
-            <Descriptions layout={'vertical'} column={3} title={'Properties'} bordered>
-                {Object.entries(inventoryItem.columns).map(([name, value], index) => (
-                    <Descriptions.Item key={name + index} label={name}>
-                        {value}
-                    </Descriptions.Item>
-                ))}
-            </Descriptions>
-        </>
+            </Space>
+            <div className={'justify-around align-start flex-100 flex-wrap'}>
+                <Card title={'Pricing'} style={{ flex: 1 }}>
+                    {inventoryItem?.sellPrice && (
+                        <>
+                            <div className='bold'>Selling Price: {inventoryItem.sellPrice.toFixed(2)}</div>
+                            <Divider />
+                        </>
+                    )}
+                    {inventoryItem?.purchasePrice && (
+                        <div className='bold'>Purchased for: {inventoryItem.purchasePrice.toFixed(2)}</div>
+                    )}
+                </Card>
+                <Space wrap className={'w-100 justify-around'} style={{ flex: 3 }} align={'start'}>
+                    <Card title={'Properties'}>
+                        <Descriptions layout={'horizontal'} style={{ flex: 1, width: '100%' }}>
+                            {Object.entries(inventoryItem.columns).map(([name, value], index) => (
+                                <Descriptions.Item key={name + index} label={name}>
+                                    {value}
+                                </Descriptions.Item>
+                            ))}
+                        </Descriptions>
+                    </Card>
+                </Space>
+            </div>
+        </Space>
     )
 }
 
-const UpdateItemCountForm = ({ item, onComplete }: { item: InventoryItem; onComplete: () => void }) => {
+const UpdateItemCountForm = ({ item, onComplete }: { item: InventoryItem; onComplete?: () => void }) => {
     const queryClient = useQueryClient()
 
     const {
+        control,
         handleSubmit,
-        register,
         formState: { errors },
         reset,
     } = useForm<InventoryItem>({ defaultValues: item, resolver: yupResolver(UpdateItemCountSchema) })
@@ -206,18 +245,28 @@ const UpdateItemCountForm = ({ item, onComplete }: { item: InventoryItem; onComp
 
     return (
         <form onSubmit={handleSubmit(updateCount)} className={'modalForm'}>
-            <Space>
-                <TextField
-                    min={0}
-                    defaultValue={item.count}
-                    register={register('count')}
-                    error={errors.count}
-                    type='number'
+            <FormField label={'Current count in shop'} error={errors.count}>
+                <Controller
+                    control={control}
+                    render={({ field }) => (
+                        <Space.Compact>
+                            <Input
+                                min={0}
+                                defaultValue={item.count}
+                                inputMode={'numeric'}
+                                value={field.value}
+                                onChange={field.onChange}
+                                status={errors.count ? 'error' : ''}
+                                type='number'
+                            />
+                            <Button type={'primary'} htmlType={'submit'}>
+                                Update
+                            </Button>
+                        </Space.Compact>
+                    )}
+                    name={'count'}
                 />
-                <Button type={'primary'} htmlType={'submit'}>
-                    Update
-                </Button>
-            </Space>
+            </FormField>
         </form>
     )
 }

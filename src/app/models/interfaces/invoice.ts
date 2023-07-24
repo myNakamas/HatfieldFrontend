@@ -14,6 +14,7 @@ export interface Invoice extends Entity {
     client: User
     paymentMethod: PaymentMethod
     warrantyPeriod: WarrantyPeriod
+    warrantyLeft: Date
     valid: boolean
 }
 export interface CreateInvoice {
@@ -26,6 +27,7 @@ export interface CreateInvoice {
     deviceName: string
     deviceModel: string
     deviceBrand: string
+    serialNumber: string
 }
 
 export interface CreateTicketInvoice extends CreateInvoice {
@@ -34,7 +36,6 @@ export interface CreateTicketInvoice extends CreateInvoice {
 
 export interface CreateItemInvoice extends CreateInvoice {
     itemId?: number
-    serialNumber: string
     count: number
 }
 
@@ -42,6 +43,11 @@ export interface InvoicesReport {
     totalCount: number
     totalAmount: number
     calendar: InvoiceDailyReport[]
+}
+
+export interface SalesReport {
+    totalAmount: number
+    leaderboard: Map<string, number>
 }
 
 export interface InvoiceDailyReport {

@@ -4,23 +4,21 @@ import { CustomSuspense } from '../../components/CustomSuspense'
 import React, { useContext, useState } from 'react'
 import { useQuery } from 'react-query'
 import { useNavigate } from 'react-router-dom'
-import { ViewTicket } from '../../components/modals/ticket/ViewTicket'
 import { AddTicket } from '../../components/modals/ticket/AddTicket'
-import { Ticket } from '../../models/interfaces/ticket'
 import { getShoppingList } from '../../axios/http/shopRequests'
 import { AuthContext } from '../../contexts/AuthContext'
 import { CustomTable } from '../../components/table/CustomTable'
 import { InventoryItem } from '../../models/interfaces/shop'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { faShoppingBasket } from '@fortawesome/free-solid-svg-icons/faShoppingBasket'
+import { InvoiceFilter } from '../../models/interfaces/filters'
 
-export const ShoppingListCard = () => {
+export const ShoppingListCard = ({ filter }: { filter?: InvoiceFilter }) => {
     const navigate = useNavigate()
     const { loggedUser } = useContext(AuthContext)
-    const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [showNewTicketModal, setShowNewTicketModal] = useState(false)
-    const { data: shoppingList, isLoading } = useQuery(['shopItems', 'shoppingList'], () =>
-        getShoppingList({ filter: { inShoppingList: true, shopId: loggedUser?.shopId } })
+    const { data: shoppingList, isLoading } = useQuery(['shopItems', 'shoppingList', filter], () =>
+        getShoppingList({ filter: { ...filter, inShoppingList: true } })
     )
     return (
         <Card
@@ -40,7 +38,6 @@ export const ShoppingListCard = () => {
                 </Space>
             }
         >
-            <ViewTicket ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
             <AddTicket isModalOpen={showNewTicketModal} closeModal={() => setShowNewTicketModal(false)} />
             <CustomSuspense isReady={!isLoading}>
                 {shoppingList ? (

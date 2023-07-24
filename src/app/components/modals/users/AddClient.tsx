@@ -17,7 +17,7 @@ import { createClient } from '../../../axios/http/userRequests'
 import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
 import { TextField } from '../../form/TextField'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPrint } from '@fortawesome/free-solid-svg-icons'
+import { faEye, faPrint } from '@fortawesome/free-solid-svg-icons'
 import { printUserLabel } from '../../../axios/http/documentRequests'
 import { AppError } from '../../../models/interfaces/generalModels'
 
@@ -86,12 +86,20 @@ export const AddClient = ({
                     <p>{showResponse.username}</p>
                     <h4>Password:</h4>
                     <p>{showResponse.firstPass}</p>
-                    <Button
-                        icon={<FontAwesomeIcon icon={faPrint} />}
-                        onClick={() => printUserLabel(showResponse?.userId)}
-                    >
-                        Print user label
-                    </Button>
+                    <Button.Group>
+                        <Button
+                            icon={<FontAwesomeIcon icon={faPrint} />}
+                            onClick={() => printUserLabel(showResponse?.userId, true)}
+                        >
+                            Print user label
+                        </Button>
+                        <Button
+                            icon={<FontAwesomeIcon icon={faEye} />}
+                            onClick={() => printUserLabel(showResponse?.userId, false)}
+                        >
+                            Print user label
+                        </Button>
+                    </Button.Group>
                 </Typography>
             ) : (
                 <form ref={formRef} className='modalForm' onSubmit={handleSubmit(onSaveNew)} id={'addClientForm'}>

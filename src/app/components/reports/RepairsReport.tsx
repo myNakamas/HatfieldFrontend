@@ -1,25 +1,56 @@
-import { TicketFilter } from '../../models/interfaces/filters'
+import { InvoiceFilter } from '../../models/interfaces/filters'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from 'react-query'
-import { getInvoicesReport } from '../../axios/http/invoiceRequests'
-import { Button, Card } from 'antd'
+import { getSalesReport } from '../../axios/http/invoiceRequests'
+import { Button, Card, Statistic } from 'antd'
 import { CustomSuspense } from '../CustomSuspense'
-import React from 'react'
-import NoFound from 'antd/es/result/noFound'
+import React, { useContext, useState } from 'react'
+import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { DesignTokenContext } from 'antd/es/theme/internal'
 
-export const RepairsReport = ({ filter }: { filter: TicketFilter }) => {
+interface LeaderboardEntry {
+    name: string
+    count: number
+}
+
+export const SellReport = ({ filter }: { filter: InvoiceFilter }) => {
     const navigate = useNavigate()
-    const { data: report, isLoading } = useQuery(['invoices', filter, 'report'], () => getInvoicesReport({ filter }))
+    const { token } = useContext(DesignTokenContext)
+
+    const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
+    const { data: report, isLoading } = useQuery(
+        ['invoices', filter, 'report', 'sell'],
+        () => getSalesReport({ filter }),
+        {
+            onSuccess: ({ leaderboard }) => {
+                setLeaderboard(Object.entries(leaderboard).map(([key, value]) => ({ name: key, count: value })))
+            },
+        }
+    )
 
     return (
         <Card
-            style={{ minWidth: 250, height: '100%' }}
-            title='Completed repairs'
-            extra={<Button type='link' onClick={() => navigate('/tickets')} children={'See All Tickets'} />}
+            style={{ minWidth: 350, height: '100%' }}
+            title='Sales Leaderboard'
+            extra={<Button onClick={() => navigate('/inventory')}>See all items</Button>}
         >
+            <Statistic title={'Total amount in sells:'} loading={isLoading} value={report?.totalAmount} />
             <CustomSuspense isReady={!isLoading}>
-                <NoFound />
-                <h4>Work in progress</h4>
+                <ResponsiveContainer width='100%' height={400} minWidth={350}>
+                    <BarChart data={leaderboard}>
+                        <XAxis dataKey={'name'} />
+                        <YAxis allowDecimals={false} />
+                        {<Bar dataKey={'count'} name={'Items sold'} fill={token.colorPrimary} />}
+                        <Tooltip<string, string>
+                            contentStyle={{
+                                borderRadius: token.borderRadius,
+                                backgroundColor: token.colorInfo,
+                            }}
+                            itemStyle={{ color: 'white' }}
+                        />
+                        <Legend />
+                    </BarChart>
+                </ResponsiveContainer>
             </CustomSuspense>
         </Card>
     )

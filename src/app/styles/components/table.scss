@@ -13,6 +13,15 @@ thead {
   }
 }
 
+.buttonHeader {
+  margin: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+
+}
+
 .dangerBg {
   background-color: rgba(183, 0, 0, 0.5);
 }

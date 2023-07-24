@@ -46,9 +46,12 @@ export const EditUserSchema = Yup.object<User>().shape({
 export const AddItemInventorySchema = Yup.object<InventoryItem>().shape({
     model: Yup.object().notRequired(),
     brand: Yup.object().notRequired(),
-    purchasePrice: Yup.number().positive().notRequired(),
-    sellPrice: Yup.number().positive().notRequired(),
-    count: Yup.number().min(0, 'Invalid count').required('Item count is required'),
+    purchasePrice: Yup.string().nullable().optional(),
+    sellPrice: Yup.string().nullable().optional(),
+    count: Yup.number()
+        .typeError('Please enter a valid number')
+        .min(0, 'Invalid count')
+        .required('Item count is required'),
 })
 export const EditItemInventorySchema = Yup.object<InventoryItem>().shape({
     model: Yup.string().notRequired(),
@@ -84,6 +87,16 @@ export const ShopSchema = Yup.object().shape({
         gmail: Yup.string().email('Must be a valid email').notRequired(),
         gmailPassword: Yup.string().notRequired(),
         smsApiKey: Yup.string().notRequired(),
+    }),
+})
+export const CreateShopSchema = Yup.object().shape({
+    shopName: Yup.string().required(),
+    address: Yup.string().required('Required field'),
+    phone: Yup.string().min(10, 'Not a valid phone number').required('Required field'),
+    email: Yup.string().email('Must be a valid email!').required('Required field'),
+    shopSettingsView: Yup.object().shape({
+        primaryColor: Yup.string().required('Required field'),
+        secondaryColor: Yup.string().required('Required field'),
     }),
 })
 

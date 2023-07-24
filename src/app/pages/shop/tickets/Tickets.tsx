@@ -18,7 +18,7 @@ import { Shop } from '../../../models/interfaces/shop'
 import { User } from '../../../models/interfaces/user'
 import { getAllClients, getAllWorkers } from '../../../axios/http/userRequests'
 import { DateTimeFilter } from '../../../components/filters/DateTimeFilter'
-import { Button, Space, Tabs, TabsProps } from 'antd'
+import { Button, Space, Statistic, Tabs, TabsProps } from 'antd'
 import {
     activeTicketStatuses,
     completedTicketStatuses,
@@ -27,18 +27,25 @@ import {
 } from '../../../models/enums/ticketEnums'
 import { useSearchParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPen } from '@fortawesome/free-solid-svg-icons/faPen'
+import { faPen } from '@fortawesome/free-solid-svg-icons'
 import { getUserString } from '../../../utils/helperFunctions'
 import { defaultPage } from '../../../models/enums/defaultValues'
 import { AuthContext } from '../../../contexts/AuthContext'
+import { QrReaderButton } from '../../../components/modals/QrReaderModal'
+import moment from 'moment/moment'
+import { AddTicketInvoice } from '../../../components/modals/AddTicketInvoice'
 
 export const Tickets = () => {
-    const { isClient, isWorker } = useContext(AuthContext)
+    const { loggedUser, isClient, isWorker } = useContext(AuthContext)
     const [params] = useSearchParams()
+    const [collectTicket, setCollectTicket] = useState<Ticket | undefined>()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [ticketView, setTicketView] = useState('view')
     const [showNewModal, setShowNewModal] = useState(false)
-    const [filter, setFilter] = useState<TicketFilter>({ ticketStatuses: activeTicketStatuses })
+    const [filter, setFilter] = useState<TicketFilter>({
+        ticketStatuses: activeTicketStatuses,
+        shopId: loggedUser?.shopId,
+    })
     const [page, setPage] = useState<PageRequest>(defaultPage)
     const onSelectedTicketUpdate = (data: Page<Ticket>) => {
         setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
@@ -53,6 +60,7 @@ export const Tickets = () => {
             onSuccess: onSelectedTicketUpdate,
         }
     )
+
     useEffect(() => {
         params.get('ticketId') && fetchTicketById(Number(params.get('ticketId'))).then(setSelectedTicket)
     }, [])
@@ -62,45 +70,32 @@ export const Tickets = () => {
             key: '1',
             label: 'Active tickets',
             children: (
-                <TicketsTab
-                    {...{ ...tickets, setSelectedTicket, page, setPage }}
-                    setEditTicket={(ticket) => {
-                        setSelectedTicket(ticket)
-                        setTicketView('edit')
-                    }}
-                />
+                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
         {
             key: '2',
             label: 'Completed tickets',
             children: (
-                <TicketsTab
-                    {...{ ...tickets, setSelectedTicket, page, setPage }}
-                    setEditTicket={(ticket) => {
-                        setSelectedTicket(ticket)
-                        setTicketView('edit')
-                    }}
-                />
+                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
         {
             key: '3',
             label: 'All tickets',
             children: (
-                <TicketsTab
-                    {...{ ...tickets, setSelectedTicket, page, setPage }}
-                    setEditTicket={(ticket) => {
-                        setSelectedTicket(ticket)
-                        setTicketView('edit')
-                    }}
-                />
+                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
     ]
 
     return (
         <div className='mainScreen'>
+            <AddTicketInvoice
+                ticket={collectTicket}
+                closeModal={() => setCollectTicket(undefined)}
+                isModalOpen={!!collectTicket}
+            />
             <ViewTicket
                 ticket={selectedTicket}
                 closeModal={() => {
@@ -110,13 +105,18 @@ export const Tickets = () => {
                 view={ticketView}
             />
             <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} />
-            <TicketFilters {...{ filter, setFilter }} />
-            <Space className='button-bar'>
-                {isWorker() && (
-                    <Button type={'primary'} onClick={() => setShowNewModal(true)}>
-                        Add Ticket
-                    </Button>
-                )}
+            <Space className='buttonHeader'>
+                <Space>
+                    {isWorker() && (
+                        <Button type={'primary'} onClick={() => setShowNewModal(true)}>
+                            Add Ticket
+                        </Button>
+                    )}
+                </Space>
+                <Space wrap>
+                    <QrReaderButton title={'Scan QR code to open ticket'} />
+                    <TicketFilters {...{ filter, setFilter }} />
+                </Space>
             </Space>
             <Tabs
                 animated
@@ -140,12 +140,12 @@ const TicketsTab = ({
     setSelectedTicket,
     page,
     setPage,
-    setEditTicket,
+    setCollectTicket,
 }: {
     isLoading: boolean
     data?: Page<Ticket>
     setSelectedTicket: React.Dispatch<React.SetStateAction<Ticket | undefined>>
-    setEditTicket: (ticket: Ticket) => void
+    setCollectTicket: (ticket: Ticket) => void
     page: PageRequest
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
 }) => (
@@ -156,21 +156,41 @@ const TicketsTab = ({
                     data={data.content.map((ticket) => ({
                         ...ticket,
                         timestamp: dateFormat(ticket.timestamp),
-                        deadline: ticket.deadline ? dateFormat(ticket.deadline) : '-',
+                        timeLeft:
+                            moment(ticket.deadline) > moment() ? (
+                                <Statistic.Countdown
+                                    title={dateFormat(ticket.deadline)}
+                                    value={ticket.deadline.valueOf()}
+                                />
+                            ) : (
+                                <Statistic title={dateFormat(ticket.deadline)} value={'Passed'} />
+                            ),
+                        device: `${ticket.deviceBrand ?? ''} ${ticket.deviceModel ?? ''}`,
                         createdByName: ticket.createdBy?.fullName,
-                        clientName: ticket.client?.fullName,
+                        price: !ticket.totalPrice
+                            ? 'NEED TO QUOTE'
+                            : ticket.totalPrice === ticket.deposit
+                            ? 'PAID'
+                            : `£ ${ticket.totalPrice - ticket.deposit}`,
+                        clientName: ticket.client ? getUserString(ticket.client) : '-',
                         actions: (
-                            <Button icon={<FontAwesomeIcon icon={faPen} />} onClick={() => setEditTicket(ticket)} />
+                            <Space>
+                                <Button
+                                    icon={<FontAwesomeIcon icon={faPen} />}
+                                    onClick={() => setSelectedTicket(ticket)}
+                                />
+                                <Button onClick={() => setCollectTicket(ticket)}>Collect</Button>
+                            </Space>
                         ),
                     }))}
                     headers={{
-                        id: 'Ticket Id',
-                        timestamp: 'Creation date',
-                        deadline: 'Deadline',
-                        status: 'Ticket status',
-                        totalPrice: 'Total Price',
-                        createdByName: 'Created by',
-                        clientName: 'Client name',
+                        id: 'Id',
+                        timeLeft: 'Time left timer',
+                        device: 'Device Brand&Model',
+                        status: 'Ticket Status',
+                        deviceLocation: 'Device Location',
+                        price: 'Price',
+                        clientName: 'Client',
                         actions: 'Actions',
                     }}
                     onClick={(ticket) => setSelectedTicket(ticket)}
@@ -204,7 +224,7 @@ const TicketFilters = ({
     })
     const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
     return advanced ? (
-        <Space className='largeFilter'>
+        <Space className='largeFilter' wrap>
             <div className='filterColumn'>
                 <h4>Filters</h4>
                 <SearchComponent {...{ filter, setFilter }} />
@@ -315,7 +335,7 @@ const TicketFilters = ({
             </div>
         </Space>
     ) : (
-        <Space wrap className='flex'>
+        <Space wrap>
             <SearchComponent {...{ filter, setFilter }} />
             <Button type={'link'} onClick={() => setAdvanced(true)} children={'Advanced search'} />
         </Space>

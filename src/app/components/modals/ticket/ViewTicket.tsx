@@ -9,17 +9,15 @@ import {
 import React, { useContext, useEffect, useState } from 'react'
 import dateFormat from 'dateformat'
 import { EditTicketForm } from './EditTicketForm'
-import { putCompleteTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
+import { putCompleteTicket, putFreezeTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
 import { useQuery, useQueryClient } from 'react-query'
-import { dateTimeMask } from '../../../models/enums/appEnums'
 import CreatableSelect from 'react-select/creatable'
 import { ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import { activeTicketStatuses, TicketStatus, TicketStatusesArray } from '../../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
-import { FormError } from '../../form/FormError'
-import { Button, Card, Descriptions, Space } from 'antd'
+import { Button, Card, Collapse, Descriptions, Pagination, Space, Timeline, Tooltip } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
 import { CustomTable } from '../../table/CustomTable'
@@ -28,9 +26,77 @@ import { AddUsedItem } from './AddUsedItem'
 import { useNavigate } from 'react-router-dom'
 import { AddTicketInvoice } from '../AddTicketInvoice'
 import Select from 'react-select'
-import { postPrintTicket, postPrintTicketLabel } from '../../../axios/http/documentRequests'
+import {
+    getTicketImage,
+    getTicketLabelImage,
+    postPrintTicket,
+    postPrintTicketLabel,
+} from '../../../axios/http/documentRequests'
 import { AuthContext } from '../../../contexts/AuthContext'
-import { getAllDeviceLocations } from '../../../axios/http/shopRequests'
+import { getAllDeviceLocations, getAllLogs } from '../../../axios/http/shopRequests'
+import {
+    faCheck,
+    faEye,
+    faFileInvoiceDollar,
+    faHistory,
+    faMessage,
+    faPlay,
+    faPlus,
+    faSnowflake,
+} from '@fortawesome/free-solid-svg-icons'
+import { Deadline } from './Deadline'
+import DescriptionsItem from 'antd/lib/descriptions/Item'
+import { defaultPage } from '../../../models/enums/defaultValues'
+import { LogsFilter } from '../../../models/interfaces/filters'
+import CollapsePanel from 'antd/es/collapse/CollapsePanel'
+import { UserDescription } from '../users/ViewUser'
+import { FormField } from '../../form/Field'
+import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
+
+const ViewTicketAllInfo = ({ ticket, show, closeModal }: { ticket: Ticket; show: boolean; closeModal: () => void }) => {
+    const [page, setPage] = useState(defaultPage)
+    const filter: LogsFilter = { ticketId: ticket.id }
+    const { data: logs } = useQuery(['logs', filter, page], () => getAllLogs({ filter, page }))
+
+    return (
+        <AppModal title={'More details'} isModalOpen={show} closeModal={closeModal}>
+            <Space direction={'vertical'} className={'w-100'}>
+                <Collapse>
+                    {ticket.client && (
+                        <CollapsePanel key='1' header={`Client Details:`} showArrow>
+                            <UserDescription user={ticket.client} />
+                        </CollapsePanel>
+                    )}
+                </Collapse>
+                <Descriptions>
+                    <DescriptionsItem label={'Created by'}>{ticket.createdBy.fullName}</DescriptionsItem>
+                    <DescriptionsItem label={'At'}>{dateFormat(ticket.timestamp)}</DescriptionsItem>
+                </Descriptions>
+                <Descriptions title={'Device information'} bordered layout={'vertical'}>
+                    {ticket.deviceModel && <DescriptionsItem label={'Model'}>{ticket.deviceModel}</DescriptionsItem>}
+                    {ticket.deviceBrand && <DescriptionsItem label={'Brand'}>{ticket.deviceBrand}</DescriptionsItem>}
+                    {ticket.deviceCondition && (
+                        <DescriptionsItem label={'Condition'}>{ticket.deviceCondition}</DescriptionsItem>
+                    )}
+                    {ticket.devicePassword && (
+                        <DescriptionsItem label={'Password'}>{ticket.devicePassword}</DescriptionsItem>
+                    )}
+                </Descriptions>
+
+                <Card title={'Activity'}>
+                    <Timeline
+                        mode={'alternate'}
+                        items={logs?.content.map((log) => ({
+                            label: <Tooltip title={dateFormat(log.timestamp)}>{log.action}</Tooltip>,
+                            position: log.timestamp?.valueOf().toString(),
+                        }))}
+                    />
+                    <Pagination total={logs?.totalCount} onChange={(page, pageSize) => setPage({ page, pageSize })} />
+                </Card>
+            </Space>
+        </AppModal>
+    )
+}
 
 export const ViewTicket = ({
     ticket,
@@ -44,12 +110,9 @@ export const ViewTicket = ({
     const navigate = useNavigate()
     const [mode, setMode] = useState('view')
     const { data: locations } = useQuery('deviceLocations', getAllDeviceLocations)
-
-    const [deviceLocation, setDeviceLocation] = useState('')
-    const [deviceLocationError, setDeviceLocationError] = useState('')
+    const [ticketLogOpen, setTicketLogOpen] = useState(false)
     const [isUseModalOpen, setIsUseModalOpen] = useState(false)
     const [showInvoiceModal, setShowInvoiceModal] = useState(false)
-    const [ticketStatus, setTicketStatus] = useState(ticket?.status ?? '')
     const queryClient = useQueryClient()
     const { isWorker } = useContext(AuthContext)
     useEffect(() => {
@@ -73,20 +136,17 @@ export const ViewTicket = ({
             .promise(putStartTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps)
             .then(() => queryClient.invalidateQueries(['tickets']).then())
     }
-
-    const completeTicket = (id: number) => {
-        if (!deviceLocation || deviceLocation.trim().length == 0) setDeviceLocationError('New location is required')
-        else {
-            toast
-                .promise(
-                    putCompleteTicket({ id, location: deviceLocation }),
-                    toastUpdatePromiseTemplate('ticket'),
-                    toastProps
-                )
-                .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
-        }
+    const freezeTicket = (id: number) => {
+        toast
+            .promise(putFreezeTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps)
+            .then(() => queryClient.invalidateQueries(['tickets']).then())
     }
 
+    const completeTicket = (id: number) => {
+        toast
+            .promise(putCompleteTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps)
+            .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
+    }
     const updateTicketStatus = (id: number, ticketStatus: TicketStatus) => {
         return toast
             .promise(
@@ -94,17 +154,40 @@ export const ViewTicket = ({
                 toastUpdatePromiseTemplate('ticket status'),
                 toastProps
             )
-            .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
+            .then(() => queryClient.invalidateQueries(['tickets']))
     }
 
+    const updateDeviceLocation = (id: number, deviceLocation?: string) => {
+        if (deviceLocation) {
+            toast
+                .promise(
+                    updateTicket({ id, ticket: { id, deviceLocation } as unknown as CreateTicket }),
+                    toastUpdatePromiseTemplate('device location'),
+                    toastProps
+                )
+                .then(() => queryClient.invalidateQueries(['tickets']))
+        }
+    }
     const printTicketLabel = () => {
         toast.promise(postPrintTicketLabel(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
             const fileUrl = URL.createObjectURL(blob)
             window.open(fileUrl)
         })
     }
+    const previewTicketLabel = () => {
+        toast.promise(getTicketLabelImage(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
+            const fileUrl = URL.createObjectURL(blob)
+            window.open(fileUrl)
+        })
+    }
     const printTicket = () => {
         toast.promise(postPrintTicket(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
+            const fileUrl = URL.createObjectURL(blob)
+            window.open(fileUrl)
+        })
+    }
+    const previewTicket = () => {
+        toast.promise(getTicketImage(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
             const fileUrl = URL.createObjectURL(blob)
             window.open(fileUrl)
         })
@@ -117,12 +200,17 @@ export const ViewTicket = ({
                 setMode('view')
                 closeModal()
             }}
-            title={'Ticket'}
+            title={`Ticket #${ticket?.id}`}
         >
             {ticket && (
                 <>
                     {isWorker() && (
                         <>
+                            <ViewTicketAllInfo
+                                ticket={ticket}
+                                closeModal={() => setTicketLogOpen(false)}
+                                show={ticketLogOpen}
+                            />
                             <AddUsedItem
                                 usedItem={
                                     { itemId: undefined, count: 1, ticketId: ticket.id } as unknown as CreateUsedItem
@@ -131,13 +219,13 @@ export const ViewTicket = ({
                                 show={isUseModalOpen}
                             />
                             <AddTicketInvoice
-                                ticketId={ticket.id}
+                                ticket={ticket}
                                 closeModal={() => setShowInvoiceModal(false)}
                                 isModalOpen={showInvoiceModal}
                             />
                         </>
                     )}
-                    <div className='flex-100 justify-end '>
+                    <div className='editModalButton '>
                         {mode !== 'edit' && isWorker() ? (
                             <Button
                                 icon={<FontAwesomeIcon icon={faPenToSquare} size={'lg'} />}
@@ -156,10 +244,22 @@ export const ViewTicket = ({
                     )}
                     {mode === 'view' && (
                         <div className='viewModal'>
-                            <TicketDescription ticket={ticket} />
+                            <TicketModalDescription ticket={ticket} />
                             {isWorker() && (
                                 <>
-                                    <Card title='Used items'>
+                                    <Card
+                                        title='Used items'
+                                        extra={
+                                            <Button
+                                                type='primary'
+                                                icon={<FontAwesomeIcon icon={faPlus} />}
+                                                disabled={!activeTicketStatuses.includes(ticket.status)}
+                                                onClick={() => setIsUseModalOpen(true)}
+                                            >
+                                                Add an item from inventory
+                                            </Button>
+                                        }
+                                    >
                                         {ticket.usedParts.length > 0 ? (
                                             <CustomTable<UsedItemView>
                                                 data={ticket.usedParts.map(({ item, usedCount, timestamp }) => ({
@@ -177,53 +277,31 @@ export const ViewTicket = ({
                                                 onClick={() => {}}
                                             />
                                         ) : (
-                                            <NoDataComponent items={'used items'}>
-                                                <Button type='primary' onClick={() => setIsUseModalOpen(true)}>
-                                                    Add an item
-                                                </Button>
-                                            </NoDataComponent>
+                                            <NoDataComponent items={'used items'} />
                                         )}
                                     </Card>
-                                    <Space wrap>
-                                        <Space direction='vertical' className='card'>
-                                            <h3>Ticket status</h3>
-                                            <div className='ticketActions'>
-                                                <div>Start the repair</div>
-                                                <Button
-                                                    onClick={() => startTicket(ticket.id)}
-                                                    disabled={ticket.status !== 'PENDING'}
-                                                >
-                                                    Start repair
-                                                </Button>
-                                            </div>
-                                            <div>Change ticket status</div>
-                                            <Space>
+                                    <Space wrap className={'w-100 justify-between align-start'}>
+                                        <Space direction={'vertical'} className='card'>
+                                            <FormField label={'Change ticket status'}>
                                                 <Select<ItemPropertyView, false>
                                                     theme={SelectTheme}
                                                     styles={SelectStyles()}
                                                     value={
                                                         (TicketStatusesArray.find(
-                                                            ({ value }) => value === ticketStatus
+                                                            ({ value }) => value === ticket.status
                                                         ) as ItemPropertyView) ?? null
                                                     }
                                                     options={TicketStatusesArray ?? []}
                                                     placeholder='New Status'
                                                     isClearable
-                                                    onChange={(value) => setTicketStatus(value?.value as TicketStatus)}
+                                                    onChange={(value) =>
+                                                        updateTicketStatus(ticket.id, value?.value as TicketStatus)
+                                                    }
                                                     getOptionLabel={(status) => status.value}
                                                     getOptionValue={(status) => String(status.id)}
                                                 />
-                                                <Button
-                                                    onClick={() =>
-                                                        updateTicketStatus(ticket.id, ticketStatus as TicketStatus)
-                                                    }
-                                                >
-                                                    Change status
-                                                </Button>
-                                            </Space>
-                                            <FormError error={deviceLocationError} />
-                                            <div>Complete the repair</div>
-                                            <Space className='justify-between w-100'>
+                                            </FormField>
+                                            <FormField label={'Change device location'}>
                                                 <CreatableSelect<ItemPropertyView, false>
                                                     isClearable
                                                     theme={SelectTheme}
@@ -231,50 +309,90 @@ export const ViewTicket = ({
                                                     options={locations}
                                                     formatCreateLabel={(value) => 'Add a new location: ' + value}
                                                     placeholder='New location'
-                                                    value={
-                                                        deviceLocation
-                                                            ? {
-                                                                  value: deviceLocation,
-                                                                  id: -1,
-                                                              }
-                                                            : null
+                                                    value={{ id: 0, value: ticket.deviceLocation } ?? null}
+                                                    onCreateOption={(item) => updateDeviceLocation(ticket.id, item)}
+                                                    onChange={(newValue) =>
+                                                        updateDeviceLocation(ticket.id, newValue?.value)
                                                     }
-                                                    onCreateOption={(item) => setDeviceLocation(item)}
-                                                    onChange={(newValue) => setDeviceLocation(newValue?.value ?? '')}
                                                     getOptionLabel={(item) => item.value}
                                                     getOptionValue={(item) => item.id + item.value}
                                                 />
-                                                <Button onClick={() => completeTicket(ticket.id)}>Finish repair</Button>
-                                            </Space>
-                                            <Space className='ticketActions'>
-                                                <div>Mark as collected</div>
-                                                <Button onClick={() => setShowInvoiceModal(true)}>Collected</Button>
-                                            </Space>
+                                            </FormField>
                                         </Space>
                                         <Space direction='vertical' className='card'>
-                                            <h3>Other actions</h3>
-                                            <Space className='ticketActions'>
-                                                <div>Open the chat with the customer</div>
-                                                <Button onClick={() => navigate('/chats?id=' + ticket.id)}>Chat</Button>
-                                            </Space>
-                                            <Space className='ticketActions'>
-                                                <div>Print ticket repair tag</div>
-                                                <Button onClick={printTicketLabel}>Print repair tag</Button>
-                                            </Space>
-                                            <Space className='ticketActions'>
-                                                <div>Print ticket</div>
-                                                <Button onClick={printTicket}>Print ticket</Button>
-                                            </Space>
-                                            <Space className='ticketActions'>
-                                                <div>Use an item for ticket</div>
+                                            <h3>Ticket status</h3>
+                                            <Space.Compact direction={'vertical'}>
                                                 <Button
-                                                    type='primary'
-                                                    disabled={!activeTicketStatuses.includes(ticket.status)}
-                                                    onClick={() => setIsUseModalOpen(true)}
+                                                    onClick={() => startTicket(ticket.id)}
+                                                    disabled={ticket.status !== 'PENDING'}
+                                                    icon={<FontAwesomeIcon icon={faPlay} />}
                                                 >
-                                                    Add an item from inventory
+                                                    Start repair
                                                 </Button>
-                                            </Space>
+                                                <Button
+                                                    icon={<FontAwesomeIcon icon={faSnowflake} />}
+                                                    onClick={() => freezeTicket(ticket.id)}
+                                                >
+                                                    Freeze ticket
+                                                </Button>{' '}
+                                                <Button
+                                                    icon={<FontAwesomeIcon icon={faCheck} />}
+                                                    onClick={() => completeTicket(ticket.id)}
+                                                >
+                                                    Finish repair
+                                                </Button>
+                                                <Button
+                                                    icon={<FontAwesomeIcon icon={faFileInvoiceDollar} />}
+                                                    onClick={() => setShowInvoiceModal(true)}
+                                                >
+                                                    Mark as Collected
+                                                </Button>
+                                            </Space.Compact>
+                                        </Space>
+
+                                        <Space direction='vertical' className='card'>
+                                            <h3>Other actions</h3>
+
+                                            <Space.Compact direction={'vertical'}>
+                                                <Button
+                                                    icon={<FontAwesomeIcon icon={faMessage} />}
+                                                    onClick={() => navigate('/chats?id=' + ticket.id)}
+                                                >
+                                                    Open Chat
+                                                </Button>
+                                                <Space.Compact className={'w-100 justify-between'}>
+                                                    <Button
+                                                        style={{ flex: 1 }}
+                                                        icon={<FontAwesomeIcon icon={faPrint} />}
+                                                        onClick={printTicketLabel}
+                                                    >
+                                                        Print repair tag
+                                                    </Button>
+                                                    <Button
+                                                        icon={<FontAwesomeIcon icon={faEye} />}
+                                                        onClick={previewTicketLabel}
+                                                    />
+                                                </Space.Compact>
+                                                <Space.Compact className={'w-100 justify-between'}>
+                                                    <Button
+                                                        style={{ flex: 1 }}
+                                                        icon={<FontAwesomeIcon icon={faPrint} />}
+                                                        onClick={printTicket}
+                                                    >
+                                                        Print ticket
+                                                    </Button>
+                                                    <Button
+                                                        icon={<FontAwesomeIcon icon={faEye} />}
+                                                        onClick={previewTicket}
+                                                    />
+                                                </Space.Compact>
+
+                                                <Button
+                                                    icon={<FontAwesomeIcon icon={faHistory} />}
+                                                    children={'More details'}
+                                                    onClick={() => setTicketLogOpen(true)}
+                                                />
+                                            </Space.Compact>
                                         </Space>
                                     </Space>
                                 </>
@@ -287,63 +405,29 @@ export const ViewTicket = ({
     )
 }
 
-export const TicketDescription = ({ ticket }: { ticket: Ticket }) => {
+export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
     return (
-        <Descriptions bordered size='small' layout='vertical' title={`Ticket#${ticket.id} Info`}>
-            <Descriptions.Item label='Created at'>{dateFormat(ticket.timestamp, dateTimeMask)}</Descriptions.Item>
-            <Descriptions.Item label='Deadline'>{dateFormat(ticket.deadline, dateTimeMask)}</Descriptions.Item>
-            <Descriptions.Item label='Status'>{ticket.status}</Descriptions.Item>
-            <Descriptions.Item label='Location'>{ticket.deviceLocation}</Descriptions.Item>
-            {ticket.client && (
-                <Descriptions.Item label='Client'>
-                    {ticket.client.fullName} {ticket.client.email}
-                </Descriptions.Item>
-            )}
-            <Descriptions.Item label='Problem'>{ticket.problemExplanation}</Descriptions.Item>
-            <Descriptions.Item label='Customer Request'>{ticket.customerRequest}</Descriptions.Item>
-            <Descriptions.Item label='Created by'>{ticket.createdBy.fullName}</Descriptions.Item>
-            <Descriptions.Item label='Payment'>
-                {ticket.deposit && `Deposit: ${ticket.deposit?.toFixed(2)}`}
-                <br />
-                {ticket.totalPrice && `Total price: ${ticket.totalPrice?.toFixed(2)}`}
-            </Descriptions.Item>
-            <Descriptions.Item label='Notes'>{ticket.notes}</Descriptions.Item>
-
-            <Descriptions.Item label='Device Info'>
-                {ticket.deviceModel && (
-                    <>
-                        Device model: {ticket.deviceModel}
-                        <br />
-                    </>
+        <Space direction={'vertical'}>
+            <Space className={'justify-between w-100'}>
+                <Space align={'start'}>
+                    <Card title={'Deadline'} size={'small'}>
+                        <Deadline deadline={ticket.deadline} />
+                    </Card>
+                    <Card
+                        size={'small'}
+                        title={'Device brand & model'}
+                        children={`${ticket.deviceBrand ?? ''}  ${ticket.deviceModel ?? ''}`}
+                    />
+                </Space>
+                {ticket.devicePassword && <Card size={'small'} title={'Password'} children={ticket.devicePassword} />}
+            </Space>
+            <Descriptions bordered layout={'vertical'} className={'w-100'}>
+                <DescriptionsItem span={2} label={'Problem'} children={ticket.problemExplanation} />
+                {ticket.customerRequest?.length > 0 && (
+                    <DescriptionsItem span={1} label={'Customer Request'} children={ticket.customerRequest} />
                 )}
-                {ticket.deviceBrand && (
-                    <>
-                        Device brand: {ticket.deviceBrand} <br />
-                    </>
-                )}
-                {ticket.deviceCondition && (
-                    <>
-                        Condition: {ticket.deviceCondition} <br />
-                    </>
-                )}
-                {ticket.devicePassword && (
-                    <>
-                        Password: {ticket.devicePassword}
-                        <br />
-                    </>
-                )}
-                {ticket.serialNumberOrImei && (
-                    <>
-                        Serial number / Imei: {ticket.serialNumberOrImei}
-                        <br />
-                    </>
-                )}
-                {ticket.accessories && (
-                    <>
-                        Accessories: {ticket.accessories} <br />
-                    </>
-                )}
-            </Descriptions.Item>
-        </Descriptions>
+                {ticket.notes?.length > 0 && <DescriptionsItem span={1} label={'Notes'} children={ticket.notes} />}
+            </Descriptions>
+        </Space>
     )
 }

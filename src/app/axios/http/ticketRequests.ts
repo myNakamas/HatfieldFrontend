@@ -30,10 +30,16 @@ export const fetchAllActiveTickets = ({ filter }: { filter?: TicketFilter }): Pr
 export const fetchClientActiveTickets = ({ filter }: { filter?: TicketFilter }): Promise<Ticket[]> => {
     return backendClient.get('ticket/client/active', { params: { ...filter } })
 }
-export const fetchTicketById = (id: number): Promise<Ticket> => {
+export const fetchTicketById = (id?: number): Promise<Ticket> => {
     return backendClient.get('ticket/byId', { params: { id } })
 }
 
+export const putFreezeTicket = (params: { id: number }): Promise<void> => {
+    return backendClient.put('ticket/client/freeze', {}, { params })
+}
+export const putCancelTicket = (params: { id: number }): Promise<void> => {
+    return backendClient.put('ticket/client/cancel', {}, { params })
+}
 export const createTicket = ({ ticket }: { ticket: CreateTicket }): Promise<number> => {
     const deadline = new Date(ticket.deadline).toISOString()
     const body = { ...ticket, deadline }
@@ -45,7 +51,7 @@ export const updateTicket = ({ id, ticket }: { id: number; ticket: CreateTicket 
     return backendClient.put('ticket/worker/update/' + id, body)
 }
 
-export const putCompleteTicket = (params: { id: number; location: string }): Promise<number> => {
+export const putCompleteTicket = (params: { id: number }): Promise<number> => {
     return backendClient.put('ticket/worker/complete', {}, { params })
 }
 
