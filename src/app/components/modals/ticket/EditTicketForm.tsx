@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { FormField } from '../../form/Field'
 import { Dictaphone } from '../../form/Dictaphone'
@@ -11,7 +11,7 @@ import DateTime from 'react-datetime'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { CreateTicket } from '../../../models/interfaces/ticket'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { getAllBrands, getAllDeviceLocations } from '../../../axios/http/shopRequests'
 import { User } from '../../../models/interfaces/user'
 import { getAllClients } from '../../../axios/http/userRequests'
@@ -20,33 +20,34 @@ import { Button, Card, Checkbox, Collapse, Divider, Space } from 'antd'
 import { AddClient } from '../users/AddClient'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
-import { EditTicketSchema } from '../../../models/validators/FormValidators'
 import { getUserString } from '../../../utils/helperFunctions'
 import { AuthContext } from '../../../contexts/AuthContext'
 import CollapsePanel from 'antd/es/collapse/CollapsePanel'
+import { createTicket, updateTicket } from '../../../axios/http/ticketRequests'
+import { toast } from 'react-toastify'
+import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
 
 export const EditTicketForm = ({
     ticket,
-    onComplete,
-    onCancel,
+    closeModal,
+    isEdit,
 }: {
     ticket: CreateTicket
-    onComplete: (ticket: CreateTicket) => Promise<void>
-    onCancel: () => void
+    closeModal: () => void
+    isEdit?: boolean
 }) => {
     const { isWorker } = useContext(AuthContext)
+    const queryClient = useQueryClient()
     const {
         register,
         handleSubmit,
         formState: { errors },
         control,
         setError,
-        reset,
         setValue,
         getValues,
         watch,
-    } = useForm<CreateTicket>({ defaultValues: ticket, resolver: yupResolver(EditTicketSchema) })
+    } = useForm<CreateTicket>({ defaultValues: ticket })
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: locations } = useQuery('deviceLocations', getAllDeviceLocations)
     const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
@@ -55,15 +56,22 @@ export const EditTicketForm = ({
     const models = brands?.find((b) => b.value === watch('deviceBrand'))?.models ?? []
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [tempText, setTempText] = useState('')
-    useEffect(() => {
-        // formRef.current?.reset()
-        reset(ticket)
-    }, [ticket])
 
-    const onSubmit = (data: CreateTicket) => {
-        onComplete(data).catch((error: AppError) => {
-            setError('root', { message: error?.detail })
-        })
+    const onFormSubmit = (data: CreateTicket) => {
+        const onComplete = isEdit ? editTicket : createNewTicket
+        onComplete(data)
+            .then(() => {
+                queryClient.invalidateQueries(['tickets']).then(() => closeModal())
+            })
+            .catch((error: AppError) => {
+                setError('root', { message: error?.detail })
+            })
+    }
+    const editTicket = (formValue: CreateTicket) => {
+        return updateTicket({ id: ticket?.id, ticket: formValue })
+    }
+    const createNewTicket = (formValue: CreateTicket) => {
+        return toast.promise(createTicket({ ticket: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)
     }
 
     return (
@@ -73,34 +81,9 @@ export const EditTicketForm = ({
                 closeModal={() => setShowCreateModal(false)}
                 onSuccess={(user) => setValue('clientId', user.userId)}
             />
-            <form id='editTicketForm' className='modalForm' onSubmit={handleSubmit(onSubmit)}>
+            <form className='modalForm' onSubmit={handleSubmit(onFormSubmit)}>
                 <div className='modalContainer'>
                     <div className='card'>
-                        <Controller
-                            name={'problemExplanation'}
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <FormField label='Problem explanation' error={fieldState.error}>
-                                    <div className={'flex-100'}>
-                                        <textarea
-                                            className='textAreaTicketProblem'
-                                            onChange={field.onChange}
-                                            value={'' + field.value + tempText}
-                                        />
-                                        <Dictaphone
-                                            setText={(text) => field.onChange(field.value + ' ' + text)}
-                                            setTempText={setTempText}
-                                        />
-                                    </div>
-                                </FormField>
-                            )}
-                        />
-                        <TextField
-                            register={register('customerRequest')}
-                            error={errors.customerRequest}
-                            label={'Additional request from customer'}
-                        />
-
                         <Space wrap className='w-100 justify-between'>
                             <Controller
                                 control={control}
@@ -187,6 +170,30 @@ export const EditTicketForm = ({
                                 />
                             </div>
                         </Space>
+                        <Controller
+                            name={'problemExplanation'}
+                            control={control}
+                            render={({ field, fieldState }) => (
+                                <FormField label='Problem explanation' error={fieldState.error}>
+                                    <div className={'flex-100'}>
+                                        <textarea
+                                            className='textAreaTicketProblem'
+                                            onChange={field.onChange}
+                                            value={'' + field.value + tempText}
+                                        />
+                                        <Dictaphone
+                                            setText={(text) => field.onChange(field.value + ' ' + text)}
+                                            setTempText={setTempText}
+                                        />
+                                    </div>
+                                </FormField>
+                            )}
+                        />
+                        <TextField
+                            register={register('customerRequest')}
+                            error={errors.customerRequest}
+                            label={'Additional request from customer'}
+                        />
                         <Divider />
                         <Space className={'justify-between align-start w-100'} wrap>
                             <div className={'col-wrap'}>
@@ -383,7 +390,7 @@ export const EditTicketForm = ({
                                     )}
                                 />
                             </div>
-                            <Collapse>
+                            <Collapse accordion destroyInactivePanel={false}>
                                 <CollapsePanel key={'1'} header={'More details'}>
                                     <div className='card'>
                                         <TextField
@@ -479,7 +486,7 @@ export const EditTicketForm = ({
                         type='text'
                         htmlType='reset'
                         onClick={() => {
-                            onCancel()
+                            closeModal()
                         }}
                     >
                         Cancel

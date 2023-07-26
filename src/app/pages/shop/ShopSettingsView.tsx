@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { getShopById, updateShop } from '../../axios/http/shopRequests'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Shop, ShopSettingsModel } from '../../models/interfaces/shop'
+import { Shop } from '../../models/interfaces/shop'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
 import { ShopSchema } from '../../models/validators/FormValidators'
@@ -49,17 +49,11 @@ export const ShopSettingsView = () => {
         watch,
     } = useForm<Shop>({
         resolver: yupResolver(ShopSchema),
-        defaultValues: {
-            ...shop,
-            shopSettingsView: { ...shop?.shopSettingsView, gmailPassword: '' } as ShopSettingsModel,
-        } as Shop,
+        defaultValues: shop,
     })
 
     const resetForm = (data: Shop | undefined) => {
-        reset({
-            ...data,
-            shopSettingsView: { ...data?.shopSettingsView, gmailPassword: '' } as ShopSettingsModel,
-        } as Shop)
+        reset(data)
     }
 
     const submitShop = (formValue: Shop) => {
@@ -295,17 +289,16 @@ export const ShopSettingsView = () => {
                                             that will be used to send email notifications.
                                         </p>
                                         <p>
-                                            <strong>Note:</strong> If you don't have a Gmail account, you can create one{' '}
-                                            <a href='https://accounts.google.com/signup'>here</a>.
+                                            You can also use an{' '}
+                                            <a href={'https://support.google.com/accounts/answer/185833'}>
+                                                application password
+                                            </a>{' '}
+                                            instead of the email password.
                                         </p>
                                         <p>
                                             For Gmail users, please make sure that you allow less secure apps access by
                                             following the instructions{' '}
                                             <a href='https://support.google.com/accounts/answer/6010255'>here</a>.
-                                        </p>
-                                        <p>
-                                            Once you have entered the email address and password, click "Save" to apply
-                                            the changes and start receiving email notifications.
                                         </p>
                                     </Typography>
                                     <TextField
@@ -353,7 +346,7 @@ export const ShopSettingsView = () => {
 
                         <FormError error={errors.root?.message} />
                         <div className='flex-100 justify-end'>
-                            <Button type='primary' onClick={handleSubmit(submitShop)}>
+                            <Button type='primary' htmlType={'submit'}>
                                 Save
                             </Button>
                             <Button htmlType='button' onClick={() => navigate('/shops/')}>

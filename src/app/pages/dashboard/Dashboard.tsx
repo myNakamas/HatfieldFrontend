@@ -11,23 +11,27 @@ import { defaultDashboardFilter } from '../../models/enums/defaultValues'
 import { ActiveTickets } from './ActiveTickets'
 import { ShoppingListCard } from './ShoppingListCard'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { InventoryCard } from './InventoryCard'
 
 export const Dashboard = () => {
     const { loggedUser, isWorker } = useContext(AuthContext)
     const [filter, setFilter] = useState<TicketFilter>(defaultDashboardFilter(loggedUser?.shopId))
+    const isUserFromShop = filter.shopId === loggedUser?.shopId
 
     if (!isWorker()) return <></>
     return (
-        <Space direction='vertical' className='w-100' wrap>
-            <Space wrap className='w-100 justify-between'>
-                <h2>Dashboard</h2>
-                <DashboardFilters {...{ filter, setFilter }} />
+        <div className='mainScreen'>
+            <Space direction='vertical' className='w-100 ' wrap>
+                <Space wrap className='w-100 justify-between'>
+                    <h2>Dashboard</h2>
+                    <DashboardFilters {...{ filter, setFilter }} />
+                </Space>
+                <div className={'dashboard-items'}>
+                    <ActiveTickets filter={filter} />
+                    {isUserFromShop ? <ShoppingListCard filter={filter} /> : <InventoryCard filter={filter} />}
+                </div>
             </Space>
-            <div className={'dashboard-items'}>
-                <ActiveTickets filter={filter} />
-                <ShoppingListCard filter={filter} />
-            </div>
-        </Space>
+        </div>
     )
 }
 

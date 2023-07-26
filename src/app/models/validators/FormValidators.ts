@@ -71,16 +71,13 @@ export const CategorySchema = Yup.object().shape({
     itemType: Yup.string().required(),
     phones: Yup.array().of(Yup.string().required()).notRequired(),
 })
-export const EditTicketSchema = Yup.object().shape({
-    deadline: Yup.date().required(),
-})
 export const ShopSchema = Yup.object().shape({
     shopName: Yup.string().required(),
     address: Yup.string().required('Required field'),
     phone: Yup.string().min(10, 'Not a valid phone number').required('Required field'),
     email: Yup.string().email('Must be a valid email!').required('Required field'),
-    vatNumber: Yup.string().required('Required field'),
-    regNumber: Yup.string().required('Required field'),
+    regNumber: Yup.string().notRequired(),
+    vatNumber: Yup.string().notRequired(),
     shopSettingsView: Yup.object().shape({
         primaryColor: Yup.string().required('Required field'),
         secondaryColor: Yup.string().required('Required field'),

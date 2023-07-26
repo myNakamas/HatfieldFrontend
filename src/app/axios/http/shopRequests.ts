@@ -21,7 +21,7 @@ export const useGetShopItems = ({
     filter,
 }: {
     page: PageRequest
-    filter: InventoryFilter
+    filter?: InventoryFilter
 }): Promise<Page<InventoryItem>> => {
     return backendClient.get('inventory/item/all', { params: { ...page, ...filter } })
 }

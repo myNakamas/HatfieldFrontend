@@ -30,16 +30,32 @@ export const Inventory = () => {
     const [editItem, setEditItem] = useState<InventoryItem>()
     const navigate = useNavigate()
     const { loggedUser } = useContext(AuthContext)
+    const [params] = useSearchParams()
     const [filter, setFilter] = useState<InventoryFilter>({ shopId: loggedUser?.shopId })
     const [createModalIsOpen, setCreateModalIsOpen] = useState(false)
     const [page, setPage] = useState<PageRequest>(defaultPage)
     const [selectedItem, setSelectedItem] = useState<InventoryItem | undefined>()
 
+    const isUserFromShop = filter.shopId === loggedUser?.shopId
+    useEffect(() => {
+        const shopId = params.get('shopId')
+        if (shopId) setFilter({ shopId: +shopId })
+    }, [])
+
     return (
         <div className='mainScreen'>
             <InventoryFilters {...{ filter, setFilter }} />
-            <AddInventoryItem isModalOpen={createModalIsOpen} closeModal={() => setCreateModalIsOpen(false)} />
-            <EditInventoryItem isModalOpen={!!editItem} item={editItem} closeModal={() => setEditItem(undefined)} />
+            {isUserFromShop && (
+                <>
+                    <AddInventoryItem isModalOpen={createModalIsOpen} closeModal={() => setCreateModalIsOpen(false)} />
+                    <EditInventoryItem
+                        isModalOpen={!!editItem}
+                        item={editItem}
+                        closeModal={() => setEditItem(undefined)}
+                    />
+                </>
+            )}
+
             <ViewInventoryItem
                 inventoryItem={selectedItem}
                 closeModal={() => setSelectedItem(undefined)}
@@ -49,6 +65,7 @@ export const Inventory = () => {
                 <Button
                     icon={<FontAwesomeIcon icon={faPlus} />}
                     type='primary'
+                    disabled={!isUserFromShop}
                     onClick={() => setCreateModalIsOpen(true)}
                 >
                     Add Item
@@ -56,6 +73,7 @@ export const Inventory = () => {
                 <Button
                     icon={<FontAwesomeIcon icon={faFileEdit} />}
                     type='primary'
+                    disabled={!isUserFromShop}
                     onClick={() => navigate('/categories')}
                 >
                     Edit categories
@@ -63,6 +81,7 @@ export const Inventory = () => {
                 <Button
                     icon={<FontAwesomeIcon icon={faShoppingCart} />}
                     type='primary'
+                    disabled={!isUserFromShop}
                     onClick={() => navigate(`/inventory/${loggedUser?.shopId}/shopping-list`)}
                 >
                     Shopping List
@@ -77,78 +96,6 @@ export const Inventory = () => {
                 </Suspense>
             </div>
         </div>
-    )
-}
-
-const InventoryInner = ({
-    setSelectedItem,
-    setEditItem,
-    setPage,
-    page,
-    filter,
-    openCreateModal,
-}: {
-    filter: InventoryFilter
-    setSelectedItem: React.Dispatch<React.SetStateAction<InventoryItem | undefined>>
-    setEditItem: React.Dispatch<React.SetStateAction<InventoryItem | undefined>>
-    openCreateModal: () => void
-    page: PageRequest
-    setPage: React.Dispatch<React.SetStateAction<PageRequest>>
-}) => {
-    const { data } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), {
-        suspense: true,
-        onSuccess: (newItems) => {
-            setSelectedItem((item) => newItems.content.find(({ id }) => item?.id === id) ?? item)
-        },
-    })
-    const { data: categories } = useQuery('allCategories', getAllCategories)
-    const [additionalHeaders, setAdditionalHeaders] = useState({})
-    const [params] = useSearchParams()
-
-    useEffect(() => {
-        if (params.get('itemId')) {
-            setSelectedItem(data?.content.find(({ id }) => String(id) === params.get('itemId')))
-        }
-        const category = categories?.find(({ id }) => filter.categoryId === id)
-        setAdditionalHeaders(
-            category?.columns.reduce((obj, field) => {
-                return {
-                    ...obj,
-                    [field]: field,
-                }
-            }, {}) ?? {}
-        )
-    }, [filter.categoryId])
-
-    return data && data.content.length > 0 ? (
-        <CustomTable<InventoryItem>
-            data={data.content.map((item) => ({
-                ...item,
-                name: item.name ?? '-',
-                sell: item.sellPrice?.toFixed(2) ?? '-',
-                type: item.categoryView?.itemType ?? '-',
-                ...item.columns,
-                actions: <Button onClick={() => setEditItem(item)} icon={<FontAwesomeIcon icon={faPen} />} />,
-            }))}
-            headers={{
-                name: 'Name',
-                sell: 'Price',
-                type: 'Item type',
-                count: 'Count',
-                ...additionalHeaders,
-                actions: 'Actions',
-            }}
-            onClick={({ id }) => setSelectedItem(data?.content.find((row) => row.id === id))}
-            pagination={page}
-            onPageChange={setPage}
-            totalCount={data.totalCount}
-        />
-    ) : (
-        <NoDataComponent items='items in inventory'>
-            <Button type='primary' onClick={openCreateModal}>
-                Create Now
-            </Button>
-        </NoDataComponent>
     )
 }
 
@@ -221,5 +168,81 @@ const InventoryFilters = ({
                 />
             </div>
         </div>
+    )
+}
+
+export const InventoryInner = ({
+    setSelectedItem,
+    setEditItem,
+    setPage,
+    page,
+    filter,
+    openCreateModal,
+}: {
+    filter?: InventoryFilter
+    setSelectedItem: React.Dispatch<React.SetStateAction<InventoryItem | undefined>>
+    setEditItem: React.Dispatch<React.SetStateAction<InventoryItem | undefined>>
+    openCreateModal: () => void
+    page: PageRequest
+    setPage: React.Dispatch<React.SetStateAction<PageRequest>>
+}) => {
+    const { data } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), {
+        suspense: true,
+        onSuccess: (newItems) => {
+            setSelectedItem((item) => newItems.content.find(({ id }) => item?.id === id) ?? item)
+        },
+    })
+    const { loggedUser } = useContext(AuthContext)
+    const { data: categories } = useQuery('allCategories', getAllCategories)
+    const [additionalHeaders, setAdditionalHeaders] = useState({})
+    const [params] = useSearchParams()
+
+    useEffect(() => {
+        if (params.get('itemId')) {
+            setSelectedItem(data?.content.find(({ id }) => String(id) === params.get('itemId')))
+        }
+        const category = categories?.find(({ id }) => filter?.categoryId === id)
+        setAdditionalHeaders(
+            category?.columns.reduce((obj, field) => {
+                return {
+                    ...obj,
+                    [field]: field,
+                }
+            }, {}) ?? {}
+        )
+    }, [filter?.categoryId])
+    const isUserFromShop = filter?.shopId === loggedUser?.shopId
+
+    return data && data.content.length > 0 ? (
+        <CustomTable<InventoryItem>
+            data={data.content.map((item) => ({
+                ...item,
+                name: item.name ?? '-',
+                sell: item.sellPrice?.toFixed(2) ?? '-',
+                type: item.categoryView?.itemType ?? '-',
+                ...item.columns,
+                actions: <Button onClick={() => setEditItem(item)} icon={<FontAwesomeIcon icon={faPen} />} />,
+            }))}
+            headers={{
+                name: 'Name',
+                sell: 'Price',
+                type: 'Item type',
+                count: 'Count',
+                ...additionalHeaders,
+                actions: 'Actions',
+            }}
+            onClick={({ id }) => setSelectedItem(data?.content.find((row) => row.id === id))}
+            pagination={page}
+            onPageChange={setPage}
+            totalCount={data.totalCount}
+        />
+    ) : (
+        <NoDataComponent items='items in inventory'>
+            {isUserFromShop && (
+                <Button type='primary' onClick={openCreateModal}>
+                    Create Now
+                </Button>
+            )}
+        </NoDataComponent>
     )
 }

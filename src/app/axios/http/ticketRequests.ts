@@ -45,7 +45,7 @@ export const createTicket = ({ ticket }: { ticket: CreateTicket }): Promise<numb
     const body = { ...ticket, deadline }
     return backendClient.post('ticket/worker/create', body)
 }
-export const updateTicket = ({ id, ticket }: { id: number; ticket: CreateTicket }): Promise<number> => {
+export const updateTicket = ({ id, ticket }: { id?: number; ticket: CreateTicket }): Promise<number> => {
     const deadline = ticket.deadline ? new Date(ticket.deadline).toISOString() : undefined
     const body = { ...ticket, deadline }
     return backendClient.put('ticket/worker/update/' + id, body)
