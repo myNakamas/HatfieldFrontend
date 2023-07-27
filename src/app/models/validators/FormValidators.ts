@@ -16,6 +16,16 @@ export const ResetPasswordSchema = Yup.object().shape({
     passwordConfirmation: Yup.string().oneOf([Yup.ref('password')], 'Passwords must match'),
     oldPassword: Yup.string().min(5, 'Too Short!').max(50, 'Too Long!').required('Required'),
 })
+export const SetPasswordSchema = Yup.object().shape({
+    password: Yup.string()
+        .min(5, 'Minimum of 5 characters required!')
+        .max(50, 'Too Long!')
+        .required('Password is required'),
+    passwordConfirmation: Yup.string().oneOf([Yup.ref('password')], 'Passwords must match'),
+})
+export const ForgotPasswordSchema = Yup.object().shape({
+    username: Yup.string().min(5, 'Minimum of 5 characters required!'),
+})
 export const SimpleUserSchema = Yup.object<User>().shape({
     userId: Yup.string().notRequired(),
     username: Yup.string().min(5, 'Minimum of 5 characters required!').max(50, 'Too Long!').required('Required'),

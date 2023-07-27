@@ -4,7 +4,7 @@ import { AppWrapper } from '../components/navigation/AppWrapper'
 export const PrivateRoute = () => {
     const token = localStorage.getItem('token')
 
-    return !token ? (
+    return !token && !location.pathname.includes('login') ? (
         <Navigate to='/login' state={{ from: location }} />
     ) : (
         <AppWrapper>

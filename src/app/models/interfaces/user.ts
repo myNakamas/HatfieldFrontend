@@ -5,6 +5,11 @@ export interface UsernamePassword {
     password: string
 }
 
+export interface SetPassword {
+    password: string
+    passwordConfirmation: string
+}
+
 export interface ResetPassword {
     password: string
     passwordConfirmation: string

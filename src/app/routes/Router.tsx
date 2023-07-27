@@ -20,11 +20,16 @@ import { Shops } from '../pages/shop/Shops'
 import { ShopSettingsView } from '../pages/shop/ShopSettingsView'
 import { PageNotFound } from '../pages/PageNotFound'
 import { Statistics } from '../pages/Statistics'
+import React from 'react'
+import { ChangeNewPassword } from '../pages/users/ChangeNewPassword'
+import { ForgotPassword } from '../pages/users/ForgotPassword'
 
 export const Router = () => {
     return (
         <Routes>
             <Route path='/login' element={<Login />} />
+            <Route path='/login/update-password' element={<ChangeNewPassword />} />
+            <Route path='/login/forgot-password' element={<ForgotPassword />} />
             <Route path='/' element={<PrivateRoute />}>
                 <Route path='/' element={<Navigate to={'/home'} />} />
                 <Route path='/home' element={HomePage()} />

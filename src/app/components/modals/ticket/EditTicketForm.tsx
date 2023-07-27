@@ -45,7 +45,6 @@ export const EditTicketForm = ({
         control,
         setError,
         setValue,
-        getValues,
         watch,
     } = useForm<CreateTicket>({ defaultValues: ticket })
     const { data: brands } = useQuery('brands', getAllBrands)
@@ -222,99 +221,46 @@ export const EditTicketForm = ({
                             </div>
                             <Card style={{ margin: 'auto' }}>
                                 <Space className={'col-wrap'} direction={'vertical'}>
-                                    <label htmlFor='withCharger'>
-                                        <Checkbox
-                                            id={'withCharger'}
-                                            defaultChecked={false}
-                                            onChange={(e) => {
-                                                e.target.checked
-                                                    ? setValue(
-                                                          'accessories',
-                                                          getValues('accessories').concat('With Charger, ')
-                                                      )
-                                                    : setValue(
-                                                          'accessories',
-                                                          getValues('accessories').replace('With Charger, ', '')
-                                                      )
-                                            }}
-                                        />{' '}
-                                        With Charger
-                                    </label>
-                                    <label htmlFor='withBag'>
-                                        <Checkbox
-                                            id={'withBag'}
-                                            defaultChecked={false}
-                                            onChange={(e) => {
-                                                e.target.checked
-                                                    ? setValue(
-                                                          'accessories',
-                                                          getValues('accessories').concat('With Bag, ')
-                                                      )
-                                                    : setValue(
-                                                          'accessories',
-                                                          getValues('accessories').replace('With Bag, ', '')
-                                                      )
-                                            }}
-                                        />{' '}
-                                        With Bag
-                                    </label>
-                                    <label htmlFor='withCase'>
-                                        <Checkbox
-                                            id={'withCase'}
-                                            defaultChecked={false}
-                                            onChange={(e) => {
-                                                e.target.checked
-                                                    ? setValue(
-                                                          'accessories',
-                                                          getValues('accessories').concat('With Case, ')
-                                                      )
-                                                    : setValue(
-                                                          'accessories',
-                                                          getValues('accessories').replace('With Case, ', '')
-                                                      )
-                                            }}
-                                        />{' '}
-                                        With Case
-                                    </label>
-                                    <label htmlFor='deadDevice'>
-                                        <Checkbox
-                                            id={'deadDevice'}
-                                            defaultChecked={false}
-                                            onChange={(e) => {
-                                                e.target.checked
-                                                    ? setValue(
-                                                          'deviceCondition',
-                                                          getValues('deviceCondition').concat('Dead device, ')
-                                                      )
-                                                    : setValue(
-                                                          'deviceCondition',
-                                                          getValues('deviceCondition').replace('Dead device, ', '')
-                                                      )
-                                            }}
-                                        />{' '}
-                                        Dead device
-                                    </label>
-                                    <label htmlFor='cracked'>
-                                        <Checkbox
-                                            id={'cracked'}
-                                            defaultChecked={false}
-                                            onChange={(e) => {
-                                                e.target.checked
-                                                    ? setValue(
-                                                          'deviceCondition',
-                                                          getValues('deviceCondition').concat('Cracked Screen/Back, ')
-                                                      )
-                                                    : setValue(
-                                                          'deviceCondition',
-                                                          getValues('deviceCondition').replace(
-                                                              'Cracked Screen/Back, ',
-                                                              ''
-                                                          )
-                                                      )
-                                            }}
-                                        />{' '}
-                                        Cracked Screen/Back
-                                    </label>
+                                    <TicketQuickCheckBox
+                                        fieldToCheck={watch('accessories')}
+                                        name={'With bag'}
+                                        value={'With Bag, '}
+                                        onChange={(string) => {
+                                            setValue('accessories', string)
+                                        }}
+                                    />
+                                    <TicketQuickCheckBox
+                                        fieldToCheck={watch('accessories')}
+                                        name={'With charger'}
+                                        value={'With Charger, '}
+                                        onChange={(string) => {
+                                            setValue('accessories', string)
+                                        }}
+                                    />
+                                    <TicketQuickCheckBox
+                                        fieldToCheck={watch('accessories')}
+                                        name={'With case'}
+                                        value={'With Case, '}
+                                        onChange={(string) => {
+                                            setValue('accessories', string)
+                                        }}
+                                    />
+                                    <TicketQuickCheckBox
+                                        fieldToCheck={watch('deviceCondition')}
+                                        name={'Dead device'}
+                                        value={'Dead device, '}
+                                        onChange={(string) => {
+                                            setValue('deviceCondition', string)
+                                        }}
+                                    />
+                                    <TicketQuickCheckBox
+                                        fieldToCheck={watch('deviceCondition')}
+                                        name={'Cracked Screen/Back'}
+                                        value={'Cracked Screen/Back, '}
+                                        onChange={(string) => {
+                                            setValue('deviceCondition', string)
+                                        }}
+                                    />
                                 </Space>
                             </Card>
                         </Space>
@@ -390,88 +336,112 @@ export const EditTicketForm = ({
                                     )}
                                 />
                             </div>
-                            <Collapse accordion destroyInactivePanel={false}>
-                                <CollapsePanel key={'1'} header={'More details'}>
-                                    <div className='card'>
-                                        <TextField
-                                            register={register('serialNumberOrImei')}
-                                            error={errors.serialNumberOrImei}
-                                            label={'Serial number or Imei'}
-                                        />
-                                        <TextField
-                                            register={register('deviceCondition')}
-                                            error={errors.deviceCondition}
-                                            label={'Device condition'}
-                                        />
-                                        <TextField
-                                            register={register('accessories')}
-                                            error={errors.accessories}
-                                            label={'Accessories'}
-                                        />
-                                        <FormField label='Notes' error={errors.notes}>
-                                            <textarea className='textAreaTicketProblem' {...register('notes')} />
-                                        </FormField>
-                                        <div className='flex-100 justify-between flex-wrap'>
-                                            <div>
-                                                <Controller
-                                                    control={control}
-                                                    name={'status'}
-                                                    render={({ field, fieldState }) => (
-                                                        <FormField label='Ticket status' error={fieldState.error}>
-                                                            <Select<ItemPropertyView, false>
-                                                                isClearable
-                                                                theme={SelectTheme}
-                                                                styles={SelectStyles<ItemPropertyView>()}
-                                                                options={TicketStatusesArray}
-                                                                placeholder='Fill in the ticket status'
-                                                                value={
-                                                                    TicketStatusesArray.find(
-                                                                        ({ value }) => field.value === value
-                                                                    ) ?? null
-                                                                }
-                                                                onChange={(newValue) => field.onChange(newValue?.value)}
-                                                                getOptionLabel={(item) => item.value}
-                                                                getOptionValue={(item) => item.id + item.value}
-                                                            />
-                                                        </FormField>
-                                                    )}
+                            <Collapse
+                                accordion
+                                defaultActiveKey={'1'}
+                                destroyInactivePanel={false}
+                                items={[
+                                    {
+                                        key: '1',
+                                        label: 'More details',
+                                        children: (
+                                            <div className='card'>
+                                                <TextField
+                                                    register={register('serialNumberOrImei')}
+                                                    error={errors.serialNumberOrImei}
+                                                    label={'Serial number or Imei'}
                                                 />
-                                            </div>
-                                            <div>
-                                                <Controller
-                                                    control={control}
-                                                    name={'deviceLocation'}
-                                                    render={({ field, fieldState }) => (
-                                                        <FormField label='Device Location' error={fieldState.error}>
-                                                            <CreatableSelect<ItemPropertyView, false>
-                                                                isClearable
-                                                                theme={SelectTheme}
-                                                                styles={SelectStyles<ItemPropertyView>()}
-                                                                options={locations}
-                                                                formatCreateLabel={(value) =>
-                                                                    'Add a new location: ' + value
-                                                                }
-                                                                placeholder='Where is the location of the device?'
-                                                                value={
-                                                                    locations?.find(
-                                                                        ({ value }) => field.value === value
-                                                                    ) ?? {
-                                                                        value: field.value,
-                                                                        id: -1,
-                                                                    }
-                                                                }
-                                                                onCreateOption={(item) => field.onChange(item)}
-                                                                onChange={(newValue) => field.onChange(newValue?.value)}
-                                                                getOptionLabel={(item) => item.value}
-                                                                getOptionValue={(item) => item.id + item.value}
-                                                            />
-                                                        </FormField>
-                                                    )}
+                                                <TextField
+                                                    register={register('deviceCondition')}
+                                                    error={errors.deviceCondition}
+                                                    label={'Device condition'}
                                                 />
+                                                <TextField
+                                                    register={register('accessories')}
+                                                    error={errors.accessories}
+                                                    label={'Accessories'}
+                                                />
+                                                <FormField label='Notes' error={errors.notes}>
+                                                    <textarea
+                                                        className='textAreaTicketProblem'
+                                                        {...register('notes')}
+                                                    />
+                                                </FormField>
+                                                <div className='flex-100 justify-between flex-wrap'>
+                                                    <div>
+                                                        <Controller
+                                                            control={control}
+                                                            name={'status'}
+                                                            render={({ field, fieldState }) => (
+                                                                <FormField
+                                                                    label='Ticket status'
+                                                                    error={fieldState.error}
+                                                                >
+                                                                    <Select<ItemPropertyView, false>
+                                                                        isClearable
+                                                                        theme={SelectTheme}
+                                                                        styles={SelectStyles<ItemPropertyView>()}
+                                                                        options={TicketStatusesArray}
+                                                                        placeholder='Fill in the ticket status'
+                                                                        value={
+                                                                            TicketStatusesArray.find(
+                                                                                ({ value }) => field.value === value
+                                                                            ) ?? null
+                                                                        }
+                                                                        onChange={(newValue) =>
+                                                                            field.onChange(newValue?.value)
+                                                                        }
+                                                                        getOptionLabel={(item) => item.value}
+                                                                        getOptionValue={(item) => item.id + item.value}
+                                                                    />
+                                                                </FormField>
+                                                            )}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <Controller
+                                                            control={control}
+                                                            name={'deviceLocation'}
+                                                            render={({ field, fieldState }) => (
+                                                                <FormField
+                                                                    label='Device Location'
+                                                                    error={fieldState.error}
+                                                                >
+                                                                    <CreatableSelect<ItemPropertyView, false>
+                                                                        isClearable
+                                                                        theme={SelectTheme}
+                                                                        styles={SelectStyles<ItemPropertyView>()}
+                                                                        options={locations}
+                                                                        formatCreateLabel={(value) =>
+                                                                            'Add a new location: ' + value
+                                                                        }
+                                                                        placeholder='Where is the location of the device?'
+                                                                        value={
+                                                                            locations?.find(
+                                                                                ({ value }) => field.value === value
+                                                                            ) ?? {
+                                                                                value: field.value,
+                                                                                id: -1,
+                                                                            }
+                                                                        }
+                                                                        onCreateOption={(item) => field.onChange(item)}
+                                                                        onChange={(newValue) =>
+                                                                            field.onChange(newValue?.value)
+                                                                        }
+                                                                        getOptionLabel={(item) => item.value}
+                                                                        getOptionValue={(item) => item.id + item.value}
+                                                                    />
+                                                                </FormField>
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </CollapsePanel>
+                                        ),
+                                    },
+                                ]}
+                            >
+                                <CollapsePanel key={'1'} header={'More details'}></CollapsePanel>
                             </Collapse>
                         </Space>
                     </div>
@@ -494,5 +464,31 @@ export const EditTicketForm = ({
                 </Space>
             </form>
         </>
+    )
+}
+
+const TicketQuickCheckBox = ({
+    name,
+    onChange,
+    fieldToCheck,
+    value,
+}: {
+    name: string
+    value: string
+    fieldToCheck?: string
+    onChange: (result: string) => void
+}) => {
+    const field = fieldToCheck ?? ''
+    return (
+        <label htmlFor={name}>
+            <Checkbox
+                id={name}
+                defaultChecked={fieldToCheck?.toLowerCase()?.includes(value.toLowerCase())}
+                onChange={(e) => {
+                    e.target.checked ? onChange(field.concat(value)) : onChange(field.replace(value, ''))
+                }}
+            />{' '}
+            {name}
+        </label>
     )
 }

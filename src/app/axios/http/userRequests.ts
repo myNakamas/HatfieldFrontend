@@ -2,7 +2,7 @@ import backendClient from '../backendClient'
 import { ResetPassword, User, UsernamePassword } from '../../models/interfaces/user'
 import axios, { AxiosResponse } from 'axios'
 import { toUserFilterView, UserFilter } from '../../models/interfaces/filters'
-import { Page, PageRequest } from '../../models/interfaces/generalModels'
+import { Page, PageRequest, ResponseMessage } from '../../models/interfaces/generalModels'
 
 const transformLoginResponse = ({ data: user, headers }: AxiosResponse) => {
     const token = 'Bearer ' + headers['authorization']
@@ -62,6 +62,16 @@ export const changeProfilePicture = ({ picture }: { picture: File }) => {
 }
 export const changePassword = ({ password, oldPassword }: ResetPassword): Promise<void> => {
     return backendClient.put('user/profile/edit/password', { newPassword: password, oldPassword })
+}
+export const setNewPassword = (password: string, token: string | null): Promise<void> => {
+    return backendClient.put(
+        'user/profile/reset/password',
+        { newPassword: password },
+        { headers: { Authorization: `Bearer ${token}` } }
+    )
+}
+export const sendForgotPassword = (params: { username: string }): Promise<ResponseMessage> => {
+    return backendClient.post('public/forgot-password', {}, { params })
 }
 export const createWorkerUser = (user: User): Promise<User> => {
     return backendClient.post('user/admin/create', user)

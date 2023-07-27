@@ -272,7 +272,7 @@ const UpdateItemCountForm = ({ item, onComplete }: { item: InventoryItem; onComp
 }
 
 const SendItemToShop = ({ item }: { item: InventoryItem }) => {
-    const { data: shops } = useQuery('shops', getWorkerShops)
+    const { data: shops } = useQuery(['shops', 'short'], getWorkerShops)
     const { loggedUser } = useContext(AuthContext)
     const {
         formState: { errors },

@@ -5,19 +5,19 @@ import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { banClient, getAllUsers, getAllWorkers } from '../../axios/http/userRequests'
 import { AddUser } from '../../components/modals/users/AddUser'
 import { User } from '../../models/interfaces/user'
-import { getAllShops } from '../../axios/http/shopRequests'
+import { getAllShops, getWorkerShops } from '../../axios/http/shopRequests'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan'
 import { SearchComponent } from '../../components/filters/SearchComponent'
 import { UserFilter } from '../../models/interfaces/filters'
 import { userTourSteps } from '../../models/enums/userEnums'
-import { Shop } from '../../models/interfaces/shop'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { Button, FloatButton, Popconfirm, Space, Tabs, TabsProps, Tour } from 'antd'
 import { faPen, faQuestion } from '@fortawesome/free-solid-svg-icons'
 import { ViewUser } from '../../components/modals/users/ViewUser'
 import { EditUser } from '../../components/modals/users/EditUser'
+import { ItemPropertyView } from '../../models/interfaces/generalModels'
 
 export const Users = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
@@ -145,21 +145,21 @@ const UserFilters = ({
     filter: UserFilter
     setFilter: (value: ((prevState: UserFilter) => UserFilter) | UserFilter) => void
 }) => {
-    const { data: shops } = useQuery(['shops'], getAllShops)
+    const { data: shops } = useQuery(['shops', 'short'], getWorkerShops)
 
     return (
         <div className='filterRow'>
             <SearchComponent {...{ filter, setFilter }} />
             <div className='filterField'>
-                <Select<Shop, false>
+                <Select<ItemPropertyView, false>
                     theme={SelectTheme}
                     styles={SelectStyles()}
-                    value={filter.shop}
+                    value={shops?.find(({ id }) => filter?.shopId === id) ?? null}
                     options={shops ?? []}
                     placeholder='Filter by shop'
                     isClearable
-                    onChange={(value) => setFilter({ ...filter, shop: value ?? undefined })}
-                    getOptionLabel={(shop) => shop.shopName}
+                    onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                    getOptionLabel={(shop) => shop.value}
                     getOptionValue={(shop) => String(shop.id)}
                 />
             </div>

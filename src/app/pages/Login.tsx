@@ -2,14 +2,14 @@ import { UsernamePassword } from '../models/interfaces/user'
 import { LoginSchema } from '../models/validators/FormValidators'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useLogin } from '../axios/http/userRequests'
-import { useContext, useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { AuthContext } from '../contexts/AuthContext'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
-import { TextField } from '../components/form/TextField'
 import { FormError } from '../components/form/FormError'
+import { Avatar, Button, Input, Space, Typography } from 'antd'
 
 export const Login = () => {
     const [params] = useSearchParams()
@@ -19,7 +19,7 @@ export const Login = () => {
     const previousPageLocation: Location | undefined = state?.from
     const previousParams: URLSearchParams | undefined = new URLSearchParams(previousPageLocation?.search)
     const {
-        register,
+        control,
         handleSubmit,
         formState: { errors },
         setError,
@@ -47,28 +47,47 @@ export const Login = () => {
     return (
         <div className='formCenterWrapper'>
             <form className='loginForm' onSubmit={handleSubmit(onSubmit)}>
-                <div className='icon-l'>
-                    <FontAwesomeIcon className='profileImage' icon={faUser} />
-                </div>
-                <h2>Sign in</h2>
+                <Avatar size={'large'} shape={'circle'}>
+                    <FontAwesomeIcon size={'2xl'} className='profileImage' icon={faUser} />
+                </Avatar>
 
-                <TextField
-                    register={register('username')}
-                    error={errors.username}
-                    placeholder='Username*'
-                    autoComplete='username'
+                <Typography>
+                    <h2>Sign in</h2>
+                </Typography>
+                <Controller
+                    render={({ field, fieldState }) => (
+                        <>
+                            <Input value={field.value} onChange={field.onChange} placeholder={'Username*'} />
+                            <FormError error={fieldState.error?.message} />
+                        </>
+                    )}
+                    name={'username'}
+                    control={control}
                 />
-                <TextField
-                    register={register('password')}
-                    error={errors.password}
-                    placeholder='Password*'
-                    type='password'
-                    autoComplete='current-password'
+                <Controller
+                    render={({ field, fieldState }) => (
+                        <>
+                            <Input.Password
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder={'Password*'}
+                                autoComplete='current-password'
+                            />
+                            <FormError error={fieldState.error?.message} />
+                        </>
+                    )}
+                    name={'password'}
+                    control={control}
                 />
                 <FormError error={errors?.root?.message} />
-                <button className='button' type='submit'>
-                    SIGN IN
-                </button>
+                <Space wrap>
+                    <Button htmlType='submit' type={'primary'}>
+                        Sign in
+                    </Button>
+                    <Button type={'link'} onClick={() => navigate('forgot-password')}>
+                        Forgot password
+                    </Button>
+                </Space>
             </form>
         </div>
     )

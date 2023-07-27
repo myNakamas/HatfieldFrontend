@@ -26,3 +26,7 @@ export interface AppError {
 export interface ItemPropertyView extends Entity {
     value: string
 }
+
+export interface ResponseMessage {
+    detail: string
+}

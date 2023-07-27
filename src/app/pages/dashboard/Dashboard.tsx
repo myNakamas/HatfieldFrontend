@@ -43,7 +43,7 @@ export const DashboardFilters = ({
     setFilter: (value: ((prevState: TicketFilter) => TicketFilter) | TicketFilter) => void
 }) => {
     const { isClient } = useContext(AuthContext)
-    const { data: shops } = useQuery('shops', getWorkerShops, { enabled: !isClient() })
+    const { data: shops } = useQuery(['shops', 'short'], getWorkerShops, { enabled: !isClient() })
 
     return (
         <Space wrap>

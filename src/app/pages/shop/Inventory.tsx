@@ -110,7 +110,7 @@ const InventoryFilters = ({
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: categories } = useQuery('allCategories', getAllCategories)
-    const { data: shops } = useQuery('shops', getWorkerShops, { enabled: !isClient() })
+    const { data: shops } = useQuery(['shops', 'short'], getWorkerShops, { enabled: !isClient() })
 
     return (
         <div className='filterRow'>

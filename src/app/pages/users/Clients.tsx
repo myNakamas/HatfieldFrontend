@@ -4,7 +4,7 @@ import { CustomTable } from '../../components/table/CustomTable'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { banClient, getAllClientsPage } from '../../axios/http/userRequests'
 import { User } from '../../models/interfaces/user'
-import { getAllShops } from '../../axios/http/shopRequests'
+import { getAllShops, getWorkerShops } from '../../axios/http/shopRequests'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan'
 import { SearchComponent } from '../../components/filters/SearchComponent'
@@ -13,12 +13,13 @@ import { clientsTourSteps } from '../../models/enums/userEnums'
 import { Button, FloatButton, Popconfirm, Space, Switch, Tour } from 'antd'
 import { faPen, faPlus, faQuestion } from '@fortawesome/free-solid-svg-icons'
 import { ViewUser } from '../../components/modals/users/ViewUser'
-import { FormField } from '../../components/form/Field'
 import { AuthContext } from '../../contexts/AuthContext'
 import { AddClient } from '../../components/modals/users/AddClient'
 import { EditClient } from '../../components/modals/users/EditClient'
-import { PageRequest } from '../../models/interfaces/generalModels'
+import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalModels'
 import { defaultPage } from '../../models/enums/defaultValues'
+import Select from 'react-select'
+import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 
 const clientsTableHeaders = {
     username: 'username',
@@ -125,12 +126,32 @@ const ClientsFilters = ({
     filter: UserFilter
     setFilter: (value: ((prevState: UserFilter) => UserFilter) | UserFilter) => void
 }) => {
+    const { isAdmin } = useContext(AuthContext)
+    const { data: shops } = useQuery(['shops', 'short'], getWorkerShops, { enabled: isAdmin() })
     return (
         <div className='filterRow'>
             <SearchComponent {...{ filter, setFilter }} />
-            <FormField label='Banned clients filter'>
+            {isAdmin() && (
+                <Select<ItemPropertyView, false>
+                    theme={SelectTheme}
+                    styles={SelectStyles()}
+                    value={shops?.find(({ id }) => filter?.shopId === id) ?? null}
+                    options={shops}
+                    placeholder='Filter by shop'
+                    isClearable
+                    onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                    getOptionLabel={(shop) => {
+                        console.log(shop)
+                        return shop.value
+                    }}
+                    getOptionValue={(shop) => String(shop.id)}
+                />
+            )}
+
+            <Space>
+                Banned clients filter
                 <Switch checked={filter.banned} onChange={(value) => setFilter({ ...filter, banned: value })} />
-            </FormField>
+            </Space>
         </div>
     )
 }

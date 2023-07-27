@@ -389,6 +389,9 @@ const ViewTicketAllInfo = ({ ticket, show, closeModal }: { ticket: Ticket; show:
                     {ticket.devicePassword && (
                         <DescriptionsItem label={'Password'}>{ticket.devicePassword}</DescriptionsItem>
                     )}
+                    {ticket.accessories && (
+                        <DescriptionsItem label={'Accessories'}>{ticket.accessories}</DescriptionsItem>
+                    )}
                 </Descriptions>
 
                 <Card title={'Activity'}>
