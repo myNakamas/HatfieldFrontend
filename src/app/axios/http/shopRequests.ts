@@ -77,6 +77,9 @@ export const getAllModels = (): Promise<ItemPropertyView[]> => {
 export const getAllBrands = (): Promise<Brand[]> => {
     return backendClient.get('inventory/brand/all')
 }
+export const patchRenameModel = (body: { id: number; value: string }) => {
+    return backendClient.patch('inventory/model/edit', body)
+}
 export const getAllDeviceLocations = (): Promise<ItemPropertyView[]> => {
     return backendClient.get('inventory/location/all')
 }

@@ -84,7 +84,7 @@ export const AddInventoryItemInner = ({
             .promise(addNewItem({ item }), toastCreatePromiseTemplate('item'), toastProps)
             .then(() => {
                 closeModal()
-                reset({})
+                formRef.current?.reset()
                 queryClient.invalidateQueries(['shopItems']).then()
                 queryClient.invalidateQueries(['brands']).then()
             })
