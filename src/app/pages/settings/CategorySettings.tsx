@@ -160,7 +160,7 @@ const ModelRow = ({ model }: { model: ItemPropertyView }) => {
 }
 
 const BrandAndModelEdit = () => {
-    const { data: brands } = useQuery('brands', getAllBrands, { onSuccess: console.log })
+    const { data: brands } = useQuery('brands', getAllBrands)
 
     return (
         <>

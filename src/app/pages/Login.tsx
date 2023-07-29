@@ -105,7 +105,6 @@ const getUsernamePassword = (params?: URLSearchParams): UsernamePassword | undef
 const clearParams = (params?: URLSearchParams): string => {
     params?.delete('username')
     params?.delete('password')
-    console.log(params?.toString())
     return params?.toString() ?? ''
 }
 

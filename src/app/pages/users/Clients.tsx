@@ -1,25 +1,25 @@
-import React, { useContext, useRef, useState } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
-import { CustomTable } from '../../components/table/CustomTable'
-import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { banClient, getAllClientsPage } from '../../axios/http/userRequests'
-import { User } from '../../models/interfaces/user'
-import { getAllShops, getWorkerShops } from '../../axios/http/shopRequests'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBan } from '@fortawesome/free-solid-svg-icons/faBan'
-import { SearchComponent } from '../../components/filters/SearchComponent'
-import { UserFilter } from '../../models/interfaces/filters'
-import { clientsTourSteps } from '../../models/enums/userEnums'
-import { Button, FloatButton, Popconfirm, Space, Switch, Tour } from 'antd'
-import { faPen, faPlus, faQuestion } from '@fortawesome/free-solid-svg-icons'
-import { ViewUser } from '../../components/modals/users/ViewUser'
-import { AuthContext } from '../../contexts/AuthContext'
-import { AddClient } from '../../components/modals/users/AddClient'
-import { EditClient } from '../../components/modals/users/EditClient'
-import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalModels'
-import { defaultPage } from '../../models/enums/defaultValues'
+import React, {useContext, useRef, useState} from 'react'
+import {useQuery, useQueryClient} from 'react-query'
+import {CustomTable} from '../../components/table/CustomTable'
+import {NoDataComponent} from '../../components/table/NoDataComponent'
+import {banClient, getAllClientsPage} from '../../axios/http/userRequests'
+import {User} from '../../models/interfaces/user'
+import {getAllShops, getWorkerShops} from '../../axios/http/shopRequests'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faBan} from '@fortawesome/free-solid-svg-icons/faBan'
+import {SearchComponent} from '../../components/filters/SearchComponent'
+import {UserFilter} from '../../models/interfaces/filters'
+import {clientsTourSteps} from '../../models/enums/userEnums'
+import {Button, FloatButton, Input, Popconfirm, Space, Switch, Tour} from 'antd'
+import {faPen, faPlus, faQuestion} from '@fortawesome/free-solid-svg-icons'
+import {ViewUser} from '../../components/modals/users/ViewUser'
+import {AuthContext} from '../../contexts/AuthContext'
+import {AddClient} from '../../components/modals/users/AddClient'
+import {EditClient} from '../../components/modals/users/EditClient'
+import {ItemPropertyView, PageRequest} from '../../models/interfaces/generalModels'
+import {defaultPage} from '../../models/enums/defaultValues'
 import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
+import {SelectStyles, SelectTheme} from '../../styles/components/stylesTS'
 
 const clientsTableHeaders = {
     username: 'username',
@@ -140,14 +140,15 @@ const ClientsFilters = ({
                     placeholder='Filter by shop'
                     isClearable
                     onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
-                    getOptionLabel={(shop) => {
-                        console.log(shop)
-                        return shop.value
-                    }}
+                    getOptionLabel={(shop) => shop.value}
                     getOptionValue={(shop) => String(shop.id)}
                 />
             )}
-
+            <Input
+                value={filter.phone}
+                onChange={(e) => setFilter({ ...filter, phone: e.currentTarget.value })}
+                placeholder={'Filter by exact phone'}
+            />
             <Space>
                 Banned clients filter
                 <Switch checked={filter.banned} onChange={(value) => setFilter({ ...filter, banned: value })} />
