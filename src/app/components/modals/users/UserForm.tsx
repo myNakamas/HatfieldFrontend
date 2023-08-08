@@ -12,9 +12,10 @@ import { TextField } from '../../form/TextField'
 import { Button, Space, Switch, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
-import { Controller, FieldError } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
 import { FormField } from '../../form/Field'
+import { PhoneSelect } from '../../form/PhoneSelect'
 
 export const UserForm = ({
     register,
@@ -39,29 +40,32 @@ export const UserForm = ({
                     onClick={() => setValue('phones', [...getValues('phones'), ''])}
                     icon={<FontAwesomeIcon size='lg' icon={faPlus} />}
                 />
-                {watch('phones')?.map((phone, index) => {
-                    const error = errors.phones && (errors.phones[index] as FieldError)
-                    return (
-                        <TextField
-                            key={index}
-                            register={register(`phones.${index}`)}
-                            placeholder={'Add phone'}
-                            inputMode={'tel'}
-                            error={error}
-                            button={
-                                <Button
-                                    onClick={() =>
-                                        setValue(
-                                            'phones',
-                                            getValues('phones').filter((value, i) => i !== index)
-                                        )
+                {watch('phones')?.map((phone, index) => (
+                    <Space key={index}>
+                        <Controller
+                            control={control}
+                            render={({ field, fieldState: { error } }) => (
+                                <PhoneSelect
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    error={error?.message}
+                                    extra={
+                                        <Button
+                                            onClick={() =>
+                                                setValue(
+                                                    'phones',
+                                                    getValues('phones').filter((value, i) => i !== index)
+                                                )
+                                            }
+                                            icon={<FontAwesomeIcon color='red' icon={faTrash} />}
+                                        />
                                     }
-                                    icon={<FontAwesomeIcon color='red' icon={faTrash} />}
                                 />
-                            }
+                            )}
+                            name={`phones.${index}`}
                         />
-                    )
-                })}
+                    </Space>
+                ))}
                 <TextField
                     defaultValue={''}
                     register={register('email')}

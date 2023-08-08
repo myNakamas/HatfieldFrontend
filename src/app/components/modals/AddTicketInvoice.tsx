@@ -90,12 +90,12 @@ export const AddTicketInvoice = ({
     }
     return (
         <AppModal isModalOpen={isModalOpen} closeModal={closeModal} title={'Create invoice'} isForbidden={!isWorker()}>
+            <AddClient
+                isModalOpen={showCreateModal}
+                closeModal={() => setShowCreateModal(false)}
+                onSuccess={(user) => setValue('clientId', user.userId)}
+            />
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice)}>
-                <AddClient
-                    isModalOpen={showCreateModal}
-                    closeModal={() => setShowCreateModal(false)}
-                    onSuccess={(user) => setValue('clientId', user.userId)}
-                />
                 <Typography>
                     <FormField label={'Ticket Id'} error={errors.ticketId}>
                         <input readOnly className='input' disabled defaultValue={ticket?.id} />
