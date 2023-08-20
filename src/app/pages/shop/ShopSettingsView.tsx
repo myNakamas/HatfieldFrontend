@@ -332,6 +332,9 @@ export const ShopSettingsView = () => {
                                         />
                                     }
                                 >
+                                    <Typography>
+                                        <p>Please provide the SMS API key for the SMS setup:</p>
+                                    </Typography>
                                     <TextField
                                         disabled={!watch('shopSettingsView.smsNotificationsEnabled')}
                                         label='SMS API key'
@@ -364,6 +367,10 @@ const AboutPagePopover = () => (
         overlayClassName={'width-m'}
         content={
             <div>
+                <p>
+                    Please provide the content of the shop's About page using the{' '}
+                    <a href={'https://www.markdownguide.org/basic-syntax/'}>Markdown format</a>.
+                </p>
                 <p>You can include the actual shop information to the page using these variables:</p>
                 <Descriptions title={'Variables'}>
                     <Descriptions.Item label={"The shop's name"} children='${shop.name}' />
