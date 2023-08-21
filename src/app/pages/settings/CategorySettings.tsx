@@ -19,7 +19,6 @@ import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { useNavigate } from 'react-router-dom'
-import CollapsePanel from 'antd/es/collapse/CollapsePanel'
 import { FormField } from '../../components/form/Field'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
 
@@ -47,15 +46,13 @@ export const CategorySettings = () => {
 
     return (
         <div className='mainScreen'>
-            <Breadcrumb>
-                <Breadcrumb.Item>
-                    <a onClick={() => navigate('/home')}>Home</a>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>
-                    <a onClick={() => navigate('/inventory')}>Inventory</a>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>Categories</Breadcrumb.Item>
-            </Breadcrumb>
+            <Breadcrumb
+                items={[
+                    { title: <a onClick={() => navigate('/home')}>Home</a> },
+                    { title: <a onClick={() => navigate('/inventory')}>Inventory</a> },
+                    { title: 'Categories' },
+                ]}
+            />
             <Space className='button-bar'>
                 <Button onClick={() => setShowModal(true)}>Add new category</Button>
             </Space>
@@ -73,13 +70,12 @@ export const CategorySettings = () => {
             />
             <Space direction={'vertical'} className={'w-100'}>
                 <Divider children={'Categories'} />
-
                 <CustomSuspense isReady={!isLoading}>
                     {allCategories && allCategories.length > 0 ? (
                         <CustomTable<Category>
                             data={allCategories.map((category) => ({
                                 ...category,
-                                columns: category.columns.join(', '),
+                                columnsNames: category.columns.join(', '),
                                 actions: (
                                     <Space>
                                         <Button
@@ -105,7 +101,7 @@ export const CategorySettings = () => {
                             headers={{
                                 name: 'name',
                                 itemType: 'type',
-                                columns: 'columns',
+                                columnsNames: 'columns',
                                 actions: 'actions',
                             }}
                             onClick={(category) => {
@@ -164,9 +160,11 @@ const BrandAndModelEdit = () => {
 
     return (
         <>
-            <Collapse>
-                {brands?.map((brand: Brand, index: number) => (
-                    <CollapsePanel key={'brand' + index} header={brand.value}>
+            <Collapse
+                items={brands?.map((brand: Brand, index: number) => ({
+                    label: brand.value,
+                    key: 'brand' + index,
+                    children: (
                         <CustomTable
                             headers={{ id: 'Id', value: 'Model', actions: 'Actions' }}
                             data={brand.models.map((model) => {
@@ -176,9 +174,9 @@ const BrandAndModelEdit = () => {
                                 }
                             })}
                         />
-                    </CollapsePanel>
-                ))}
-            </Collapse>
+                    ),
+                }))}
+            />
         </>
     )
 }

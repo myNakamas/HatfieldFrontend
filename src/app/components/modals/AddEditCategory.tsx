@@ -44,6 +44,7 @@ export const AddEditCategory = ({
         defaultValues: defaultValue,
     })
     const properties = watch('columns') ?? []
+    console.log(properties)
     useEffect(() => {
         formRef.current?.reset()
         reset(defaultValue)
@@ -101,7 +102,7 @@ export const AddEditCategory = ({
                         onClick={() => setValue('columns', [...getValues('columns'), ''])}
                         icon={<FontAwesomeIcon size='lg' icon={faPlus} />}
                     />
-                    {properties && properties.length ? (
+                    {properties && properties.length > 0 ? (
                         properties?.map((value, index) => displayProperties(value, index))
                     ) : (
                         <></>

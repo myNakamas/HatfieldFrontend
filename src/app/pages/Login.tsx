@@ -57,7 +57,11 @@ export const Login = () => {
                 <Controller
                     render={({ field, fieldState }) => (
                         <>
-                            <Input value={field.value} onChange={field.onChange} placeholder={'Username*'} />
+                            <Input
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder={'Username, phone or email*'}
+                            />
                             <FormError error={fieldState.error?.message} />
                         </>
                     )}
