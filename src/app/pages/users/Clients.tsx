@@ -1,16 +1,15 @@
 import React, { useContext, useRef, useState } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
+import { useQuery } from 'react-query'
 import { CustomTable } from '../../components/table/CustomTable'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { banClient, getAllClientsPage } from '../../axios/http/userRequests'
+import { getAllClientsPage } from '../../axios/http/userRequests'
 import { User } from '../../models/interfaces/user'
 import { getAllShops, getWorkerShops } from '../../axios/http/shopRequests'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBan } from '@fortawesome/free-solid-svg-icons/faBan'
 import { SearchComponent } from '../../components/filters/SearchComponent'
 import { UserFilter } from '../../models/interfaces/filters'
 import { clientsTourSteps } from '../../models/enums/userEnums'
-import { Button, FloatButton, Input, Popconfirm, Space, Switch, Tour } from 'antd'
+import { Button, FloatButton, Input, Space, Switch, Tour } from 'antd'
 import { faPen, faPlus, faQuestion } from '@fortawesome/free-solid-svg-icons'
 import { ViewUser } from '../../components/modals/users/ViewUser'
 import { AuthContext } from '../../contexts/AuthContext'
@@ -20,6 +19,7 @@ import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalMo
 import { defaultPage } from '../../models/enums/defaultValues'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
+import { UserBanButton } from '../../components/UserBanButton'
 
 const clientsTableHeaders = {
     username: 'username',
@@ -41,36 +41,9 @@ export const Clients = () => {
     const [filter, setFilter] = useState<UserFilter>({
         banned: false,
     })
-    const queryClient = useQueryClient()
 
     const { data: clients } = useQuery(['users', 'clients', page, filter], () => getAllClientsPage({ filter, page }))
-    const UserBanButton = ({ user }: { user: User }) => {
-        return user.isBanned ? (
-            <Popconfirm
-                title='Unban user'
-                description='Are you sure you wish to reactivate this account?'
-                onConfirm={() => {
-                    banClient(user.userId, false).then(() => {
-                        queryClient.invalidateQueries(['users', 'clients']).then()
-                    })
-                }}
-            >
-                <Button icon={<FontAwesomeIcon icon={faBan} />} />
-            </Popconfirm>
-        ) : (
-            <Popconfirm
-                title='Ban user'
-                description='Are you sure to ban this user?'
-                onConfirm={() => {
-                    banClient(user.userId, true).then(() => {
-                        queryClient.invalidateQueries(['users', 'clients']).then()
-                    })
-                }}
-            >
-                <Button icon={<FontAwesomeIcon icon={faBan} />} />
-            </Popconfirm>
-        )
-    }
+
     return (
         <div className='mainScreen' ref={refsArray[0]}>
             <AddClient isModalOpen={showCreateModal} closeModal={() => setShowCreateModal(false)} />
@@ -134,7 +107,6 @@ export const Clients = () => {
         </div>
     )
 }
-
 const ClientsFilters = ({
     filter,
     setFilter,

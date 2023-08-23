@@ -34,28 +34,41 @@ export const PhoneSelect = ({
     extra?: ReactNode
 }) => {
     const defaultCode = data.find(({ dial_code }) => value.startsWith(dial_code)) ?? UKCodeDefault
-    const [selectedPhoneCode, setSelectedPhoneCode] = useState<PhoneCode>(defaultCode)
+    const [selectedPhoneCode, setSelectedPhoneCode] = useState<string>(defaultCode.dial_code)
     const [phoneNumber, setPhoneNumber] = useState(value.replace(defaultCode.dial_code, '') ?? '')
 
+    const handlePhoneCodeChange = (newCode: string) => {
+        setSelectedPhoneCode(newCode)
+        const newValue = newCode + phoneNumber
+        onChange(newValue)
+    }
+
+    const handlePhoneNumberChange = (newPhoneNumber: string) => {
+        setPhoneNumber(newPhoneNumber)
+        const newValue = selectedPhoneCode + newPhoneNumber
+        onChange(newValue)
+    }
     useEffect(() => {
-        onChange(selectedPhoneCode.dial_code + phoneNumber)
-    }, [selectedPhoneCode, phoneNumber])
+        const defaultCode = data.find(({ dial_code }) => value.startsWith(dial_code)) ?? UKCodeDefault
+        setSelectedPhoneCode(defaultCode.dial_code)
+        setPhoneNumber(value.replace(defaultCode.dial_code, '') ?? '')
+    }, [value])
     return (
         <>
             <Space.Compact>
-                <Select<PhoneCode, PhoneCode>
+                <Select<string, PhoneCode>
                     options={data}
                     showSearch
                     style={{ width: 150 }}
                     filterOption={filterOptions}
                     fieldNames={{ value: 'dial_code', label: 'label' }}
                     value={selectedPhoneCode}
-                    onChange={setSelectedPhoneCode}
+                    onChange={handlePhoneCodeChange}
                 />
                 <Input
                     placeholder={'Add phone'}
                     value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.currentTarget.value)}
+                    onChange={(e) => handlePhoneNumberChange(e.currentTarget.value)}
                 />
                 {extra}
             </Space.Compact>

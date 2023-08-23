@@ -1,23 +1,23 @@
 import React, { useRef, useState } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
+import { useQuery } from 'react-query'
 import { CustomTable } from '../../components/table/CustomTable'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { banClient, getAllUsers, getAllWorkers } from '../../axios/http/userRequests'
+import { getAllUsers, getAllWorkers } from '../../axios/http/userRequests'
 import { AddUser } from '../../components/modals/users/AddUser'
 import { User } from '../../models/interfaces/user'
 import { getAllShops, getWorkerShops } from '../../axios/http/shopRequests'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBan } from '@fortawesome/free-solid-svg-icons/faBan'
 import { SearchComponent } from '../../components/filters/SearchComponent'
 import { UserFilter } from '../../models/interfaces/filters'
 import { userTourSteps } from '../../models/enums/userEnums'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
-import { Button, FloatButton, Popconfirm, Space, Tabs, TabsProps, Tour } from 'antd'
+import { Button, FloatButton, Space, Tabs, TabsProps, Tour } from 'antd'
 import { faPen, faQuestion } from '@fortawesome/free-solid-svg-icons'
 import { ViewUser } from '../../components/modals/users/ViewUser'
 import { EditUser } from '../../components/modals/users/EditUser'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { UserBanButton } from '../../components/UserBanButton'
 
 export const Users = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
@@ -39,7 +39,7 @@ export const Users = () => {
         {
             key: '1',
             label: 'Workers',
-            children: <UsersTab {...{ users: workers, setSelectedUser, setViewUser, tourRef: refsArray[3] }} showBan />,
+            children: <UsersTab {...{ users: workers, setSelectedUser, setViewUser, tourRef: refsArray[3] }} />,
         },
         {
             key: '2',
@@ -83,16 +83,13 @@ const UsersTab = ({
     setSelectedUser,
     setViewUser,
     tourRef,
-    showBan,
 }: {
     users?: User[]
     setSelectedUser: (value: ((prevState: User | undefined) => User | undefined) | User | undefined) => void
     setViewUser: (value: ((prevState: User | undefined) => User | undefined) | User | undefined) => void
     tourRef: React.MutableRefObject<null>
-    showBan?: boolean
 }) => {
     const { data: shops } = useQuery(['shops'], getAllShops)
-    const queryClient = useQueryClient()
     return users && users.length > 0 ? (
         <CustomTable<User>
             headers={{
@@ -114,19 +111,7 @@ const UsersTab = ({
                                 onClick={() => setSelectedUser(user)}
                                 icon={<FontAwesomeIcon icon={faPen} />}
                             />
-                            {showBan && (
-                                <Popconfirm
-                                    title='Ban user'
-                                    description='Do you want to ban this user?'
-                                    onConfirm={() => {
-                                        banClient(user.userId, true).then(() => {
-                                            queryClient.invalidateQueries(['users']).then()
-                                        })
-                                    }}
-                                >
-                                    <Button icon={<FontAwesomeIcon icon={faBan} />} />
-                                </Popconfirm>
-                            )}
+                            <UserBanButton user={user} />
                         </Space>
                     ),
                 }

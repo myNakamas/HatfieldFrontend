@@ -32,6 +32,7 @@ export const UserForm = ({
     getValues: UseFormGetValues<User>
     setValue: UseFormSetValue<User>
 }) => {
+    watch('phones')
     return (
         <>
             <Space direction='vertical'>

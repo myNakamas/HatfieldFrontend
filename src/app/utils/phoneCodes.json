@@ -6,12 +6,6 @@
     "label": "AF +93"
   },
   {
-    "name": "Aland Islands",
-    "dial_code": "+358",
-    "code": "AX",
-    "label": "AX +358"
-  },
-  {
     "name": "Albania",
     "dial_code": "+355",
     "code": "AL",
@@ -522,12 +516,6 @@
     "label": "GT +502"
   },
   {
-    "name": "Guernsey",
-    "dial_code": "+44",
-    "code": "GG",
-    "label": "GG +44"
-  },
-  {
     "name": "Guinea",
     "dial_code": "+224",
     "code": "GN",
@@ -612,12 +600,6 @@
     "label": "IE +353"
   },
   {
-    "name": "Isle of Man",
-    "dial_code": "+44",
-    "code": "IM",
-    "label": "IM +44"
-  },
-  {
     "name": "Israel",
     "dial_code": "+972",
     "code": "IL",
@@ -640,12 +622,6 @@
     "dial_code": "+81",
     "code": "JP",
     "label": "JP +81"
-  },
-  {
-    "name": "Jersey",
-    "dial_code": "+44",
-    "code": "JE",
-    "label": "JE +44"
   },
   {
     "name": "Jordan",
