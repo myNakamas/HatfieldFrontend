@@ -17,7 +17,7 @@ import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import { activeTicketStatuses, TicketStatus, TicketStatusesArray } from '../../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
-import { Button, Card, Collapse, Descriptions, Pagination, Space, Timeline, Tooltip } from 'antd'
+import { Button, Card, Space } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
 import { CustomTable } from '../../table/CustomTable'
@@ -33,7 +33,7 @@ import {
     postPrintTicketLabel,
 } from '../../../axios/http/documentRequests'
 import { AuthContext } from '../../../contexts/AuthContext'
-import { getAllDeviceLocations, getAllLogs } from '../../../axios/http/shopRequests'
+import { getAllDeviceLocations } from '../../../axios/http/shopRequests'
 import {
     faCheck,
     faEye,
@@ -44,16 +44,11 @@ import {
     faPlus,
     faSnowflake,
 } from '@fortawesome/free-solid-svg-icons'
-import { Deadline } from './Deadline'
-import DescriptionsItem from 'antd/lib/descriptions/Item'
-import { defaultPage } from '../../../models/enums/defaultValues'
-import { LogsFilter } from '../../../models/interfaces/filters'
-import CollapsePanel from 'antd/es/collapse/CollapsePanel'
-import { UserDescription } from '../users/ViewUser'
 import { FormField } from '../../form/Field'
 import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
+import { DetailedTicketInfoView, TicketModalDescription } from './DetailedTicketInfoView'
 
-export const ViewTicket = ({
+export const TicketView = ({
     ticket,
     closeModal,
     view,
@@ -86,7 +81,7 @@ export const ViewTicket = ({
                 <>
                     {isWorker() && (
                         <>
-                            <ViewTicketAllInfo
+                            <DetailedTicketInfoView
                                 ticket={ticket}
                                 closeModal={() => setTicketLogOpen(false)}
                                 show={ticketLogOpen}
@@ -123,7 +118,7 @@ export const ViewTicket = ({
                         />
                     )}
                     {mode === 'view' && (
-                        <TicketView
+                        <TicketViewInner
                             {...{ ticket, setIsUseModalOpen, setTicketLogOpen, setShowInvoiceModal, closeModal }}
                         />
                     )}
@@ -133,7 +128,7 @@ export const ViewTicket = ({
     )
 }
 
-const TicketView = ({
+const TicketViewInner = ({
     ticket,
     closeModal,
     setIsUseModalOpen,
@@ -185,7 +180,10 @@ const TicketView = ({
                     toastUpdatePromiseTemplate('device location'),
                     toastProps
                 )
-                .then(() => queryClient.invalidateQueries(['tickets']))
+                .then(() => {
+                    queryClient.invalidateQueries(['tickets'])
+                    queryClient.invalidateQueries('deviceLocations')
+                })
         }
     }
     const printTicketLabel = () => {
@@ -358,80 +356,5 @@ const TicketView = ({
                 </>
             )}
         </div>
-    )
-}
-
-const ViewTicketAllInfo = ({ ticket, show, closeModal }: { ticket: Ticket; show: boolean; closeModal: () => void }) => {
-    const [page, setPage] = useState(defaultPage)
-    const filter: LogsFilter = { ticketId: ticket.id }
-    const { data: logs } = useQuery(['logs', filter, page], () => getAllLogs({ filter, page }))
-
-    return (
-        <AppModal title={'More details'} isModalOpen={show} closeModal={closeModal}>
-            <Space direction={'vertical'} className={'w-100'}>
-                <Collapse>
-                    {ticket.client && (
-                        <CollapsePanel key='1' header={`Client Details:`} showArrow>
-                            <UserDescription user={ticket.client} />
-                        </CollapsePanel>
-                    )}
-                </Collapse>
-                <Descriptions>
-                    <DescriptionsItem label={'Created by'}>{ticket.createdBy.fullName}</DescriptionsItem>
-                    <DescriptionsItem label={'At'}>{dateFormat(ticket.timestamp)}</DescriptionsItem>
-                </Descriptions>
-                <Descriptions title={'Device information'} bordered layout={'vertical'}>
-                    {ticket.deviceModel && <DescriptionsItem label={'Model'}>{ticket.deviceModel}</DescriptionsItem>}
-                    {ticket.deviceBrand && <DescriptionsItem label={'Brand'}>{ticket.deviceBrand}</DescriptionsItem>}
-                    {ticket.deviceCondition && (
-                        <DescriptionsItem label={'Condition'}>{ticket.deviceCondition}</DescriptionsItem>
-                    )}
-                    {ticket.devicePassword && (
-                        <DescriptionsItem label={'Password'}>{ticket.devicePassword}</DescriptionsItem>
-                    )}
-                    {ticket.accessories && (
-                        <DescriptionsItem label={'Accessories'}>{ticket.accessories}</DescriptionsItem>
-                    )}
-                </Descriptions>
-
-                <Card title={'Activity'}>
-                    <Timeline
-                        mode={'alternate'}
-                        items={logs?.content.map((log) => ({
-                            label: <Tooltip title={dateFormat(log.timestamp)}>{log.action}</Tooltip>,
-                            position: log.timestamp?.valueOf().toString(),
-                        }))}
-                    />
-                    <Pagination total={logs?.totalCount} onChange={(page, pageSize) => setPage({ page, pageSize })} />
-                </Card>
-            </Space>
-        </AppModal>
-    )
-}
-
-export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
-    return (
-        <Space direction={'vertical'}>
-            <Space className={'justify-between w-100'}>
-                <Space align={'start'}>
-                    <Card title={'Deadline'} size={'small'}>
-                        <Deadline deadline={ticket.deadline} />
-                    </Card>
-                    <Card
-                        size={'small'}
-                        title={'Device brand & model'}
-                        children={`${ticket.deviceBrand ?? ''}  ${ticket.deviceModel ?? ''}`}
-                    />
-                </Space>
-                {ticket.devicePassword && <Card size={'small'} title={'Password'} children={ticket.devicePassword} />}
-            </Space>
-            <Descriptions bordered layout={'vertical'} className={'w-100'}>
-                <DescriptionsItem span={2} label={'Problem'} children={ticket.problemExplanation} />
-                {ticket.customerRequest?.length > 0 && (
-                    <DescriptionsItem span={1} label={'Customer Request'} children={ticket.customerRequest} />
-                )}
-                {ticket.notes?.length > 0 && <DescriptionsItem span={1} label={'Notes'} children={ticket.notes} />}
-            </Descriptions>
-        </Space>
     )
 }

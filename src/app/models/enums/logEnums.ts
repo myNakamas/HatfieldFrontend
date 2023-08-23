@@ -1,6 +1,5 @@
 export type LogType =
     | 'CREATED_TICKET'
-    | 'MOVED_TICKET'
     | 'UPDATED_TICKET'
     | 'STARTED_TICKET'
     | 'FINISHED_TICKET'
@@ -10,11 +9,14 @@ export type LogType =
     | 'DELETED_CATEGORY'
     | 'ADD_NEW_ITEM_TO_INVENTORY'
     | 'ADD_ITEM_TO_SHOPPING_LIST'
+    | 'REMOVE_ITEM_FROM_SHOPPING_LIST'
     | 'USED_PART'
+    | 'SOLD_ITEM'
     | 'UPDATE_ITEM_COUNT'
     | 'UPDATE_ITEM'
-    | 'SCRAPPED_PART'
-    | 'REMOVE_ITEM_FROM_SHOPPING_LIST'
+    | 'DAMAGED_PART'
+    | 'DEFECTIVE_PART'
+    | 'RETURNED_DEFECTIVE_PART'
     | 'CREATED_SELL_INVOICE'
     | 'CREATED_REPAIR_INVOICE'
     | 'CREATED_BUY_INVOICE'
@@ -27,12 +29,9 @@ export type LogType =
     | 'UNBANNED_USER'
     | 'DELETED_USER'
     | 'RESTORED_USER'
-    | 'CREATED_SHOP'
-    | 'UPDATED_SHOP'
 
 export const LogType = Array(
     'CREATED_TICKET',
-    'MOVED_TICKET',
     'UPDATED_TICKET',
     'STARTED_TICKET',
     'FINISHED_TICKET',
@@ -42,11 +41,14 @@ export const LogType = Array(
     'DELETED_CATEGORY',
     'ADD_NEW_ITEM_TO_INVENTORY',
     'ADD_ITEM_TO_SHOPPING_LIST',
+    'REMOVE_ITEM_FROM_SHOPPING_LIST',
     'USED_PART',
+    'SOLD_ITEM',
     'UPDATE_ITEM_COUNT',
     'UPDATE_ITEM',
-    'SCRAPPED_PART',
-    'REMOVE_ITEM_FROM_SHOPPING_LIST',
+    'DAMAGED_PART',
+    'DEFECTIVE_PART',
+    'RETURNED_DEFECTIVE_PART',
     'CREATED_SELL_INVOICE',
     'CREATED_REPAIR_INVOICE',
     'CREATED_BUY_INVOICE',
@@ -58,9 +60,7 @@ export const LogType = Array(
     'BANNED_USER',
     'UNBANNED_USER',
     'DELETED_USER',
-    'RESTORED_USER',
-    'CREATED_SHOP',
-    'UPDATED_SHOP'
+    'RESTORED_USER'
 )
 
 export const LogTypeList = LogType.map((value, index) => ({ value, id: index }))

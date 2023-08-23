@@ -3,7 +3,7 @@ import { Ticket } from '../../../models/interfaces/ticket'
 import dateFormat from 'dateformat'
 import { dateTimeMask } from '../../../models/enums/appEnums'
 import { Button, Card, Descriptions, Space } from 'antd'
-import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
+import { TicketView } from '../../../components/modals/ticket/TicketView'
 
 export const TicketChatInfo = ({ ticket, openDrawer }: { ticket: Ticket | undefined; openDrawer: () => void }) => {
     const [showModal, setShowModal] = useState(false)
@@ -23,7 +23,7 @@ export const TicketChatInfo = ({ ticket, openDrawer }: { ticket: Ticket | undefi
                     </Space>
                 }
             >
-                <ViewTicket ticket={showModal ? ticket : undefined} closeModal={() => setShowModal(false)} />
+                <TicketView ticket={showModal ? ticket : undefined} closeModal={() => setShowModal(false)} />
                 <Descriptions size='small' layout='vertical'>
                     {!smallScreen && (
                         <>

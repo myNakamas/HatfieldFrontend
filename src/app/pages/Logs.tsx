@@ -1,21 +1,19 @@
 import { Log, Shop } from '../models/interfaces/shop'
-import { CustomTable } from '../components/table/CustomTable'
 import { defaultPage } from '../models/enums/defaultValues'
 import React, { Suspense, useContext, useState } from 'react'
 import { Filter, LogsFilter } from '../models/interfaces/filters'
 import { useQuery } from 'react-query'
 import { getAllLogs, getAllShops } from '../axios/http/shopRequests'
-import { Input, Space } from 'antd'
+import { Input, List, Space } from 'antd'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../styles/components/stylesTS'
 import { DateTimeFilter } from '../components/filters/DateTimeFilter'
 import { ItemPropertyView, PageRequest } from '../models/interfaces/generalModels'
-import dateFormat from 'dateformat'
-import { NoDataComponent } from '../components/table/NoDataComponent'
 import { InfinitySpin } from 'react-loader-spinner'
 import { LogDetails } from '../components/modals/LogDetails'
 import { LogType, LogTypeList } from '../models/enums/logEnums'
 import { AuthContext } from '../contexts/AuthContext'
+import { LogListRow } from '../components/modals/ticket/DetailedTicketInfoView'
 
 export const Logs = () => {
     const [page, setPage] = useState(defaultPage)
@@ -41,30 +39,23 @@ const LogsInner = ({
     page: PageRequest
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
 }) => {
-    const { data } = useQuery(['logs', filter, page], () => getAllLogs({ filter, page }), { suspense: true })
+    const { data: logs } = useQuery(['logs', filter, page], () => getAllLogs({ filter, page }), { suspense: true })
     const [selectedLog, setSelectedLog] = useState<Log | undefined>()
 
     return (
-        <>
+        <div className={'p-2'}>
             <LogDetails log={selectedLog} closeModal={() => setSelectedLog(undefined)} isModalOpen={!!selectedLog} />
-            {data?.content && data.content.length > 0 ? (
-                <CustomTable<Log>
-                    data={data.content.map(({ user, timestamp, ...rest }) => ({
-                        ...rest,
-                        timestamp: dateFormat(timestamp),
-                        username: user?.fullName,
-                        user,
-                    }))}
-                    headers={{ action: 'Message', type: 'Log type', username: 'User', timestamp: 'Created at' }}
-                    pagination={page}
-                    onPageChange={setPage}
-                    onClick={setSelectedLog}
-                    totalCount={data.totalCount}
-                />
-            ) : (
-                <NoDataComponent items={'logs'} />
-            )}
-        </>
+            <List<Log>
+                dataSource={logs?.content}
+                pagination={{
+                    total: logs?.totalCount,
+                    onChange: (page, pageSize) => setPage({ page, pageSize }),
+                    position: 'bottom',
+                    showSizeChanger: true,
+                }}
+                renderItem={(log) => <LogListRow log={log} />}
+            />
+        </div>
     )
 }
 const LogsFilters = ({

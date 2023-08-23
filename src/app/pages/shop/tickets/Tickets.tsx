@@ -8,7 +8,7 @@ import { ItemPropertyView, Page, PageRequest } from '../../../models/interfaces/
 import { fetchAllTickets, fetchClientTickets, fetchTicketById } from '../../../axios/http/ticketRequests'
 import { AddTicket } from '../../../components/modals/ticket/AddTicket'
 import dateFormat from 'dateformat'
-import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
+import { TicketView } from '../../../components/modals/ticket/TicketView'
 import { TicketFilter } from '../../../models/interfaces/filters'
 import { getAllBrands, getAllModels, getAllShops } from '../../../axios/http/shopRequests'
 import { SearchComponent } from '../../../components/filters/SearchComponent'
@@ -96,7 +96,7 @@ export const Tickets = () => {
                 closeModal={() => setCollectTicket(undefined)}
                 isModalOpen={!!collectTicket}
             />
-            <ViewTicket
+            <TicketView
                 ticket={selectedTicket}
                 closeModal={() => {
                     setSelectedTicket(undefined)

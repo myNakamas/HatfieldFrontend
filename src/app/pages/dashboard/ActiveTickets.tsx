@@ -8,7 +8,7 @@ import { useQuery } from 'react-query'
 import { fetchAllActiveTickets } from '../../axios/http/ticketRequests'
 import { useNavigate } from 'react-router-dom'
 import { TicketFilter } from '../../models/interfaces/filters'
-import { ViewTicket } from '../../components/modals/ticket/ViewTicket'
+import { TicketView } from '../../components/modals/ticket/TicketView'
 import { AddTicket } from '../../components/modals/ticket/AddTicket'
 import { Ticket } from '../../models/interfaces/ticket'
 import { AuthContext } from '../../contexts/AuthContext'
@@ -48,7 +48,7 @@ export const ActiveTickets = ({ filter }: { filter: TicketFilter }) => {
         >
             {isUserFromShop && (
                 <>
-                    <ViewTicket ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
+                    <TicketView ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
                     <AddTicket isModalOpen={showNewTicketModal} closeModal={() => setShowNewTicketModal(false)} />
                 </>
             )}

@@ -6,7 +6,7 @@ import React, { Suspense, useContext, useEffect, useRef, useState } from 'react'
 import { Button, Card, FloatButton, Popconfirm, Skeleton, Space, Spin, Switch, Tour } from 'antd'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ViewTicket } from '../../components/modals/ticket/ViewTicket'
+import { TicketView } from '../../components/modals/ticket/TicketView'
 import { Ticket } from '../../models/interfaces/ticket'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCancel, faMessage, faPrint, faQuestion, faSnowflake } from '@fortawesome/free-solid-svg-icons'
@@ -41,7 +41,7 @@ export const ClientDashboard = () => {
 
     return (
         <div className={'mainScreen'}>
-            <ViewTicket ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
+            <TicketView ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
             <div className={'dashboard-items'}>
                 <ClientTicketTable refs={refsArray} filter={filter} setSelectedTicket={setSelectedTicket} />
                 <Card ref={refsArray[3]} style={{ minWidth: 350 }} title={`Invoices: `}>
