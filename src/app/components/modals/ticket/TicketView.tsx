@@ -158,9 +158,10 @@ const TicketViewInner = ({
     }
 
     const completeTicket = (id: number) => {
-        toast
-            .promise(putCompleteTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps)
-            .then(() => queryClient.invalidateQueries(['tickets']).then(closeModal))
+        toast.promise(putCompleteTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps).then((error) => {
+            error && toast.warning(error.detail, toastProps)
+            return queryClient.invalidateQueries(['tickets']).then(closeModal)
+        })
     }
     const updateTicketStatus = (id: number, ticketStatus: TicketStatus) => {
         return toast

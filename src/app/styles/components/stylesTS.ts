@@ -46,7 +46,7 @@ export const SelectStyles = <T>(): StylesConfig<T> => {
         container: (styles) => ({
             ...styles,
             minWidth: 200,
-            maxWidth: 400,
+            maxWidth: 300,
             textAlign: 'left',
         }),
         menuPortal: (styles) => ({

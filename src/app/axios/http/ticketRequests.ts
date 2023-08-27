@@ -1,4 +1,4 @@
-import { Page, PageRequest } from '../../models/interfaces/generalModels'
+import { AppError, Page, PageRequest } from '../../models/interfaces/generalModels'
 import backendClient from '../backendClient'
 import { ChatMessage, CreateTicket, CreateUsedItem, Ticket } from '../../models/interfaces/ticket'
 import { TicketFilter } from '../../models/interfaces/filters'
@@ -51,7 +51,7 @@ export const updateTicket = ({ id, ticket }: { id?: number; ticket: CreateTicket
     return backendClient.put('ticket/worker/update/' + id, body)
 }
 
-export const putCompleteTicket = (params: { id: number }): Promise<number> => {
+export const putCompleteTicket = (params: { id: number }): Promise<AppError> => {
     return backendClient.put('ticket/worker/complete', {}, { params })
 }
 

@@ -53,7 +53,7 @@ const LogsInner = ({
                     position: 'bottom',
                     showSizeChanger: true,
                 }}
-                renderItem={(log) => <LogListRow log={log} key={'logKey' + log.id} />}
+                renderItem={(log) => <LogListRow onClick={setSelectedLog} log={log} key={'logKey' + log.id} />}
             />
         </div>
     )

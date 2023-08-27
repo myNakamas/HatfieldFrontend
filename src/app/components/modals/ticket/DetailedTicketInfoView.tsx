@@ -103,7 +103,7 @@ export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
     )
 }
 
-export const LogListRow = ({ log }: { log: Log }) => {
+export const LogListRow = ({ log, onClick }: { log: Log; onClick?: (log: Log) => void }) => {
     const logMessages = log.action.split(';')
     const header = logMessages.shift()
     const { data: profileImg, isLoading } = useQuery(
@@ -131,7 +131,7 @@ export const LogListRow = ({ log }: { log: Log }) => {
                 </ul>
             }
         >
-            <List.Item extra={dateFormat(log.timestamp)}>
+            <List.Item onDoubleClick={() => onClick && onClick(log)} extra={dateFormat(log.timestamp)}>
                 <List.Item.Meta
                     style={{ textAlign: 'left' }}
                     avatar={<ProfileImage profileImg={profileImg} isLoading={isLoading} />}
