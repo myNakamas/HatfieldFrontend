@@ -1,4 +1,4 @@
-import React, { Suspense, useContext, useEffect, useState } from 'react'
+import React, { Suspense, useContext, useEffect, useRef, useState } from 'react'
 import { useQuery } from 'react-query'
 import {
     getAllBrands,
@@ -19,14 +19,17 @@ import { SearchComponent } from '../../components/filters/SearchComponent'
 import Select from 'react-select'
 import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { AuthContext } from '../../contexts/AuthContext'
-import { Button, Skeleton, Space } from 'antd'
+import { Button, FloatButton, Skeleton, Space, Tour } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
-import { faFileEdit, faPen, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faFileEdit, faPen, faPlus, faQuestion } from '@fortawesome/free-solid-svg-icons'
 import { EditInventoryItem } from '../../components/modals/inventory/EditInventoryItem'
 import { defaultPage } from '../../models/enums/defaultValues'
+import { inventoryTourSteps } from '../../models/enums/userEnums'
 
 export const Inventory = () => {
+    const [tourIsOpen, setTourIsOpen] = useState(false)
+    const refsArray = Array.from({ length: 3 }, () => useRef(null))
     const [editItem, setEditItem] = useState<InventoryItem>()
     const navigate = useNavigate()
     const { loggedUser } = useContext(AuthContext)
@@ -44,7 +47,9 @@ export const Inventory = () => {
 
     return (
         <div className='mainScreen'>
-            <InventoryFilters {...{ filter, setFilter }} />
+            <div ref={refsArray[0]}>
+                <InventoryFilters {...{ filter, setFilter }} />
+            </div>
             {isUserFromShop && (
                 <>
                     <AddInventoryItem isModalOpen={createModalIsOpen} closeModal={() => setCreateModalIsOpen(false)} />
@@ -55,7 +60,12 @@ export const Inventory = () => {
                     />
                 </>
             )}
-
+            <Tour
+                type={'primary'}
+                open={tourIsOpen}
+                onClose={() => setTourIsOpen(false)}
+                steps={inventoryTourSteps(refsArray)}
+            />
             <ViewInventoryItem
                 inventoryItem={selectedItem}
                 closeModal={() => setSelectedItem(undefined)}
@@ -63,6 +73,7 @@ export const Inventory = () => {
             />
             <Space className='button-bar'>
                 <Button
+                    ref={refsArray[2]}
                     icon={<FontAwesomeIcon icon={faPlus} />}
                     type='primary'
                     disabled={!isUserFromShop}
@@ -87,7 +98,7 @@ export const Inventory = () => {
                     Shopping List
                 </Button>
             </Space>
-            <div>
+            <div ref={refsArray[1]}>
                 <Suspense fallback={<Skeleton active loading />}>
                     <InventoryInner
                         {...{ setSelectedItem, setEditItem, page, setPage, filter }}
@@ -95,6 +106,11 @@ export const Inventory = () => {
                     />
                 </Suspense>
             </div>
+            <FloatButton
+                tooltip={'Help'}
+                onClick={() => setTourIsOpen(true)}
+                icon={<FontAwesomeIcon icon={faQuestion} />}
+            />
         </div>
     )
 }

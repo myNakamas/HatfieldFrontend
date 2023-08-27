@@ -37,7 +37,7 @@ export const EditShoppingList = () => {
     const navigate = useNavigate()
     const { loggedUser } = useContext(AuthContext)
     const [page, setPage] = useState(defaultPage)
-    const [filter, setFilter] = useState<InventoryFilter>({ shopId: loggedUser?.shopId })
+    const [filter] = useState<InventoryFilter>({ shopId: loggedUser?.shopId })
     const [selectedItem, setSelectedItem] = useState<InventoryItem | undefined>()
     const [editRequiredItem, setEditRequiredItem] = useState<InventoryItem | undefined>()
     const { data: allItems } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), {
@@ -77,15 +77,13 @@ export const EditShoppingList = () => {
         <div className='mainScreen'>
             <ViewInventoryItem inventoryItem={selectedItem} closeModal={() => setSelectedItem(undefined)} />
             <EditRequiredItem inventoryItem={editRequiredItem} closeModal={() => setEditRequiredItem(undefined)} />
-            <Breadcrumb>
-                <Breadcrumb.Item>
-                    <a onClick={() => navigate('/home')}>Home</a>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>
-                    <a onClick={() => navigate('/inventory')}>Inventory</a>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>Shopping list</Breadcrumb.Item>
-            </Breadcrumb>
+            <Breadcrumb
+                items={[
+                    { title: <a onClick={() => navigate('/home')}>Home</a> },
+                    { title: <a onClick={() => navigate('/inventory')}>Inventory</a> },
+                    { title: 'Shopping list' },
+                ]}
+            />
             <Space className={'button-bar'}>
                 <Button
                     icon={<FontAwesomeIcon icon={faListCheck} />}

@@ -53,7 +53,7 @@ const LogsInner = ({
                     position: 'bottom',
                     showSizeChanger: true,
                 }}
-                renderItem={(log) => <LogListRow log={log} />}
+                renderItem={(log) => <LogListRow log={log} key={'logKey' + log.id} />}
             />
         </div>
     )

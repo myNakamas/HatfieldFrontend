@@ -21,6 +21,7 @@ import {
     ColorPicker,
     Descriptions,
     Divider,
+    Input,
     Popover,
     Space,
     Switch,
@@ -29,10 +30,11 @@ import {
 import TextArea from 'antd/es/input/TextArea'
 import ReactMarkdown from 'react-markdown'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faQuestion } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faClock, faQuestion, faX } from '@fortawesome/free-solid-svg-icons'
 import { AnchorLinkItemProps } from 'antd/es/anchor/Anchor'
 import ButtonGroup from 'antd/es/button/button-group'
 import CollapsePanel from 'antd/es/collapse/CollapsePanel'
+import { sendSmsApiBalanceCheck, SmsBalanceResponse } from '../../axios/http/smsRequests'
 
 export const ShopSettingsView = () => {
     const { id } = useParams()
@@ -75,15 +77,13 @@ export const ShopSettingsView = () => {
 
     return (
         <div className='mainScreen'>
-            <Breadcrumb>
-                <Breadcrumb.Item>
-                    <a onClick={() => navigate('/home')}>Home</a>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>
-                    <a onClick={() => navigate('/shops')}>Shops</a>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>{shop?.shopName}</Breadcrumb.Item>
-            </Breadcrumb>
+            <Breadcrumb
+                items={[
+                    { title: <a onClick={() => navigate('/home')}>Home</a> },
+                    { title: <a onClick={() => navigate('/shops')}>Shops</a> },
+                    { title: shop?.shopName },
+                ]}
+            />
             <CustomSuspense isReady={!isLoading}>
                 <Space className={'flex-100 align-start justify-around'}>
                     {window.innerWidth >= 768 && <Anchor items={pageAnchors} />}
@@ -343,6 +343,7 @@ export const ShopSettingsView = () => {
                                             type='password'
                                             error={errors.shopSettingsView?.smsApiKey}
                                         />
+                                        <TestSmsToken token={watch('shopSettingsView.smsApiKey')} />
                                     </Space>
                                 </Card>
                             </div>
@@ -361,6 +362,40 @@ export const ShopSettingsView = () => {
                 </Space>
             </CustomSuspense>
         </div>
+    )
+}
+
+const TestSmsToken = ({ token }: { token: string }) => {
+    const [response, setResponse] = useState<SmsBalanceResponse | undefined>()
+    const [error, setError] = useState<boolean>()
+    return (
+        <Space.Compact>
+            <Button
+                onClick={() =>
+                    sendSmsApiBalanceCheck(token)
+                        .then((res) => {
+                            setResponse(res)
+                            setError(false)
+                        })
+                        .catch(() => {
+                            setResponse(undefined)
+                            setError(true)
+                        })
+                }
+            >
+                Test Connection
+            </Button>
+            <Input
+                status={error ? 'error' : ''}
+                readOnly
+                value={response?.data ? `OK! Balance left: ${response?.data.balance} ` : error ? 'Error' : ''}
+            />
+            <Button
+                type={'ghost'}
+                disabled
+                icon={<FontAwesomeIcon icon={response?.data ? faCheck : error ? faX : faClock} />}
+            />
+        </Space.Compact>
     )
 }
 

@@ -6,7 +6,6 @@ import { useQuery } from 'react-query'
 import { getAllLogs } from '../../../axios/http/shopRequests'
 import { AppModal } from '../AppModal'
 import { Card, Collapse, Descriptions, List, Popover, Space } from 'antd'
-import CollapsePanel from 'antd/es/collapse/CollapsePanel'
 import { UserDescription } from '../users/ViewUser'
 import DescriptionsItem from 'antd/lib/descriptions/Item'
 import dateFormat from 'dateformat'
@@ -32,13 +31,17 @@ export const DetailedTicketInfoView = ({
     return (
         <AppModal title={'More details'} isModalOpen={show} closeModal={closeModal}>
             <Space direction={'vertical'} className={'w-100'}>
-                <Collapse>
-                    {ticket.client && (
-                        <CollapsePanel key='1' header={`Client Details:`} showArrow>
-                            <UserDescription user={ticket.client} />
-                        </CollapsePanel>
-                    )}
-                </Collapse>
+                <Collapse
+                    items={[
+                        ticket.client && {
+                            key: '1',
+                            label: 'Client Details:',
+                            showArrow: true,
+                            children: <UserDescription user={ticket.client} />,
+                        },
+                    ]}
+                />
+
                 <Descriptions>
                     <DescriptionsItem label={'Created by'}>{ticket.createdBy.fullName}</DescriptionsItem>
                     <DescriptionsItem label={'At'}>{dateFormat(ticket.timestamp)}</DescriptionsItem>
@@ -65,7 +68,7 @@ export const DetailedTicketInfoView = ({
                             onChange: (page, pageSize) => setPage({ page, pageSize }),
                             position: 'bottom',
                         }}
-                        renderItem={(log) => <LogListRow log={log} />}
+                        renderItem={(log, index) => <LogListRow key={`logKey${log.id}.${index}`} log={log} />}
                     />
                 </div>
             </Space>
@@ -104,7 +107,7 @@ export const LogListRow = ({ log }: { log: Log }) => {
     const logMessages = log.action.split(';')
     const header = logMessages.shift()
     const { data: profileImg, isLoading } = useQuery(
-        ['profileImg', log?.user.userId],
+        ['profileImg', log?.user?.userId],
         () => getProfilePicture({ id: log?.user.userId }),
         { retry: false }
     )
@@ -117,10 +120,13 @@ export const LogListRow = ({ log }: { log: Log }) => {
                 </Space>
             }
             content={
-                <ul>
-                    {logMessages.map((value) => {
-                        if (value.length == 0) return <></>
-                        return <li>{value}</li>
+                <ul key={`logListItemContent${log.id}`}>
+                    {logMessages.map((value, index) => {
+                        return value.length == 0 ? (
+                            <div key={`logMessage.${log.id}.${index}`}></div>
+                        ) : (
+                            <li key={`logMessage.${log.id}.${index}`}>{value}</li>
+                        )
                     })}
                 </ul>
             }

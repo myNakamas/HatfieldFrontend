@@ -44,7 +44,6 @@ export const AddEditCategory = ({
         defaultValues: defaultValue,
     })
     const properties = watch('columns') ?? []
-    console.log(properties)
     useEffect(() => {
         formRef.current?.reset()
         reset(defaultValue)
