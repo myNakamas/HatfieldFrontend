@@ -2,11 +2,8 @@ import React, { useContext, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { FormField } from '../../form/Field'
 import { Dictaphone } from '../../form/Dictaphone'
-import Select from 'react-select'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
-import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import { TicketStatusesArray } from '../../../models/enums/ticketEnums'
-import CreatableSelect from 'react-select/creatable'
 import DateTime from 'react-datetime'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
@@ -26,6 +23,7 @@ import CollapsePanel from 'antd/es/collapse/CollapsePanel'
 import { createTicket, updateTicket } from '../../../axios/http/ticketRequests'
 import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
+import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 
 export const EditTicketForm = ({
     ticket,
@@ -89,23 +87,20 @@ export const EditTicketForm = ({
                                 name={'clientId'}
                                 render={({ field, fieldState }) => (
                                     <FormField label='Client' error={fieldState.error}>
-                                        <Space className={'align-center'}>
-                                            <Select<User, false>
-                                                isClearable
-                                                theme={SelectTheme}
-                                                styles={SelectStyles<User>()}
+                                        <Space.Compact className={'align-center'}>
+                                            <AppSelect<string, User>
                                                 options={clients}
-                                                placeholder='Client'
-                                                value={clients?.find(({ userId }) => field.value === userId) ?? null}
-                                                onChange={(newValue) => field.onChange(newValue?.userId)}
+                                                placeholder='Select or add a new user'
+                                                value={field.value}
+                                                onChange={(newValue) => field.onChange(newValue)}
                                                 getOptionLabel={getUserString}
-                                                getOptionValue={(item) => item.userId}
+                                                getOptionValue={(user) => user.userId}
                                             />
                                             <Button
                                                 icon={<FontAwesomeIcon icon={faPlus} />}
                                                 onClick={() => setShowCreateModal(true)}
                                             />
-                                        </Space>
+                                        </Space.Compact>
                                     </FormField>
                                 )}
                             />
@@ -115,26 +110,21 @@ export const EditTicketForm = ({
                                     name={'deviceBrand'}
                                     render={({ field, fieldState }) => (
                                         <FormField label='Brand' error={fieldState.error}>
-                                            <CreatableSelect<ItemPropertyView, false>
-                                                isClearable
-                                                theme={SelectTheme}
-                                                styles={SelectStyles<ItemPropertyView>()}
+                                            <AppCreatableSelect<ItemPropertyView>
+                                                isCreatable
                                                 options={brands}
-                                                formatCreateLabel={(value) => 'Create new brand ' + value}
                                                 placeholder='Select or add a new brand'
-                                                value={
-                                                    brands?.find(({ value }) => field.value === value) ?? {
-                                                        value: field.value,
-                                                        id: -1,
-                                                    }
-                                                }
-                                                onCreateOption={(item) => field.onChange(item)}
-                                                onChange={(newValue) => {
-                                                    if (field.value !== newValue?.value) setValue('deviceModel', '')
-                                                    field.onChange(newValue?.value)
+                                                value={field.value}
+                                                onCreateOption={(item) => {
+                                                    setValue('deviceModel', '')
+                                                    field.onChange(item)
                                                 }}
-                                                getOptionLabel={(item) => item.value}
-                                                getOptionValue={(item) => item.id + item.value}
+                                                onChange={(newValue) => {
+                                                    setValue('deviceModel', '')
+                                                    field.onChange(newValue)
+                                                }}
+                                                optionLabelProp={'value'}
+                                                optionFilterProp={'value'}
                                             />
                                         </FormField>
                                     )}
@@ -146,23 +136,15 @@ export const EditTicketForm = ({
                                     name={'deviceModel'}
                                     render={({ field, fieldState }) => (
                                         <FormField label='Model' error={fieldState.error}>
-                                            <CreatableSelect<ItemPropertyView, false>
-                                                isClearable
-                                                theme={SelectTheme}
-                                                styles={SelectStyles<ItemPropertyView>()}
+                                            <AppCreatableSelect<ItemPropertyView>
+                                                isCreatable
                                                 options={models}
                                                 placeholder='Select or add a new model'
-                                                formatCreateLabel={(value) => 'Create new model ' + value}
-                                                value={
-                                                    models?.find(({ value }) => field.value === value) ?? {
-                                                        value: field.value,
-                                                        id: -1,
-                                                    }
-                                                }
+                                                value={field.value}
                                                 onCreateOption={(item) => field.onChange(item)}
-                                                onChange={(newValue) => field.onChange(newValue?.value)}
-                                                getOptionLabel={(item) => item.value}
-                                                getOptionValue={(item) => item.id + item.value}
+                                                onChange={(newValue) => field.onChange(newValue)}
+                                                optionLabelProp={'value'}
+                                                optionFilterProp={'value'}
                                             />
                                         </FormField>
                                     )}
@@ -377,22 +359,15 @@ export const EditTicketForm = ({
                                                                     label='Ticket status'
                                                                     error={fieldState.error}
                                                                 >
-                                                                    <Select<ItemPropertyView, false>
-                                                                        isClearable
-                                                                        theme={SelectTheme}
-                                                                        styles={SelectStyles<ItemPropertyView>()}
+                                                                    <AppSelect<string, ItemPropertyView>
                                                                         options={TicketStatusesArray}
-                                                                        placeholder='Fill in the ticket status'
-                                                                        value={
-                                                                            TicketStatusesArray.find(
-                                                                                ({ value }) => field.value === value
-                                                                            ) ?? null
-                                                                        }
+                                                                        placeholder='Select or add a new user'
+                                                                        value={field.value}
                                                                         onChange={(newValue) =>
-                                                                            field.onChange(newValue?.value)
+                                                                            field.onChange(newValue)
                                                                         }
                                                                         getOptionLabel={(item) => item.value}
-                                                                        getOptionValue={(item) => item.id + item.value}
+                                                                        getOptionValue={(item) => item.value}
                                                                     />
                                                                 </FormField>
                                                             )}
@@ -407,29 +382,16 @@ export const EditTicketForm = ({
                                                                     label='Device Location'
                                                                     error={fieldState.error}
                                                                 >
-                                                                    <CreatableSelect<ItemPropertyView, false>
-                                                                        isClearable
-                                                                        theme={SelectTheme}
-                                                                        styles={SelectStyles<ItemPropertyView>()}
+                                                                    <AppCreatableSelect<ItemPropertyView>
                                                                         options={locations}
-                                                                        formatCreateLabel={(value) =>
-                                                                            'Add a new location: ' + value
-                                                                        }
                                                                         placeholder='Where is the location of the device?'
-                                                                        value={
-                                                                            locations?.find(
-                                                                                ({ value }) => field.value === value
-                                                                            ) ?? {
-                                                                                value: field.value,
-                                                                                id: -1,
-                                                                            }
-                                                                        }
+                                                                        value={field.value}
                                                                         onCreateOption={(item) => field.onChange(item)}
                                                                         onChange={(newValue) =>
-                                                                            field.onChange(newValue?.value)
+                                                                            field.onChange(newValue)
                                                                         }
                                                                         getOptionLabel={(item) => item.value}
-                                                                        getOptionValue={(item) => item.id + item.value}
+                                                                        getOptionValue={(item) => item.value}
                                                                     />
                                                                 </FormField>
                                                             )}

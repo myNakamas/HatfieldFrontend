@@ -7,9 +7,7 @@ import { AppModal } from './AppModal'
 import { Button, Card, Space } from 'antd'
 import { getAllClients } from '../../axios/http/userRequests'
 import { FormField } from '../form/Field'
-import Select from 'react-select'
 import { User } from '../../models/interfaces/user'
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import {
     defaultInvoice,
     InvoiceType,
@@ -33,6 +31,7 @@ import { getUserString } from '../../utils/helperFunctions'
 import { AuthContext } from '../../contexts/AuthContext'
 import { openInvoicePdf } from '../../pages/invoices/Invoices'
 import TextArea from 'antd/es/input/TextArea'
+import { AppCreatableSelect, AppSelect } from '../form/AppSelect'
 
 export const AddInvoice = ({
     item,
@@ -115,16 +114,13 @@ export const AddInvoice = ({
                             name={'type'}
                             render={({ field, fieldState }) => (
                                 <FormField label='Invoice type' error={fieldState.error}>
-                                    <Select<ItemPropertyView, false>
-                                        isClearable
-                                        theme={SelectTheme}
-                                        styles={SelectStyles<ItemPropertyView>()}
+                                    <AppSelect<string, ItemPropertyView>
+                                        value={field.value}
                                         options={InvoiceTypesArray}
                                         placeholder='Specify the type of the invoice'
-                                        value={InvoiceTypesArray.find(({ value }) => value === field.value) ?? null}
-                                        onChange={(newValue) => field.onChange(newValue?.value)}
+                                        onChange={(type) => field.onChange(type)}
                                         getOptionLabel={(item) => item.value}
-                                        getOptionValue={(item) => String(item.id)}
+                                        getOptionValue={(item) => item.value}
                                     />
                                 </FormField>
                             )}
@@ -135,14 +131,11 @@ export const AddInvoice = ({
                             render={({ field, fieldState }) => (
                                 <FormField label='Client' error={fieldState.error}>
                                     <Space.Compact>
-                                        <Select<User, false>
-                                            isClearable
-                                            theme={SelectTheme}
-                                            styles={SelectStyles<User>()}
+                                        <AppSelect<string, User>
+                                            value={field.value}
                                             options={clients}
-                                            placeholder='Client'
-                                            value={clients?.find(({ userId }) => field.value === userId) ?? null}
-                                            onChange={(newValue) => field.onChange(newValue?.userId)}
+                                            placeholder='Select Client'
+                                            onChange={field.onChange}
                                             getOptionLabel={getUserString}
                                             getOptionValue={(item) => item.userId}
                                         />
@@ -168,21 +161,21 @@ export const AddInvoice = ({
                                             name={'deviceBrand'}
                                             render={({ field, fieldState }) => (
                                                 <FormField label='Brand' error={fieldState.error}>
-                                                    <Select<ItemPropertyView, false>
-                                                        isClearable
-                                                        theme={SelectTheme}
-                                                        styles={SelectStyles<ItemPropertyView>()}
+                                                    <AppCreatableSelect<ItemPropertyView>
+                                                        isCreatable
                                                         options={brands}
                                                         placeholder='Select or add a new brand'
-                                                        value={
-                                                            brands?.find(({ value }) => field.value === value) ?? {
-                                                                value: field.value,
-                                                                id: -1,
-                                                            }
-                                                        }
-                                                        onChange={(newValue) => field.onChange(newValue?.value)}
-                                                        getOptionLabel={(item) => item.value}
-                                                        getOptionValue={(item) => item.id + item.value}
+                                                        value={field.value}
+                                                        onCreateOption={(item) => {
+                                                            setValue('deviceModel', '')
+                                                            field.onChange(item)
+                                                        }}
+                                                        onChange={(newValue) => {
+                                                            setValue('deviceModel', '')
+                                                            field.onChange(newValue)
+                                                        }}
+                                                        optionLabelProp={'value'}
+                                                        optionFilterProp={'value'}
                                                     />
                                                 </FormField>
                                             )}
@@ -192,21 +185,15 @@ export const AddInvoice = ({
                                             name={'deviceModel'}
                                             render={({ field, fieldState }) => (
                                                 <FormField label='Model' error={fieldState.error}>
-                                                    <Select<ItemPropertyView, false>
-                                                        isClearable
-                                                        theme={SelectTheme}
-                                                        styles={SelectStyles<ItemPropertyView>()}
+                                                    <AppCreatableSelect<ItemPropertyView>
+                                                        isCreatable
                                                         options={models}
-                                                        placeholder='Select or add a new brand'
-                                                        value={
-                                                            models?.find(({ value }) => field.value === value) ?? {
-                                                                value: field.value,
-                                                                id: -1,
-                                                            }
-                                                        }
-                                                        onChange={(newValue) => field.onChange(newValue?.value)}
-                                                        getOptionLabel={(item) => item.value}
-                                                        getOptionValue={(item) => item.id + item.value}
+                                                        placeholder='Select or add a new model'
+                                                        value={field.value}
+                                                        onCreateOption={(item) => field.onChange(item)}
+                                                        onChange={(newValue) => field.onChange(newValue)}
+                                                        optionLabelProp={'value'}
+                                                        optionFilterProp={'value'}
                                                     />
                                                 </FormField>
                                             )}
@@ -246,18 +233,13 @@ export const AddInvoice = ({
                                 name={'paymentMethod'}
                                 render={({ field, fieldState }) => (
                                     <FormField label='Payment method' error={fieldState.error}>
-                                        <Select<ItemPropertyView, false>
-                                            isClearable
-                                            theme={SelectTheme}
-                                            styles={SelectStyles<ItemPropertyView>()}
+                                        <AppSelect<string, ItemPropertyView>
+                                            value={field.value}
                                             options={PaymentMethodList}
                                             placeholder='Select a payment method'
-                                            value={
-                                                PaymentMethodList?.find(({ value }) => value === field.value) ?? null
-                                            }
-                                            onChange={(newValue) => field.onChange(newValue?.value)}
+                                            onChange={field.onChange}
                                             getOptionLabel={(item) => item.value}
-                                            getOptionValue={(item) => String(item.id)}
+                                            getOptionValue={(item) => item.value}
                                         />
                                     </FormField>
                                 )}
@@ -267,16 +249,13 @@ export const AddInvoice = ({
                                 name={'warrantyPeriod'}
                                 render={({ field, fieldState }) => (
                                     <FormField label='Warranty period' error={fieldState.error}>
-                                        <Select<ItemPropertyView, false>
-                                            isClearable
-                                            theme={SelectTheme}
-                                            styles={SelectStyles<ItemPropertyView>()}
+                                        <AppSelect<string, ItemPropertyView>
+                                            value={field.value}
                                             options={WarrantyPeriodList}
                                             placeholder='Warranty period'
-                                            value={WarrantyPeriodList?.find(({ value }) => value === field.value)}
-                                            onChange={(newValue) => field.onChange(newValue?.value)}
+                                            onChange={field.onChange}
                                             getOptionLabel={(item) => item.value}
-                                            getOptionValue={(item) => String(item.id)}
+                                            getOptionValue={(item) => item.value}
                                         />
                                     </FormField>
                                 )}

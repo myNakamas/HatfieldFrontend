@@ -17,9 +17,8 @@ import { AddClient } from '../../components/modals/users/AddClient'
 import { EditClient } from '../../components/modals/users/EditClient'
 import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalModels'
 import { defaultPage } from '../../models/enums/defaultValues'
-import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { UserBanButton } from '../../components/UserBanButton'
+import { AppSelect } from '../../components/form/AppSelect'
 
 const clientsTableHeaders = {
     username: 'username',
@@ -120,16 +119,13 @@ const ClientsFilters = ({
         <div className='filterRow'>
             <SearchComponent {...{ filter, setFilter }} />
             {isAdmin() && (
-                <Select<ItemPropertyView, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter?.shopId === id) ?? null}
-                    options={shops}
+                <AppSelect<number, ItemPropertyView>
+                    value={filter.shopId}
+                    options={shops ?? []}
                     placeholder='Filter by shop'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                    onChange={(value) => setFilter({ ...filter, shopId: value ?? undefined })}
                     getOptionLabel={(shop) => shop.value}
-                    getOptionValue={(shop) => String(shop.id)}
+                    getOptionValue={(shop) => shop.id}
                 />
             )}
             <Input

@@ -20,9 +20,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faPrint } from '@fortawesome/free-solid-svg-icons'
 import { printUserLabel } from '../../../axios/http/documentRequests'
 import { AppError } from '../../../models/interfaces/generalModels'
-import Select from 'react-select'
 import { Shop } from '../../../models/interfaces/shop'
-import { SelectTheme } from '../../../styles/components/stylesTS'
+import { AppSelect } from '../../form/AppSelect'
 
 export const AddClient = ({
     isModalOpen,
@@ -119,14 +118,13 @@ export const AddClient = ({
                             name='shopId'
                             render={({ field, fieldState }) => (
                                 <FormField error={fieldState.error} label='Shop'>
-                                    <Select<Shop, false>
-                                        theme={SelectTheme}
+                                    <AppSelect<number, Shop>
+                                        value={field.value}
                                         options={shops}
-                                        value={shops?.find((shop) => shop.id === field.value) ?? null}
-                                        getOptionLabel={({ shopName }) => shopName}
-                                        getOptionValue={({ id }) => id + ''}
-                                        placeholder=''
-                                        onChange={(item) => field.onChange(item?.id)}
+                                        placeholder='Assign to shop'
+                                        onChange={(shopId) => field.onChange(shopId)}
+                                        getOptionLabel={(shop) => shop.shopName}
+                                        getOptionValue={(shop) => shop.id}
                                     />
                                 </FormField>
                             )}

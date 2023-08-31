@@ -61,6 +61,7 @@ export const Login = () => {
                                 value={field.value}
                                 onChange={field.onChange}
                                 placeholder={'Username, phone or email*'}
+                                autoComplete={'username'}
                             />
                             <FormError error={fieldState.error?.message} />
                         </>

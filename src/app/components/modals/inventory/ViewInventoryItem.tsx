@@ -25,11 +25,9 @@ import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { useQuery, useQueryClient } from 'react-query'
 import { AddInvoice } from '../AddInvoice'
 import { FormField } from '../../form/Field'
-import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
-import CollapsePanel from 'antd/es/collapse/CollapsePanel'
 import { AuthContext } from '../../../contexts/AuthContext'
+import { AppSelect } from '../../form/AppSelect'
 
 export const ViewInventoryItem = ({
     inventoryItem,
@@ -303,37 +301,42 @@ const SendItemToShop = ({ item }: { item: InventoryItem }) => {
 
     return (
         <form onSubmit={handleSubmit(submit)} className={'modalForm'}>
-            <Collapse>
-                <CollapsePanel key={'1'} header={'Send to another shop'}>
-                    <Controller
-                        control={control}
-                        name={'shopId'}
-                        render={({ field: { value, onChange }, fieldState }) => (
-                            <FormField label='Shop' error={fieldState.error}>
-                                <Select<ItemPropertyView, false>
-                                    isClearable
-                                    theme={SelectTheme}
-                                    styles={SelectStyles()}
-                                    options={shops?.filter((shop) => shop.id !== loggedUser?.shopId)}
-                                    placeholder='Shop'
-                                    value={shops?.find(({ id }) => value === id) ?? null}
-                                    onChange={(value) => onChange(value?.id)}
-                                    getOptionLabel={(shops) => shops.value}
-                                    getOptionValue={(shops) => String(shops.id)}
+            <Collapse
+                items={[
+                    {
+                        key: '1',
+                        label: 'Send to another shop',
+                        children: (
+                            <Space direction={'vertical'}>
+                                <Controller
+                                    control={control}
+                                    name={'shopId'}
+                                    render={({ field: { value, onChange }, fieldState }) => (
+                                        <FormField label='Shop' error={fieldState.error}>
+                                            <AppSelect<number, ItemPropertyView>
+                                                onChange={onChange}
+                                                options={shops?.filter((shop) => shop.id !== loggedUser?.shopId)}
+                                                value={value}
+                                                placeholder={'Shop to send to'}
+                                                getOptionLabel={(shops) => shops.value}
+                                                getOptionValue={(shops) => shops.id}
+                                            />
+                                        </FormField>
+                                    )}
                                 />
-                            </FormField>
-                        )}
-                    />
-                    <TextField
-                        min={0}
-                        defaultValue={item.count}
-                        register={register('count')}
-                        error={errors.count}
-                        type='number'
-                    />
-                    <Button htmlType={'submit'}>Send</Button>
-                </CollapsePanel>
-            </Collapse>
+                                <TextField
+                                    min={0}
+                                    defaultValue={item.count}
+                                    register={register('count')}
+                                    error={errors.count}
+                                    type='number'
+                                />
+                                <Button htmlType={'submit'}>Send</Button>
+                            </Space>
+                        ),
+                    },
+                ]}
+            />
         </form>
     )
 }

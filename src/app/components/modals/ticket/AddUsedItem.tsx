@@ -1,7 +1,6 @@
 import { CreateUsedItem, Ticket } from '../../../models/interfaces/ticket'
 import { AppModal } from '../AppModal'
 import { Button, Form, Space } from 'antd'
-import Select from 'react-select'
 import { useQuery, useQueryClient } from 'react-query'
 import { createUsedItems, fetchAllActiveTickets } from '../../../axios/http/ticketRequests'
 import { CustomSuspense } from '../../CustomSuspense'
@@ -9,7 +8,6 @@ import { getAllShopItems } from '../../../axios/http/shopRequests'
 import React, { useContext, useEffect } from 'react'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { Controller, useForm } from 'react-hook-form'
-import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import { FormField } from '../../form/Field'
 import { InventoryItem } from '../../../models/interfaces/shop'
 import { TextField } from '../../form/TextField'
@@ -19,6 +17,7 @@ import { toastProps } from '../ToastProps'
 import { toast } from 'react-toastify'
 import { FormError } from '../../form/FormError'
 import { AppError } from '../../../models/interfaces/generalModels'
+import { AppSelect } from '../../form/AppSelect'
 
 export const AddUsedItem = ({
     show,
@@ -82,18 +81,15 @@ export const AddUsedItem = ({
                             name='ticketId'
                             render={({ field, fieldState }) => (
                                 <FormField label={'Ticket'} error={fieldState.error}>
-                                    <Select<Ticket, false>
-                                        isClearable
-                                        theme={SelectTheme}
-                                        styles={SelectStyles<Ticket>()}
+                                    <AppSelect<number, Ticket>
                                         options={tickets}
                                         placeholder='Choose a ticket'
-                                        value={tickets?.find(({ id }) => field.value === id) ?? null}
-                                        onChange={(newValue) => field.onChange(newValue?.id)}
+                                        value={field.value}
+                                        onChange={field.onChange}
                                         getOptionLabel={(item) =>
                                             ['Ticket#' + item.id, item.deviceBrand, item.deviceBrand].join(' ')
                                         }
-                                        getOptionValue={(item) => item.id + ''}
+                                        getOptionValue={(item) => item.id}
                                     />
                                 </FormField>
                             )}
@@ -103,16 +99,13 @@ export const AddUsedItem = ({
                             name='itemId'
                             render={({ field, fieldState }) => (
                                 <FormField label={'Item'} error={fieldState.error}>
-                                    <Select<InventoryItem, false>
-                                        isClearable
-                                        theme={SelectTheme}
-                                        styles={SelectStyles<InventoryItem>()}
+                                    <AppSelect<number, InventoryItem>
                                         options={items}
                                         placeholder='Choose an item to use'
-                                        value={items?.find(({ id }) => field.value === id) ?? null}
-                                        onChange={(newValue) => field.onChange(newValue?.id)}
+                                        value={field.value}
+                                        onChange={field.onChange}
                                         getOptionLabel={(item) => [item.name, item.brand, item.model].join(' ')}
-                                        getOptionValue={(item) => item.id + ''}
+                                        getOptionValue={(item) => item.id}
                                     />
                                 </FormField>
                             )}

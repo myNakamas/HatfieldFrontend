@@ -11,9 +11,7 @@ import dateFormat from 'dateformat'
 import { EditTicketForm } from './EditTicketForm'
 import { putCompleteTicket, putFreezeTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
 import { useQuery, useQueryClient } from 'react-query'
-import CreatableSelect from 'react-select/creatable'
 import { ItemPropertyView } from '../../../models/interfaces/generalModels'
-import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import { activeTicketStatuses, TicketStatus, TicketStatusesArray } from '../../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
@@ -25,7 +23,6 @@ import { NoDataComponent } from '../../table/NoDataComponent'
 import { AddUsedItem } from './AddUsedItem'
 import { useNavigate } from 'react-router-dom'
 import { AddTicketInvoice } from '../AddTicketInvoice'
-import Select from 'react-select'
 import {
     getTicketImage,
     getTicketLabelImage,
@@ -47,6 +44,7 @@ import {
 import { FormField } from '../../form/Field'
 import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
 import { DetailedTicketInfoView, TicketModalDescription } from './DetailedTicketInfoView'
+import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 
 export const TicketView = ({
     ticket,
@@ -252,35 +250,24 @@ const TicketViewInner = ({
                     <Space wrap className={'w-100 justify-between align-start'}>
                         <Space direction={'vertical'} className='card'>
                             <FormField label={'Change ticket status'}>
-                                <Select<ItemPropertyView, false>
-                                    theme={SelectTheme}
-                                    styles={SelectStyles()}
-                                    value={
-                                        (TicketStatusesArray.find(
-                                            ({ value }) => value === ticket.status
-                                        ) as ItemPropertyView) ?? null
-                                    }
-                                    options={TicketStatusesArray ?? []}
-                                    placeholder='New Status'
-                                    isClearable
-                                    onChange={(value) => updateTicketStatus(ticket.id, value?.value as TicketStatus)}
+                                <AppSelect<TicketStatus, ItemPropertyView>
+                                    options={TicketStatusesArray}
+                                    placeholder='Select a status'
+                                    value={ticket.status}
+                                    onChange={(value) => value && updateTicketStatus(ticket.id, value)}
                                     getOptionLabel={(status) => status.value}
-                                    getOptionValue={(status) => String(status.id)}
+                                    getOptionValue={(status) => status.value as TicketStatus}
                                 />
                             </FormField>
                             <FormField label={'Change device location'}>
-                                <CreatableSelect<ItemPropertyView, false>
-                                    isClearable
-                                    theme={SelectTheme}
-                                    styles={SelectStyles<ItemPropertyView>()}
+                                <AppCreatableSelect<ItemPropertyView>
                                     options={locations}
-                                    formatCreateLabel={(value) => 'Add a new location: ' + value}
                                     placeholder='New location'
-                                    value={{ id: 0, value: ticket.deviceLocation } ?? null}
+                                    value={ticket.deviceLocation}
                                     onCreateOption={(item) => updateDeviceLocation(ticket.id, item)}
-                                    onChange={(newValue) => updateDeviceLocation(ticket.id, newValue?.value)}
+                                    onChange={(newValue) => newValue && updateDeviceLocation(ticket.id, newValue)}
                                     getOptionLabel={(item) => item.value}
-                                    getOptionValue={(item) => item.id + item.value}
+                                    getOptionValue={(item) => item.value}
                                 />
                             </FormField>
                         </Space>

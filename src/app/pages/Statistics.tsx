@@ -12,7 +12,7 @@ export const Statistics = () => {
     const [filter, setFilter] = useState<TicketFilter>(defaultDashboardFilter(loggedUser?.shopId))
 
     return (
-        <Space direction='vertical' className='w-100' wrap>
+        <div className='mainScreen'>
             <Space className='w-100 justify-between' direction={window.innerWidth < 768 ? 'vertical' : 'horizontal'}>
                 <h2>Statistics</h2>
                 <DashboardFilters {...{ filter, setFilter }} />
@@ -21,6 +21,6 @@ export const Statistics = () => {
                 <InvoicesReport filter={filter} />
                 <SellReport filter={filter} />
             </div>
-        </Space>
+        </div>
     )
 }

@@ -14,9 +14,6 @@ import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { AppModal } from '../AppModal'
 import React, { useEffect, useState } from 'react'
-import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
-import CreatableSelect from 'react-select/creatable'
 import { FormField } from '../../form/Field'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
@@ -25,6 +22,7 @@ import { Button, Space } from 'antd'
 import { AddEditCategory } from '../AddEditCategory'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 
 export const EditInventoryItem = ({
     isModalOpen,
@@ -122,18 +120,18 @@ export const EditInventoryItem = ({
                         render={({ field, fieldState }) => {
                             return (
                                 <FormField label={'Item Category'} error={fieldState.error}>
-                                    <Space>
-                                        <Select<Category>
-                                            isClearable
-                                            theme={SelectTheme}
+                                    <Space.Compact>
+                                        <AppSelect<number, Category>
                                             options={categories}
                                             placeholder='Select Item Category'
-                                            value={categories?.find(({ id }) => field.value?.id === id) ?? null}
-                                            onChange={(type) => {
-                                                field.onChange(type)
-                                            }}
-                                            getOptionLabel={(item) => item.name}
-                                            getOptionValue={(item) => String(item.id)}
+                                            value={field.value?.id}
+                                            onChange={(id) =>
+                                                field.onChange(
+                                                    categories?.find((category) => category.id === id) ?? null
+                                                )
+                                            }
+                                            getOptionLabel={(category) => category.name}
+                                            getOptionValue={(category) => category.id}
                                         />
                                         <Button
                                             onClick={() => {
@@ -143,63 +141,56 @@ export const EditInventoryItem = ({
                                         >
                                             Add a new category
                                         </Button>
-                                    </Space>
+                                    </Space.Compact>
                                 </FormField>
                             )
                         }}
                     />
-                    <Controller
-                        control={control}
-                        name={'brand'}
-                        render={({ field, fieldState }) => (
-                            <FormField label='Brand' error={fieldState.error}>
-                                <CreatableSelect<ItemPropertyView, false>
-                                    isClearable
-                                    theme={SelectTheme}
-                                    styles={SelectStyles<ItemPropertyView>()}
-                                    options={brands}
-                                    formatCreateLabel={(value) => 'Create new brand ' + value}
-                                    placeholder='Select or add a new brand'
-                                    value={
-                                        brands?.find((brand) => brand.value === field.value) ?? {
-                                            id: -1,
-                                            value: field.value,
-                                        }
-                                    }
-                                    onCreateOption={(item) => field.onChange(item)}
-                                    onChange={(newValue) => field.onChange(newValue?.value)}
-                                    getOptionLabel={(item) => item.value}
-                                    getOptionValue={(item) => item.id + item.value}
-                                />
-                            </FormField>
-                        )}
-                    />
-                    <Controller
-                        control={control}
-                        name={'model'}
-                        render={({ field, fieldState }) => (
-                            <FormField label='Model' error={fieldState.error}>
-                                <CreatableSelect<ItemPropertyView, false>
-                                    isClearable
-                                    theme={SelectTheme}
-                                    styles={SelectStyles<ItemPropertyView>()}
-                                    options={models}
-                                    placeholder='Select or add a new brand'
-                                    formatCreateLabel={(value) => 'Create new model ' + value}
-                                    value={
-                                        models?.find((model) => model.value === field.value) ?? {
-                                            id: -1,
-                                            value: field.value,
-                                        }
-                                    }
-                                    onCreateOption={(item) => field.onChange(item)}
-                                    onChange={(newValue) => field.onChange(newValue?.value)}
-                                    getOptionLabel={(item) => item.value}
-                                    getOptionValue={(item) => item.id + item.value}
-                                />
-                            </FormField>
-                        )}
-                    />
+                    <Space wrap>
+                        <Controller
+                            control={control}
+                            name={'brand'}
+                            render={({ field, fieldState }) => (
+                                <FormField label='Brand' error={fieldState.error}>
+                                    <AppCreatableSelect<ItemPropertyView>
+                                        isCreatable
+                                        options={brands}
+                                        placeholder='Select or add a new brand'
+                                        value={field.value}
+                                        onCreateOption={(item) => {
+                                            setValue('model', '')
+                                            field.onChange(item)
+                                        }}
+                                        onChange={(newValue) => {
+                                            setValue('model', '')
+                                            field.onChange(newValue)
+                                        }}
+                                        optionLabelProp={'value'}
+                                        optionFilterProp={'value'}
+                                    />
+                                </FormField>
+                            )}
+                        />
+                        <Controller
+                            control={control}
+                            name={'model'}
+                            render={({ field, fieldState }) => (
+                                <FormField label='Model' error={fieldState.error}>
+                                    <AppCreatableSelect<ItemPropertyView>
+                                        isCreatable
+                                        options={models}
+                                        placeholder='Select or add a new model'
+                                        value={field.value}
+                                        onCreateOption={(item) => field.onChange(item)}
+                                        onChange={(newValue) => field.onChange(newValue)}
+                                        optionLabelProp={'value'}
+                                        optionFilterProp={'value'}
+                                    />
+                                </FormField>
+                            )}
+                        />
+                    </Space>
+
                     <TextField label='Count' register={register('count')} error={errors.count} type='number' />
                     <TextField
                         label='Purchase Price'
@@ -216,7 +207,7 @@ export const EditInventoryItem = ({
                     <h2>Category specific properties:</h2>
 
                     {watch('categoryView') &&
-                        watch('categoryView.columns').map((key, index) => (
+                        watch('categoryView.columns')?.map((key, index) => (
                             <TextField register={register(`columns.${key}`)} label={key} key={key + index} />
                         ))}
 

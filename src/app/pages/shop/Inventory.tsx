@@ -16,8 +16,6 @@ import { Category, InventoryItem } from '../../models/interfaces/shop'
 import { ViewInventoryItem } from '../../components/modals/inventory/ViewInventoryItem'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { SearchComponent } from '../../components/filters/SearchComponent'
-import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { AuthContext } from '../../contexts/AuthContext'
 import { Button, FloatButton, Skeleton, Space, Tour } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -26,6 +24,7 @@ import { faFileEdit, faPen, faPlus, faQuestion } from '@fortawesome/free-solid-s
 import { EditInventoryItem } from '../../components/modals/inventory/EditInventoryItem'
 import { defaultPage } from '../../models/enums/defaultValues'
 import { inventoryTourSteps } from '../../models/enums/userEnums'
+import { AppSelect } from '../../components/form/AppSelect'
 
 export const Inventory = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
@@ -129,61 +128,43 @@ const InventoryFilters = ({
     const { data: shops } = useQuery(['shops', 'short'], getWorkerShops, { enabled: !isClient() })
 
     return (
-        <div className='filterRow'>
+        <Space wrap className={'w-100 justify-between'}>
             <SearchComponent {...{ filter, setFilter }} />
-            <div className='filterField'>
-                <Select<ItemPropertyView, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter.shopId === id) ?? null}
+            <Space wrap>
+                <AppSelect<number, ItemPropertyView>
+                    value={filter.shopId}
                     options={shops ?? []}
                     placeholder='Filter by shop'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                    onChange={(value) => setFilter({ ...filter, shopId: value ?? undefined })}
                     getOptionLabel={(shop) => shop.value}
-                    getOptionValue={(shop) => String(shop.id)}
+                    getOptionValue={(shop) => shop.id}
                 />
-            </div>
-            <div className='filterField'>
-                <Select<ItemPropertyView, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={models?.find(({ id }) => filter.modelId === id) ?? null}
-                    options={models ?? []}
+                <AppSelect<number, ItemPropertyView>
+                    value={filter.modelId}
+                    options={models}
                     placeholder='Filter by model'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, modelId: value?.id ?? undefined })}
-                    getOptionLabel={(model) => model.value}
-                    getOptionValue={(model) => String(model.id)}
+                    onChange={(value) => setFilter({ ...filter, modelId: value ?? undefined })}
+                    getOptionLabel={(shop) => shop.value}
+                    getOptionValue={(shop) => shop.id}
                 />
-            </div>
-            <div className='filterField'>
-                <Select<ItemPropertyView, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={brands?.find(({ id }) => filter.brandId === id) ?? null}
-                    options={brands ?? []}
+                <AppSelect<number, ItemPropertyView>
+                    value={filter.brandId}
+                    options={brands}
                     placeholder='Filter by brand'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, brandId: value?.id ?? undefined })}
-                    getOptionLabel={(brand) => brand.value}
-                    getOptionValue={(brand) => String(brand.id)}
+                    onChange={(value) => setFilter({ ...filter, brandId: value ?? undefined })}
+                    getOptionLabel={(shop) => shop.value}
+                    getOptionValue={(shop) => shop.id}
                 />
-            </div>
-            <div className='filterField'>
-                <Select<Category, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={categories?.find(({ id }) => filter.categoryId === id) ?? null}
-                    options={categories ?? []}
+                <AppSelect<number, Category>
+                    value={filter.categoryId}
+                    options={categories}
                     placeholder='Filter by category'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, categoryId: value?.id ?? undefined })}
+                    onChange={(value) => setFilter({ ...filter, categoryId: value ?? undefined })}
                     getOptionLabel={(category) => category.name}
-                    getOptionValue={(category) => String(category.id)}
+                    getOptionValue={(category) => category.id}
                 />
-            </div>
-        </div>
+            </Space>
+        </Space>
     )
 }
 

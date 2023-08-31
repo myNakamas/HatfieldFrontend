@@ -12,9 +12,8 @@ import { generateDaysArray } from '../../utils/helperFunctions'
 import dateFormat from 'dateformat'
 import { dateMask } from '../../models/enums/appEnums'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { InvoiceType, InvoiceTypesArray } from '../../models/enums/invoiceEnums'
-import Select from 'react-select'
+import { AppSelect } from '../form/AppSelect'
 
 type ChartType = 'COUNT' | 'INCOME'
 
@@ -74,16 +73,13 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
                     <Switch
                         onChange={() => setChartType((prevState) => (prevState === 'COUNT' ? 'INCOME' : 'COUNT'))}
                     />
-                    <Select<ItemPropertyView, false>
-                        theme={SelectTheme}
-                        styles={SelectStyles()}
-                        value={InvoiceTypesArray.find(({ value }) => invoiceType === value) ?? null}
-                        options={InvoiceTypesArray ?? []}
-                        placeholder='Filter by status'
-                        isClearable
-                        onChange={(value) => setInvoiceType(value?.value as InvoiceType)}
+                    <AppSelect<InvoiceType, ItemPropertyView>
+                        value={invoiceType}
+                        options={InvoiceTypesArray}
+                        placeholder={'Filter by Invoice status'}
+                        onChange={(type) => setInvoiceType(type ?? undefined)}
                         getOptionLabel={(status) => status.value}
-                        getOptionValue={(status) => String(status.id)}
+                        getOptionValue={(status) => status.value as InvoiceType}
                     />
                 </Space>
             </CustomSuspense>

@@ -1,6 +1,4 @@
 import { TicketFilter } from '../../models/interfaces/filters'
-import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import React, { useContext, useState } from 'react'
 import { useQuery } from 'react-query'
 import { getWorkerShops } from '../../axios/http/shopRequests'
@@ -12,6 +10,7 @@ import { ActiveTickets } from './ActiveTickets'
 import { ShoppingListCard } from './ShoppingListCard'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
 import { InventoryCard } from './InventoryCard'
+import { AppSelect } from '../../components/form/AppSelect'
 
 export const Dashboard = () => {
     const { loggedUser, isWorker } = useContext(AuthContext)
@@ -47,16 +46,13 @@ export const DashboardFilters = ({
 
     return (
         <Space wrap>
-            <Select<ItemPropertyView, false>
-                theme={SelectTheme}
-                styles={SelectStyles()}
-                value={shops?.find(({ id }) => filter.shopId === id) ?? null}
+            <AppSelect<number, ItemPropertyView>
+                value={filter.shopId}
                 options={shops ?? []}
                 placeholder='Filter by shop'
-                isClearable
-                onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                onChange={(value) => setFilter({ ...filter, shopId: value ?? undefined })}
                 getOptionLabel={(shop) => shop.value}
-                getOptionValue={(shop) => String(shop.id)}
+                getOptionValue={(shop) => shop.id}
             />
             <DateTimeFilter
                 filter={filter}

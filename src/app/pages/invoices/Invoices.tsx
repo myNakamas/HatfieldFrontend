@@ -15,13 +15,10 @@ import { faPrint } from '@fortawesome/free-solid-svg-icons'
 import { getAllBrands, getAllModels, getAllShops } from '../../axios/http/shopRequests'
 import { getAllClients, getAllWorkers } from '../../axios/http/userRequests'
 import { SearchComponent } from '../../components/filters/SearchComponent'
-import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { User } from '../../models/interfaces/user'
 import { DateTimeFilter } from '../../components/filters/DateTimeFilter'
 import { AddInvoice } from '../../components/modals/AddInvoice'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
-import { getUserString } from '../../utils/helperFunctions'
 import { FormField } from '../../components/form/Field'
 import { AuthContext } from '../../contexts/AuthContext'
 import { defaultPage } from '../../models/enums/defaultValues'
@@ -30,6 +27,7 @@ import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
 import { QrReaderButton } from '../../components/modals/QrReaderModal'
 import { Deadline } from '../../components/modals/ticket/Deadline'
+import { AppSelect } from '../../components/form/AppSelect'
 
 export const openInvoicePdf = async (invoiceId: number) => {
     const pdfBlob = await getInvoicePdf(invoiceId)
@@ -167,78 +165,60 @@ function InvoiceFilters({
             <div className='filterColumn'>
                 <h4>Filters</h4>
                 <SearchComponent {...{ filter, setFilter }} />
-                <Select<ItemPropertyView, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={InvoiceTypesArray.find(({ value }) => filter.type === value) ?? null}
-                    options={InvoiceTypesArray ?? []}
+                <AppSelect<InvoiceType, ItemPropertyView>
+                    value={filter.type}
+                    options={InvoiceTypesArray}
+                    onChange={(value) => setFilter({ ...filter, type: value ?? undefined })}
                     placeholder='Filter by status'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, type: value?.value as InvoiceType })}
                     getOptionLabel={(status) => status.value}
-                    getOptionValue={(status) => String(status.id)}
+                    getOptionValue={(status) => status.value as InvoiceType}
                 />
             </div>
             <div className='filterColumn' title={'Device filters'}>
                 <h4>Device filters</h4>
-                <Select<ItemPropertyView, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={models?.find(({ value }) => filter.model === value) ?? null}
-                    options={models ?? []}
+                <AppSelect<string, ItemPropertyView>
+                    value={filter.model}
+                    options={models}
                     placeholder='Filter by model'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, model: value?.value ?? undefined })}
+                    onChange={(value) => setFilter({ ...filter, model: value ?? undefined })}
                     getOptionLabel={(model) => model.value}
-                    getOptionValue={(model) => String(model.id)}
+                    getOptionValue={(model) => String(model.value)}
                 />
-                <Select<ItemPropertyView, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={brands?.find(({ value }) => filter.brand === value) ?? null}
-                    options={brands ?? []}
+                <AppSelect<string, ItemPropertyView>
+                    value={filter.brand}
+                    options={brands}
                     placeholder='Filter by brand'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, brand: value?.value ?? undefined })}
+                    onChange={(value) => setFilter({ ...filter, brand: value ?? undefined })}
                     getOptionLabel={(brand) => brand.value}
-                    getOptionValue={(brand) => String(brand.id)}
+                    getOptionValue={(brand) => String(brand.value)}
                 />
             </div>
             <div className='filterColumn' title={'Filter by users'}>
                 <h4>Filter by users</h4>
-                <Select<User, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={clients?.find(({ userId }) => filter.clientId === userId) ?? null}
-                    options={clients ?? []}
+                <AppSelect<string, User>
+                    value={filter.clientId}
+                    options={clients}
                     placeholder='Filter by client'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, clientId: value?.userId ?? undefined })}
-                    getOptionLabel={getUserString}
-                    getOptionValue={(client) => String(client.userId)}
+                    onChange={(id) => setFilter({ ...filter, clientId: id ?? undefined })}
+                    getOptionLabel={(user) => user.username}
+                    getOptionValue={(user) => user.userId}
                 />
-                <Select<User, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={users?.find(({ userId }) => filter.createdById === userId) ?? null}
-                    options={users ?? []}
-                    placeholder='Filter by creator'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, createdById: value?.userId ?? undefined })}
-                    getOptionLabel={getUserString}
-                    getOptionValue={(user) => String(user.userId)}
+                <AppSelect<string, User>
+                    value={filter.createdById}
+                    options={users}
+                    placeholder='Filter by ticket creator'
+                    onChange={(id) => setFilter({ ...filter, createdById: id ?? undefined })}
+                    getOptionLabel={(user) => user.username}
+                    getOptionValue={(user) => user.userId}
                 />
                 {isAdmin() && (
-                    <Select<Shop, false>
-                        theme={SelectTheme}
-                        styles={SelectStyles()}
-                        value={shops?.find(({ id }) => filter.shopId === id) ?? null}
-                        options={shops ?? []}
+                    <AppSelect<number, Shop>
+                        value={filter.shopId}
+                        options={shops}
                         placeholder='Filter by shop'
-                        isClearable
-                        onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                        onChange={(id) => setFilter({ ...filter, shopId: id ?? undefined })}
                         getOptionLabel={(shop) => shop.shopName}
-                        getOptionValue={(shop) => String(shop.id)}
+                        getOptionValue={(shop) => shop.id}
                     />
                 )}
             </div>
