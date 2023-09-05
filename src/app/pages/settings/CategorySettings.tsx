@@ -104,8 +104,8 @@ export const CategorySettings = () => {
                                 columnsNames: 'columns',
                                 actions: 'actions',
                             }}
-                            onClick={(category) => {
-                                setSelectedCategory(category)
+                            onClick={({ id }) => {
+                                setSelectedCategory(allCategories?.find((category) => category.id === id))
                             }}
                         />
                     ) : (

@@ -59,8 +59,17 @@ export const putStartTicket = (params: { id: number }): Promise<number> => {
     return backendClient.put('ticket/worker/start', {}, { params })
 }
 
-export const putCollectTicket = ({ id, invoice }: { id: number; invoice: CreateTicketInvoice }): Promise<number> => {
-    return backendClient.put('ticket/worker/collected', invoice, { params: { id } })
+export const putCollectTicket = ({ id, invoice }: { id: number; invoice: CreateTicketInvoice }): Promise<Blob> => {
+    return backendClient.put('ticket/worker/collected', invoice, { params: { id }, responseType: 'blob' })
+}
+export const putCreateDepositInvoice = ({
+    id,
+    invoice,
+}: {
+    id: number
+    invoice: CreateTicketInvoice
+}): Promise<Blob> => {
+    return backendClient.put('ticket/worker/deposit', invoice, { params: { id }, responseType: 'blob' })
 }
 
 export const getChat = ({ ticketId }: { ticketId?: number }): Promise<ChatMessage[]> => {

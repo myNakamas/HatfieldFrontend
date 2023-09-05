@@ -28,6 +28,7 @@ import { FormField } from '../../form/Field'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { AppSelect } from '../../form/AppSelect'
+import { openPdfBlob } from '../../../pages/invoices/Invoices'
 
 export const ViewInventoryItem = ({
     inventoryItem,
@@ -43,17 +44,11 @@ export const ViewInventoryItem = ({
     const queryClient = useQueryClient()
     const printSellDocument = async () => {
         const blob = await postPrintItemLabel(inventoryItem?.id)
-        if (blob) {
-            const fileUrl = URL.createObjectURL(blob)
-            window.open(fileUrl)
-        }
+        openPdfBlob(blob)
     }
     const previewSellDocument = async () => {
         const blob = await getPrintItemLabel(inventoryItem?.id)
-        if (blob) {
-            const fileUrl = URL.createObjectURL(blob)
-            window.open(fileUrl)
-        }
+        openPdfBlob(blob)
     }
 
     const markItemAsDamaged = (id: number) => {

@@ -79,7 +79,7 @@ export const DetailedTicketInfoView = ({
 export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
     return (
         <Space direction={'vertical'}>
-            <Space className={'justify-between w-100'}>
+            <Space wrap className={'justify-between w-100'}>
                 <Space align={'start'}>
                     <Card title={'Deadline'} size={'small'}>
                         <Deadline deadline={ticket.deadline} />
@@ -93,7 +93,9 @@ export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
                 {ticket.devicePassword && <Card size={'small'} title={'Password'} children={ticket.devicePassword} />}
             </Space>
             <Descriptions bordered layout={'vertical'} className={'w-100'}>
-                <DescriptionsItem span={2} label={'Problem'} children={ticket.problemExplanation} />
+                {ticket.problemExplanation && (
+                    <DescriptionsItem span={2} label={'Problem'} children={ticket.problemExplanation} />
+                )}
                 {ticket.customerRequest?.length > 0 && (
                     <DescriptionsItem span={1} label={'Customer Request'} children={ticket.customerRequest} />
                 )}

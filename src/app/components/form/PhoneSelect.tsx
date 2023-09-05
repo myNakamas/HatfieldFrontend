@@ -39,19 +39,21 @@ export const PhoneSelect = ({
 
     const handlePhoneCodeChange = (newCode: string) => {
         setSelectedPhoneCode(newCode)
-        const newValue = newCode + phoneNumber
+        const newValue = newCode + '-' + phoneNumber
         onChange(newValue)
     }
 
     const handlePhoneNumberChange = (newPhoneNumber: string) => {
         setPhoneNumber(newPhoneNumber)
-        const newValue = selectedPhoneCode + newPhoneNumber
+        const newValue = selectedPhoneCode + '-' + newPhoneNumber
         onChange(newValue)
     }
     useEffect(() => {
-        const defaultCode = data.find(({ dial_code }) => value.startsWith(dial_code)) ?? UKCodeDefault
-        setSelectedPhoneCode(defaultCode.dial_code)
-        setPhoneNumber(value.replace(defaultCode.dial_code, '') ?? '')
+        const phoneParts = value.split('-')
+        if (phoneParts.length === 2) {
+            setSelectedPhoneCode(phoneParts[0])
+            setPhoneNumber(phoneParts[1])
+        }
     }, [value])
     return (
         <>

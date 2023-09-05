@@ -19,7 +19,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { getUserString } from '../../../utils/helperFunctions'
 import { AuthContext } from '../../../contexts/AuthContext'
-import CollapsePanel from 'antd/es/collapse/CollapsePanel'
 import { createTicket, updateTicket } from '../../../axios/http/ticketRequests'
 import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
@@ -111,7 +110,6 @@ export const EditTicketForm = ({
                                     render={({ field, fieldState }) => (
                                         <FormField label='Brand' error={fieldState.error}>
                                             <AppCreatableSelect<ItemPropertyView>
-                                                isCreatable
                                                 options={brands}
                                                 placeholder='Select or add a new brand'
                                                 value={field.value}
@@ -137,7 +135,6 @@ export const EditTicketForm = ({
                                     render={({ field, fieldState }) => (
                                         <FormField label='Model' error={fieldState.error}>
                                             <AppCreatableSelect<ItemPropertyView>
-                                                isCreatable
                                                 options={models}
                                                 placeholder='Select or add a new model'
                                                 value={field.value}
@@ -402,9 +399,7 @@ export const EditTicketForm = ({
                                         ),
                                     },
                                 ]}
-                            >
-                                <CollapsePanel key={'1'} header={'More details'}></CollapsePanel>
-                            </Collapse>
+                            />
                         </Space>
                     </div>
 

@@ -3,7 +3,6 @@ import React from 'react'
 import { Select } from 'antd'
 
 export const AppCreatableSelect = <T extends BaseOptionType>({
-    isCreatable,
     options,
     onChange,
     value,
@@ -12,7 +11,6 @@ export const AppCreatableSelect = <T extends BaseOptionType>({
     getOptionValue,
     ...selectProps
 }: {
-    isCreatable?: boolean
     onChange: (value: string | null) => void
     onCreateOption?: (value: string) => void
     getOptionLabel?: (value: T) => string
@@ -73,7 +71,6 @@ export const AppSelect = <I, T extends BaseOptionType>({
     optionFilterProp,
     ...selectProps
 }: {
-    isCreatable?: boolean
     onChange?: (value: I | null) => void
     onCreateOption?: (value: string) => void
     getOptionLabel?: (value: T) => string

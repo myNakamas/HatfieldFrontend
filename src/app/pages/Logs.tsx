@@ -18,7 +18,7 @@ export const Logs = () => {
     const [page, setPage] = useState(defaultPage)
     const [filter, setFilter] = useState<Filter>({})
     return (
-        <div className='mainPage'>
+        <div className='mainScreen'>
             <Space className='button-bar'>
                 <LogsFilters filter={filter} setFilter={setFilter} />
             </Space>
@@ -70,39 +70,34 @@ const LogsFilters = ({
     const { isAdmin } = useContext(AuthContext)
     const { data: shops } = useQuery('shops', getWorkerShops, { enabled: isAdmin() })
     return (
-        <Space>
-            <div className='filterField'>
-                {isAdmin() && (
-                    <AppSelect<number, ItemPropertyView>
-                        value={filter.shopId}
-                        options={shops ?? []}
-                        placeholder='Filter by shop'
-                        onChange={(value) => setFilter({ ...filter, shopId: value ?? undefined })}
-                        getOptionLabel={(shop) => shop.value}
-                        getOptionValue={(shop) => shop.id}
-                    />
-                )}
-            </div>
-            <div className='filterField'>
-                <AppSelect<LogType, ItemPropertyView>
-                    value={filter.type}
-                    options={LogTypeList}
-                    placeholder='Filter by type'
-                    onChange={(value) => setFilter({ ...filter, type: value ?? undefined })}
+        <Space wrap>
+            {isAdmin() && (
+                <AppSelect<number, ItemPropertyView>
+                    value={filter.shopId}
+                    options={shops ?? []}
+                    placeholder='Filter by shop'
+                    onChange={(value) => setFilter({ ...filter, shopId: value ?? undefined })}
                     getOptionLabel={(shop) => shop.value}
-                    getOptionValue={(shop) => shop.value as LogType}
+                    getOptionValue={(shop) => shop.id}
                 />
-            </div>
-            <div className='filterField'>
-                <Input
-                    placeholder='Filter by ticket id'
-                    value={filter.ticketId}
-                    onChange={(value) =>
-                        setFilter({ ...filter, ticketId: +value.target.value ? +value.target.value : undefined })
-                    }
-                    inputMode={'numeric'}
-                />
-            </div>
+            )}
+            <AppSelect<LogType, ItemPropertyView>
+                value={filter.type}
+                options={LogTypeList}
+                placeholder='Filter by type'
+                onChange={(value) => setFilter({ ...filter, type: value ?? undefined })}
+                getOptionLabel={(shop) => shop.value}
+                getOptionValue={(shop) => shop.value as LogType}
+            />
+
+            <Input
+                placeholder='Filter by ticket id'
+                value={filter.ticketId}
+                onChange={(value) =>
+                    setFilter({ ...filter, ticketId: +value.target.value ? +value.target.value : undefined })
+                }
+                inputMode={'numeric'}
+            />
             <DateTimeFilter filter={filter} setFilter={setFilter} />
         </Space>
     )

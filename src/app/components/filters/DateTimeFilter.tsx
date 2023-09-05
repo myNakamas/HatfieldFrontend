@@ -34,7 +34,6 @@ export const DateTimeFilter = ({
 
     return (
         <RangePicker
-            size={'large'}
             placeholder={placeholder ? [placeholder + ' after', placeholder + ' before'] : undefined}
             allowEmpty={[true, true]}
             value={dates}

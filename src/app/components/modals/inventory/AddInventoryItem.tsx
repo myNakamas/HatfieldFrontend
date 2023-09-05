@@ -160,7 +160,6 @@ export const AddInventoryItemInner = ({
                             render={({ field, fieldState }) => (
                                 <FormField label='Brand' error={fieldState.error}>
                                     <AppCreatableSelect<ItemPropertyView>
-                                        isCreatable
                                         options={brands}
                                         placeholder='Select or add a new brand'
                                         value={field.value?.value}
@@ -181,7 +180,6 @@ export const AddInventoryItemInner = ({
                             render={({ field, fieldState }) => (
                                 <FormField label='Model' error={fieldState.error}>
                                     <AppCreatableSelect<ItemPropertyView>
-                                        isCreatable
                                         options={models}
                                         placeholder='Select or add a new model'
                                         value={field.value?.value}

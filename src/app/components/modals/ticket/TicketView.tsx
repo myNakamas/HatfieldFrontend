@@ -11,11 +11,11 @@ import dateFormat from 'dateformat'
 import { EditTicketForm } from './EditTicketForm'
 import { putCompleteTicket, putFreezeTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
 import { useQuery, useQueryClient } from 'react-query'
-import { ItemPropertyView } from '../../../models/interfaces/generalModels'
+import { ItemPropertyView, PageRequest } from '../../../models/interfaces/generalModels'
 import { activeTicketStatuses, TicketStatus, TicketStatusesArray } from '../../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
-import { Button, Card, Space } from 'antd'
+import { Button, Card, Space, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
 import { CustomTable } from '../../table/CustomTable'
@@ -34,6 +34,7 @@ import { getAllDeviceLocations } from '../../../axios/http/shopRequests'
 import {
     faCheck,
     faEye,
+    faFileInvoice,
     faFileInvoiceDollar,
     faHistory,
     faMessage,
@@ -45,6 +46,11 @@ import { FormField } from '../../form/Field'
 import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
 import { DetailedTicketInfoView, TicketModalDescription } from './DetailedTicketInfoView'
 import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
+import { InvoicesTable, openPdfBlob } from '../../../pages/invoices/Invoices'
+import { defaultPage } from '../../../models/enums/defaultValues'
+import { InvoiceFilter } from '../../../models/interfaces/filters'
+import { getAllInvoices } from '../../../axios/http/invoiceRequests'
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft'
 
 export const TicketView = ({
     ticket,
@@ -60,6 +66,7 @@ export const TicketView = ({
     const [ticketLogOpen, setTicketLogOpen] = useState(false)
     const [isUseModalOpen, setIsUseModalOpen] = useState(false)
     const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+    const [isDeposit, setIsDeposit] = useState(false)
 
     useEffect(() => {
         if (view) setMode(view)
@@ -81,7 +88,10 @@ export const TicketView = ({
                         <>
                             <DetailedTicketInfoView
                                 ticket={ticket}
-                                closeModal={() => setTicketLogOpen(false)}
+                                closeModal={() => {
+                                    setTicketLogOpen(false)
+                                    setIsDeposit(false)
+                                }}
                                 show={ticketLogOpen}
                             />
                             <AddUsedItem
@@ -93,19 +103,32 @@ export const TicketView = ({
                             />
                             <AddTicketInvoice
                                 ticket={ticket}
+                                isDeposit={isDeposit}
                                 closeModal={() => setShowInvoiceModal(false)}
                                 isModalOpen={showInvoiceModal}
                             />
                         </>
                     )}
                     <div className='editModalButton '>
-                        {mode !== 'edit' && isWorker() ? (
-                            <Button
-                                icon={<FontAwesomeIcon icon={faPenToSquare} size={'lg'} />}
-                                onClick={() => setMode('edit')}
-                            />
+                        {mode === 'view' && isWorker() ? (
+                            <Space>
+                                <Button
+                                    icon={<FontAwesomeIcon icon={faPenToSquare} size={'lg'} />}
+                                    onClick={() => setMode('edit')}
+                                    title={'Edit ticket'}
+                                />
+                                <Button
+                                    icon={<FontAwesomeIcon icon={faFileInvoice} size={'lg'} />}
+                                    onClick={() => setMode('invoice')}
+                                    title={'View Ticket invoices'}
+                                />
+                            </Space>
                         ) : (
-                            <></>
+                            <Button
+                                icon={<FontAwesomeIcon icon={faArrowLeft} size={'lg'} />}
+                                onClick={() => setMode('view')}
+                                title={'Go back to ticket view'}
+                            />
                         )}
                     </div>
                     {mode === 'edit' && (
@@ -118,8 +141,13 @@ export const TicketView = ({
                     {mode === 'view' && (
                         <TicketViewInner
                             {...{ ticket, setIsUseModalOpen, setTicketLogOpen, setShowInvoiceModal, closeModal }}
+                            setShowDepositInvoiceModal={(bool) => {
+                                setShowInvoiceModal(bool)
+                                setIsDeposit(bool)
+                            }}
                         />
                     )}
+                    {mode === 'invoice' && <TicketInvoices ticket={ticket} />}
                 </>
             )}
         </AppModal>
@@ -131,12 +159,14 @@ const TicketViewInner = ({
     closeModal,
     setIsUseModalOpen,
     setShowInvoiceModal,
+    setShowDepositInvoiceModal,
     setTicketLogOpen,
 }: {
     ticket: Ticket
     closeModal: () => void
     setIsUseModalOpen: (value: boolean) => void
     setShowInvoiceModal: (value: boolean) => void
+    setShowDepositInvoiceModal: (value: boolean) => void
     setTicketLogOpen: (value: boolean) => void
 }) => {
     const navigate = useNavigate()
@@ -186,29 +216,18 @@ const TicketViewInner = ({
         }
     }
     const printTicketLabel = () => {
-        toast.promise(postPrintTicketLabel(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
-            const fileUrl = URL.createObjectURL(blob)
-            window.open(fileUrl)
-        })
+        toast.promise(postPrintTicketLabel(ticket?.id), toastPrintTemplate, toastProps).then(openPdfBlob)
     }
     const previewTicketLabel = () => {
-        toast.promise(getTicketLabelImage(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
-            const fileUrl = URL.createObjectURL(blob)
-            window.open(fileUrl)
-        })
+        toast.promise(getTicketLabelImage(ticket?.id), toastPrintTemplate, toastProps).then(openPdfBlob)
     }
     const printTicket = () => {
-        toast.promise(postPrintTicket(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
-            const fileUrl = URL.createObjectURL(blob)
-            window.open(fileUrl)
-        })
+        toast.promise(postPrintTicket(ticket?.id), toastPrintTemplate, toastProps).then(openPdfBlob)
     }
     const previewTicket = () => {
-        toast.promise(getTicketImage(ticket?.id), toastPrintTemplate, toastProps).then((blob) => {
-            const fileUrl = URL.createObjectURL(blob)
-            window.open(fileUrl)
-        })
+        toast.promise(getTicketImage(ticket?.id), toastPrintTemplate, toastProps).then(openPdfBlob)
     }
+
     return (
         <div className='viewModal'>
             <TicketModalDescription ticket={ticket} />
@@ -332,6 +351,14 @@ const TicketViewInner = ({
                                     </Button>
                                     <Button icon={<FontAwesomeIcon icon={faEye} />} onClick={previewTicket} />
                                 </Space.Compact>
+                                <Space.Compact>
+                                    <Button
+                                        icon={<FontAwesomeIcon icon={faPrint} />}
+                                        onClick={() => setShowDepositInvoiceModal(true)}
+                                    >
+                                        Print invoice for deposit
+                                    </Button>
+                                </Space.Compact>
 
                                 <Button
                                     icon={<FontAwesomeIcon icon={faHistory} />}
@@ -342,6 +369,27 @@ const TicketViewInner = ({
                         </Space>
                     </Space>
                 </>
+            )}
+        </div>
+    )
+}
+
+const TicketInvoices = ({ ticket }: { ticket: Ticket }) => {
+    const [page, setPage] = useState<PageRequest>(defaultPage)
+    const [filter] = useState<InvoiceFilter>({ valid: true, ticketId: ticket.id })
+    const { data: invoices, isLoading } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }))
+
+    return (
+        <div className={'w-100'}>
+            <Space>
+                <Typography>
+                    <h3>Invoices for ticket#{ticket.id}</h3>
+                </Typography>
+            </Space>
+            {invoices ? (
+                <InvoicesTable {...{ page, setPage, invoices, isLoading }} />
+            ) : (
+                <NoDataComponent items={'invoices'} />
             )}
         </div>
     )

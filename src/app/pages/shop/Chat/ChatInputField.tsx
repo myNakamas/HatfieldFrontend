@@ -8,7 +8,7 @@ import { WebSocketContext } from '../../../contexts/WebSocketContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons/faPaperPlane'
 import { faFileUpload } from '@fortawesome/free-solid-svg-icons'
-import { Button, Modal, Switch, Upload, UploadFile, UploadProps } from 'antd'
+import { Button, Input, Modal, Space, Switch, Upload, UploadFile, UploadProps } from 'antd'
 import { getBase64, getCurrentTime } from '../../../utils/helperFunctions'
 import { RcFile } from 'antd/es/upload'
 
@@ -69,50 +69,52 @@ export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?:
             <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={() => setPreviewOpen(false)}>
                 <img alt='example' style={{ width: '100%' }} src={previewImage} />
             </Modal>
-            <Upload
-                className='upload-list-inline'
-                listType='text'
-                fileList={fileList}
-                onPreview={handlePreview}
-                onChange={handleChange}
-                onRemove={(file) => {
-                    const index = fileList.indexOf(file)
-                    const newFileList = fileList.slice()
-                    newFileList.splice(index, 1)
-                    setFileList(newFileList)
-                }}
-                beforeUpload={(file) => {
-                    setFileList([...fileList, file])
+            <Space.Compact className={'w-100 '}>
+                <Upload
+                    listType='text'
+                    fileList={fileList}
+                    onPreview={handlePreview}
+                    onChange={handleChange}
+                    onRemove={(file) => {
+                        const index = fileList.indexOf(file)
+                        const newFileList = fileList.slice()
+                        newFileList.splice(index, 1)
+                        setFileList(newFileList)
+                    }}
+                    beforeUpload={(file) => {
+                        setFileList([...fileList, file])
+                        return false
+                    }}
+                >
+                    <Button size={'large'} icon={<FontAwesomeIcon icon={faFileUpload} />} />
+                </Upload>
 
-                    return false
-                }}
-            >
-                <Button icon={<FontAwesomeIcon icon={faFileUpload} />} />
-            </Upload>
-            {fileList.length === 0 && (
-                <input
-                    className='input'
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && send()}
-                    aria-autocomplete='none'
-                    disabled={ticket?.id === undefined}
-                    autoFocus
+                {fileList.length === 0 && (
+                    <Input
+                        value={messageText}
+                        onChange={(e) => setMessageText(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && send()}
+                        aria-autocomplete='none'
+                        disabled={ticket?.id === undefined}
+                        autoFocus
+                    />
+                )}
+                <Button
+                    type='primary'
+                    size={'large'}
+                    disabled={!stompClient.connected || !ticket?.id}
+                    onClick={fileList.length === 0 ? send : sendPicture}
+                    icon={<FontAwesomeIcon color='white' size='lg' icon={faPaperPlane} />}
                 />
-            )}
+            </Space.Compact>
             {isWorker() && (
-                <div>
-                    <div className='span'>Send to client</div>
+                <Space direction={'vertical'}>
+                    <div className='span' style={{ minWidth: 100 }}>
+                        Send to client
+                    </div>
                     <Switch checked={showToClient} onChange={() => setShowToClient((prev) => !prev)} />
-                </div>
+                </Space>
             )}
-            <Button
-                type='primary'
-                className={`sendButton`}
-                disabled={!stompClient.connected || !ticket?.id}
-                onClick={fileList.length === 0 ? send : sendPicture}
-                icon={<FontAwesomeIcon color='white' size='lg' icon={faPaperPlane} />}
-            />
         </div>
     )
 }

@@ -24,6 +24,7 @@ import { activeTicketStatuses, completedTicketStatuses } from '../../models/enum
 import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { Deadline } from '../../components/modals/ticket/Deadline'
+import { openPdfBlob } from '../invoices/Invoices'
 
 export const ClientDashboard = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
@@ -191,7 +192,7 @@ export const ActiveTicketsTable = ({
                             leftPrice: 'Left to pay',
                             actions: 'Actions',
                         }}
-                        onClick={(ticket) => setSelectedTicket(ticket)}
+                        onClick={({ id }) => setSelectedTicket(data.content.find((ticket) => ticket.id === id))}
                         pagination={page}
                         onPageChange={setPage}
                         totalCount={data.totalCount}
@@ -202,11 +203,6 @@ export const ActiveTicketsTable = ({
             </div>
         </CustomSuspense>
     )
-}
-
-export const openPdfBlob = (pdfBlob: Blob) => {
-    const fileUrl = URL.createObjectURL(pdfBlob)
-    window.open(fileUrl)
 }
 
 export const CompletedTicketsTable = ({
@@ -257,7 +253,7 @@ export const CompletedTicketsTable = ({
                             warrantyLeft: 'Warranty left',
                             actions: 'Actions',
                         }}
-                        onClick={(ticket) => setSelectedTicket(ticket)}
+                        onClick={({ id }) => setSelectedTicket(data.content.find((ticket) => ticket.id === id))}
                         pagination={page}
                         onPageChange={setPage}
                         totalCount={data.totalCount}
@@ -275,11 +271,7 @@ function InnerInvoices({ filter }: { filter: TicketFilter }) {
     const { isClient } = useContext(AuthContext)
     const openPdf = async (invoiceId: number) => {
         const pdfBlob = isClient() ? await getClientInvoicePdf(invoiceId) : await getInvoicePdf(invoiceId)
-        if (pdfBlob) {
-            const fileUrl = URL.createObjectURL(pdfBlob)
-            const pdfPage = window.open(fileUrl)
-            if (pdfPage) pdfPage.document.title = 'Hatfield Invoice ' + invoiceId
-        }
+        openPdfBlob(pdfBlob)
     }
     const { data: invoices, isLoading } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }), {
         suspense: true,

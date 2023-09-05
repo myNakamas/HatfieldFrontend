@@ -1,6 +1,7 @@
 import backendClient from '../backendClient'
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps } from '../../components/modals/ToastProps'
+import { openPdfBlob } from '../../pages/invoices/Invoices'
 
 export const postPrintItemLabel = (itemId: number | undefined): Promise<Blob> => {
     if (!itemId) return new Promise(() => null)
@@ -24,10 +25,7 @@ export const getTicketLabelImage = (ticketId: number | undefined): Promise<Blob>
 }
 export const printUserLabel = (userId: string | undefined, print: boolean) => {
     const promise = print ? postPrintUser(userId) : getPrintUser(userId)
-    toast.promise(promise, toastPrintTemplate, toastProps).then((blob) => {
-        const fileUrl = URL.createObjectURL(blob)
-        window.open(fileUrl)
-    })
+    toast.promise(promise, toastPrintTemplate, toastProps).then(openPdfBlob)
 }
 export const postPrintTicket = (ticketId: number | undefined): Promise<Blob> => {
     if (!ticketId) return new Promise(() => null)

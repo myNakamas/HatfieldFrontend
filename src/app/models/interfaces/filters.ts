@@ -45,6 +45,7 @@ export interface InvoiceFilter extends Filter {
     brand?: string
     deviceLocation?: number
     shopId?: number
+    ticketId?: number
     clientId?: string
     createdById?: string
     createdBefore?: string

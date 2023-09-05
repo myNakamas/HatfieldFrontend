@@ -5,9 +5,10 @@ import { faMoneyBill } from '@fortawesome/free-solid-svg-icons/faMoneyBill'
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons/faCreditCard'
 import { faDollar } from '@fortawesome/free-solid-svg-icons/faDollar'
 import { faHeadset } from '@fortawesome/free-solid-svg-icons/faHeadset'
+import { faHandHoldingDollar } from '@fortawesome/free-solid-svg-icons'
 
-export type InvoiceType = 'REPAIR' | 'BUY' | 'SELL' | 'ACCESSORIES'
-export const InvoiceTypes = Array('REPAIR', 'BUY', 'SELL', 'ACCESSORIES')
+export type InvoiceType = 'REPAIR' | 'BUY' | 'SELL' | 'ACCESSORIES' | 'DEPOSIT'
+export const InvoiceTypes = Array('REPAIR', 'BUY', 'SELL', 'ACCESSORIES', 'DEPOSIT')
 export const InvoiceTypesArray = InvoiceTypes.map((value, index) => ({ value, id: index }))
 
 export type PaymentMethod = 'CASH' | 'CARD' | 'COMBINED'
@@ -43,6 +44,7 @@ export const invoiceTypeIcon = {
     BUY: faShoppingBag,
     SELL: faCommentsDollar,
     ACCESSORIES: faHeadset,
+    DEPOSIT: faHandHoldingDollar,
 }
 
 export const paymentMethodIcon = {

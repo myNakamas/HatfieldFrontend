@@ -154,7 +154,7 @@ const TicketsTab = ({
                 <CustomTable<Ticket>
                     data={data.content.map((ticket) => ({
                         ...ticket,
-                        timestamp: dateFormat(ticket.timestamp),
+                        createdAt: dateFormat(ticket.timestamp),
                         timeLeft:
                             moment(ticket.deadline) > moment() ? (
                                 <Statistic.Countdown
@@ -192,7 +192,10 @@ const TicketsTab = ({
                         clientName: 'Client',
                         actions: 'Actions',
                     }}
-                    onClick={(ticket) => setSelectedTicket(ticket)}
+                    onClick={({ id }) => {
+                        const ticket = data.content.find((ticket) => ticket.id === id)
+                        setSelectedTicket(ticket)
+                    }}
                     pagination={page}
                     onPageChange={setPage}
                     totalCount={data.totalCount}
