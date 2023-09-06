@@ -23,6 +23,7 @@ export interface InventoryFilter extends Filter {
     shopId?: number
     categoryId?: number
     isNeeded?: boolean
+    onlyNonEmpty?: boolean
     inShoppingList?: boolean
 }
 

@@ -104,7 +104,8 @@ export const fetchItemById = (params: { id?: number }): Promise<InventoryItem> =
     return backendClient.get('inventory/item', { params })
 }
 export const updateItemQuantity = ({ item }: { item: InventoryItem }) => {
-    return backendClient.post('inventory/item/updateQuantity', item)
+    const { id, count } = item
+    return backendClient.post('inventory/item/updateQuantity', { id, count })
 }
 
 export const getAllCategories = (): Promise<Category[]> => {

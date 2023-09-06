@@ -285,8 +285,8 @@ const SendItemToShop = ({ item }: { item: InventoryItem }) => {
             .then(() => {
                 queryClient.invalidateQueries(['shopItems']).then()
             })
-            .catch((error: AppError) => {
-                setError('root', { message: error.detail })
+            .catch((error?: AppError) => {
+                setError('root', { message: error?.detail })
             })
     }
 

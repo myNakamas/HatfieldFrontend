@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchComponent } from '../../components/filters/SearchComponent'
 import { UserFilter } from '../../models/interfaces/filters'
 import { clientsTourSteps } from '../../models/enums/userEnums'
-import { Button, FloatButton, Input, Space, Switch, Tour } from 'antd'
+import { Button, FloatButton, Input, Space, Tour } from 'antd'
 import { faPen, faPlus, faQuestion } from '@fortawesome/free-solid-svg-icons'
 import { ViewUser } from '../../components/modals/users/ViewUser'
 import { AuthContext } from '../../contexts/AuthContext'
@@ -19,6 +19,7 @@ import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalMo
 import { defaultPage } from '../../models/enums/defaultValues'
 import { UserBanButton } from '../../components/UserBanButton'
 import { AppSelect } from '../../components/form/AppSelect'
+import CheckableTag from 'antd/es/tag/CheckableTag'
 
 const clientsTableHeaders = {
     username: 'username',
@@ -134,8 +135,12 @@ const ClientsFilters = ({
                 placeholder={'Filter by exact phone'}
             />
             <Space>
-                Banned clients filter
-                <Switch checked={filter.banned} onChange={(value) => setFilter({ ...filter, banned: value })} />
+                <CheckableTag
+                    checked={filter.banned ?? false}
+                    onChange={(value) => setFilter({ ...filter, banned: value })}
+                >
+                    Show banned clients
+                </CheckableTag>
             </Space>
         </div>
     )

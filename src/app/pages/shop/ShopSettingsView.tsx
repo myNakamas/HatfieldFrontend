@@ -391,7 +391,7 @@ const TestSmsToken = ({ token }: { token: string }) => {
                 value={response?.data ? `OK! Balance left: ${response?.data.balance} ` : error ? 'Error' : ''}
             />
             <Button
-                type={'ghost'}
+                type={'text'}
                 disabled
                 icon={<FontAwesomeIcon icon={response?.data ? faCheck : error ? faX : faClock} />}
             />

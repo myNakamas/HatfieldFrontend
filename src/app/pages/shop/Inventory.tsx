@@ -25,6 +25,7 @@ import { EditInventoryItem } from '../../components/modals/inventory/EditInvento
 import { defaultPage } from '../../models/enums/defaultValues'
 import { inventoryTourSteps } from '../../models/enums/userEnums'
 import { AppSelect } from '../../components/form/AppSelect'
+import CheckableTag from 'antd/es/tag/CheckableTag'
 
 export const Inventory = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
@@ -33,7 +34,7 @@ export const Inventory = () => {
     const navigate = useNavigate()
     const { loggedUser } = useContext(AuthContext)
     const [params] = useSearchParams()
-    const [filter, setFilter] = useState<InventoryFilter>({ shopId: loggedUser?.shopId })
+    const [filter, setFilter] = useState<InventoryFilter>({ shopId: loggedUser?.shopId, onlyNonEmpty: true })
     const [createModalIsOpen, setCreateModalIsOpen] = useState(false)
     const [page, setPage] = useState<PageRequest>(defaultPage)
     const [selectedItem, setSelectedItem] = useState<InventoryItem | undefined>()
@@ -131,6 +132,12 @@ const InventoryFilters = ({
         <Space wrap className={'w-100 justify-between'}>
             <SearchComponent {...{ filter, setFilter }} />
             <Space wrap>
+                <CheckableTag
+                    checked={filter.onlyNonEmpty ?? false}
+                    onChange={(value) => setFilter({ ...filter, onlyNonEmpty: value })}
+                >
+                    Hide Empty Items
+                </CheckableTag>
                 <AppSelect<number, ItemPropertyView>
                     value={filter.shopId}
                     options={shops ?? []}

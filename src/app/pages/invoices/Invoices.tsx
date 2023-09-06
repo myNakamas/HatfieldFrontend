@@ -10,8 +10,8 @@ import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { getAllInvoices, getInvoicePdf, invalidateInvoice } from '../../axios/http/invoiceRequests'
 import dateFormat from 'dateformat'
 import { InvoiceType, invoiceTypeIcon, InvoiceTypesArray, paymentMethodIcon } from '../../models/enums/invoiceEnums'
-import { Button, InputNumber, Popconfirm, Skeleton, Space, Switch } from 'antd'
-import { faPrint } from '@fortawesome/free-solid-svg-icons'
+import { Button, InputNumber, Popconfirm, Popover, Skeleton, Space } from 'antd'
+import { faExclamationTriangle, faPrint } from '@fortawesome/free-solid-svg-icons'
 import { getAllBrands, getAllModels, getAllShops } from '../../axios/http/shopRequests'
 import { getAllClients, getAllWorkers } from '../../axios/http/userRequests'
 import { SearchComponent } from '../../components/filters/SearchComponent'
@@ -19,7 +19,6 @@ import { User } from '../../models/interfaces/user'
 import { DateTimeFilter } from '../../components/filters/DateTimeFilter'
 import { AddInvoice } from '../../components/modals/AddInvoice'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
-import { FormField } from '../../components/form/Field'
 import { AuthContext } from '../../contexts/AuthContext'
 import { defaultPage } from '../../models/enums/defaultValues'
 import { toast } from 'react-toastify'
@@ -29,6 +28,8 @@ import { QrReaderButton } from '../../components/modals/QrReaderModal'
 import { Deadline } from '../../components/modals/ticket/Deadline'
 import { AppSelect } from '../../components/form/AppSelect'
 import { Invoice } from '../../models/interfaces/invoice'
+import CheckableTag from 'antd/es/tag/CheckableTag'
+import { FilterWrapper } from '../../components/filters/FilterWrapper'
 
 export const openPdfBlob = (pdfBlob: Blob) => {
     if (pdfBlob) {
@@ -70,9 +71,14 @@ export const InvoicesTable = ({
             data={invoices.content.map((invoice) => ({
                 ...invoice,
                 type: (
-                    <>
+                    <Space>
                         <FontAwesomeIcon icon={invoiceTypeIcon[invoice.type]} /> {invoice.type}
-                    </>
+                        {!invoice.valid && (
+                            <Popover content={'Invalid Invoice!'}>
+                                <FontAwesomeIcon icon={faExclamationTriangle} color={'#FF0'} size={'xl'} />
+                            </Popover>
+                        )}
+                    </Space>
                 ),
                 timestamp: dateFormat(invoice.timestamp),
                 price: invoice.totalPrice.toFixed(2),
@@ -178,8 +184,7 @@ const InvoiceFilters = ({
 
     return advanced ? (
         <Space wrap align={'start'}>
-            <div className='filterColumn'>
-                <h4>Filters</h4>
+            <FilterWrapper title={'General filters'}>
                 <SearchComponent {...{ filter, setFilter }} />
                 <AppSelect<InvoiceType, ItemPropertyView>
                     value={filter.type}
@@ -189,16 +194,8 @@ const InvoiceFilters = ({
                     getOptionLabel={(status) => status.value}
                     getOptionValue={(status) => status.value as InvoiceType}
                 />
-                <InputNumber
-                    min={0}
-                    style={{ minWidth: 300 }}
-                    value={filter.ticketId}
-                    onChange={(value) => setFilter({ ...filter, ticketId: value ?? undefined })}
-                    placeholder={'Filter by Ticket Id'}
-                />
-            </div>
-            <div className='filterColumn' title={'Device filters'}>
-                <h4>Device filters</h4>
+            </FilterWrapper>
+            <FilterWrapper title={'Device filters'}>
                 <AppSelect<string, ItemPropertyView>
                     value={filter.model}
                     options={models}
@@ -215,9 +212,8 @@ const InvoiceFilters = ({
                     getOptionLabel={(brand) => brand.value}
                     getOptionValue={(brand) => String(brand.value)}
                 />
-            </div>
-            <div className='filterColumn' title={'Filter by users'}>
-                <h4>Filter by users</h4>
+            </FilterWrapper>
+            <FilterWrapper title={'Filter by users'}>
                 <AppSelect<string, User>
                     value={filter.clientId}
                     options={clients}
@@ -244,9 +240,8 @@ const InvoiceFilters = ({
                         getOptionValue={(shop) => shop.id}
                     />
                 )}
-            </div>
-            <div className='filterColumn' title={'Filter by date'}>
-                <h4>Filter by date</h4>
+            </FilterWrapper>
+            <FilterWrapper title={'Other Filters'}>
                 <DateTimeFilter
                     filter={filter}
                     setFilter={({ from, to }) => {
@@ -258,12 +253,20 @@ const InvoiceFilters = ({
                     }}
                     placeholder={'Created'}
                 />
-                <div>
-                    <FormField label='Valid invoices filter'>
-                        <Switch checked={filter.valid} onChange={(value) => setFilter({ ...filter, valid: value })} />
-                    </FormField>
-                </div>
-            </div>
+                <InputNumber
+                    min={0}
+                    style={{ minWidth: 300 }}
+                    value={filter.ticketId}
+                    onChange={(value) => setFilter({ ...filter, ticketId: value ?? undefined })}
+                    placeholder={'Filter by Ticket Id'}
+                />
+                <CheckableTag
+                    checked={filter.valid ?? false}
+                    onChange={(value) => setFilter({ ...filter, valid: value })}
+                >
+                    Only Valid Invoices
+                </CheckableTag>
+            </FilterWrapper>
         </Space>
     ) : (
         <div className='flex'>

@@ -33,6 +33,7 @@ import { QrReaderButton } from '../../../components/modals/QrReaderModal'
 import moment from 'moment/moment'
 import { AddTicketInvoice } from '../../../components/modals/AddTicketInvoice'
 import { AppSelect } from '../../../components/form/AppSelect'
+import { FilterWrapper } from '../../../components/filters/FilterWrapper'
 
 export const Tickets = () => {
     const { loggedUser, isClient, isWorker } = useContext(AuthContext)
@@ -104,16 +105,16 @@ export const Tickets = () => {
                 view={ticketView}
             />
             <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} />
-            <Space className='buttonHeader'>
+            <Space className='buttonHeader' align={'start'}>
                 <Space>
                     {isWorker() && (
                         <Button type={'primary'} onClick={() => setShowNewModal(true)}>
                             Add Ticket
                         </Button>
                     )}
-                </Space>
-                <Space wrap>
                     <QrReaderButton title={'Scan QR code to open ticket'} />
+                </Space>
+                <Space wrap align={'start'}>
                     <TicketFilters {...{ filter, setFilter }} />
                 </Space>
             </Space>
@@ -226,9 +227,8 @@ const TicketFilters = ({
     })
     const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
     return advanced ? (
-        <Space className='largeFilter' wrap>
-            <div className='filterColumn'>
-                <h4>Filters</h4>
+        <Space className='largeFilter' wrap align={'start'}>
+            <FilterWrapper title={'General filters'}>
                 <SearchComponent {...{ filter, setFilter }} />
                 <Select<TicketStatus[], ItemPropertyView>
                     mode={'tags'}
@@ -240,9 +240,8 @@ const TicketFilters = ({
                     optionFilterProp={'value'}
                     optionLabelProp={'value'}
                 />
-            </div>
-            <div className='filterColumn' title={'Device filters'}>
-                <h4>Device filters</h4>
+            </FilterWrapper>
+            <FilterWrapper title={'Device filters'}>
                 <AppSelect<number, ItemPropertyView>
                     value={filter.brandId}
                     options={brands}
@@ -259,9 +258,8 @@ const TicketFilters = ({
                     getOptionLabel={(model) => model.value}
                     getOptionValue={(model) => model.id}
                 />
-            </div>
-            <div className='filterColumn' title={'Filter by users'}>
-                <h4>Filter by users</h4>
+            </FilterWrapper>
+            <FilterWrapper title={'Filter by users'}>
                 <AppSelect<string, User>
                     value={filter.clientId}
                     options={clients}
@@ -288,9 +286,8 @@ const TicketFilters = ({
                         getOptionValue={(shop) => shop.id}
                     />
                 )}
-            </div>
-            <div className='filterColumn' title={'Filter by date'}>
-                <h4>Filter by date</h4>
+            </FilterWrapper>
+            <FilterWrapper title={'Filter by date'}>
                 <DateTimeFilter
                     filter={filter}
                     setFilter={({ from, to }) => {
@@ -313,7 +310,7 @@ const TicketFilters = ({
                     }}
                     placeholder={'Deadline'}
                 />
-            </div>
+            </FilterWrapper>
         </Space>
     ) : (
         <Space wrap>
