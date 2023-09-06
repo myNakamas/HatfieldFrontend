@@ -2,14 +2,14 @@ import { TicketFilter } from '../models/interfaces/filters'
 import React, { useContext, useState } from 'react'
 import { Space } from 'antd'
 import { AuthContext } from '../contexts/AuthContext'
-import { defaultDashboardFilter } from '../models/enums/defaultValues'
+import { defaultStatisticsFilter } from '../models/enums/defaultValues'
 import { InvoicesReport } from '../components/reports/InvoicesReport'
 import { DashboardFilters } from './dashboard/Dashboard'
 import { SellReport } from '../components/reports/RepairsReport'
 
 export const Statistics = () => {
     const { loggedUser } = useContext(AuthContext)
-    const [filter, setFilter] = useState<TicketFilter>(defaultDashboardFilter(loggedUser?.shopId))
+    const [filter, setFilter] = useState<TicketFilter>(defaultStatisticsFilter(loggedUser?.shopId))
 
     return (
         <div className='mainScreen'>

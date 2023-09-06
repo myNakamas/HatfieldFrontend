@@ -1,8 +1,8 @@
 import { Ticket } from '../../../models/interfaces/ticket'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { defaultPage } from '../../../models/enums/defaultValues'
 import { LogsFilter } from '../../../models/interfaces/filters'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { getAllLogs } from '../../../axios/http/shopRequests'
 import { AppModal } from '../AppModal'
 import { Card, Collapse, Descriptions, List, Popover, Space } from 'antd'
@@ -13,7 +13,7 @@ import { Deadline } from './Deadline'
 import { Log } from '../../../models/interfaces/shop'
 import { getProfilePicture } from '../../../axios/http/userRequests'
 import { ProfileImage } from '../../user/ProfileImage'
-import { getUserString } from '../../../utils/helperFunctions'
+import { currencyFormat, getUserString } from '../../../utils/helperFunctions'
 
 export const DetailedTicketInfoView = ({
     ticket,
@@ -27,7 +27,10 @@ export const DetailedTicketInfoView = ({
     const [page, setPage] = useState(defaultPage)
     const filter: LogsFilter = { ticketId: ticket.id }
     const { data: logs } = useQuery(['logs', filter, page], () => getAllLogs({ filter, page }))
-
+    const queryClient = useQueryClient()
+    useEffect(() => {
+        queryClient.invalidateQueries(['logs', filter])
+    }, [show])
     return (
         <AppModal title={'More details'} isModalOpen={show} closeModal={closeModal}>
             <Space direction={'vertical'} className={'w-100'}>
@@ -78,8 +81,8 @@ export const DetailedTicketInfoView = ({
 
 export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
     return (
-        <Space direction={'vertical'}>
-            <Space wrap className={'justify-between w-100'}>
+        <Space direction={'vertical'} className={'w-100'}>
+            <Space wrap className={'justify-between w-100'} align={'center'}>
                 <Space align={'start'}>
                     <Card title={'Deadline'} size={'small'}>
                         <Deadline deadline={ticket.deadline} />
@@ -90,6 +93,16 @@ export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
                         children={`${ticket.deviceBrand ?? ''}  ${ticket.deviceModel ?? ''}`}
                     />
                 </Space>
+                {(ticket.deposit || ticket.totalPrice) && (
+                    <Descriptions bordered size={'small'}>
+                        {ticket.deposit && (
+                            <DescriptionsItem span={2} label={'Deposit'} children={currencyFormat(ticket.deposit)} />
+                        )}
+                        {ticket.totalPrice && (
+                            <DescriptionsItem label={'Total price'} children={currencyFormat(ticket.totalPrice)} />
+                        )}
+                    </Descriptions>
+                )}
                 {ticket.devicePassword && <Card size={'small'} title={'Password'} children={ticket.devicePassword} />}
             </Space>
             <Descriptions bordered layout={'vertical'} className={'w-100'}>

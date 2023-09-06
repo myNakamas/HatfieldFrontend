@@ -39,6 +39,7 @@ export interface TicketFilter extends Filter {
     deadlineBefore?: string
     deadlineAfter?: string
     ticketStatuses?: TicketStatus[]
+    hideCompleted?: boolean
 }
 
 export interface InvoiceFilter extends Filter {

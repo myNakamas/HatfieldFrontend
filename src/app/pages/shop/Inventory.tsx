@@ -26,6 +26,7 @@ import { defaultPage } from '../../models/enums/defaultValues'
 import { inventoryTourSteps } from '../../models/enums/userEnums'
 import { AppSelect } from '../../components/form/AppSelect'
 import CheckableTag from 'antd/es/tag/CheckableTag'
+import { currencyFormat, resetPageIfNoValues } from '../../utils/helperFunctions'
 
 export const Inventory = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
@@ -193,6 +194,7 @@ export const InventoryInner = ({
     const { data } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), {
         suspense: true,
         onSuccess: (newItems) => {
+            resetPageIfNoValues(newItems, setPage)
             setSelectedItem((item) => newItems.content.find(({ id }) => item?.id === id) ?? item)
         },
     })
@@ -219,18 +221,20 @@ export const InventoryInner = ({
 
     return data && data.content.length > 0 ? (
         <CustomTable<InventoryItem>
-            data={data.content.map((item) => ({
-                ...item,
-                name: item.name ?? '-',
-                sell: item.sellPrice?.toFixed(2) ?? '-',
-                type: item.categoryView?.itemType ?? '-',
-                ...item.columns,
-                actions: <Button onClick={() => setEditItem(item)} icon={<FontAwesomeIcon icon={faPen} />} />,
-            }))}
+            data={data.content.map((item) => {
+                return {
+                    ...item.columns,
+                    ...item,
+                    itemName: item.name ?? '-',
+                    sell: currencyFormat(item.sellPrice),
+                    categoryType: item.categoryView?.itemType ?? '-',
+                    actions: <Button onClick={() => setEditItem(item)} icon={<FontAwesomeIcon icon={faPen} />} />,
+                }
+            })}
             headers={{
-                name: 'Name',
+                itemName: 'Name',
                 sell: 'Price',
-                type: 'Item type',
+                categoryType: 'Item type',
                 count: 'Count',
                 ...additionalHeaders,
                 actions: 'Actions',

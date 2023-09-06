@@ -1,5 +1,5 @@
 import { Log } from '../models/interfaces/shop'
-import { defaultPage } from '../models/enums/defaultValues'
+import { defaultPage, defaultPageSizeOptions, getDefaultPageSize } from '../models/enums/defaultValues'
 import React, { Suspense, useContext, useState } from 'react'
 import { Filter, LogsFilter } from '../models/interfaces/filters'
 import { useQuery } from 'react-query'
@@ -13,6 +13,7 @@ import { LogType, LogTypeList } from '../models/enums/logEnums'
 import { AuthContext } from '../contexts/AuthContext'
 import { LogListRow } from '../components/modals/ticket/DetailedTicketInfoView'
 import { AppSelect } from '../components/form/AppSelect'
+import { resetPageIfNoValues } from '../utils/helperFunctions'
 
 export const Logs = () => {
     const [page, setPage] = useState(defaultPage)
@@ -40,6 +41,9 @@ const LogsInner = ({
 }) => {
     const { data: logs, isLoading } = useQuery(['logs', filter, page], () => getAllLogs({ filter, page }), {
         suspense: true,
+        onSuccess: (logs) => {
+            resetPageIfNoValues(logs, setPage)
+        },
     })
     const [selectedLog, setSelectedLog] = useState<Log | undefined>()
 
@@ -51,8 +55,11 @@ const LogsInner = ({
                 dataSource={logs?.content}
                 pagination={{
                     total: logs?.totalCount,
+                    current: page.page,
                     onChange: (page, pageSize) => setPage({ page, pageSize }),
                     position: 'bottom',
+                    pageSizeOptions: defaultPageSizeOptions,
+                    defaultPageSize: getDefaultPageSize(),
                     showSizeChanger: true,
                 }}
                 renderItem={(log) => <LogListRow onClick={setSelectedLog} log={log} key={'logKey' + log.id} />}

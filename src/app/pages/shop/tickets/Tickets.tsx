@@ -26,7 +26,7 @@ import {
 import { useSearchParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons'
-import { getUserString } from '../../../utils/helperFunctions'
+import { getUserString, resetPageIfNoValues } from '../../../utils/helperFunctions'
 import { defaultPage } from '../../../models/enums/defaultValues'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { QrReaderButton } from '../../../components/modals/QrReaderModal'
@@ -57,7 +57,10 @@ export const Tickets = () => {
             return query({ page, filter })
         },
         {
-            onSuccess: onSelectedTicketUpdate,
+            onSuccess: (data) => {
+                resetPageIfNoValues(data, setPage)
+                onSelectedTicketUpdate(data)
+            },
         }
     )
 

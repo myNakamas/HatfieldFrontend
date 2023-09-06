@@ -30,6 +30,7 @@ import { AppSelect } from '../../components/form/AppSelect'
 import { Invoice } from '../../models/interfaces/invoice'
 import CheckableTag from 'antd/es/tag/CheckableTag'
 import { FilterWrapper } from '../../components/filters/FilterWrapper'
+import { currencyFormat, resetPageIfNoValues } from '../../utils/helperFunctions'
 
 export const openPdfBlob = (pdfBlob: Blob) => {
     if (pdfBlob) {
@@ -81,7 +82,7 @@ export const InvoicesTable = ({
                     </Space>
                 ),
                 timestamp: dateFormat(invoice.timestamp),
-                price: invoice.totalPrice.toFixed(2),
+                price: currencyFormat(invoice.totalPrice),
                 createdBy: invoice.createdBy.fullName,
                 client: invoice.client?.fullName ?? '-',
                 payment: (
@@ -131,7 +132,11 @@ export const Invoices = () => {
     const [filter, setFilter] = useState<InvoiceFilter>({ valid: true })
     const [addInvoiceModalOpen, setAddInvoiceModalOpen] = useState(false)
     const [page, setPage] = useState<PageRequest>(defaultPage)
-    const { data: invoices, isLoading } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }))
+    const { data: invoices, isLoading } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }), {
+        onSuccess: (invoices) => {
+            resetPageIfNoValues(invoices, setPage)
+        },
+    })
 
     useEffect(() => {
         const invoiceId = params.get('invoiceId')

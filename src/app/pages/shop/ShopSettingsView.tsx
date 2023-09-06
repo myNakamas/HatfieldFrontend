@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { getShopById, updateShop } from '../../axios/http/shopRequests'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -40,9 +40,7 @@ export const ShopSettingsView = () => {
     const { id } = useParams()
     const navigate = useNavigate()
     const queryClient = useQueryClient()
-    const { data: shop, isLoading } = useQuery(['shop', id], () => getShopById(Number(id)), {
-        onSuccess: (data) => resetForm(data),
-    })
+    const { data: shop, isLoading } = useQuery(['shop', id], () => getShopById(Number(id)), {})
     const {
         control,
         register,
@@ -55,10 +53,7 @@ export const ShopSettingsView = () => {
         resolver: yupResolver(ShopSchema),
         defaultValues: shop,
     })
-
-    const resetForm = (data: Shop | undefined) => {
-        reset(data)
-    }
+    useEffect(() => reset(shop), [shop])
 
     const submitShop = (formValue: Shop) => {
         toast
@@ -350,14 +345,20 @@ export const ShopSettingsView = () => {
                         </div>
 
                         <FormError error={errors.root?.message} />
-                        <div className='flex-100 justify-end'>
-                            <Button type='primary' htmlType={'submit'}>
-                                Save
-                            </Button>
+                        <Space className='flex-100 justify-between'>
+                            <Button.Group>
+                                <Button type='primary' htmlType={'submit'}>
+                                    Save
+                                </Button>
+                                <Button htmlType='button' onClick={() => reset(shop)}>
+                                    Reset
+                                </Button>
+                            </Button.Group>
+
                             <Button htmlType='button' onClick={() => navigate('/shops/')}>
                                 Cancel
                             </Button>
-                        </div>
+                        </Space>
                     </form>
                 </Space>
             </CustomSuspense>

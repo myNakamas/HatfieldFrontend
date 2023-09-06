@@ -4,6 +4,10 @@ import { ChatMessage, CreateTicket, CreateUsedItem, Ticket } from '../../models/
 import { TicketFilter } from '../../models/interfaces/filters'
 import { CreateTicketInvoice } from '../../models/interfaces/invoice'
 
+function prepareTicketFilter(filter?: TicketFilter) {
+    return { ...filter, ticketStatuses: filter?.ticketStatuses?.join(',') }
+}
+
 export const fetchAllTickets = ({
     page,
     filter,
@@ -11,7 +15,7 @@ export const fetchAllTickets = ({
     page: PageRequest
     filter: TicketFilter
 }): Promise<Page<Ticket>> => {
-    const ticketFilter = { ...filter, ticketStatuses: filter.ticketStatuses?.join(',') }
+    const ticketFilter = prepareTicketFilter(filter)
     return backendClient.get('ticket/all', { params: { ...page, ...ticketFilter } })
 }
 export const fetchClientTickets = ({
@@ -21,14 +25,16 @@ export const fetchClientTickets = ({
     page: PageRequest
     filter: TicketFilter
 }): Promise<Page<Ticket>> => {
-    const ticketFilter = { ...filter, ticketStatuses: filter.ticketStatuses?.join(',') }
+    const ticketFilter = prepareTicketFilter(filter)
     return backendClient.get('ticket/client/all', { params: { ...page, ...ticketFilter } })
 }
 export const fetchAllActiveTickets = ({ filter }: { filter?: TicketFilter }): Promise<Ticket[]> => {
-    return backendClient.get('ticket/active', { params: { ...filter } })
+    const ticketFilter = prepareTicketFilter(filter)
+    return backendClient.get('ticket/active', { params: { ...ticketFilter } })
 }
 export const fetchClientActiveTickets = ({ filter }: { filter?: TicketFilter }): Promise<Ticket[]> => {
-    return backendClient.get('ticket/client/active', { params: { ...filter } })
+    const ticketFilter = prepareTicketFilter(filter)
+    return backendClient.get('ticket/client/active', { params: { ...ticketFilter } })
 }
 export const fetchTicketById = (id?: number): Promise<Ticket> => {
     return backendClient.get('ticket/byId', { params: { id } })

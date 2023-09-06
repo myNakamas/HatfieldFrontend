@@ -212,7 +212,7 @@ export const EditInventoryItem = ({
                     <FormError error={errors.root?.message} />
                     <Space className={'flex-100 justify-end'}>
                         <Button type='primary' htmlType='submit'>
-                            Create
+                            Update
                         </Button>
                         <Button htmlType='button' onClick={closeModal}>
                             Close

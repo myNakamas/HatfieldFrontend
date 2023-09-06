@@ -8,7 +8,7 @@ import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } fro
 import React, { useContext, useState } from 'react'
 import { DesignTokenContext } from 'antd/es/theme/internal'
 import moment from 'moment/moment'
-import { generateDaysArray } from '../../utils/helperFunctions'
+import { currencyFormat, generateDaysArray } from '../../utils/helperFunctions'
 import dateFormat from 'dateformat'
 import { dateMask } from '../../models/enums/appEnums'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
@@ -44,7 +44,7 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
             title={
                 chartType == 'COUNT'
                     ? `Created invoices: ${report?.totalCount}`
-                    : `Income: ${report?.totalAmount.toFixed(2)}£`
+                    : `Income: ${currencyFormat(report?.totalAmount)}`
             }
             extra={<Button type='link' onClick={() => navigate('/invoices')} children={'See All Invoices'} />}
         >
@@ -62,7 +62,7 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
                             }}
                             itemStyle={{ color: 'white' }}
                             formatter={(value, key) => {
-                                return key === 'Daily income' ? [(+value).toFixed(2) + '£', key] : [value, key]
+                                return key === 'Daily income' ? [currencyFormat(+value), key] : [value, key]
                             }}
                         />
                         <Legend />

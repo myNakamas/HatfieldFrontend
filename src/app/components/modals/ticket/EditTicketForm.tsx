@@ -243,7 +243,7 @@ export const EditTicketForm = ({
                                 </Space>
                             </Card>
                         </Space>
-                        <Space wrap className={'w-100 justify-around align-center'}>
+                        <Space wrap className={'w-100 justify-between'} align={'start'}>
                             <div className='flex-100 justify-between'>
                                 <Controller
                                     control={control}
@@ -324,7 +324,7 @@ export const EditTicketForm = ({
                                         key: '1',
                                         label: 'More details',
                                         children: (
-                                            <div className='card'>
+                                            <Space.Compact direction={'vertical'}>
                                                 <TextField
                                                     register={register('serialNumberOrImei')}
                                                     error={errors.serialNumberOrImei}
@@ -395,7 +395,7 @@ export const EditTicketForm = ({
                                                         />
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </Space.Compact>
                                         ),
                                     },
                                 ]}

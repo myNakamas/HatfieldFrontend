@@ -20,6 +20,7 @@ import { defaultPage } from '../../models/enums/defaultValues'
 import { UserBanButton } from '../../components/UserBanButton'
 import { AppSelect } from '../../components/form/AppSelect'
 import CheckableTag from 'antd/es/tag/CheckableTag'
+import { resetPageIfNoValues } from '../../utils/helperFunctions'
 
 const clientsTableHeaders = {
     username: 'username',
@@ -42,7 +43,9 @@ export const Clients = () => {
         banned: false,
     })
 
-    const { data: clients } = useQuery(['users', 'clients', page, filter], () => getAllClientsPage({ filter, page }))
+    const { data: clients } = useQuery(['users', 'clients', page, filter], () => getAllClientsPage({ filter, page }), {
+        onSuccess: (data) => resetPageIfNoValues(data, setPage),
+    })
 
     return (
         <div className='mainScreen' ref={refsArray[0]}>

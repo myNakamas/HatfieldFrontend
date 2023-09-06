@@ -2,7 +2,7 @@ import React, { ReactNode, useContext, useEffect, useState } from 'react'
 import { AuthContext } from './AuthContext'
 import { getShopSettings } from '../axios/http/settingsRequests'
 import { ShopSettingsModel } from '../models/interfaces/shop'
-import { ConfigProvider, theme, Typography } from 'antd'
+import { ConfigProvider, theme } from 'antd'
 import { CustomSuspense } from '../components/CustomSuspense'
 import locale from 'antd/locale/en_GB'
 import { useQuery } from 'react-query'
@@ -61,7 +61,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
                         } as ShopSettingsModel,
                     }}
                 >
-                    <Typography>{children}</Typography>
+                    {children}
                 </ThemeContext.Provider>
             </ConfigProvider>
         </CustomSuspense>

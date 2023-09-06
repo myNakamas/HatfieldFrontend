@@ -2,19 +2,18 @@ import { TicketFilter } from '../../models/interfaces/filters'
 import React, { useContext, useState } from 'react'
 import { useQuery } from 'react-query'
 import { getWorkerShops } from '../../axios/http/shopRequests'
-import { DateTimeFilter } from '../../components/filters/DateTimeFilter'
 import { Space } from 'antd'
 import { AuthContext } from '../../contexts/AuthContext'
-import { defaultDashboardFilter } from '../../models/enums/defaultValues'
-import { ActiveTickets } from './ActiveTickets'
 import { ShoppingListCard } from './ShoppingListCard'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
 import { InventoryCard } from './InventoryCard'
 import { AppSelect } from '../../components/form/AppSelect'
+import { QrReaderButton } from '../../components/modals/QrReaderModal'
+import { ActiveTickets } from './ActiveTickets'
 
 export const Dashboard = () => {
     const { loggedUser, isWorker } = useContext(AuthContext)
-    const [filter, setFilter] = useState<TicketFilter>(defaultDashboardFilter(loggedUser?.shopId))
+    const [filter, setFilter] = useState<TicketFilter>({ shopId: loggedUser?.shopId })
     const isUserFromShop = filter.shopId === loggedUser?.shopId
 
     if (!isWorker()) return <></>
@@ -54,11 +53,7 @@ export const DashboardFilters = ({
                 getOptionLabel={(shop) => shop.value}
                 getOptionValue={(shop) => shop.id}
             />
-            <DateTimeFilter
-                filter={filter}
-                setFilter={setFilter}
-                dataKeys={{ before: 'createdBefore', after: 'createdAfter' }}
-            />
+            <QrReaderButton title={'Scan QR'} />
         </Space>
     )
 }

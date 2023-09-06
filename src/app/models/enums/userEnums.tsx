@@ -1,6 +1,6 @@
 import { ItemPropertyView } from '../interfaces/generalModels'
-import { TourProps } from 'antd'
-import { MutableRefObject } from 'react'
+import { Card, Space, Tag, TourProps } from 'antd'
+import React, { MutableRefObject } from 'react'
 
 export type Role = 'ADMIN' | 'CLIENT' | 'SALESMAN' | 'ENGINEER'
 export const UserRoles = Array('ADMIN', 'CLIENT', 'SALESMAN', 'ENGINEER')
@@ -85,29 +85,20 @@ export const inventoryTourSteps = (refs: MutableRefObject<any>[]): TourProps['st
             description: (
                 <div>
                     <p>
-                        The heart of our Inventory Page lies within its powerful search functionality. This step focuses
-                        on helping you find exactly what you're looking for, quickly and efficiently. You can apply
-                        various filters to narrow down your search, making it easier to locate specific items. Here's a
-                        breakdown of the filters at your disposal:
+                        These are the Inventory filters. You can apply various filters to narrow down your search,
+                        making it easier to locate specific items.
                     </p>
-                    <ul>
-                        <li>Shop: Categorize items based on their respective shops for efficient organization.</li>
-                        <li>Model: Easily locate items by specifying their models.</li>
-                        <li>Brand: Filter items by their brands for a refined search.</li>
-                        <li>Category: Browse items by categories, streamlining your search process.</li>
-                        <li>
-                            Unified Search Text Field: Employ a unified text field to execute general searches across
-                            all relevant properties.
-                        </li>
-                    </ul>
-                    <p>
+                    <Card>
                         Advanced Capability: The search function offers a distinctive feature. Input a string in the
                         format "property:search" to initiate precise filtering. For instance, typing color:blue triggers
                         a backend filter for items with the "color" property and a value containing "blue".
-                    </p>
+                    </Card>
                     <p>
-                        Illustration: Enter color:blue to display items with the "color" property in various shades of
-                        blue. This nuanced approach optimizes your search accuracy significantly.
+                        Examples:{' '}
+                        <Space>
+                            <Tag>Color:Blue</Tag>
+                            <Tag>Length:1m</Tag>
+                        </Space>
                     </p>
                 </div>
             ),

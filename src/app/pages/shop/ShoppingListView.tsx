@@ -31,6 +31,9 @@ export const ShoppingListView = () => {
         () => getShoppingList({ filter }),
         {
             suspense: true,
+            onSuccess: (newItems) => {
+                setSelectedItem((item) => newItems.items.find(({ id }) => item?.id === id) ?? item)
+            },
         }
     )
     useEffect(() => {

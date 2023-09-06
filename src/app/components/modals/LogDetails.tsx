@@ -13,6 +13,7 @@ import { getInvoiceById } from '../../axios/http/invoiceRequests'
 import { Invoice } from '../../models/interfaces/invoice'
 import { Ticket } from '../../models/interfaces/ticket'
 import { dateTimeMask } from '../../models/enums/appEnums'
+import { currencyFormat } from '../../utils/helperFunctions'
 
 export const LogDetails = ({
     log,
@@ -114,9 +115,9 @@ export const TicketDescription = ({ ticket }: { ticket: Ticket }) => {
             <Descriptions.Item label='Customer Request'>{ticket.customerRequest}</Descriptions.Item>
             <Descriptions.Item label='Created by'>{ticket.createdBy.fullName}</Descriptions.Item>
             <Descriptions.Item label='Payment'>
-                {ticket.deposit && `Deposit: ${ticket.deposit?.toFixed(2)}`}
+                {ticket.deposit && `Deposit: ${currencyFormat(ticket.deposit)}`}
                 <br />
-                {ticket.totalPrice && `Total price: ${ticket.totalPrice?.toFixed(2)}`}
+                {ticket.totalPrice && `Total price: ${currencyFormat(ticket.totalPrice)}`}
             </Descriptions.Item>
             <Descriptions.Item label='Notes'>{ticket.notes}</Descriptions.Item>
 

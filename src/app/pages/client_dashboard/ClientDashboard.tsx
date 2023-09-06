@@ -25,6 +25,7 @@ import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { Deadline } from '../../components/modals/ticket/Deadline'
 import { openPdfBlob } from '../invoices/Invoices'
+import { currencyFormat } from '../../utils/helperFunctions'
 
 export const ClientDashboard = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
@@ -291,7 +292,7 @@ function InnerInvoices({ filter }: { filter: TicketFilter }) {
                             </>
                         ),
                         timestamp: dateFormat(invoice.timestamp),
-                        price: invoice.totalPrice.toFixed(2),
+                        price: currencyFormat(invoice.totalPrice),
                         createdBy: invoice.createdBy.fullName,
                         client: invoice.client?.fullName ?? '-',
                         payment: (

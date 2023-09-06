@@ -29,6 +29,7 @@ import { AppError, ItemPropertyView } from '../../../models/interfaces/generalMo
 import { AuthContext } from '../../../contexts/AuthContext'
 import { AppSelect } from '../../form/AppSelect'
 import { openPdfBlob } from '../../../pages/invoices/Invoices'
+import { currencyFormat } from '../../../utils/helperFunctions'
 
 export const ViewInventoryItem = ({
     inventoryItem,
@@ -194,12 +195,12 @@ export const ItemDescriptions = ({
                 <Card title={'Pricing'} style={{ flex: 1 }}>
                     {inventoryItem?.sellPrice && (
                         <>
-                            <div className='bold'>Selling Price: {inventoryItem.sellPrice.toFixed(2)}</div>
+                            <div className='bold'>Selling Price: {currencyFormat(inventoryItem.sellPrice)}</div>
                             <Divider />
                         </>
                     )}
                     {inventoryItem?.purchasePrice && (
-                        <div className='bold'>Purchased for: {inventoryItem.purchasePrice.toFixed(2)}</div>
+                        <div className='bold'>Purchased for: {currencyFormat(inventoryItem.purchasePrice)}</div>
                     )}
                 </Card>
                 <Space wrap className={'w-100 justify-around'} style={{ flex: 3 }} align={'start'}>

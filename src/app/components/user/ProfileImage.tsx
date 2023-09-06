@@ -10,13 +10,13 @@ export const ProfileImage = ({
     className,
     isLoading,
 }: {
-    profileImg?: Blob
+    profileImg?: string
     className?: string
     isLoading?: boolean
 }) => {
     if (isLoading) return <SkeletonAvatar className={className} />
-    return profileImg && profileImg.size > 0 ? (
-        <Avatar size={'large'} className={className} alt='Profile image' src={URL.createObjectURL(profileImg)} />
+    return profileImg && profileImg.length > 0 ? (
+        <Avatar size={'large'} className={className} alt='Profile image' src={profileImg} />
     ) : (
         <Avatar size={'large'} icon={<FontAwesomeIcon icon={faUser} />} />
     )
@@ -27,13 +27,13 @@ export const ProfileImageLarge = ({
     className,
     isLoading,
 }: {
-    profileImg?: Blob
+    profileImg?: string
     className?: string
     isLoading?: boolean
 }) => {
     if (isLoading) return <SkeletonAvatar className={className} />
-    return profileImg && profileImg.size > 0 ? (
-        <Image width={200} className={className} alt='Profile image' src={URL.createObjectURL(profileImg)} />
+    return profileImg && profileImg.length > 0 ? (
+        <Image width={200} className={className} alt='Profile image' src={profileImg} />
     ) : (
         <NoDataComponent items={'image'} />
     )

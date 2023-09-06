@@ -18,21 +18,40 @@ import { ChatMessages } from './ChatMessages'
 import { MessageInputField } from './ChatInputField'
 import { CustomSuspense } from '../../../components/CustomSuspense'
 import { NoDataComponent } from '../../../components/table/NoDataComponent'
+import CheckableTag from 'antd/es/tag/CheckableTag'
+import { TicketFilter } from '../../../models/interfaces/filters'
+import { activeTicketStatuses, completedTicketStatuses } from '../../../models/enums/ticketEnums'
 
 export const Chats = () => {
-    const { isClient } = useContext(AuthContext)
-    const { data: tickets, isLoading } = useQuery(['tickets'], () => {
+    const { isClient, loggedUser } = useContext(AuthContext)
+    const [filter, setFilter] = useState<TicketFilter>({ hideCompleted: true, shopId: loggedUser?.shopId })
+    const { data: tickets, isLoading } = useQuery(['tickets', filter], () => {
         const query = isClient() ? fetchClientActiveTickets : fetchAllActiveTickets
-        return query({})
+        return query({
+            filter: {
+                ...filter,
+                ticketStatuses: filter.hideCompleted
+                    ? activeTicketStatuses
+                    : activeTicketStatuses.concat(completedTicketStatuses),
+            },
+        })
     })
     return (
         <CustomSuspense isReady={!isLoading}>
-            <InnerChats tickets={tickets} />
+            <InnerChats tickets={tickets} filter={filter} setFilter={setFilter} />
         </CustomSuspense>
     )
 }
 
-export const InnerChats = ({ tickets }: { tickets?: Ticket[] }) => {
+export const InnerChats = ({
+    tickets,
+    filter,
+    setFilter,
+}: {
+    tickets?: Ticket[]
+    filter: TicketFilter
+    setFilter: React.Dispatch<React.SetStateAction<TicketFilter>>
+}) => {
     const { loggedUser, isClient } = useContext(AuthContext)
     const navigate = useNavigate()
     const { userChats, setUserChats, notificationCount } = useContext(WebSocketContext)
@@ -92,6 +111,14 @@ export const InnerChats = ({ tickets }: { tickets?: Ticket[] }) => {
                 width={300}
                 onClose={() => setTicketDrawer(false)}
                 open={ticketDrawer}
+                extra={
+                    <CheckableTag
+                        checked={filter.hideCompleted ?? false}
+                        onChange={(isChecked) => setFilter((filter) => ({ ...filter, hideCompleted: isChecked }))}
+                    >
+                        Hide completed tickets
+                    </CheckableTag>
+                }
             >
                 <Space direction={'vertical'} className='w-100'>
                     {tickets && tickets.length > 0 ? (
