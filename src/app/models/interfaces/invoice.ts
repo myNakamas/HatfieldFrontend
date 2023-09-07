@@ -22,6 +22,7 @@ export interface CreateInvoice {
     notes?: string
     totalPrice: number
     clientId?: string
+    itemId?: number
     paymentMethod: PaymentMethod
     warrantyPeriod: WarrantyPeriod
     deviceName: string

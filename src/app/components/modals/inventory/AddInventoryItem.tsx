@@ -1,7 +1,7 @@
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { AddItemInventorySchema } from '../../../models/validators/FormValidators'
-import { Category, CreateInventoryItem, Shop } from '../../../models/interfaces/shop'
+import { Category, CreateInventoryItem, InventoryItem, Shop } from '../../../models/interfaces/shop'
 import {
     addCategory,
     addNewItem,
@@ -26,7 +26,13 @@ import { AddEditCategory } from '../AddEditCategory'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 
-export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
+export const AddInventoryItem = ({
+    isModalOpen,
+    closeModal,
+}: {
+    isModalOpen: boolean
+    closeModal: (item?: InventoryItem) => void
+}) => {
     const { isWorker } = useContext(AuthContext)
 
     return (
@@ -41,7 +47,7 @@ export const AddInventoryItemInner = ({
     closeModal,
 }: {
     isModalOpen: boolean
-    closeModal: () => void
+    closeModal: (item?: InventoryItem) => void
 }) => {
     const formRef = useRef<HTMLFormElement>(null)
     const { isAdmin } = useContext(AuthContext)
@@ -80,10 +86,10 @@ export const AddInventoryItemInner = ({
     const submit = (item: CreateInventoryItem) => {
         toast
             .promise(addNewItem({ item }), toastCreatePromiseTemplate('item'), toastProps)
-            .then(() => {
-                closeModal()
+            .then((value) => {
                 formRef.current?.reset()
-                queryClient.invalidateQueries(['shopItems']).then()
+                reset({})
+                queryClient.invalidateQueries(['shopItems']).then(() => closeModal(value))
                 queryClient.invalidateQueries(['brands']).then()
             })
             .catch((error: AppError) => {
@@ -245,7 +251,7 @@ export const AddInventoryItemInner = ({
                     <Button type='primary' htmlType='submit'>
                         Save
                     </Button>
-                    <Button htmlType='button' onClick={closeModal}>
+                    <Button htmlType='button' onClick={() => closeModal()}>
                         Close
                     </Button>
                 </div>

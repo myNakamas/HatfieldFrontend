@@ -208,7 +208,11 @@ export const AddTicketInvoice = ({
                                         options={WarrantyPeriodList}
                                         placeholder='Warranty period'
                                         value={field.value}
-                                        onChange={field.onChange}
+                                        onChange={(warranty) =>
+                                            warranty
+                                                ? field.onChange(warranty)
+                                                : field.onChange('NONE' as WarrantyPeriod)
+                                        }
                                         getOptionLabel={(item) => item.value}
                                         getOptionValue={(item) => item.value}
                                     />

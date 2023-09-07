@@ -4,7 +4,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useQuery, useQueryClient } from 'react-query'
 import { TextField } from '../form/TextField'
 import { AppModal } from './AppModal'
-import { Button, Card, Space } from 'antd'
+import { Button, Card, Select, Space } from 'antd'
 import { getAllClients } from '../../axios/http/userRequests'
 import { FormField } from '../form/Field'
 import { User } from '../../models/interfaces/user'
@@ -13,25 +13,29 @@ import {
     InvoiceType,
     InvoiceTypesArray,
     PaymentMethodList,
+    WarrantyPeriod,
     WarrantyPeriodList,
 } from '../../models/enums/invoiceEnums'
-import { AppError, ItemPropertyView } from '../../models/interfaces/generalModels'
+import { AppError, ItemPropertyView, PageRequest } from '../../models/interfaces/generalModels'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { AddClient } from './users/AddClient'
 import { NewInvoiceSchema } from '../../models/validators/FormValidators'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { InventoryItem } from '../../models/interfaces/shop'
-import { getAllBrands } from '../../axios/http/shopRequests'
+import { getAllBrands, useGetShopItems } from '../../axios/http/shopRequests'
 import { createInvoice } from '../../axios/http/invoiceRequests'
 import { toastCreatePromiseTemplate, toastProps } from './ToastProps'
 import { toast } from 'react-toastify'
 import { FormError } from '../form/FormError'
-import { getUserString } from '../../utils/helperFunctions'
+import { getUserString, resetPageIfNoValues } from '../../utils/helperFunctions'
 import { AuthContext } from '../../contexts/AuthContext'
 import { openInvoicePdf } from '../../pages/invoices/Invoices'
 import TextArea from 'antd/es/input/TextArea'
 import { AppCreatableSelect, AppSelect } from '../form/AppSelect'
+import { InventoryFilter } from '../../models/interfaces/filters'
+import { defaultPage } from '../../models/enums/defaultValues'
+import { AddInventoryItem } from './inventory/AddInventoryItem'
 
 export const AddInvoice = ({
     item,
@@ -49,6 +53,7 @@ export const AddInvoice = ({
     })
     const queryClient = useQueryClient()
     const [showCreateModal, setShowCreateModal] = useState(false)
+    const [showCreateItemModal, setShowCreateItemModal] = useState(false)
     const defaultValues = item
         ? {
               ...defaultInvoice,
@@ -68,6 +73,7 @@ export const AddInvoice = ({
         setValue,
         formState: { errors },
         reset,
+        resetField,
         setError,
         watch,
     } = useForm<CreateItemInvoice>({
@@ -106,49 +112,95 @@ export const AddInvoice = ({
                 closeModal={() => setShowCreateModal(false)}
                 onSuccess={(client) => setValue('clientId', client.userId)}
             />
+            <AddInventoryItem
+                isModalOpen={showCreateItemModal}
+                closeModal={(value) => {
+                    value && setValue('itemId', value.id)
+                    setShowCreateItemModal(false)
+                }}
+            />
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice)}>
                 <Space direction='vertical' className='w-100'>
-                    <Space.Compact direction={'vertical'}>
-                        <Controller
-                            control={control}
-                            name={'type'}
-                            render={({ field, fieldState }) => (
-                                <FormField label='Invoice type' error={fieldState.error}>
-                                    <AppSelect<string, ItemPropertyView>
-                                        value={field.value}
-                                        options={InvoiceTypesArray}
-                                        placeholder='Specify the type of the invoice'
-                                        onChange={(type) => field.onChange(type)}
-                                        getOptionLabel={(item) => item.value}
-                                        getOptionValue={(item) => item.value}
+                    <Space.Compact direction={'vertical'} className={'w-100'}>
+                        <Space className={'w-100 justify-between'}>
+                            <Space direction={'vertical'}>
+                                <Controller
+                                    control={control}
+                                    name={'type'}
+                                    render={({ field, fieldState }) => (
+                                        <FormField label='Invoice type' error={fieldState.error}>
+                                            <AppSelect<string, ItemPropertyView>
+                                                value={field.value}
+                                                options={InvoiceTypesArray}
+                                                placeholder='Specify the type of the invoice'
+                                                onChange={(type) => field.onChange(type)}
+                                                getOptionLabel={(item) => item.value}
+                                                getOptionValue={(item) => item.value}
+                                            />
+                                        </FormField>
+                                    )}
+                                />
+                                <Controller
+                                    control={control}
+                                    name={'clientId'}
+                                    render={({ field, fieldState }) => (
+                                        <FormField label='Client' error={fieldState.error}>
+                                            <Space.Compact>
+                                                <AppSelect<string, User>
+                                                    value={field.value}
+                                                    options={clients}
+                                                    placeholder='Select Client'
+                                                    onChange={field.onChange}
+                                                    getOptionLabel={getUserString}
+                                                    getOptionValue={(item) => item.userId}
+                                                />
+                                                <Button
+                                                    icon={<FontAwesomeIcon icon={faPlus} />}
+                                                    onClick={() => setShowCreateModal(true)}
+                                                >
+                                                    Create client
+                                                </Button>
+                                            </Space.Compact>
+                                        </FormField>
+                                    )}
+                                />
+                            </Space>
+                            <Space align={'start'}>
+                                {isItemInvoice(watch('type')) && (
+                                    <Controller
+                                        control={control}
+                                        name={'itemId'}
+                                        render={({ field, fieldState }) => (
+                                            <FormField label='Inventory item' error={fieldState.error}>
+                                                <Space.Compact>
+                                                    <InventoryItemSelect
+                                                        onChange={(value) => {
+                                                            if (value != null) {
+                                                                field.onChange(value?.id)
+                                                                value?.model && setValue('deviceModel', value.model)
+                                                                value?.brand && setValue('deviceBrand', value.brand)
+                                                            } else {
+                                                                field.onChange(null)
+                                                                resetField('deviceModel')
+                                                                resetField('deviceBrand')
+                                                            }
+                                                        }}
+                                                        isInvoiceTypeBuy={watch('type') === 'BUY'}
+                                                        value={field.value}
+                                                    />
+                                                    {watch('type') === 'BUY' && (
+                                                        <Button
+                                                            icon={<FontAwesomeIcon icon={faPlus} />}
+                                                            onClick={() => setShowCreateItemModal(true)}
+                                                        />
+                                                    )}
+                                                </Space.Compact>
+                                            </FormField>
+                                        )}
                                     />
-                                </FormField>
-                            )}
-                        />
-                        <Controller
-                            control={control}
-                            name={'clientId'}
-                            render={({ field, fieldState }) => (
-                                <FormField label='Client' error={fieldState.error}>
-                                    <Space.Compact>
-                                        <AppSelect<string, User>
-                                            value={field.value}
-                                            options={clients}
-                                            placeholder='Select Client'
-                                            onChange={field.onChange}
-                                            getOptionLabel={getUserString}
-                                            getOptionValue={(item) => item.userId}
-                                        />
-                                        <Button
-                                            icon={<FontAwesomeIcon icon={faPlus} />}
-                                            onClick={() => setShowCreateModal(true)}
-                                        >
-                                            Create client
-                                        </Button>
-                                    </Space.Compact>
-                                </FormField>
-                            )}
-                        />
+                                )}
+                            </Space>
+                        </Space>
                     </Space.Compact>
 
                     <Space wrap align={'start'}>
@@ -251,7 +303,11 @@ export const AddInvoice = ({
                                             value={field.value}
                                             options={WarrantyPeriodList}
                                             placeholder='Warranty period'
-                                            onChange={field.onChange}
+                                            onChange={(warranty) =>
+                                                warranty
+                                                    ? field.onChange(warranty)
+                                                    : field.onChange('NONE' as WarrantyPeriod)
+                                            }
                                             getOptionLabel={(item) => item.value}
                                             getOptionValue={(item) => item.value}
                                         />
@@ -279,4 +335,55 @@ export const AddInvoice = ({
             </form>
         </AppModal>
     )
+}
+
+const InventoryItemSelect = ({
+    onChange,
+    value,
+    isInvoiceTypeBuy,
+}: {
+    onChange: (value: InventoryItem | null) => void
+    value?: number
+    isInvoiceTypeBuy?: boolean
+}) => {
+    const { loggedUser } = useContext(AuthContext)
+    const [filter, setFilter] = useState<InventoryFilter>({
+        shopId: loggedUser?.shopId,
+        onlyNonEmpty: isInvoiceTypeBuy,
+    })
+    const [page, setPage] = useState<PageRequest>(defaultPage)
+
+    const { data, isLoading } = useQuery(
+        ['shopItems', page, { ...filter, onlyNonEmpty: !isInvoiceTypeBuy }],
+        () => useGetShopItems({ page, filter: { ...filter, onlyNonEmpty: !isInvoiceTypeBuy } }),
+        {
+            onSuccess: (newItems) => {
+                resetPageIfNoValues(newItems, setPage)
+            },
+        }
+    )
+    const handleSearch = (newValue: string) => {
+        setFilter({ ...filter, searchBy: newValue })
+    }
+
+    return (
+        <Select<number, InventoryItem>
+            showSearch
+            loading={isLoading}
+            value={value}
+            placeholder='Select item from inventory'
+            filterOption={false}
+            searchValue={filter.searchBy}
+            onSearch={handleSearch}
+            allowClear
+            onClear={() => onChange(null)}
+            onChange={(id, item) => !(item instanceof Array) && onChange(item)}
+            options={data?.content}
+            fieldNames={{ label: 'name', value: 'id' }}
+        />
+    )
+}
+
+const isItemInvoice = (type: InvoiceType) => {
+    return type === 'BUY' || type === 'SELL' || type === 'ACCESSORIES'
 }

@@ -79,7 +79,16 @@ export const EditRequiredItemSchema = Yup.object<InventoryItem>().shape({
 export const CategorySchema = Yup.object().shape({
     name: Yup.string().required(),
     itemType: Yup.string().required(),
-    phones: Yup.array().of(Yup.string().required()).notRequired(),
+    columns: Yup.array()
+        .of(
+            Yup.string()
+                .matches(
+                    /^[a-zA-Z0-9\-_)( ]*$/,
+                    (params) => `The column '${params.value}' must not contain special characters.`
+                )
+                .notRequired()
+        )
+        .notRequired(),
 })
 export const ShopSchema = Yup.object().shape({
     shopName: Yup.string().required(),
