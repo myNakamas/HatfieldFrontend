@@ -15,6 +15,7 @@ export const TicketChatInfo = ({ ticket, openDrawer }: { ticket: Ticket | undefi
             <TicketView ticket={showModal ? ticket : undefined} closeModal={() => setShowModal(false)} />
             <Collapse
                 defaultActiveKey={!smallScreen ? 'ticket' : ''}
+                collapsible={'header'}
                 accordion
                 items={[
                     {

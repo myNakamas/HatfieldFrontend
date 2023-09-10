@@ -234,6 +234,8 @@ const TicketFilters = ({
             <FilterWrapper title={'General filters'}>
                 <SearchComponent {...{ filter, setFilter }} />
                 <Select<TicketStatus[], ItemPropertyView>
+                    style={{ minWidth: 200, maxWidth: 300, textAlign: 'left' }}
+                    dropdownStyle={{ textAlign: 'left' }}
                     mode={'tags'}
                     allowClear
                     options={TicketStatusesArray}

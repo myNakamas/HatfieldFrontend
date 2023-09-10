@@ -23,6 +23,7 @@ import { createTicket, updateTicket } from '../../../axios/http/ticketRequests'
 import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
 import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
+import TextArea from 'antd/es/input/TextArea'
 
 export const EditTicketForm = ({
     ticket,
@@ -35,6 +36,7 @@ export const EditTicketForm = ({
 }) => {
     const { isWorker } = useContext(AuthContext)
     const queryClient = useQueryClient()
+    const [activeDictaphone, setActiveDictaphone] = useState('')
     const {
         register,
         handleSubmit,
@@ -151,21 +153,23 @@ export const EditTicketForm = ({
                         <Controller
                             name={'problemExplanation'}
                             control={control}
-                            render={({ field, fieldState }) => (
-                                <FormField label='Problem explanation' error={fieldState.error}>
-                                    <div className={'flex-100'}>
-                                        <textarea
-                                            className='textAreaTicketProblem'
-                                            onChange={field.onChange}
-                                            value={'' + field.value + tempText}
-                                        />
-                                        <Dictaphone
-                                            setText={(text) => field.onChange(field.value + ' ' + text)}
-                                            setTempText={setTempText}
-                                        />
-                                    </div>
-                                </FormField>
-                            )}
+                            render={({ field, fieldState }) => {
+                                const key = 'problem'
+                                return (
+                                    <FormField label='Problem explanation' error={fieldState.error}>
+                                        <div className={'flex-100'}>
+                                            <TextArea onChange={field.onChange} value={'' + field.value + tempText} />
+                                            <Dictaphone
+                                                isActive={activeDictaphone === key}
+                                                setText={(text) => field.onChange(field.value + ' ' + text)}
+                                                setTempText={setTempText}
+                                                dictaphoneKey={key}
+                                                setActiveDictaphone={setActiveDictaphone}
+                                            />
+                                        </div>
+                                    </FormField>
+                                )
+                            }}
                         />
                         <TextField
                             register={register('customerRequest')}
@@ -341,9 +345,18 @@ export const EditTicketForm = ({
                                                     label={'Accessories'}
                                                 />
                                                 <FormField label='Notes' error={errors.notes}>
-                                                    <textarea
-                                                        className='textAreaTicketProblem'
-                                                        {...register('notes')}
+                                                    <Controller
+                                                        render={({ field }) => {
+                                                            return (
+                                                                <NotesTextArea
+                                                                    {...field}
+                                                                    activeDictaphone={activeDictaphone}
+                                                                    setActiveDictaphone={setActiveDictaphone}
+                                                                />
+                                                            )
+                                                        }}
+                                                        name={'notes'}
+                                                        control={control}
                                                     />
                                                 </FormField>
                                                 <div className='flex-100 justify-between flex-wrap'>
@@ -447,5 +460,32 @@ const TicketQuickCheckBox = ({
             />{' '}
             {name}
         </label>
+    )
+}
+
+const NotesTextArea = ({
+    value,
+    onChange,
+    activeDictaphone,
+    setActiveDictaphone,
+}: {
+    value: string
+    activeDictaphone: string
+    setActiveDictaphone: (value: string) => void
+    onChange: (value: string) => void
+}) => {
+    const key = 'notes'
+    const [tempNotes, setTempNotes] = useState('')
+    return (
+        <div className={'w-100'}>
+            <TextArea onChange={(e) => onChange(e.target.value)} value={(value ?? '') + tempNotes} />
+            <Dictaphone
+                isActive={activeDictaphone === key}
+                dictaphoneKey={key}
+                setActiveDictaphone={setActiveDictaphone}
+                setText={(text) => onChange((value ?? '') + ' ' + text)}
+                setTempText={setTempNotes}
+            />
+        </div>
     )
 }

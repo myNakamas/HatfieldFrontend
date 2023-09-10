@@ -13,7 +13,7 @@ import { ActiveTickets } from './ActiveTickets'
 
 export const Dashboard = () => {
     const { loggedUser, isWorker } = useContext(AuthContext)
-    const [filter, setFilter] = useState<TicketFilter>({ shopId: loggedUser?.shopId })
+    const [filter, setFilter] = useState<TicketFilter>({ shopId: loggedUser?.shopId, hideCompleted: true })
     const isUserFromShop = filter.shopId === loggedUser?.shopId
 
     if (!isWorker()) return <></>
@@ -25,7 +25,7 @@ export const Dashboard = () => {
                     <DashboardFilters {...{ filter, setFilter }} />
                 </Space>
                 <div className={'dashboard-items'}>
-                    <ActiveTickets filter={filter} />
+                    <ActiveTickets {...{ filter, setFilter }} />
                     {isUserFromShop ? <ShoppingListCard filter={filter} /> : <InventoryCard filter={filter} />}
                 </div>
             </Space>

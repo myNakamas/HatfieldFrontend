@@ -122,7 +122,7 @@ export const AddInvoice = ({
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice)}>
                 <Space direction='vertical' className='w-100'>
                     <Space.Compact direction={'vertical'} className={'w-100'}>
-                        <Space className={'w-100 justify-between'}>
+                        <Space className={'w-100 justify-between'} wrap>
                             <Space direction={'vertical'}>
                                 <Controller
                                     control={control}
