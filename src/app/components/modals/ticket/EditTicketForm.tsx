@@ -1,17 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { FormField } from '../../form/Field'
 import { Dictaphone } from '../../form/Dictaphone'
-import Select from 'react-select'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
-import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import { TicketStatusesArray } from '../../../models/enums/ticketEnums'
-import CreatableSelect from 'react-select/creatable'
 import DateTime from 'react-datetime'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { CreateTicket } from '../../../models/interfaces/ticket'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { getAllBrands, getAllDeviceLocations } from '../../../axios/http/shopRequests'
 import { User } from '../../../models/interfaces/user'
 import { getAllClients } from '../../../axios/http/userRequests'
@@ -20,33 +17,35 @@ import { Button, Card, Checkbox, Collapse, Divider, Space } from 'antd'
 import { AddClient } from '../users/AddClient'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
-import { EditTicketSchema } from '../../../models/validators/FormValidators'
 import { getUserString } from '../../../utils/helperFunctions'
 import { AuthContext } from '../../../contexts/AuthContext'
-import CollapsePanel from 'antd/es/collapse/CollapsePanel'
+import { createTicket, updateTicket } from '../../../axios/http/ticketRequests'
+import { toast } from 'react-toastify'
+import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
+import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
+import TextArea from 'antd/es/input/TextArea'
 
 export const EditTicketForm = ({
     ticket,
-    onComplete,
-    onCancel,
+    closeModal,
+    isEdit,
 }: {
     ticket: CreateTicket
-    onComplete: (ticket: CreateTicket) => Promise<void>
-    onCancel: () => void
+    closeModal: () => void
+    isEdit?: boolean
 }) => {
     const { isWorker } = useContext(AuthContext)
+    const queryClient = useQueryClient()
+    const [activeDictaphone, setActiveDictaphone] = useState('')
     const {
         register,
         handleSubmit,
         formState: { errors },
         control,
         setError,
-        reset,
         setValue,
-        getValues,
         watch,
-    } = useForm<CreateTicket>({ defaultValues: ticket, resolver: yupResolver(EditTicketSchema) })
+    } = useForm<CreateTicket>({ defaultValues: ticket })
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: locations } = useQuery('deviceLocations', getAllDeviceLocations)
     const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
@@ -55,15 +54,22 @@ export const EditTicketForm = ({
     const models = brands?.find((b) => b.value === watch('deviceBrand'))?.models ?? []
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [tempText, setTempText] = useState('')
-    useEffect(() => {
-        // formRef.current?.reset()
-        reset(ticket)
-    }, [ticket])
 
-    const onSubmit = (data: CreateTicket) => {
-        onComplete(data).catch((error: AppError) => {
-            setError('root', { message: error?.detail })
-        })
+    const onFormSubmit = (data: CreateTicket) => {
+        const onComplete = isEdit ? editTicket : createNewTicket
+        onComplete(data)
+            .then(() => {
+                queryClient.invalidateQueries(['tickets']).then(() => closeModal())
+            })
+            .catch((error: AppError) => {
+                setError('root', { message: error?.detail })
+            })
+    }
+    const editTicket = (formValue: CreateTicket) => {
+        return updateTicket({ id: ticket?.id, ticket: formValue })
+    }
+    const createNewTicket = (formValue: CreateTicket) => {
+        return toast.promise(createTicket({ ticket: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)
     }
 
     return (
@@ -73,57 +79,29 @@ export const EditTicketForm = ({
                 closeModal={() => setShowCreateModal(false)}
                 onSuccess={(user) => setValue('clientId', user.userId)}
             />
-            <form id='editTicketForm' className='modalForm' onSubmit={handleSubmit(onSubmit)}>
+            <form className='modalForm' onSubmit={handleSubmit(onFormSubmit)}>
                 <div className='modalContainer'>
                     <div className='card'>
-                        <Controller
-                            name={'problemExplanation'}
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <FormField label='Problem explanation' error={fieldState.error}>
-                                    <div className={'flex-100'}>
-                                        <textarea
-                                            className='textAreaTicketProblem'
-                                            onChange={field.onChange}
-                                            value={'' + field.value + tempText}
-                                        />
-                                        <Dictaphone
-                                            setText={(text) => field.onChange(field.value + ' ' + text)}
-                                            setTempText={setTempText}
-                                        />
-                                    </div>
-                                </FormField>
-                            )}
-                        />
-                        <TextField
-                            register={register('customerRequest')}
-                            error={errors.customerRequest}
-                            label={'Additional request from customer'}
-                        />
-
                         <Space wrap className='w-100 justify-between'>
                             <Controller
                                 control={control}
                                 name={'clientId'}
                                 render={({ field, fieldState }) => (
                                     <FormField label='Client' error={fieldState.error}>
-                                        <Space className={'align-center'}>
-                                            <Select<User, false>
-                                                isClearable
-                                                theme={SelectTheme}
-                                                styles={SelectStyles<User>()}
+                                        <Space.Compact className={'align-center'}>
+                                            <AppSelect<string, User>
                                                 options={clients}
-                                                placeholder='Client'
-                                                value={clients?.find(({ userId }) => field.value === userId) ?? null}
-                                                onChange={(newValue) => field.onChange(newValue?.userId)}
+                                                placeholder='Select or add a new user'
+                                                value={field.value}
+                                                onChange={(newValue) => field.onChange(newValue)}
                                                 getOptionLabel={getUserString}
-                                                getOptionValue={(item) => item.userId}
+                                                getOptionValue={(user) => user.userId}
                                             />
                                             <Button
                                                 icon={<FontAwesomeIcon icon={faPlus} />}
                                                 onClick={() => setShowCreateModal(true)}
                                             />
-                                        </Space>
+                                        </Space.Compact>
                                     </FormField>
                                 )}
                             />
@@ -133,26 +111,20 @@ export const EditTicketForm = ({
                                     name={'deviceBrand'}
                                     render={({ field, fieldState }) => (
                                         <FormField label='Brand' error={fieldState.error}>
-                                            <CreatableSelect<ItemPropertyView, false>
-                                                isClearable
-                                                theme={SelectTheme}
-                                                styles={SelectStyles<ItemPropertyView>()}
+                                            <AppCreatableSelect<ItemPropertyView>
                                                 options={brands}
-                                                formatCreateLabel={(value) => 'Create new brand ' + value}
                                                 placeholder='Select or add a new brand'
-                                                value={
-                                                    brands?.find(({ value }) => field.value === value) ?? {
-                                                        value: field.value,
-                                                        id: -1,
-                                                    }
-                                                }
-                                                onCreateOption={(item) => field.onChange(item)}
-                                                onChange={(newValue) => {
-                                                    if (field.value !== newValue?.value) setValue('deviceModel', '')
-                                                    field.onChange(newValue?.value)
+                                                value={field.value}
+                                                onCreateOption={(item) => {
+                                                    setValue('deviceModel', '')
+                                                    field.onChange(item)
                                                 }}
-                                                getOptionLabel={(item) => item.value}
-                                                getOptionValue={(item) => item.id + item.value}
+                                                onChange={(newValue) => {
+                                                    setValue('deviceModel', '')
+                                                    field.onChange(newValue)
+                                                }}
+                                                optionLabelProp={'value'}
+                                                optionFilterProp={'value'}
                                             />
                                         </FormField>
                                     )}
@@ -164,29 +136,46 @@ export const EditTicketForm = ({
                                     name={'deviceModel'}
                                     render={({ field, fieldState }) => (
                                         <FormField label='Model' error={fieldState.error}>
-                                            <CreatableSelect<ItemPropertyView, false>
-                                                isClearable
-                                                theme={SelectTheme}
-                                                styles={SelectStyles<ItemPropertyView>()}
+                                            <AppCreatableSelect<ItemPropertyView>
                                                 options={models}
                                                 placeholder='Select or add a new model'
-                                                formatCreateLabel={(value) => 'Create new model ' + value}
-                                                value={
-                                                    models?.find(({ value }) => field.value === value) ?? {
-                                                        value: field.value,
-                                                        id: -1,
-                                                    }
-                                                }
+                                                value={field.value}
                                                 onCreateOption={(item) => field.onChange(item)}
-                                                onChange={(newValue) => field.onChange(newValue?.value)}
-                                                getOptionLabel={(item) => item.value}
-                                                getOptionValue={(item) => item.id + item.value}
+                                                onChange={(newValue) => field.onChange(newValue)}
+                                                optionLabelProp={'value'}
+                                                optionFilterProp={'value'}
                                             />
                                         </FormField>
                                     )}
                                 />
                             </div>
                         </Space>
+                        <Controller
+                            name={'problemExplanation'}
+                            control={control}
+                            render={({ field, fieldState }) => {
+                                const key = 'problem'
+                                return (
+                                    <FormField label='Problem explanation' error={fieldState.error}>
+                                        <div className={'flex-100'}>
+                                            <TextArea onChange={field.onChange} value={'' + field.value + tempText} />
+                                            <Dictaphone
+                                                isActive={activeDictaphone === key}
+                                                setText={(text) => field.onChange(field.value + ' ' + text)}
+                                                setTempText={setTempText}
+                                                dictaphoneKey={key}
+                                                setActiveDictaphone={setActiveDictaphone}
+                                            />
+                                        </div>
+                                    </FormField>
+                                )
+                            }}
+                        />
+                        <TextField
+                            register={register('customerRequest')}
+                            error={errors.customerRequest}
+                            label={'Additional request from customer'}
+                        />
                         <Divider />
                         <Space className={'justify-between align-start w-100'} wrap>
                             <div className={'col-wrap'}>
@@ -215,103 +204,50 @@ export const EditTicketForm = ({
                             </div>
                             <Card style={{ margin: 'auto' }}>
                                 <Space className={'col-wrap'} direction={'vertical'}>
-                                    <label htmlFor='withCharger'>
-                                        <Checkbox
-                                            id={'withCharger'}
-                                            defaultChecked={false}
-                                            onChange={(e) => {
-                                                e.target.checked
-                                                    ? setValue(
-                                                          'accessories',
-                                                          getValues('accessories').concat('With Charger, ')
-                                                      )
-                                                    : setValue(
-                                                          'accessories',
-                                                          getValues('accessories').replace('With Charger, ', '')
-                                                      )
-                                            }}
-                                        />{' '}
-                                        With Charger
-                                    </label>
-                                    <label htmlFor='withBag'>
-                                        <Checkbox
-                                            id={'withBag'}
-                                            defaultChecked={false}
-                                            onChange={(e) => {
-                                                e.target.checked
-                                                    ? setValue(
-                                                          'accessories',
-                                                          getValues('accessories').concat('With Bag, ')
-                                                      )
-                                                    : setValue(
-                                                          'accessories',
-                                                          getValues('accessories').replace('With Bag, ', '')
-                                                      )
-                                            }}
-                                        />{' '}
-                                        With Bag
-                                    </label>
-                                    <label htmlFor='withCase'>
-                                        <Checkbox
-                                            id={'withCase'}
-                                            defaultChecked={false}
-                                            onChange={(e) => {
-                                                e.target.checked
-                                                    ? setValue(
-                                                          'accessories',
-                                                          getValues('accessories').concat('With Case, ')
-                                                      )
-                                                    : setValue(
-                                                          'accessories',
-                                                          getValues('accessories').replace('With Case, ', '')
-                                                      )
-                                            }}
-                                        />{' '}
-                                        With Case
-                                    </label>
-                                    <label htmlFor='deadDevice'>
-                                        <Checkbox
-                                            id={'deadDevice'}
-                                            defaultChecked={false}
-                                            onChange={(e) => {
-                                                e.target.checked
-                                                    ? setValue(
-                                                          'deviceCondition',
-                                                          getValues('deviceCondition').concat('Dead device, ')
-                                                      )
-                                                    : setValue(
-                                                          'deviceCondition',
-                                                          getValues('deviceCondition').replace('Dead device, ', '')
-                                                      )
-                                            }}
-                                        />{' '}
-                                        Dead device
-                                    </label>
-                                    <label htmlFor='cracked'>
-                                        <Checkbox
-                                            id={'cracked'}
-                                            defaultChecked={false}
-                                            onChange={(e) => {
-                                                e.target.checked
-                                                    ? setValue(
-                                                          'deviceCondition',
-                                                          getValues('deviceCondition').concat('Cracked Screen/Back, ')
-                                                      )
-                                                    : setValue(
-                                                          'deviceCondition',
-                                                          getValues('deviceCondition').replace(
-                                                              'Cracked Screen/Back, ',
-                                                              ''
-                                                          )
-                                                      )
-                                            }}
-                                        />{' '}
-                                        Cracked Screen/Back
-                                    </label>
+                                    <TicketQuickCheckBox
+                                        fieldToCheck={watch('accessories')}
+                                        name={'With bag'}
+                                        value={'With Bag, '}
+                                        onChange={(string) => {
+                                            setValue('accessories', string)
+                                        }}
+                                    />
+                                    <TicketQuickCheckBox
+                                        fieldToCheck={watch('accessories')}
+                                        name={'With charger'}
+                                        value={'With Charger, '}
+                                        onChange={(string) => {
+                                            setValue('accessories', string)
+                                        }}
+                                    />
+                                    <TicketQuickCheckBox
+                                        fieldToCheck={watch('accessories')}
+                                        name={'With case'}
+                                        value={'With Case, '}
+                                        onChange={(string) => {
+                                            setValue('accessories', string)
+                                        }}
+                                    />
+                                    <TicketQuickCheckBox
+                                        fieldToCheck={watch('deviceCondition')}
+                                        name={'Dead device'}
+                                        value={'Dead device, '}
+                                        onChange={(string) => {
+                                            setValue('deviceCondition', string)
+                                        }}
+                                    />
+                                    <TicketQuickCheckBox
+                                        fieldToCheck={watch('deviceCondition')}
+                                        name={'Cracked Screen/Back'}
+                                        value={'Cracked Screen/Back, '}
+                                        onChange={(string) => {
+                                            setValue('deviceCondition', string)
+                                        }}
+                                    />
                                 </Space>
                             </Card>
                         </Space>
-                        <Space wrap className={'w-100 justify-around align-center'}>
+                        <Space wrap className={'w-100 justify-between'} align={'start'}>
                             <div className='flex-100 justify-between'>
                                 <Controller
                                     control={control}
@@ -383,89 +319,100 @@ export const EditTicketForm = ({
                                     )}
                                 />
                             </div>
-                            <Collapse>
-                                <CollapsePanel key={'1'} header={'More details'}>
-                                    <div className='card'>
-                                        <TextField
-                                            register={register('serialNumberOrImei')}
-                                            error={errors.serialNumberOrImei}
-                                            label={'Serial number or Imei'}
-                                        />
-                                        <TextField
-                                            register={register('deviceCondition')}
-                                            error={errors.deviceCondition}
-                                            label={'Device condition'}
-                                        />
-                                        <TextField
-                                            register={register('accessories')}
-                                            error={errors.accessories}
-                                            label={'Accessories'}
-                                        />
-                                        <FormField label='Notes' error={errors.notes}>
-                                            <textarea className='textAreaTicketProblem' {...register('notes')} />
-                                        </FormField>
-                                        <div className='flex-100 justify-between flex-wrap'>
-                                            <div>
-                                                <Controller
-                                                    control={control}
-                                                    name={'status'}
-                                                    render={({ field, fieldState }) => (
-                                                        <FormField label='Ticket status' error={fieldState.error}>
-                                                            <Select<ItemPropertyView, false>
-                                                                isClearable
-                                                                theme={SelectTheme}
-                                                                styles={SelectStyles<ItemPropertyView>()}
-                                                                options={TicketStatusesArray}
-                                                                placeholder='Fill in the ticket status'
-                                                                value={
-                                                                    TicketStatusesArray.find(
-                                                                        ({ value }) => field.value === value
-                                                                    ) ?? null
-                                                                }
-                                                                onChange={(newValue) => field.onChange(newValue?.value)}
-                                                                getOptionLabel={(item) => item.value}
-                                                                getOptionValue={(item) => item.id + item.value}
-                                                            />
-                                                        </FormField>
-                                                    )}
+                            <Collapse
+                                accordion
+                                defaultActiveKey={'1'}
+                                destroyInactivePanel={false}
+                                items={[
+                                    {
+                                        key: '1',
+                                        label: 'More details',
+                                        children: (
+                                            <Space.Compact direction={'vertical'}>
+                                                <TextField
+                                                    register={register('serialNumberOrImei')}
+                                                    error={errors.serialNumberOrImei}
+                                                    label={'Serial number or Imei'}
                                                 />
-                                            </div>
-                                            <div>
-                                                <Controller
-                                                    control={control}
-                                                    name={'deviceLocation'}
-                                                    render={({ field, fieldState }) => (
-                                                        <FormField label='Device Location' error={fieldState.error}>
-                                                            <CreatableSelect<ItemPropertyView, false>
-                                                                isClearable
-                                                                theme={SelectTheme}
-                                                                styles={SelectStyles<ItemPropertyView>()}
-                                                                options={locations}
-                                                                formatCreateLabel={(value) =>
-                                                                    'Add a new location: ' + value
-                                                                }
-                                                                placeholder='Where is the location of the device?'
-                                                                value={
-                                                                    locations?.find(
-                                                                        ({ value }) => field.value === value
-                                                                    ) ?? {
-                                                                        value: field.value,
-                                                                        id: -1,
-                                                                    }
-                                                                }
-                                                                onCreateOption={(item) => field.onChange(item)}
-                                                                onChange={(newValue) => field.onChange(newValue?.value)}
-                                                                getOptionLabel={(item) => item.value}
-                                                                getOptionValue={(item) => item.id + item.value}
-                                                            />
-                                                        </FormField>
-                                                    )}
+                                                <TextField
+                                                    register={register('deviceCondition')}
+                                                    error={errors.deviceCondition}
+                                                    label={'Device condition'}
                                                 />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </CollapsePanel>
-                            </Collapse>
+                                                <TextField
+                                                    register={register('accessories')}
+                                                    error={errors.accessories}
+                                                    label={'Accessories'}
+                                                />
+                                                <FormField label='Notes' error={errors.notes}>
+                                                    <Controller
+                                                        render={({ field }) => {
+                                                            return (
+                                                                <NotesTextArea
+                                                                    {...field}
+                                                                    activeDictaphone={activeDictaphone}
+                                                                    setActiveDictaphone={setActiveDictaphone}
+                                                                />
+                                                            )
+                                                        }}
+                                                        name={'notes'}
+                                                        control={control}
+                                                    />
+                                                </FormField>
+                                                <div className='flex-100 justify-between flex-wrap'>
+                                                    <div>
+                                                        <Controller
+                                                            control={control}
+                                                            name={'status'}
+                                                            render={({ field, fieldState }) => (
+                                                                <FormField
+                                                                    label='Ticket status'
+                                                                    error={fieldState.error}
+                                                                >
+                                                                    <AppSelect<string, ItemPropertyView>
+                                                                        options={TicketStatusesArray}
+                                                                        placeholder='Select or add a new user'
+                                                                        value={field.value}
+                                                                        onChange={(newValue) =>
+                                                                            field.onChange(newValue)
+                                                                        }
+                                                                        getOptionLabel={(item) => item.value}
+                                                                        getOptionValue={(item) => item.value}
+                                                                    />
+                                                                </FormField>
+                                                            )}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <Controller
+                                                            control={control}
+                                                            name={'deviceLocation'}
+                                                            render={({ field, fieldState }) => (
+                                                                <FormField
+                                                                    label='Device Location'
+                                                                    error={fieldState.error}
+                                                                >
+                                                                    <AppCreatableSelect<ItemPropertyView>
+                                                                        options={locations}
+                                                                        placeholder='Where is the location of the device?'
+                                                                        value={field.value}
+                                                                        onCreateOption={(item) => field.onChange(item)}
+                                                                        onChange={(newValue) =>
+                                                                            field.onChange(newValue)
+                                                                        }
+                                                                        getOptionLabel={(item) => item.value}
+                                                                        getOptionValue={(item) => item.value}
+                                                                    />
+                                                                </FormField>
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </Space.Compact>
+                                        ),
+                                    },
+                                ]}
+                            />
                         </Space>
                     </div>
 
@@ -479,7 +426,7 @@ export const EditTicketForm = ({
                         type='text'
                         htmlType='reset'
                         onClick={() => {
-                            onCancel()
+                            closeModal()
                         }}
                     >
                         Cancel
@@ -487,5 +434,58 @@ export const EditTicketForm = ({
                 </Space>
             </form>
         </>
+    )
+}
+
+const TicketQuickCheckBox = ({
+    name,
+    onChange,
+    fieldToCheck,
+    value,
+}: {
+    name: string
+    value: string
+    fieldToCheck?: string
+    onChange: (result: string) => void
+}) => {
+    const field = fieldToCheck ?? ''
+    return (
+        <label htmlFor={name}>
+            <Checkbox
+                id={name}
+                defaultChecked={fieldToCheck?.toLowerCase()?.includes(value.toLowerCase())}
+                onChange={(e) => {
+                    e.target.checked ? onChange(field.concat(value)) : onChange(field.replace(value, ''))
+                }}
+            />{' '}
+            {name}
+        </label>
+    )
+}
+
+const NotesTextArea = ({
+    value,
+    onChange,
+    activeDictaphone,
+    setActiveDictaphone,
+}: {
+    value: string
+    activeDictaphone: string
+    setActiveDictaphone: (value: string) => void
+    onChange: (value: string) => void
+}) => {
+    const key = 'notes'
+    const [tempNotes, setTempNotes] = useState('')
+    return (
+        <div className={'w-100'}>
+            <TextArea onChange={(e) => onChange(e.target.value)} value={(value ?? '') + tempNotes} />
+            <Dictaphone
+                isActive={activeDictaphone === key}
+                dictaphoneKey={key}
+                setActiveDictaphone={setActiveDictaphone}
+                setText={(text) => onChange((value ?? '') + ' ' + text)}
+                setTempText={setTempNotes}
+            />
+        </div>
     )
 }

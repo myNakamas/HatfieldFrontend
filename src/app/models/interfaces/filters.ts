@@ -1,4 +1,3 @@
-import { Shop } from './shop'
 import { ItemPropertyView } from './generalModels'
 import { TicketStatus } from '../enums/ticketEnums'
 import { InvoiceType } from '../enums/invoiceEnums'
@@ -11,7 +10,7 @@ export interface Filter {
 }
 
 export interface UserFilter extends Filter {
-    shop?: Shop
+    shopId?: number
     roles?: ItemPropertyView[]
     active?: boolean
     banned?: boolean
@@ -24,6 +23,7 @@ export interface InventoryFilter extends Filter {
     shopId?: number
     categoryId?: number
     isNeeded?: boolean
+    onlyNonEmpty?: boolean
     inShoppingList?: boolean
 }
 
@@ -39,6 +39,7 @@ export interface TicketFilter extends Filter {
     deadlineBefore?: string
     deadlineAfter?: string
     ticketStatuses?: TicketStatus[]
+    hideCompleted?: boolean
 }
 
 export interface InvoiceFilter extends Filter {
@@ -46,6 +47,7 @@ export interface InvoiceFilter extends Filter {
     brand?: string
     deviceLocation?: number
     shopId?: number
+    ticketId?: number
     clientId?: string
     createdById?: string
     createdBefore?: string
@@ -61,11 +63,7 @@ export interface LogsFilter extends Filter {
 
 export const toUserFilterView = (filter: UserFilter | undefined) => {
     return {
-        searchBy: filter?.searchBy,
-        shopId: filter?.shop?.id,
+        ...filter,
         roles: filter?.roles?.map(({ value }) => value).join(','),
-        banned: filter?.banned,
-        phone: filter?.phone,
-        active: filter?.active,
     }
 }

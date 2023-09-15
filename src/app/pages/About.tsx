@@ -1,4 +1,3 @@
-import { Space } from 'antd/lib'
 import { useQuery } from 'react-query'
 import { getShopData } from '../axios/http/shopRequests'
 import { Typography } from 'antd'
@@ -8,10 +7,10 @@ export const About = () => {
     const { data: shop } = useQuery(['currentShop'], getShopData)
 
     return (
-        <Space className={'w-100'}>
+        <div className={'mainScreen'}>
             <Typography className='privacy-policy'>
                 <div>{shop?.templates.aboutPage && <ReactMarkdown children={shop?.templates.aboutPage} />}</div>
             </Typography>
-        </Space>
+        </div>
     )
 }

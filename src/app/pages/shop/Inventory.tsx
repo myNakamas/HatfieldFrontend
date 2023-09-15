@@ -1,4 +1,4 @@
-import React, { Suspense, useContext, useEffect, useState } from 'react'
+import React, { Suspense, useContext, useEffect, useRef, useState } from 'react'
 import { useQuery } from 'react-query'
 import {
     getAllBrands,
@@ -16,30 +16,57 @@ import { Category, InventoryItem } from '../../models/interfaces/shop'
 import { ViewInventoryItem } from '../../components/modals/inventory/ViewInventoryItem'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { SearchComponent } from '../../components/filters/SearchComponent'
-import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { AuthContext } from '../../contexts/AuthContext'
-import { Button, Skeleton, Space } from 'antd'
+import { Button, FloatButton, Skeleton, Space, Tour } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
-import { faFileEdit, faPen, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faFileEdit, faPen, faPlus, faQuestion } from '@fortawesome/free-solid-svg-icons'
 import { EditInventoryItem } from '../../components/modals/inventory/EditInventoryItem'
 import { defaultPage } from '../../models/enums/defaultValues'
+import { inventoryTourSteps } from '../../models/enums/userEnums'
+import { AppSelect } from '../../components/form/AppSelect'
+import CheckableTag from 'antd/es/tag/CheckableTag'
+import { currencyFormat, resetPageIfNoValues } from '../../utils/helperFunctions'
 
 export const Inventory = () => {
+    const [tourIsOpen, setTourIsOpen] = useState(false)
+    const refsArray = Array.from({ length: 3 }, () => useRef(null))
     const [editItem, setEditItem] = useState<InventoryItem>()
     const navigate = useNavigate()
     const { loggedUser } = useContext(AuthContext)
-    const [filter, setFilter] = useState<InventoryFilter>({ shopId: loggedUser?.shopId })
+    const [params] = useSearchParams()
+    const [filter, setFilter] = useState<InventoryFilter>({ shopId: loggedUser?.shopId, onlyNonEmpty: true })
     const [createModalIsOpen, setCreateModalIsOpen] = useState(false)
     const [page, setPage] = useState<PageRequest>(defaultPage)
     const [selectedItem, setSelectedItem] = useState<InventoryItem | undefined>()
 
+    const isUserFromShop = filter.shopId === loggedUser?.shopId
+    useEffect(() => {
+        const shopId = params.get('shopId')
+        if (shopId) setFilter({ shopId: +shopId })
+    }, [])
+
     return (
         <div className='mainScreen'>
-            <InventoryFilters {...{ filter, setFilter }} />
-            <AddInventoryItem isModalOpen={createModalIsOpen} closeModal={() => setCreateModalIsOpen(false)} />
-            <EditInventoryItem isModalOpen={!!editItem} item={editItem} closeModal={() => setEditItem(undefined)} />
+            <div ref={refsArray[0]}>
+                <InventoryFilters {...{ filter, setFilter }} />
+            </div>
+            {isUserFromShop && (
+                <>
+                    <AddInventoryItem isModalOpen={createModalIsOpen} closeModal={() => setCreateModalIsOpen(false)} />
+                    <EditInventoryItem
+                        isModalOpen={!!editItem}
+                        item={editItem}
+                        closeModal={() => setEditItem(undefined)}
+                    />
+                </>
+            )}
+            <Tour
+                type={'primary'}
+                open={tourIsOpen}
+                onClose={() => setTourIsOpen(false)}
+                steps={inventoryTourSteps(refsArray)}
+            />
             <ViewInventoryItem
                 inventoryItem={selectedItem}
                 closeModal={() => setSelectedItem(undefined)}
@@ -47,8 +74,10 @@ export const Inventory = () => {
             />
             <Space className='button-bar'>
                 <Button
+                    ref={refsArray[2]}
                     icon={<FontAwesomeIcon icon={faPlus} />}
                     type='primary'
+                    disabled={!isUserFromShop}
                     onClick={() => setCreateModalIsOpen(true)}
                 >
                     Add Item
@@ -56,6 +85,7 @@ export const Inventory = () => {
                 <Button
                     icon={<FontAwesomeIcon icon={faFileEdit} />}
                     type='primary'
+                    disabled={!isUserFromShop}
                     onClick={() => navigate('/categories')}
                 >
                     Edit categories
@@ -63,12 +93,13 @@ export const Inventory = () => {
                 <Button
                     icon={<FontAwesomeIcon icon={faShoppingCart} />}
                     type='primary'
+                    disabled={!isUserFromShop}
                     onClick={() => navigate(`/inventory/${loggedUser?.shopId}/shopping-list`)}
                 >
                     Shopping List
                 </Button>
             </Space>
-            <div>
+            <div ref={refsArray[1]}>
                 <Suspense fallback={<Skeleton active loading />}>
                     <InventoryInner
                         {...{ setSelectedItem, setEditItem, page, setPage, filter }}
@@ -76,79 +107,12 @@ export const Inventory = () => {
                     />
                 </Suspense>
             </div>
+            <FloatButton
+                tooltip={'Help'}
+                onClick={() => setTourIsOpen(true)}
+                icon={<FontAwesomeIcon icon={faQuestion} />}
+            />
         </div>
-    )
-}
-
-const InventoryInner = ({
-    setSelectedItem,
-    setEditItem,
-    setPage,
-    page,
-    filter,
-    openCreateModal,
-}: {
-    filter: InventoryFilter
-    setSelectedItem: React.Dispatch<React.SetStateAction<InventoryItem | undefined>>
-    setEditItem: React.Dispatch<React.SetStateAction<InventoryItem | undefined>>
-    openCreateModal: () => void
-    page: PageRequest
-    setPage: React.Dispatch<React.SetStateAction<PageRequest>>
-}) => {
-    const { data } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), {
-        suspense: true,
-        onSuccess: (newItems) => {
-            setSelectedItem((item) => newItems.content.find(({ id }) => item?.id === id) ?? item)
-        },
-    })
-    const { data: categories } = useQuery('allCategories', getAllCategories)
-    const [additionalHeaders, setAdditionalHeaders] = useState({})
-    const [params] = useSearchParams()
-
-    useEffect(() => {
-        if (params.get('itemId')) {
-            setSelectedItem(data?.content.find(({ id }) => String(id) === params.get('itemId')))
-        }
-        const category = categories?.find(({ id }) => filter.categoryId === id)
-        setAdditionalHeaders(
-            category?.columns.reduce((obj, field) => {
-                return {
-                    ...obj,
-                    [field]: field,
-                }
-            }, {}) ?? {}
-        )
-    }, [filter.categoryId])
-
-    return data && data.content.length > 0 ? (
-        <CustomTable<InventoryItem>
-            data={data.content.map((item) => ({
-                ...item,
-                name: item.name ?? '-',
-                sell: item.sellPrice?.toFixed(2) ?? '-',
-                type: item.categoryView?.itemType ?? '-',
-                ...item.columns,
-                actions: <Button onClick={() => setEditItem(item)} icon={<FontAwesomeIcon icon={faPen} />} />,
-            }))}
-            headers={{
-                name: 'Name',
-                sell: 'Price',
-                type: 'Item type',
-                count: 'Count',
-                ...additionalHeaders,
-                actions: 'Actions',
-            }}
-            onClick={({ id }) => setSelectedItem(data?.content.find((row) => row.id === id))}
-            pagination={page}
-            onPageChange={setPage}
-            totalCount={data.totalCount}
-        />
-    ) : (
-        <NoDataComponent items='items in inventory'>
-            <Button type='primary' onClick={openCreateModal}>
-                Create Now
-            </Button>
-        </NoDataComponent>
     )
 }
 
@@ -163,63 +127,130 @@ const InventoryFilters = ({
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: categories } = useQuery('allCategories', getAllCategories)
-    const { data: shops } = useQuery('shops', getWorkerShops, { enabled: !isClient() })
+    const { data: shops } = useQuery(['shops', 'short'], getWorkerShops, { enabled: !isClient() })
 
     return (
-        <div className='filterRow'>
+        <Space wrap className={'w-100 justify-between'}>
             <SearchComponent {...{ filter, setFilter }} />
-            <div className='filterField'>
-                <Select<ItemPropertyView, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={shops?.find(({ id }) => filter.shopId === id) ?? null}
+            <Space wrap>
+                <CheckableTag
+                    checked={filter.onlyNonEmpty ?? false}
+                    onChange={(value) => setFilter({ ...filter, onlyNonEmpty: value })}
+                >
+                    Hide Empty Items
+                </CheckableTag>
+                <AppSelect<number, ItemPropertyView>
+                    value={filter.shopId}
                     options={shops ?? []}
                     placeholder='Filter by shop'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                    onChange={(value) => setFilter({ ...filter, shopId: value ?? undefined })}
                     getOptionLabel={(shop) => shop.value}
-                    getOptionValue={(shop) => String(shop.id)}
+                    getOptionValue={(shop) => shop.id}
                 />
-            </div>
-            <div className='filterField'>
-                <Select<ItemPropertyView, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={models?.find(({ id }) => filter.modelId === id) ?? null}
-                    options={models ?? []}
+                <AppSelect<number, ItemPropertyView>
+                    value={filter.modelId}
+                    options={models}
                     placeholder='Filter by model'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, modelId: value?.id ?? undefined })}
-                    getOptionLabel={(model) => model.value}
-                    getOptionValue={(model) => String(model.id)}
+                    onChange={(value) => setFilter({ ...filter, modelId: value ?? undefined })}
+                    getOptionLabel={(shop) => shop.value}
+                    getOptionValue={(shop) => shop.id}
                 />
-            </div>
-            <div className='filterField'>
-                <Select<ItemPropertyView, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={brands?.find(({ id }) => filter.brandId === id) ?? null}
-                    options={brands ?? []}
+                <AppSelect<number, ItemPropertyView>
+                    value={filter.brandId}
+                    options={brands}
                     placeholder='Filter by brand'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, brandId: value?.id ?? undefined })}
-                    getOptionLabel={(brand) => brand.value}
-                    getOptionValue={(brand) => String(brand.id)}
+                    onChange={(value) => setFilter({ ...filter, brandId: value ?? undefined })}
+                    getOptionLabel={(shop) => shop.value}
+                    getOptionValue={(shop) => shop.id}
                 />
-            </div>
-            <div className='filterField'>
-                <Select<Category, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={categories?.find(({ id }) => filter.categoryId === id) ?? null}
-                    options={categories ?? []}
+                <AppSelect<number, Category>
+                    value={filter.categoryId}
+                    options={categories}
                     placeholder='Filter by category'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, categoryId: value?.id ?? undefined })}
+                    onChange={(value) => setFilter({ ...filter, categoryId: value ?? undefined })}
                     getOptionLabel={(category) => category.name}
-                    getOptionValue={(category) => String(category.id)}
+                    getOptionValue={(category) => category.id}
                 />
-            </div>
-        </div>
+            </Space>
+        </Space>
+    )
+}
+
+export const InventoryInner = ({
+    setSelectedItem,
+    setEditItem,
+    setPage,
+    page,
+    filter,
+    openCreateModal,
+}: {
+    filter?: InventoryFilter
+    setSelectedItem: React.Dispatch<React.SetStateAction<InventoryItem | undefined>>
+    setEditItem: React.Dispatch<React.SetStateAction<InventoryItem | undefined>>
+    openCreateModal: () => void
+    page: PageRequest
+    setPage: React.Dispatch<React.SetStateAction<PageRequest>>
+}) => {
+    const { data } = useQuery(['shopItems', page, filter], () => useGetShopItems({ page, filter }), {
+        suspense: true,
+        onSuccess: (newItems) => {
+            resetPageIfNoValues(newItems, setPage)
+            setSelectedItem((item) => newItems.content.find(({ id }) => item?.id === id) ?? item)
+        },
+    })
+    const { loggedUser } = useContext(AuthContext)
+    const { data: categories } = useQuery('allCategories', getAllCategories)
+    const [additionalHeaders, setAdditionalHeaders] = useState({})
+    const [params] = useSearchParams()
+
+    useEffect(() => {
+        if (params.get('itemId')) {
+            setSelectedItem(data?.content.find(({ id }) => String(id) === params.get('itemId')))
+        }
+        const category = categories?.find(({ id }) => filter?.categoryId === id)
+        setAdditionalHeaders(
+            category?.columns.reduce((obj, field) => {
+                return {
+                    ...obj,
+                    [field]: field,
+                }
+            }, {}) ?? {}
+        )
+    }, [filter?.categoryId])
+    const isUserFromShop = filter?.shopId === loggedUser?.shopId
+
+    return data && data.content.length > 0 ? (
+        <CustomTable<InventoryItem>
+            data={data.content.map((item) => {
+                return {
+                    ...item.columns,
+                    ...item,
+                    itemName: item.name ?? '-',
+                    sell: currencyFormat(item.sellPrice),
+                    categoryType: item.categoryView?.itemType ?? '-',
+                    actions: <Button onClick={() => setEditItem(item)} icon={<FontAwesomeIcon icon={faPen} />} />,
+                }
+            })}
+            headers={{
+                itemName: 'Name',
+                sell: 'Price',
+                categoryType: 'Item type',
+                count: 'Count',
+                ...additionalHeaders,
+                actions: 'Actions',
+            }}
+            onClick={({ id }) => setSelectedItem(data?.content.find((row) => row.id === id))}
+            pagination={page}
+            onPageChange={setPage}
+            totalCount={data.totalCount}
+        />
+    ) : (
+        <NoDataComponent items='items in inventory'>
+            {isUserFromShop && (
+                <Button type='primary' onClick={openCreateModal}>
+                    Create Now
+                </Button>
+            )}
+        </NoDataComponent>
     )
 }

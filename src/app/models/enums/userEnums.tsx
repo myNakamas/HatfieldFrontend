@@ -1,6 +1,6 @@
 import { ItemPropertyView } from '../interfaces/generalModels'
-import { TourProps } from 'antd'
-import { MutableRefObject } from 'react'
+import { Card, Space, Tag, TourProps } from 'antd'
+import React, { MutableRefObject } from 'react'
 
 export type Role = 'ADMIN' | 'CLIENT' | 'SALESMAN' | 'ENGINEER'
 export const UserRoles = Array('ADMIN', 'CLIENT', 'SALESMAN', 'ENGINEER')
@@ -72,6 +72,55 @@ export const clientsTourSteps = (refs: MutableRefObject<any>[]): TourProps['step
     ]
 }
 
+export const inventoryTourSteps = (refs: MutableRefObject<any>[]): TourProps['steps'] => {
+    return [
+        {
+            title: 'Welcome to the Inventory Page',
+            description:
+                'Welcome to the Inventory Page, a comprehensive platform tailored for item management. This page facilitates the creation, search, and editing of various items, including phones and phone parts.',
+            target: () => null,
+        },
+        {
+            title: 'Mastering the Search Function',
+            description: (
+                <div>
+                    <p>
+                        These are the Inventory filters. You can apply various filters to narrow down your search,
+                        making it easier to locate specific items.
+                    </p>
+                    <Card>
+                        Advanced Capability: The search function offers a distinctive feature. Input a string in the
+                        format "property:search" to initiate precise filtering. For instance, typing color:blue triggers
+                        a backend filter for items with the "color" property and a value containing "blue".
+                    </Card>
+                    <p>
+                        Examples:{' '}
+                        <Space>
+                            <Tag>Color:Blue</Tag>
+                            <Tag>Length:1m</Tag>
+                        </Space>
+                    </p>
+                </div>
+            ),
+            type: 'default',
+            target: () => refs[0].current,
+        },
+        {
+            title: "Navigating Your Shop's Item Table",
+            description:
+                "The Item Table is your central hub for visualizing and managing all items within your inventory. This organized table presents a comprehensive view of your items' details, allowing for efficient tracking and informed decision-making.",
+            type: 'default',
+            target: () => refs[1].current,
+        },
+        {
+            title: 'Adding new items to the shop',
+            description: 'Seamlessly add new items to your inventory using our streamlined creation process.',
+            type: 'default',
+            target: () => refs[2].current,
+        },
+    ]
+}
+
 export const welcomePageTourSteps = (refs: MutableRefObject<any>[], shopName?: string): TourProps['steps'] => {
     return [
         {
@@ -85,7 +134,7 @@ export const welcomePageTourSteps = (refs: MutableRefObject<any>[], shopName?: s
         {
             title: 'Repair Ticket Status:',
             description:
-                " You'll be able to view the status of your repair tickets here. This includes real-time updates on the progress of your device repair, estimated completion times, and any additional notes from our technicians. You can track the journey of your phone from the moment it arrives at our shop until it's ready for pick-up.",
+                " You'll be able to view the status of your repair tickets here. This includes real-time updates on the progress of your device repair, estimated completion times, and any additional notes from our technicians. You can track the journey of your device from the moment it arrives at our shop until it's ready for pick-up.",
             type: 'default',
             target: () => refs[1].current,
         },

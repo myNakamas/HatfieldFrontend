@@ -12,7 +12,6 @@ import { toast } from 'react-toastify'
 import { useQueryClient } from 'react-query'
 import { FormField } from '../../form/Field'
 import FormItemLabel from 'antd/es/form/FormItemLabel'
-import CollapsePanel from 'antd/es/collapse/CollapsePanel'
 import { ItemDescriptions } from './ViewInventoryItem'
 
 export const EditRequiredItem = ({
@@ -62,11 +61,15 @@ export const EditRequiredItem = ({
         >
             {inventoryItem && (
                 <form className='modalForm' onSubmit={handleSubmit(submitUpdate)}>
-                    <Collapse>
-                        <CollapsePanel key={'1'} header={inventoryItem.name}>
-                            <ItemDescriptions inventoryItem={inventoryItem} />
-                        </CollapsePanel>
-                    </Collapse>
+                    <Collapse
+                        items={[
+                            {
+                                key: '1',
+                                label: inventoryItem.name,
+                                children: <ItemDescriptions inventoryItem={inventoryItem} />,
+                            },
+                        ]}
+                    />
                     <Space className={'w-100 '}>
                         <TextField
                             register={register('requiredItem.requiredAmount')}

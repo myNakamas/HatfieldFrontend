@@ -8,13 +8,14 @@ import { WebSocketContext } from '../../../contexts/WebSocketContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons/faPaperPlane'
 import { faFileUpload } from '@fortawesome/free-solid-svg-icons'
-import { Button, Modal, Switch, Upload, UploadFile, UploadProps } from 'antd'
+import { Button, Input, Modal, Space, Upload, UploadFile, UploadProps } from 'antd'
 import { getBase64, getCurrentTime } from '../../../utils/helperFunctions'
 import { RcFile } from 'antd/es/upload'
+import { Dictaphone } from '../../../components/form/Dictaphone'
+import CheckableTag from 'antd/es/tag/CheckableTag'
 
 export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?: Ticket }) => {
     const { loggedUser, isWorker } = useContext(AuthContext)
-    const [messageText, setMessageText] = useState('')
     const [showToClient, setShowToClient] = useState(false)
     const { addUnsentMessage, removeUnsentMessage } = useContext(WebSocketContext)
     const queryClient = useQueryClient()
@@ -22,7 +23,7 @@ export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?:
     const [previewImage, setPreviewImage] = useState('')
     const [previewTitle, setPreviewTitle] = useState('')
     const [fileList, setFileList] = useState<UploadFile[]>([])
-
+    const [messageText, setMessageText] = useState('')
     const handlePreview = async (file: UploadFile) => {
         if (!file.url && !file.preview) {
             file.preview = await getBase64(file.originFileObj as RcFile)
@@ -35,7 +36,7 @@ export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?:
 
     const handleChange: UploadProps['onChange'] = ({ fileList: newFileList }) => setFileList(newFileList)
 
-    const send = () => {
+    const send = (messageText: string) => {
         if (loggedUser && ticket && messageText.trim().length > 0) {
             const randomId = Math.floor(Math.random() * 1000000)
             const receiver =
@@ -69,50 +70,96 @@ export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?:
             <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={() => setPreviewOpen(false)}>
                 <img alt='example' style={{ width: '100%' }} src={previewImage} />
             </Modal>
-            <Upload
-                className='upload-list-inline'
-                listType='text'
-                fileList={fileList}
-                onPreview={handlePreview}
-                onChange={handleChange}
-                onRemove={(file) => {
-                    const index = fileList.indexOf(file)
-                    const newFileList = fileList.slice()
-                    newFileList.splice(index, 1)
-                    setFileList(newFileList)
-                }}
-                beforeUpload={(file) => {
-                    setFileList([...fileList, file])
-
-                    return false
-                }}
-            >
-                <Button icon={<FontAwesomeIcon icon={faFileUpload} />} />
-            </Upload>
-            {fileList.length === 0 && (
-                <input
-                    className='input'
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && send()}
-                    aria-autocomplete='none'
+            <Space.Compact className={'w-100 '}>
+                <Upload
+                    listType='text'
+                    fileList={fileList}
+                    onPreview={handlePreview}
+                    onChange={handleChange}
+                    onRemove={(file) => {
+                        const index = fileList.indexOf(file)
+                        const newFileList = fileList.slice()
+                        newFileList.splice(index, 1)
+                        setFileList(newFileList)
+                    }}
+                    beforeUpload={(file) => {
+                        setFileList([...fileList, file])
+                        return false
+                    }}
+                >
+                    <Button
+                        disabled={ticket?.id === undefined}
+                        size={'large'}
+                        icon={<FontAwesomeIcon icon={faFileUpload} />}
+                    />
+                </Upload>
+                <ChatInput
+                    message={messageText}
+                    onChange={setMessageText}
+                    onSubmit={send}
                     disabled={ticket?.id === undefined}
-                    autoFocus
+                    hidden={fileList.length === 0}
                 />
-            )}
+
+                <Button
+                    type='primary'
+                    size={'large'}
+                    disabled={!stompClient.connected || !ticket?.id}
+                    onClick={() => (fileList.length === 0 ? send(messageText) : sendPicture())}
+                    icon={<FontAwesomeIcon color='white' size='lg' icon={faPaperPlane} />}
+                />
+            </Space.Compact>
             {isWorker() && (
-                <div>
-                    <div className='span'>Send to client</div>
-                    <Switch checked={showToClient} onChange={() => setShowToClient((prev) => !prev)} />
-                </div>
+                <CheckableTag
+                    style={{ marginLeft: 15 }}
+                    checked={showToClient}
+                    onChange={() => setShowToClient((prev) => !prev)}
+                >
+                    Send to client
+                </CheckableTag>
             )}
-            <Button
-                type='primary'
-                className={`sendButton`}
-                disabled={!stompClient.connected || !ticket?.id}
-                onClick={fileList.length === 0 ? send : sendPicture}
-                icon={<FontAwesomeIcon color='white' size='lg' icon={faPaperPlane} />}
-            />
         </div>
+    )
+}
+
+const ChatInput = ({
+    hidden,
+    onSubmit,
+    disabled,
+    message,
+    onChange,
+}: {
+    hidden: boolean
+    onSubmit: (message: string) => void
+    disabled: boolean
+    message: string
+    onChange: (value: string) => void
+}) => {
+    const [dictaphoneKey, setDictaphoneKey] = useState('')
+    const [tempText, setTempText] = useState('')
+    return (
+        <>
+            {hidden && (
+                <>
+                    <Dictaphone
+                        disabled={disabled}
+                        dictaphoneKey={'chat'}
+                        setActiveDictaphone={setDictaphoneKey}
+                        isActive={dictaphoneKey === 'chat'}
+                        setText={(text) => onChange(message + ' ' + text)}
+                        setTempText={setTempText}
+                        size={'large'}
+                    />
+                    <Input
+                        value={tempText ? `${message} ${tempText}` : message}
+                        onChange={(e) => onChange(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && onSubmit(message)}
+                        aria-autocomplete='none'
+                        disabled={disabled}
+                        autoFocus
+                    />
+                </>
+            )}
+        </>
     )
 }

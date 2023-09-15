@@ -4,7 +4,7 @@ import { NoDataComponent } from '../../components/table/NoDataComponent'
 import { Breadcrumb, Button, Divider, Input, Popconfirm, Popover, Space, Statistic } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowsUpToLine, faArrowUp, faCheck, faPen, faXmark } from '@fortawesome/free-solid-svg-icons'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { faBasketShopping } from '@fortawesome/free-solid-svg-icons/faBasketShopping'
 import { useQuery, useQueryClient } from 'react-query'
 import {
@@ -31,14 +31,19 @@ export const ShoppingListView = () => {
         () => getShoppingList({ filter }),
         {
             suspense: true,
-            onSuccess: ({ items }) => {
-                if (selectedItem) setSelectedItem((item) => items.find(({ id }) => item?.id === id) ?? item)
-                setDefectiveItems(
-                    items.filter((item) => item.requiredItem?.defectiveAmount && item.requiredItem?.defectiveAmount > 0)
-                )
+            onSuccess: (newItems) => {
+                setSelectedItem((item) => newItems.items.find(({ id }) => item?.id === id) ?? item)
             },
         }
     )
+    useEffect(() => {
+        if (selectedItem) setSelectedItem((item) => shoppingList?.items.find(({ id }) => item?.id === id) ?? item)
+        setDefectiveItems(
+            shoppingList?.items.filter(
+                (item) => item.requiredItem?.defectiveAmount && item.requiredItem?.defectiveAmount > 0
+            ) ?? []
+        )
+    }, [shoppingList])
     const addItem = (id: number, count: number) => {
         toast
             .promise(addItemCount({ itemId: id, count }), toastUpdatePromiseTemplate('item count'), toastProps)

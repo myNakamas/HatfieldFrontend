@@ -1,6 +1,6 @@
 import { AppModal } from '../AppModal'
 import { UserForm } from './UserForm'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { FormField } from '../../form/Field'
 import { FormError } from '../../form/FormError'
 import { Button, Typography } from 'antd'
@@ -20,6 +20,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faPrint } from '@fortawesome/free-solid-svg-icons'
 import { printUserLabel } from '../../../axios/http/documentRequests'
 import { AppError } from '../../../models/interfaces/generalModels'
+import { Shop } from '../../../models/interfaces/shop'
+import { AppSelect } from '../../form/AppSelect'
 
 export const AddClient = ({
     isModalOpen,
@@ -58,7 +60,7 @@ export const AddClient = ({
     }, [isModalOpen])
 
     const onSaveNew = (formValue: User) => {
-        const user = { ...formValue, shopId: loggedUser?.shopId } as User
+        const user = isAdmin() ? formValue : ({ ...formValue, shopId: loggedUser?.shopId } as User)
         return toast
             .promise(createClient(user), toastCreatePromiseTemplate('client'), toastProps)
             .then((user) => {
@@ -111,14 +113,24 @@ export const AddClient = ({
                     />
                     <UserForm {...{ register, control, watch, setValue, getValues, errors }} />
                     {isAdmin() && (
-                        <FormField label='Shop to add the client to'>
-                            <input
-                                className='input'
-                                value={shops?.find((shop) => shop.id === loggedUser?.shopId)?.shopName}
-                                readOnly
-                            />
-                        </FormField>
+                        <Controller
+                            control={control}
+                            name='shopId'
+                            render={({ field, fieldState }) => (
+                                <FormField error={fieldState.error} label='Shop'>
+                                    <AppSelect<number, Shop>
+                                        value={field.value}
+                                        options={shops}
+                                        placeholder='Assign to shop'
+                                        onChange={(shopId) => field.onChange(shopId)}
+                                        getOptionLabel={(shop) => shop.shopName}
+                                        getOptionValue={(shop) => shop.id}
+                                    />
+                                </FormField>
+                            )}
+                        />
                     )}
+
                     <FormError error={errors.root?.message} />
 
                     <div className='flex-100 justify-end'>

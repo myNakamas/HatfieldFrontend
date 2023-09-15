@@ -2,7 +2,7 @@ import { useQuery } from 'react-query'
 import { fetchTicketById } from '../../axios/http/ticketRequests'
 import { Log } from '../../models/interfaces/shop'
 import { AppModal } from './AppModal'
-import { Collapse, Descriptions } from 'antd'
+import { Collapse, Descriptions, Typography } from 'antd'
 import { UserDescription } from './users/ViewUser'
 import CollapsePanel from 'antd/es/collapse/CollapsePanel'
 import dateFormat from 'dateformat'
@@ -13,6 +13,7 @@ import { getInvoiceById } from '../../axios/http/invoiceRequests'
 import { Invoice } from '../../models/interfaces/invoice'
 import { Ticket } from '../../models/interfaces/ticket'
 import { dateTimeMask } from '../../models/enums/appEnums'
+import { currencyFormat } from '../../utils/helperFunctions'
 
 export const LogDetails = ({
     log,
@@ -23,6 +24,8 @@ export const LogDetails = ({
     isModalOpen: boolean
     closeModal: () => void
 }) => {
+    const logMessages = log?.action.split(';')
+    const header = logMessages?.shift()
     const { data: ticket } = useQuery(['ticket', log?.ticketId], () => fetchTicketById(log?.ticketId ?? -1), {
         enabled: !!log?.ticketId,
     })
@@ -35,11 +38,25 @@ export const LogDetails = ({
     if (!log) return <></>
     return (
         <AppModal {...{ isModalOpen, closeModal }} title={`Log#${log.id} details`}>
-            <Descriptions bordered layout='vertical' className='p-2'>
-                <Descriptions.Item label={'Message'}>{log.action}</Descriptions.Item>
+            <Descriptions bordered className='p-2'>
                 <Descriptions.Item label={'Type'}>{log.type}</Descriptions.Item>
                 <Descriptions.Item label={'Created at'}>{dateFormat(log.timestamp)}</Descriptions.Item>
             </Descriptions>
+            {logMessages && (
+                <Typography style={{ textAlign: 'start' }}>
+                    <h4>{header}</h4>
+                    <ul key={`logListItemContent${log.id}`}>
+                        {logMessages?.map((value, index) => {
+                            return value.length == 0 ? (
+                                <div key={`logMessage.${log.id}.${index}`}></div>
+                            ) : (
+                                <li key={`logMessage.${log.id}.${index}`}>{value}</li>
+                            )
+                        })}
+                    </ul>
+                </Typography>
+            )}
+
             <Collapse>
                 {log.user && (
                     <CollapsePanel
@@ -98,9 +115,9 @@ export const TicketDescription = ({ ticket }: { ticket: Ticket }) => {
             <Descriptions.Item label='Customer Request'>{ticket.customerRequest}</Descriptions.Item>
             <Descriptions.Item label='Created by'>{ticket.createdBy.fullName}</Descriptions.Item>
             <Descriptions.Item label='Payment'>
-                {ticket.deposit && `Deposit: ${ticket.deposit?.toFixed(2)}`}
+                {ticket.deposit && `Deposit: ${currencyFormat(ticket.deposit)}`}
                 <br />
-                {ticket.totalPrice && `Total price: ${ticket.totalPrice?.toFixed(2)}`}
+                {ticket.totalPrice && `Total price: ${currencyFormat(ticket.totalPrice)}`}
             </Descriptions.Item>
             <Descriptions.Item label='Notes'>{ticket.notes}</Descriptions.Item>
 

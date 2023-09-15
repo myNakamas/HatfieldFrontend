@@ -1,24 +1,26 @@
 import React, { useContext, useRef, useState } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
+import { useQuery } from 'react-query'
 import { CustomTable } from '../../components/table/CustomTable'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { banClient, getAllClientsPage } from '../../axios/http/userRequests'
+import { getAllClientsPage } from '../../axios/http/userRequests'
 import { User } from '../../models/interfaces/user'
-import { getAllShops } from '../../axios/http/shopRequests'
+import { getAllShops, getWorkerShops } from '../../axios/http/shopRequests'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBan } from '@fortawesome/free-solid-svg-icons/faBan'
 import { SearchComponent } from '../../components/filters/SearchComponent'
 import { UserFilter } from '../../models/interfaces/filters'
 import { clientsTourSteps } from '../../models/enums/userEnums'
-import { Button, FloatButton, Popconfirm, Space, Switch, Tour } from 'antd'
+import { Button, FloatButton, Input, Space, Tour } from 'antd'
 import { faPen, faPlus, faQuestion } from '@fortawesome/free-solid-svg-icons'
 import { ViewUser } from '../../components/modals/users/ViewUser'
-import { FormField } from '../../components/form/Field'
 import { AuthContext } from '../../contexts/AuthContext'
 import { AddClient } from '../../components/modals/users/AddClient'
 import { EditClient } from '../../components/modals/users/EditClient'
-import { PageRequest } from '../../models/interfaces/generalModels'
+import { ItemPropertyView, PageRequest } from '../../models/interfaces/generalModels'
 import { defaultPage } from '../../models/enums/defaultValues'
+import { UserBanButton } from '../../components/UserBanButton'
+import { AppSelect } from '../../components/form/AppSelect'
+import CheckableTag from 'antd/es/tag/CheckableTag'
+import { resetPageIfNoValues } from '../../utils/helperFunctions'
 
 const clientsTableHeaders = {
     username: 'username',
@@ -40,9 +42,10 @@ export const Clients = () => {
     const [filter, setFilter] = useState<UserFilter>({
         banned: false,
     })
-    const queryClient = useQueryClient()
 
-    const { data: clients } = useQuery(['users', 'clients', page, filter], () => getAllClientsPage({ filter, page }))
+    const { data: clients } = useQuery(['users', 'clients', page, filter], () => getAllClientsPage({ filter, page }), {
+        onSuccess: (data) => resetPageIfNoValues(data, setPage),
+    })
 
     return (
         <div className='mainScreen' ref={refsArray[0]}>
@@ -79,17 +82,7 @@ export const Clients = () => {
                                             onClick={() => setSelectedUser(user)}
                                             icon={<FontAwesomeIcon icon={faPen} />}
                                         />
-                                        <Popconfirm
-                                            title='Ban user'
-                                            description='Are you sure to ban this user?'
-                                            onConfirm={() => {
-                                                banClient(user.userId, true).then(() => {
-                                                    queryClient.invalidateQueries(['users', 'clients']).then()
-                                                })
-                                            }}
-                                        >
-                                            <Button icon={<FontAwesomeIcon icon={faBan} />} />
-                                        </Popconfirm>
+                                        <UserBanButton user={user} />
                                     </Space>
                                 ),
                             }
@@ -117,7 +110,6 @@ export const Clients = () => {
         </div>
     )
 }
-
 const ClientsFilters = ({
     filter,
     setFilter,
@@ -125,12 +117,34 @@ const ClientsFilters = ({
     filter: UserFilter
     setFilter: (value: ((prevState: UserFilter) => UserFilter) | UserFilter) => void
 }) => {
+    const { isAdmin } = useContext(AuthContext)
+    const { data: shops } = useQuery(['shops', 'short'], getWorkerShops, { enabled: isAdmin() })
     return (
         <div className='filterRow'>
             <SearchComponent {...{ filter, setFilter }} />
-            <FormField label='Banned clients filter'>
-                <Switch checked={filter.banned} onChange={(value) => setFilter({ ...filter, banned: value })} />
-            </FormField>
+            {isAdmin() && (
+                <AppSelect<number, ItemPropertyView>
+                    value={filter.shopId}
+                    options={shops ?? []}
+                    placeholder='Filter by shop'
+                    onChange={(value) => setFilter({ ...filter, shopId: value ?? undefined })}
+                    getOptionLabel={(shop) => shop.value}
+                    getOptionValue={(shop) => shop.id}
+                />
+            )}
+            <Input
+                value={filter.phone}
+                onChange={(e) => setFilter({ ...filter, phone: e.currentTarget.value })}
+                placeholder={'Filter by exact phone'}
+            />
+            <Space>
+                <CheckableTag
+                    checked={filter.banned ?? false}
+                    onChange={(value) => setFilter({ ...filter, banned: value })}
+                >
+                    Show banned clients
+                </CheckableTag>
+            </Space>
         </div>
     )
 }

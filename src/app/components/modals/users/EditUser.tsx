@@ -13,13 +13,12 @@ import { useQuery, useQueryClient } from 'react-query'
 import { FormError } from '../../form/FormError'
 import { UserForm } from './UserForm'
 import { FormField } from '../../form/Field'
-import Select from 'react-select'
 import { Shop } from '../../../models/interfaces/shop'
-import { SelectTheme } from '../../../styles/components/stylesTS'
 import { TextField } from '../../form/TextField'
 import { UserRolesArray } from '../../../models/enums/userEnums'
 import { getAllShops } from '../../../axios/http/shopRequests'
-import { AppError } from '../../../models/interfaces/generalModels'
+import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
+import { AppSelect } from '../../form/AppSelect'
 
 export const EditUser = ({
     isModalOpen,
@@ -108,23 +107,41 @@ export const EditUser = ({
                                 </FormField>
                             )}
                         />
-                        <Controller
-                            control={control}
-                            name='shopId'
-                            render={({ field, fieldState }) => (
-                                <FormField error={fieldState.error} label='Shop'>
-                                    <Select<Shop, false>
-                                        theme={SelectTheme}
-                                        options={shops}
-                                        value={shops?.find((shop) => shop.id === field.value) ?? null}
-                                        getOptionLabel={({ shopName }) => shopName}
-                                        getOptionValue={({ id }) => id + ''}
-                                        placeholder=''
-                                        onChange={(item) => field.onChange(item?.id)}
-                                    />
-                                </FormField>
-                            )}
-                        />
+                        <Space wrap>
+                            <Controller
+                                control={control}
+                                name='shopId'
+                                render={({ field, fieldState }) => (
+                                    <FormField error={fieldState.error} label='Shop'>
+                                        <AppSelect<number, Shop>
+                                            value={field.value}
+                                            options={shops}
+                                            placeholder='Assign to shop'
+                                            onChange={(shopId) => field.onChange(shopId)}
+                                            getOptionLabel={(shop) => shop.shopName}
+                                            getOptionValue={(shop) => shop.id}
+                                        />
+                                    </FormField>
+                                )}
+                            />
+                            <Controller
+                                control={control}
+                                name='role'
+                                render={({ field, fieldState }) => (
+                                    <FormField error={fieldState.error} label='Role'>
+                                        <AppSelect<string, ItemPropertyView>
+                                            value={field.value}
+                                            options={UserRolesArray}
+                                            placeholder='Select User Role'
+                                            onChange={field.onChange}
+                                            getOptionLabel={(role) => role.value}
+                                            getOptionValue={(role) => role.value}
+                                        />
+                                    </FormField>
+                                )}
+                            />
+                        </Space>
+
                         <TextField
                             register={register('password')}
                             error={errors.password}
@@ -132,23 +149,6 @@ export const EditUser = ({
                             placeholder='New Password'
                         />
                         <span>* Leave password field blank to keep the old password</span>
-                        <Controller
-                            control={control}
-                            name='role'
-                            render={({ field, fieldState }) => (
-                                <FormField error={fieldState.error} label='Role'>
-                                    <Select
-                                        theme={SelectTheme}
-                                        options={UserRolesArray}
-                                        value={UserRolesArray.find((role) => role.value === field.value) ?? null}
-                                        getOptionLabel={({ value }) => value}
-                                        getOptionValue={({ value }) => value}
-                                        placeholder='Select a role for the user'
-                                        onChange={(item) => field.onChange(item?.value)}
-                                    />
-                                </FormField>
-                            )}
-                        />
                     </>
                 )}
 

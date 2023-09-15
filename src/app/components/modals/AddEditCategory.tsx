@@ -5,8 +5,6 @@ import { Category } from '../../models/interfaces/shop'
 import { TextField } from '../form/TextField'
 import { AppModal } from './AppModal'
 import React, { useContext, useEffect, useRef } from 'react'
-import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { ItemTypesArray } from '../../models/enums/shopEnums'
 import { FormField } from '../form/Field'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
@@ -15,6 +13,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
 import { Button, Typography } from 'antd'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 import { AuthContext } from '../../contexts/AuthContext'
+import { AppSelect } from '../form/AppSelect'
 
 export const AddEditCategory = ({
     isModalOpen,
@@ -81,16 +80,13 @@ export const AddEditCategory = ({
                         control={control}
                         render={({ field, fieldState }) => (
                             <FormField label={'Item type'} error={fieldState.error}>
-                                <Select<ItemPropertyView>
-                                    theme={SelectTheme}
-                                    styles={SelectStyles()}
-                                    name='type'
-                                    value={ItemTypesArray.find(({ value }) => value === field.value) ?? null}
+                                <AppSelect<string, ItemPropertyView>
+                                    value={field.value}
                                     options={ItemTypesArray}
                                     placeholder='Select Item Type'
-                                    onChange={(type) => field.onChange(type?.value)}
+                                    onChange={(type) => field.onChange(type)}
                                     getOptionLabel={(item) => item.value}
-                                    getOptionValue={(item) => String(item.id)}
+                                    getOptionValue={(item) => item.value}
                                 />
                             </FormField>
                         )}
@@ -101,7 +97,7 @@ export const AddEditCategory = ({
                         onClick={() => setValue('columns', [...getValues('columns'), ''])}
                         icon={<FontAwesomeIcon size='lg' icon={faPlus} />}
                     />
-                    {properties && properties.length ? (
+                    {properties && properties.length > 0 ? (
                         properties?.map((value, index) => displayProperties(value, index))
                     ) : (
                         <></>

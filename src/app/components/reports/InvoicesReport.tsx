@@ -8,13 +8,12 @@ import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } fro
 import React, { useContext, useState } from 'react'
 import { DesignTokenContext } from 'antd/es/theme/internal'
 import moment from 'moment/moment'
-import { generateDaysArray } from '../../utils/helperFunctions'
+import { currencyFormat, generateDaysArray } from '../../utils/helperFunctions'
 import dateFormat from 'dateformat'
 import { dateMask } from '../../models/enums/appEnums'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
-import { SelectStyles, SelectTheme } from '../../styles/components/stylesTS'
 import { InvoiceType, InvoiceTypesArray } from '../../models/enums/invoiceEnums'
-import Select from 'react-select'
+import { AppSelect } from '../form/AppSelect'
 
 type ChartType = 'COUNT' | 'INCOME'
 
@@ -45,7 +44,7 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
             title={
                 chartType == 'COUNT'
                     ? `Created invoices: ${report?.totalCount}`
-                    : `Income: ${report?.totalAmount.toFixed(2)}£`
+                    : `Income: ${currencyFormat(report?.totalAmount)}`
             }
             extra={<Button type='link' onClick={() => navigate('/invoices')} children={'See All Invoices'} />}
         >
@@ -63,7 +62,7 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
                             }}
                             itemStyle={{ color: 'white' }}
                             formatter={(value, key) => {
-                                return key === 'Daily income' ? [(+value).toFixed(2) + '£', key] : [value, key]
+                                return key === 'Daily income' ? [currencyFormat(+value), key] : [value, key]
                             }}
                         />
                         <Legend />
@@ -74,16 +73,13 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
                     <Switch
                         onChange={() => setChartType((prevState) => (prevState === 'COUNT' ? 'INCOME' : 'COUNT'))}
                     />
-                    <Select<ItemPropertyView, false>
-                        theme={SelectTheme}
-                        styles={SelectStyles()}
-                        value={InvoiceTypesArray.find(({ value }) => invoiceType === value) ?? null}
-                        options={InvoiceTypesArray ?? []}
-                        placeholder='Filter by status'
-                        isClearable
-                        onChange={(value) => setInvoiceType(value?.value as InvoiceType)}
+                    <AppSelect<InvoiceType, ItemPropertyView>
+                        value={invoiceType}
+                        options={InvoiceTypesArray}
+                        placeholder={'Filter by Invoice status'}
+                        onChange={(type) => setInvoiceType(type ?? undefined)}
                         getOptionLabel={(status) => status.value}
-                        getOptionValue={(status) => String(status.id)}
+                        getOptionValue={(status) => status.value as InvoiceType}
                     />
                 </Space>
             </CustomSuspense>

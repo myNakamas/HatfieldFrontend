@@ -2,7 +2,7 @@ import backendClient from '../backendClient'
 import { ResetPassword, User, UsernamePassword } from '../../models/interfaces/user'
 import axios, { AxiosResponse } from 'axios'
 import { toUserFilterView, UserFilter } from '../../models/interfaces/filters'
-import { Page, PageRequest } from '../../models/interfaces/generalModels'
+import { Page, PageRequest, ResponseMessage } from '../../models/interfaces/generalModels'
 
 const transformLoginResponse = ({ data: user, headers }: AxiosResponse) => {
     const token = 'Bearer ' + headers['authorization']
@@ -51,9 +51,11 @@ export const getAllClientsPage = ({
 export const updateYourProfile = (user: User): Promise<User> => {
     return backendClient.put('user/profile/edit', user)
 }
-export const getProfilePicture = ({ id }: { id?: string }): Promise<Blob> => {
-    if (!id) return new Promise(() => new Blob())
-    return backendClient.get('user/profile/image', { params: { id }, responseType: 'blob' })
+export const getProfilePicture = ({ id }: { id?: string }): Promise<string> => {
+    if (!id) return new Promise(() => '')
+    return backendClient
+        .get<any, Blob>('user/profile/image', { params: { id }, responseType: 'blob' })
+        .then((blob) => (blob.size > 0 ? URL.createObjectURL(blob) : ''))
 }
 export const changeProfilePicture = ({ picture }: { picture: File }) => {
     const body = new FormData()
@@ -62,6 +64,16 @@ export const changeProfilePicture = ({ picture }: { picture: File }) => {
 }
 export const changePassword = ({ password, oldPassword }: ResetPassword): Promise<void> => {
     return backendClient.put('user/profile/edit/password', { newPassword: password, oldPassword })
+}
+export const setNewPassword = (password: string, token: string | null): Promise<void> => {
+    return backendClient.put(
+        'user/profile/reset/password',
+        { newPassword: password },
+        { headers: { Authorization: `Bearer ${token}` } }
+    )
+}
+export const sendForgotPassword = (params: { username: string }): Promise<ResponseMessage> => {
+    return backendClient.post('public/forgot-password', {}, { params })
 }
 export const createWorkerUser = (user: User): Promise<User> => {
     return backendClient.post('user/admin/create', user)

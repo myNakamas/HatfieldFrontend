@@ -6,7 +6,7 @@ import React, { Suspense, useContext, useEffect, useRef, useState } from 'react'
 import { Button, Card, FloatButton, Popconfirm, Skeleton, Space, Spin, Switch, Tour } from 'antd'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ViewTicket } from '../../components/modals/ticket/ViewTicket'
+import { TicketView } from '../../components/modals/ticket/TicketView'
 import { Ticket } from '../../models/interfaces/ticket'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCancel, faMessage, faPrint, faQuestion, faSnowflake } from '@fortawesome/free-solid-svg-icons'
@@ -24,6 +24,8 @@ import { activeTicketStatuses, completedTicketStatuses } from '../../models/enum
 import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { Deadline } from '../../components/modals/ticket/Deadline'
+import { openPdfBlob } from '../invoices/Invoices'
+import { currencyFormat } from '../../utils/helperFunctions'
 
 export const ClientDashboard = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
@@ -41,7 +43,7 @@ export const ClientDashboard = () => {
 
     return (
         <div className={'mainScreen'}>
-            <ViewTicket ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
+            <TicketView ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
             <div className={'dashboard-items'}>
                 <ClientTicketTable refs={refsArray} filter={filter} setSelectedTicket={setSelectedTicket} />
                 <Card ref={refsArray[3]} style={{ minWidth: 350 }} title={`Invoices: `}>
@@ -191,7 +193,7 @@ export const ActiveTicketsTable = ({
                             leftPrice: 'Left to pay',
                             actions: 'Actions',
                         }}
-                        onClick={(ticket) => setSelectedTicket(ticket)}
+                        onClick={({ id }) => setSelectedTicket(data.content.find((ticket) => ticket.id === id))}
                         pagination={page}
                         onPageChange={setPage}
                         totalCount={data.totalCount}
@@ -202,11 +204,6 @@ export const ActiveTicketsTable = ({
             </div>
         </CustomSuspense>
     )
-}
-
-export const openPdfBlob = (pdfBlob: Blob) => {
-    const fileUrl = URL.createObjectURL(pdfBlob)
-    window.open(fileUrl)
 }
 
 export const CompletedTicketsTable = ({
@@ -257,7 +254,7 @@ export const CompletedTicketsTable = ({
                             warrantyLeft: 'Warranty left',
                             actions: 'Actions',
                         }}
-                        onClick={(ticket) => setSelectedTicket(ticket)}
+                        onClick={({ id }) => setSelectedTicket(data.content.find((ticket) => ticket.id === id))}
                         pagination={page}
                         onPageChange={setPage}
                         totalCount={data.totalCount}
@@ -275,11 +272,7 @@ function InnerInvoices({ filter }: { filter: TicketFilter }) {
     const { isClient } = useContext(AuthContext)
     const openPdf = async (invoiceId: number) => {
         const pdfBlob = isClient() ? await getClientInvoicePdf(invoiceId) : await getInvoicePdf(invoiceId)
-        if (pdfBlob) {
-            const fileUrl = URL.createObjectURL(pdfBlob)
-            const pdfPage = window.open(fileUrl)
-            if (pdfPage) pdfPage.document.title = 'Hatfield Invoice ' + invoiceId
-        }
+        openPdfBlob(pdfBlob)
     }
     const { data: invoices, isLoading } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }), {
         suspense: true,
@@ -299,7 +292,7 @@ function InnerInvoices({ filter }: { filter: TicketFilter }) {
                             </>
                         ),
                         timestamp: dateFormat(invoice.timestamp),
-                        price: invoice.totalPrice.toFixed(2),
+                        price: currencyFormat(invoice.totalPrice),
                         createdBy: invoice.createdBy.fullName,
                         client: invoice.client?.fullName ?? '-',
                         payment: (

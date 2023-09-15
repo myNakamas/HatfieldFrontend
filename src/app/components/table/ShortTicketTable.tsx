@@ -6,6 +6,8 @@ import moment from 'moment/moment'
 import React, { useState } from 'react'
 import { ColumnsType } from 'antd/es/table'
 import { AddTicketInvoice } from '../modals/AddTicketInvoice'
+import { PageRequest } from '../../models/interfaces/generalModels'
+import { defaultPageSizeOptions } from '../../models/enums/defaultValues'
 
 const Deadline = ({ deadline }: { deadline: Date }) => {
     const { Countdown } = Statistic
@@ -13,8 +15,18 @@ const Deadline = ({ deadline }: { deadline: Date }) => {
     return <Countdown title={dateFormat(deadline)} value={deadline.valueOf()} />
 }
 
-export const ShortTicketTable = ({ data, onClick }: { data?: Ticket[]; onClick: (ticket: Ticket) => void }) => {
-    if (!data || data.length === 0) return <NoDataComponent items={'active tickets'} />
+export const ShortTicketTable = ({
+    data,
+    onClick,
+    page,
+    setPage,
+}: {
+    data?: Ticket[]
+    onClick: (ticket: Ticket) => void
+    page: PageRequest
+    setPage: (value: PageRequest) => void
+}) => {
+    if (!data || data.length === 0) return <NoDataComponent items={'tickets'} />
     const [collectTicket, setCollectTicket] = useState<Ticket | undefined>()
     const columns = ['creation date', 'due', 'status', 'client', 'actions'].map((string, index) => ({
         title: string,
@@ -51,7 +63,12 @@ export const ShortTicketTable = ({ data, onClick }: { data?: Ticket[]; onClick: 
                 }
                 columns={columns}
                 onRow={getComponentProps}
-                pagination={false}
+                pagination={{
+                    pageSize: page.pageSize,
+                    pageSizeOptions: defaultPageSizeOptions,
+                    current: page.page,
+                    onChange: (page, pageSize) => setPage({ page, pageSize }),
+                }}
                 scroll={{ x: true, scrollToFirstRowOnChange: true }}
                 rowClassName={({ deadline }: Ticket) => (moment(deadline).isBefore(moment()) ? 'dangerBg' : '')}
             />

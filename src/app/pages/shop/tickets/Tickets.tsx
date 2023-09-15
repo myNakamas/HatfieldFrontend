@@ -8,17 +8,15 @@ import { ItemPropertyView, Page, PageRequest } from '../../../models/interfaces/
 import { fetchAllTickets, fetchClientTickets, fetchTicketById } from '../../../axios/http/ticketRequests'
 import { AddTicket } from '../../../components/modals/ticket/AddTicket'
 import dateFormat from 'dateformat'
-import { ViewTicket } from '../../../components/modals/ticket/ViewTicket'
+import { TicketView } from '../../../components/modals/ticket/TicketView'
 import { TicketFilter } from '../../../models/interfaces/filters'
 import { getAllBrands, getAllModels, getAllShops } from '../../../axios/http/shopRequests'
 import { SearchComponent } from '../../../components/filters/SearchComponent'
-import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import { Shop } from '../../../models/interfaces/shop'
 import { User } from '../../../models/interfaces/user'
 import { getAllClients, getAllWorkers } from '../../../axios/http/userRequests'
 import { DateTimeFilter } from '../../../components/filters/DateTimeFilter'
-import { Button, Space, Statistic, Tabs, TabsProps } from 'antd'
+import { Button, Select, Space, Statistic, Tabs, TabsProps } from 'antd'
 import {
     activeTicketStatuses,
     completedTicketStatuses,
@@ -28,12 +26,14 @@ import {
 import { useSearchParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons'
-import { getUserString } from '../../../utils/helperFunctions'
+import { getUserString, resetPageIfNoValues } from '../../../utils/helperFunctions'
 import { defaultPage } from '../../../models/enums/defaultValues'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { QrReaderButton } from '../../../components/modals/QrReaderModal'
 import moment from 'moment/moment'
 import { AddTicketInvoice } from '../../../components/modals/AddTicketInvoice'
+import { AppSelect } from '../../../components/form/AppSelect'
+import { FilterWrapper } from '../../../components/filters/FilterWrapper'
 
 export const Tickets = () => {
     const { loggedUser, isClient, isWorker } = useContext(AuthContext)
@@ -57,7 +57,10 @@ export const Tickets = () => {
             return query({ page, filter })
         },
         {
-            onSuccess: onSelectedTicketUpdate,
+            onSuccess: (data) => {
+                resetPageIfNoValues(data, setPage)
+                onSelectedTicketUpdate(data)
+            },
         }
     )
 
@@ -96,7 +99,7 @@ export const Tickets = () => {
                 closeModal={() => setCollectTicket(undefined)}
                 isModalOpen={!!collectTicket}
             />
-            <ViewTicket
+            <TicketView
                 ticket={selectedTicket}
                 closeModal={() => {
                     setSelectedTicket(undefined)
@@ -105,16 +108,16 @@ export const Tickets = () => {
                 view={ticketView}
             />
             <AddTicket isModalOpen={showNewModal} closeModal={() => setShowNewModal(false)} />
-            <Space className='buttonHeader'>
+            <Space className='buttonHeader' align={'start'}>
                 <Space>
                     {isWorker() && (
                         <Button type={'primary'} onClick={() => setShowNewModal(true)}>
                             Add Ticket
                         </Button>
                     )}
-                </Space>
-                <Space wrap>
                     <QrReaderButton title={'Scan QR code to open ticket'} />
+                </Space>
+                <Space wrap align={'start'}>
                     <TicketFilters {...{ filter, setFilter }} />
                 </Space>
             </Space>
@@ -155,7 +158,7 @@ const TicketsTab = ({
                 <CustomTable<Ticket>
                     data={data.content.map((ticket) => ({
                         ...ticket,
-                        timestamp: dateFormat(ticket.timestamp),
+                        createdAt: dateFormat(ticket.timestamp),
                         timeLeft:
                             moment(ticket.deadline) > moment() ? (
                                 <Statistic.Countdown
@@ -193,7 +196,10 @@ const TicketsTab = ({
                         clientName: 'Client',
                         actions: 'Actions',
                     }}
-                    onClick={(ticket) => setSelectedTicket(ticket)}
+                    onClick={({ id }) => {
+                        const ticket = data.content.find((ticket) => ticket.id === id)
+                        setSelectedTicket(ticket)
+                    }}
                     pagination={page}
                     onPageChange={setPage}
                     totalCount={data.totalCount}
@@ -224,92 +230,69 @@ const TicketFilters = ({
     })
     const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
     return advanced ? (
-        <Space className='largeFilter' wrap>
-            <div className='filterColumn'>
-                <h4>Filters</h4>
+        <Space className='largeFilter' wrap align={'start'}>
+            <FilterWrapper title={'General filters'}>
                 <SearchComponent {...{ filter, setFilter }} />
-                <Select<ItemPropertyView, true>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={filter.ticketStatuses?.map(
-                        (status) => TicketStatusesArray.find(({ value }) => value === status) as ItemPropertyView
-                    )}
-                    options={TicketStatusesArray ?? []}
+                <Select<TicketStatus[], ItemPropertyView>
+                    style={{ minWidth: 200, maxWidth: 300, textAlign: 'left' }}
+                    dropdownStyle={{ textAlign: 'left' }}
+                    mode={'tags'}
+                    allowClear
+                    options={TicketStatusesArray}
+                    value={filter.ticketStatuses}
                     placeholder='Filter by status'
-                    isMulti
-                    isClearable
-                    onChange={(value) =>
-                        setFilter({ ...filter, ticketStatuses: value?.map((value) => value.value as TicketStatus) })
-                    }
-                    getOptionLabel={(status) => status.value}
-                    getOptionValue={(status) => String(status.id)}
+                    onChange={(values) => setFilter({ ...filter, ticketStatuses: values })}
+                    optionFilterProp={'value'}
+                    optionLabelProp={'value'}
                 />
-            </div>
-            <div className='filterColumn' title={'Device filters'}>
-                <h4>Device filters</h4>
-                <Select<ItemPropertyView, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={models?.find(({ id }) => filter.modelId === id) ?? null}
-                    options={models ?? []}
-                    placeholder='Filter by model'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, modelId: value?.id ?? undefined })}
-                    getOptionLabel={(model) => model.value}
-                    getOptionValue={(model) => String(model.id)}
-                />
-                <Select<ItemPropertyView, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={brands?.find(({ id }) => filter.brandId === id) ?? null}
-                    options={brands ?? []}
+            </FilterWrapper>
+            <FilterWrapper title={'Device filters'}>
+                <AppSelect<number, ItemPropertyView>
+                    value={filter.brandId}
+                    options={brands}
                     placeholder='Filter by brand'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, brandId: value?.id ?? undefined })}
+                    onChange={(id) => setFilter({ ...filter, brandId: id ?? undefined })}
                     getOptionLabel={(brand) => brand.value}
-                    getOptionValue={(brand) => String(brand.id)}
+                    getOptionValue={(brand) => brand.id}
                 />
-            </div>
-            <div className='filterColumn' title={'Filter by users'}>
-                <h4>Filter by users</h4>
-                <Select<User, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={clients?.find(({ userId }) => filter.clientId === userId) ?? null}
-                    options={clients ?? []}
+                <AppSelect<number, ItemPropertyView>
+                    value={filter.modelId}
+                    options={models}
+                    placeholder='Filter by model'
+                    onChange={(id) => setFilter({ ...filter, modelId: id ?? undefined })}
+                    getOptionLabel={(model) => model.value}
+                    getOptionValue={(model) => model.id}
+                />
+            </FilterWrapper>
+            <FilterWrapper title={'Filter by users'}>
+                <AppSelect<string, User>
+                    value={filter.clientId}
+                    options={clients}
                     placeholder='Filter by client'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, clientId: value?.userId ?? undefined })}
-                    getOptionLabel={getUserString}
-                    getOptionValue={(client) => String(client.userId)}
+                    onChange={(id) => setFilter({ ...filter, clientId: id ?? undefined })}
+                    getOptionLabel={(user) => user.username}
+                    getOptionValue={(user) => user.userId}
                 />
-                <Select<User, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={users?.find(({ userId }) => filter.createdById === userId) ?? null}
-                    options={users ?? []}
+                <AppSelect<string, User>
+                    value={filter.createdById}
+                    options={users}
                     placeholder='Filter by ticket creator'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, createdById: value?.userId ?? undefined })}
-                    getOptionLabel={getUserString}
-                    getOptionValue={(user) => String(user.userId)}
+                    onChange={(id) => setFilter({ ...filter, createdById: id ?? undefined })}
+                    getOptionLabel={(user) => user.username}
+                    getOptionValue={(user) => user.userId}
                 />
                 {isAdmin() && (
-                    <Select<Shop, false>
-                        theme={SelectTheme}
-                        styles={SelectStyles()}
-                        value={shops?.find(({ id }) => filter.shopId === id) ?? null}
-                        options={shops ?? []}
+                    <AppSelect<number, Shop>
+                        value={filter.shopId}
+                        options={shops}
                         placeholder='Filter by shop'
-                        isClearable
-                        onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
+                        onChange={(id) => setFilter({ ...filter, shopId: id ?? undefined })}
                         getOptionLabel={(shop) => shop.shopName}
-                        getOptionValue={(shop) => String(shop.id)}
+                        getOptionValue={(shop) => shop.id}
                     />
                 )}
-            </div>
-            <div className='filterColumn' title={'Filter by date'}>
-                <h4>Filter by date</h4>
+            </FilterWrapper>
+            <FilterWrapper title={'Filter by date'}>
                 <DateTimeFilter
                     filter={filter}
                     setFilter={({ from, to }) => {
@@ -332,7 +315,7 @@ const TicketFilters = ({
                     }}
                     placeholder={'Deadline'}
                 />
-            </div>
+            </FilterWrapper>
         </Space>
     ) : (
         <Space wrap>

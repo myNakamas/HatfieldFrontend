@@ -25,11 +25,11 @@ import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { useQuery, useQueryClient } from 'react-query'
 import { AddInvoice } from '../AddInvoice'
 import { FormField } from '../../form/Field'
-import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
-import CollapsePanel from 'antd/es/collapse/CollapsePanel'
 import { AuthContext } from '../../../contexts/AuthContext'
+import { AppSelect } from '../../form/AppSelect'
+import { openPdfBlob } from '../../../pages/invoices/Invoices'
+import { currencyFormat } from '../../../utils/helperFunctions'
 
 export const ViewInventoryItem = ({
     inventoryItem,
@@ -45,17 +45,11 @@ export const ViewInventoryItem = ({
     const queryClient = useQueryClient()
     const printSellDocument = async () => {
         const blob = await postPrintItemLabel(inventoryItem?.id)
-        if (blob) {
-            const fileUrl = URL.createObjectURL(blob)
-            window.open(fileUrl)
-        }
+        openPdfBlob(blob)
     }
     const previewSellDocument = async () => {
         const blob = await getPrintItemLabel(inventoryItem?.id)
-        if (blob) {
-            const fileUrl = URL.createObjectURL(blob)
-            window.open(fileUrl)
-        }
+        openPdfBlob(blob)
     }
 
     const markItemAsDamaged = (id: number) => {
@@ -201,12 +195,12 @@ export const ItemDescriptions = ({
                 <Card title={'Pricing'} style={{ flex: 1 }}>
                     {inventoryItem?.sellPrice && (
                         <>
-                            <div className='bold'>Selling Price: {inventoryItem.sellPrice.toFixed(2)}</div>
+                            <div className='bold'>Selling Price: {currencyFormat(inventoryItem.sellPrice)}</div>
                             <Divider />
                         </>
                     )}
                     {inventoryItem?.purchasePrice && (
-                        <div className='bold'>Purchased for: {inventoryItem.purchasePrice.toFixed(2)}</div>
+                        <div className='bold'>Purchased for: {currencyFormat(inventoryItem.purchasePrice)}</div>
                     )}
                 </Card>
                 <Space wrap className={'w-100 justify-around'} style={{ flex: 3 }} align={'start'}>
@@ -272,7 +266,7 @@ const UpdateItemCountForm = ({ item, onComplete }: { item: InventoryItem; onComp
 }
 
 const SendItemToShop = ({ item }: { item: InventoryItem }) => {
-    const { data: shops } = useQuery('shops', getWorkerShops)
+    const { data: shops } = useQuery(['shops', 'short'], getWorkerShops)
     const { loggedUser } = useContext(AuthContext)
     const {
         formState: { errors },
@@ -292,8 +286,8 @@ const SendItemToShop = ({ item }: { item: InventoryItem }) => {
             .then(() => {
                 queryClient.invalidateQueries(['shopItems']).then()
             })
-            .catch((error: AppError) => {
-                setError('root', { message: error.detail })
+            .catch((error?: AppError) => {
+                setError('root', { message: error?.detail })
             })
     }
 
@@ -303,37 +297,42 @@ const SendItemToShop = ({ item }: { item: InventoryItem }) => {
 
     return (
         <form onSubmit={handleSubmit(submit)} className={'modalForm'}>
-            <Collapse>
-                <CollapsePanel key={'1'} header={'Send to another shop'}>
-                    <Controller
-                        control={control}
-                        name={'shopId'}
-                        render={({ field: { value, onChange }, fieldState }) => (
-                            <FormField label='Shop' error={fieldState.error}>
-                                <Select<ItemPropertyView, false>
-                                    isClearable
-                                    theme={SelectTheme}
-                                    styles={SelectStyles()}
-                                    options={shops?.filter((shop) => shop.id !== loggedUser?.shopId)}
-                                    placeholder='Shop'
-                                    value={shops?.find(({ id }) => value === id) ?? null}
-                                    onChange={(value) => onChange(value?.id)}
-                                    getOptionLabel={(shops) => shops.value}
-                                    getOptionValue={(shops) => String(shops.id)}
+            <Collapse
+                items={[
+                    {
+                        key: '1',
+                        label: 'Send to another shop',
+                        children: (
+                            <Space direction={'vertical'}>
+                                <Controller
+                                    control={control}
+                                    name={'shopId'}
+                                    render={({ field: { value, onChange }, fieldState }) => (
+                                        <FormField label='Shop' error={fieldState.error}>
+                                            <AppSelect<number, ItemPropertyView>
+                                                onChange={onChange}
+                                                options={shops?.filter((shop) => shop.id !== loggedUser?.shopId)}
+                                                value={value}
+                                                placeholder={'Shop to send to'}
+                                                getOptionLabel={(shops) => shops.value}
+                                                getOptionValue={(shops) => shops.id}
+                                            />
+                                        </FormField>
+                                    )}
                                 />
-                            </FormField>
-                        )}
-                    />
-                    <TextField
-                        min={0}
-                        defaultValue={item.count}
-                        register={register('count')}
-                        error={errors.count}
-                        type='number'
-                    />
-                    <Button htmlType={'submit'}>Send</Button>
-                </CollapsePanel>
-            </Collapse>
+                                <TextField
+                                    min={0}
+                                    defaultValue={item.count}
+                                    register={register('count')}
+                                    error={errors.count}
+                                    type='number'
+                                />
+                                <Button htmlType={'submit'}>Send</Button>
+                            </Space>
+                        ),
+                    },
+                ]}
+            />
         </form>
     )
 }

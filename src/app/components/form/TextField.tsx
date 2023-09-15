@@ -4,7 +4,7 @@ import { FormError } from './FormError'
 
 interface TextFieldProps
     extends React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
-    register: UseFormRegisterReturn
+    register?: UseFormRegisterReturn
     label?: string
     error?: FieldError
     // placeholder?: string

@@ -16,6 +16,8 @@ import { updateClient } from '../../../axios/http/userRequests'
 import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { TextField } from '../../form/TextField'
 import { AppError } from '../../../models/interfaces/generalModels'
+import { Shop } from '../../../models/interfaces/shop'
+import { AppSelect } from '../../form/AppSelect'
 
 export const EditClient = ({
     client,
@@ -52,18 +54,16 @@ export const EditClient = ({
     }, [isModalOpen])
 
     const onSaveNew = (formValue: User) => {
-        const user = { ...formValue, shopId: loggedUser?.shopId } as User
-        return (
-            toast
-                .promise(updateClient(user), toastUpdatePromiseTemplate('client'), toastProps)
-                .then(() => {
-                    closeModal()
-                    queryClient.invalidateQueries(['users', 'clients']).then()
-                })
-                .catch((error: AppError) => {
-                    setError('root', { message: error.detail })
-                })
-        )
+        const user = isAdmin() ? formValue : ({ ...formValue, shopId: loggedUser?.shopId } as User)
+        return toast
+            .promise(updateClient(user), toastUpdatePromiseTemplate('client'), toastProps)
+            .then(() => {
+                closeModal()
+                queryClient.invalidateQueries(['users', 'clients']).then()
+            })
+            .catch((error: AppError) => {
+                setError('root', { message: error.detail })
+            })
     }
 
     return (
@@ -71,13 +71,24 @@ export const EditClient = ({
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit((data) => onSaveNew(data))}>
                 <UserForm {...{ register, control, watch, setValue, getValues, errors }} />
 
-                <FormField label='Shop'>
-                    <input
-                        className='input'
-                        value={shops?.find((shop) => shop.id === loggedUser?.shopId)?.shopName}
-                        readOnly
+                {isAdmin() && (
+                    <Controller
+                        control={control}
+                        name='shopId'
+                        render={({ field, fieldState }) => (
+                            <FormField error={fieldState.error} label='Shop'>
+                                <AppSelect<number, Shop>
+                                    value={field.value}
+                                    options={shops}
+                                    placeholder='Assign to shop'
+                                    onChange={(shopId) => field.onChange(shopId)}
+                                    getOptionLabel={(shop) => shop.shopName}
+                                    getOptionValue={(shop) => shop.id}
+                                />
+                            </FormField>
+                        )}
                     />
-                </FormField>
+                )}
                 <Controller
                     control={control}
                     name={'isBanned'}

@@ -9,6 +9,7 @@ export interface CustomTableProps<T> {
     pagination?: PageRequest
     onPageChange?: (page: PageRequest) => void
     data: any[]
+    loading?: boolean
     totalCount?: number
 }
 export const CustomTable = <T extends object>({
@@ -18,6 +19,7 @@ export const CustomTable = <T extends object>({
     pagination,
     onPageChange,
     totalCount,
+    loading,
 }: CustomTableProps<T>) => {
     const columns = Object.entries(headers).map(([key, value], index) => ({
         title: value,
@@ -39,6 +41,7 @@ export const CustomTable = <T extends object>({
             columns={columns}
             scroll={{ x: true, scrollToFirstRowOnChange: true }}
             onRow={getComponentProps}
+            loading={loading}
             pagination={
                 pagination
                     ? {
@@ -51,7 +54,7 @@ export const CustomTable = <T extends object>({
                               onPageChange && onPageChange({ page, pageSize })
                           },
                           pageSizeOptions: [5, 10, 15, 20, 50, 100],
-                          position: ['topRight', 'bottomRight'],
+                          position: totalCount && totalCount > 5 ? ['topRight', 'bottomRight'] : ['bottomRight'],
                           showSizeChanger: true,
                           total: totalCount,
                       }

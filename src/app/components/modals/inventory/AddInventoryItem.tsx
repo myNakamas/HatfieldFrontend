@@ -1,7 +1,7 @@
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { AddItemInventorySchema } from '../../../models/validators/FormValidators'
-import { Category, CreateInventoryItem, Shop } from '../../../models/interfaces/shop'
+import { Category, CreateInventoryItem, InventoryItem, Shop } from '../../../models/interfaces/shop'
 import {
     addCategory,
     addNewItem,
@@ -15,9 +15,6 @@ import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { AppModal } from '../AppModal'
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../../../styles/components/stylesTS'
-import CreatableSelect from 'react-select/creatable'
 import { FormField } from '../../form/Field'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
@@ -27,8 +24,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { AddEditCategory } from '../AddEditCategory'
 import { AuthContext } from '../../../contexts/AuthContext'
+import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 
-export const AddInventoryItem = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
+export const AddInventoryItem = ({
+    isModalOpen,
+    closeModal,
+}: {
+    isModalOpen: boolean
+    closeModal: (item?: InventoryItem) => void
+}) => {
     const { isWorker } = useContext(AuthContext)
 
     return (
@@ -43,7 +47,7 @@ export const AddInventoryItemInner = ({
     closeModal,
 }: {
     isModalOpen: boolean
-    closeModal: () => void
+    closeModal: (item?: InventoryItem) => void
 }) => {
     const formRef = useRef<HTMLFormElement>(null)
     const { isAdmin } = useContext(AuthContext)
@@ -82,10 +86,10 @@ export const AddInventoryItemInner = ({
     const submit = (item: CreateInventoryItem) => {
         toast
             .promise(addNewItem({ item }), toastCreatePromiseTemplate('item'), toastProps)
-            .then(() => {
-                closeModal()
+            .then((value) => {
+                formRef.current?.reset()
                 reset({})
-                queryClient.invalidateQueries(['shopItems']).then()
+                queryClient.invalidateQueries(['shopItems']).then(() => closeModal(value))
                 queryClient.invalidateQueries(['brands']).then()
             })
             .catch((error: AppError) => {
@@ -134,18 +138,13 @@ export const AddInventoryItemInner = ({
                             return (
                                 <FormField label={'Item Category'} error={fieldState.error}>
                                     <Space.Compact>
-                                        <Select<Category>
-                                            isClearable
-                                            theme={SelectTheme}
+                                        <AppSelect<number, Category>
                                             options={categories}
                                             placeholder='Select Item Category'
-                                            value={categories?.find(({ id }) => field.value === id) ?? null}
-                                            onChange={(type) => {
-                                                field.onChange(type?.id)
-                                                setColumns(type?.columns)
-                                            }}
-                                            getOptionLabel={(item) => item.name}
-                                            getOptionValue={(item) => String(item.id)}
+                                            value={field.value}
+                                            onChange={(id) => field.onChange(id)}
+                                            getOptionLabel={(category) => category.name}
+                                            getOptionValue={(category) => category.id}
                                         />
                                         <Button
                                             onClick={() => {
@@ -160,55 +159,45 @@ export const AddInventoryItemInner = ({
                             )
                         }}
                     />
-
-                    <Controller
-                        control={control}
-                        name={'brand'}
-                        render={({ field, fieldState }) => (
-                            <FormField label='Brand' error={fieldState.error}>
-                                <CreatableSelect<ItemPropertyView, false>
-                                    isClearable
-                                    theme={SelectTheme}
-                                    styles={SelectStyles<ItemPropertyView>()}
-                                    options={brands}
-                                    formatCreateLabel={(value) => 'Create new brand ' + value}
-                                    placeholder='Select or add a new brand'
-                                    value={field.value as unknown as ItemPropertyView}
-                                    onCreateOption={(item) => field.onChange({ value: item })}
-                                    onChange={(newValue) => {
-                                        resetField('model')
-                                        field.onChange(newValue)
-                                    }}
-                                    getOptionLabel={(item) => item.value}
-                                    getOptionValue={(item) => item.id + item.value}
-                                />
-                            </FormField>
-                        )}
-                    />
-                    <Controller
-                        control={control}
-                        name={'model'}
-                        render={({ field, fieldState }) => (
-                            <FormField label='Model' error={fieldState.error}>
-                                <CreatableSelect<ItemPropertyView, false>
-                                    isClearable
-                                    theme={SelectTheme}
-                                    styles={SelectStyles<ItemPropertyView>()}
-                                    options={models}
-                                    placeholder='Select or add a new model'
-                                    noOptionsMessage={() =>
-                                        watch('brand') ? 'No models available' : 'Please select a brand'
-                                    }
-                                    formatCreateLabel={(value) => `Create new model '${value}'`}
-                                    value={field.value ?? null}
-                                    onCreateOption={(item) => field.onChange({ value: item })}
-                                    onChange={(newValue) => field.onChange(newValue)}
-                                    getOptionLabel={(item) => item.value}
-                                    getOptionValue={(item) => item.id + item.value}
-                                />
-                            </FormField>
-                        )}
-                    />
+                    <Space wrap>
+                        <Controller
+                            control={control}
+                            name={'brand'}
+                            render={({ field, fieldState }) => (
+                                <FormField label='Brand' error={fieldState.error}>
+                                    <AppCreatableSelect<ItemPropertyView>
+                                        options={brands}
+                                        placeholder='Select or add a new brand'
+                                        value={field.value?.value}
+                                        onCreateOption={(item) => field.onChange({ value: item })}
+                                        onChange={(newValue) => {
+                                            resetField('model')
+                                            field.onChange(brands?.find((brand) => brand.value === newValue) ?? null)
+                                        }}
+                                        optionLabelProp={'value'}
+                                        optionFilterProp={'value'}
+                                    />
+                                </FormField>
+                            )}
+                        />
+                        <Controller
+                            control={control}
+                            name={'model'}
+                            render={({ field, fieldState }) => (
+                                <FormField label='Model' error={fieldState.error}>
+                                    <AppCreatableSelect<ItemPropertyView>
+                                        options={models}
+                                        placeholder='Select or add a new model'
+                                        value={field.value?.value}
+                                        onCreateOption={(item) => field.onChange({ value: item })}
+                                        onChange={(item) => field.onChange(item ? { value: item } : null)}
+                                        optionLabelProp={'value'}
+                                        optionFilterProp={'value'}
+                                    />
+                                </FormField>
+                            )}
+                        />
+                    </Space>
                 </Space>
                 <Space wrap align={'start'} className={'w-100 justify-between'}>
                     <Space direction={'vertical'}>
@@ -218,16 +207,13 @@ export const AddInventoryItemInner = ({
                                 control={control}
                                 render={({ field }) => (
                                     <FormField label={'Shop to add the item to'}>
-                                        <Select<Shop, false>
-                                            theme={SelectTheme}
-                                            styles={SelectStyles()}
-                                            value={shops?.find(({ id }) => field.value === id) ?? null}
-                                            options={shops ?? []}
-                                            placeholder='Choose shop'
-                                            isClearable
-                                            onChange={(value) => field.onChange(value?.id ?? undefined)}
+                                        <AppSelect<number, Shop>
+                                            value={field.value}
+                                            options={shops}
+                                            placeholder='Assign to shop'
+                                            onChange={(shopId) => field.onChange(shopId)}
                                             getOptionLabel={(shop) => shop.shopName}
-                                            getOptionValue={(shop) => String(shop.id)}
+                                            getOptionValue={(shop) => shop.id}
                                         />
                                     </FormField>
                                 )}
@@ -265,7 +251,7 @@ export const AddInventoryItemInner = ({
                     <Button type='primary' htmlType='submit'>
                         Save
                     </Button>
-                    <Button htmlType='button' onClick={closeModal}>
+                    <Button htmlType='button' onClick={() => closeModal()}>
                         Close
                     </Button>
                 </div>

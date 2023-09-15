@@ -7,7 +7,8 @@ const baseURL = import.meta.env.VITE_API_URL
 const backendClient = axios.create({ baseURL: String(baseURL) })
 
 backendClient.interceptors.request.use((config) => {
-    config.headers.Authorization = localStorage.getItem('token')
+    const token = localStorage.getItem('token')
+    if (token) config.headers.Authorization = token
     return config
 })
 

@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { getShopById, updateShop } from '../../axios/http/shopRequests'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Shop, ShopSettingsModel } from '../../models/interfaces/shop'
+import { Shop } from '../../models/interfaces/shop'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
 import { ShopSchema } from '../../models/validators/FormValidators'
@@ -17,9 +17,11 @@ import {
     Breadcrumb,
     Button,
     Card,
+    Collapse,
     ColorPicker,
     Descriptions,
     Divider,
+    Input,
     Popover,
     Space,
     Switch,
@@ -28,17 +30,17 @@ import {
 import TextArea from 'antd/es/input/TextArea'
 import ReactMarkdown from 'react-markdown'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faQuestion } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faClock, faQuestion, faX } from '@fortawesome/free-solid-svg-icons'
 import { AnchorLinkItemProps } from 'antd/es/anchor/Anchor'
 import ButtonGroup from 'antd/es/button/button-group'
+import CollapsePanel from 'antd/es/collapse/CollapsePanel'
+import { sendSmsApiBalanceCheck, SmsBalanceResponse } from '../../axios/http/smsRequests'
 
 export const ShopSettingsView = () => {
     const { id } = useParams()
     const navigate = useNavigate()
     const queryClient = useQueryClient()
-    const { data: shop, isLoading } = useQuery(['shop', id], () => getShopById(Number(id)), {
-        onSuccess: (data) => resetForm(data),
-    })
+    const { data: shop, isLoading } = useQuery(['shop', id], () => getShopById(Number(id)), {})
     const {
         control,
         register,
@@ -49,46 +51,34 @@ export const ShopSettingsView = () => {
         watch,
     } = useForm<Shop>({
         resolver: yupResolver(ShopSchema),
-        defaultValues: {
-            ...shop,
-            shopSettingsView: { ...shop?.shopSettingsView, gmailPassword: '' } as ShopSettingsModel,
-        } as Shop,
+        defaultValues: shop,
     })
-
-    const resetForm = (data: Shop | undefined) => {
-        reset({
-            ...data,
-            shopSettingsView: { ...data?.shopSettingsView, gmailPassword: '' } as ShopSettingsModel,
-        } as Shop)
-    }
+    useEffect(() => reset(shop), [shop])
 
     const submitShop = (formValue: Shop) => {
         toast
             .promise(
-                updateShop(formValue)
-                    .then(() => {
-                        queryClient.invalidateQueries(['shop', id]).then()
-                    })
-                    .catch((error) => {
-                        setError('root', { message: error })
-                    }),
+                updateShop(formValue),
                 { pending: 'Sending', success: 'Edited shop successfully', error: 'Failed ' },
                 toastProps
             )
-            .then(() => navigate('/shops/'))
+            .then(() => {
+                queryClient.invalidateQueries(['shop', id]).then()
+            })
+            .catch((error) => {
+                setError('root', { message: error })
+            })
     }
 
     return (
         <div className='mainScreen'>
-            <Breadcrumb>
-                <Breadcrumb.Item>
-                    <a onClick={() => navigate('/home')}>Home</a>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>
-                    <a onClick={() => navigate('/shops')}>Shops</a>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>{shop?.shopName}</Breadcrumb.Item>
-            </Breadcrumb>
+            <Breadcrumb
+                items={[
+                    { title: <a onClick={() => navigate('/home')}>Home</a> },
+                    { title: <a onClick={() => navigate('/shops')}>Shops</a> },
+                    { title: shop?.shopName },
+                ]}
+            />
             <CustomSuspense isReady={!isLoading}>
                 <Space className={'flex-100 align-start justify-around'}>
                     {window.innerWidth >= 768 && <Anchor items={pageAnchors} />}
@@ -295,17 +285,16 @@ export const ShopSettingsView = () => {
                                             that will be used to send email notifications.
                                         </p>
                                         <p>
-                                            <strong>Note:</strong> If you don't have a Gmail account, you can create one{' '}
-                                            <a href='https://accounts.google.com/signup'>here</a>.
+                                            You can also use an{' '}
+                                            <a href={'https://support.google.com/accounts/answer/185833'}>
+                                                application password
+                                            </a>{' '}
+                                            instead of the email password.
                                         </p>
                                         <p>
                                             For Gmail users, please make sure that you allow less secure apps access by
                                             following the instructions{' '}
                                             <a href='https://support.google.com/accounts/answer/6010255'>here</a>.
-                                        </p>
-                                        <p>
-                                            Once you have entered the email address and password, click "Save" to apply
-                                            the changes and start receiving email notifications.
                                         </p>
                                     </Typography>
                                     <TextField
@@ -340,30 +329,74 @@ export const ShopSettingsView = () => {
                                         />
                                     }
                                 >
-                                    <TextField
-                                        disabled={!watch('shopSettingsView.smsNotificationsEnabled')}
-                                        label='SMS API key'
-                                        register={register('shopSettingsView.smsApiKey')}
-                                        type='password'
-                                        error={errors.shopSettingsView?.smsApiKey}
-                                    />
+                                    <Space direction={'vertical'}>
+                                        <SMSFieldDescription />
+                                        <TextField
+                                            disabled={!watch('shopSettingsView.smsNotificationsEnabled')}
+                                            label='SMS API key'
+                                            register={register('shopSettingsView.smsApiKey')}
+                                            type='password'
+                                            error={errors.shopSettingsView?.smsApiKey}
+                                        />
+                                        <TestSmsToken token={watch('shopSettingsView.smsApiKey')} />
+                                    </Space>
                                 </Card>
                             </div>
                         </div>
 
                         <FormError error={errors.root?.message} />
-                        <div className='flex-100 justify-end'>
-                            <Button type='primary' onClick={handleSubmit(submitShop)}>
-                                Save
-                            </Button>
+                        <Space className='flex-100 justify-between'>
+                            <Button.Group>
+                                <Button type='primary' htmlType={'submit'}>
+                                    Save
+                                </Button>
+                                <Button htmlType='button' onClick={() => reset(shop)}>
+                                    Reset
+                                </Button>
+                            </Button.Group>
+
                             <Button htmlType='button' onClick={() => navigate('/shops/')}>
                                 Cancel
                             </Button>
-                        </div>
+                        </Space>
                     </form>
                 </Space>
             </CustomSuspense>
         </div>
+    )
+}
+
+const TestSmsToken = ({ token }: { token: string }) => {
+    const [response, setResponse] = useState<SmsBalanceResponse | undefined>()
+    const [error, setError] = useState<boolean>()
+    return (
+        <Space.Compact>
+            <Button
+                onClick={() =>
+                    sendSmsApiBalanceCheck(token)
+                        .then((res) => {
+                            setResponse(res)
+                            setError(false)
+                        })
+                        .catch(() => {
+                            setResponse(undefined)
+                            setError(true)
+                        })
+                }
+            >
+                Test Connection
+            </Button>
+            <Input
+                status={error ? 'error' : ''}
+                readOnly
+                value={response?.data ? `OK! Balance left: ${response?.data.balance} ` : error ? 'Error' : ''}
+            />
+            <Button
+                type={'text'}
+                disabled
+                icon={<FontAwesomeIcon icon={response?.data ? faCheck : error ? faX : faClock} />}
+            />
+        </Space.Compact>
     )
 }
 
@@ -372,6 +405,10 @@ const AboutPagePopover = () => (
         overlayClassName={'width-m'}
         content={
             <div>
+                <p>
+                    Please provide the content of the shop's About page using the{' '}
+                    <a href={'https://www.markdownguide.org/basic-syntax/'}>Markdown format</a>.
+                </p>
                 <p>You can include the actual shop information to the page using these variables:</p>
                 <Descriptions title={'Variables'}>
                     <Descriptions.Item label={"The shop's name"} children='${shop.name}' />
@@ -385,7 +422,38 @@ const AboutPagePopover = () => (
         <Button icon={<FontAwesomeIcon icon={faQuestion} />} />
     </Popover>
 )
-
+const SMSFieldDescription = () => (
+    <Typography>
+        <Collapse>
+            <CollapsePanel key={'1'} header={'Please follow these steps to acquire your unique API key:'}>
+                <ol>
+                    <li>
+                        Open your web browser and navigate to the{' '}
+                        <a href='https://app.d7networks.com/api-tokens'>API Tokens page</a> by visiting the following
+                        URL: <code>https://app.d7networks.com/api-tokens</code>.
+                    </li>
+                    <li>
+                        Once you're on the API Tokens page, you'll need to log in to your account or create a new one if
+                        you don't have an account already.
+                    </li>
+                    <li>
+                        After logging in, you will find an option to generate a new API key. Click on the "Generate New
+                        API Key" button or a similar option available on the page.
+                    </li>
+                    <li>
+                        The system will generate a unique API key for you. This API key is a confidential credential
+                        that provides secure access to our API services.
+                    </li>
+                    <li>
+                        Copy the generated API key to your clipboard. Make sure to keep this key confidential, as it
+                        grants access to your account and our API services.
+                    </li>
+                    <li>Return to this page and paste the copied API key into the text field provided below.</li>
+                </ol>
+            </CollapsePanel>
+        </Collapse>
+    </Typography>
+)
 const pageAnchors: AnchorLinkItemProps[] = [
     {
         key: 'part-1',

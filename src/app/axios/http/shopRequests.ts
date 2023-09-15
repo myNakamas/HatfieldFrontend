@@ -21,7 +21,7 @@ export const useGetShopItems = ({
     filter,
 }: {
     page: PageRequest
-    filter: InventoryFilter
+    filter?: InventoryFilter
 }): Promise<Page<InventoryItem>> => {
     return backendClient.get('inventory/item/all', { params: { ...page, ...filter } })
 }
@@ -77,6 +77,9 @@ export const getAllModels = (): Promise<ItemPropertyView[]> => {
 export const getAllBrands = (): Promise<Brand[]> => {
     return backendClient.get('inventory/brand/all')
 }
+export const patchRenameModel = (body: { id: number; value: string }) => {
+    return backendClient.patch('inventory/model/edit', body)
+}
 export const getAllDeviceLocations = (): Promise<ItemPropertyView[]> => {
     return backendClient.get('inventory/location/all')
 }
@@ -101,7 +104,8 @@ export const fetchItemById = (params: { id?: number }): Promise<InventoryItem> =
     return backendClient.get('inventory/item', { params })
 }
 export const updateItemQuantity = ({ item }: { item: InventoryItem }) => {
-    return backendClient.post('inventory/item/updateQuantity', item)
+    const { id, count } = item
+    return backendClient.post('inventory/item/updateQuantity', { id, count })
 }
 
 export const getAllCategories = (): Promise<Category[]> => {

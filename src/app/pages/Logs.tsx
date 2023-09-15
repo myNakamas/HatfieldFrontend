@@ -1,27 +1,25 @@
-import { Log, Shop } from '../models/interfaces/shop'
-import { CustomTable } from '../components/table/CustomTable'
-import { defaultPage } from '../models/enums/defaultValues'
+import { Log } from '../models/interfaces/shop'
+import { defaultPage, defaultPageSizeOptions, getDefaultPageSize } from '../models/enums/defaultValues'
 import React, { Suspense, useContext, useState } from 'react'
 import { Filter, LogsFilter } from '../models/interfaces/filters'
 import { useQuery } from 'react-query'
-import { getAllLogs, getAllShops } from '../axios/http/shopRequests'
-import { Input, Space } from 'antd'
-import Select from 'react-select'
-import { SelectStyles, SelectTheme } from '../styles/components/stylesTS'
+import { getAllLogs, getWorkerShops } from '../axios/http/shopRequests'
+import { Input, List, Space } from 'antd'
 import { DateTimeFilter } from '../components/filters/DateTimeFilter'
 import { ItemPropertyView, PageRequest } from '../models/interfaces/generalModels'
-import dateFormat from 'dateformat'
-import { NoDataComponent } from '../components/table/NoDataComponent'
 import { InfinitySpin } from 'react-loader-spinner'
 import { LogDetails } from '../components/modals/LogDetails'
 import { LogType, LogTypeList } from '../models/enums/logEnums'
 import { AuthContext } from '../contexts/AuthContext'
+import { LogListRow } from '../components/modals/ticket/DetailedTicketInfoView'
+import { AppSelect } from '../components/form/AppSelect'
+import { resetPageIfNoValues } from '../utils/helperFunctions'
 
 export const Logs = () => {
     const [page, setPage] = useState(defaultPage)
     const [filter, setFilter] = useState<Filter>({})
     return (
-        <div className='mainPage'>
+        <div className='mainScreen'>
             <Space className='button-bar'>
                 <LogsFilters filter={filter} setFilter={setFilter} />
             </Space>
@@ -41,30 +39,32 @@ const LogsInner = ({
     page: PageRequest
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
 }) => {
-    const { data } = useQuery(['logs', filter, page], () => getAllLogs({ filter, page }), { suspense: true })
+    const { data: logs, isLoading } = useQuery(['logs', filter, page], () => getAllLogs({ filter, page }), {
+        suspense: true,
+        onSuccess: (logs) => {
+            resetPageIfNoValues(logs, setPage)
+        },
+    })
     const [selectedLog, setSelectedLog] = useState<Log | undefined>()
 
     return (
-        <>
+        <div className={'p-2'}>
             <LogDetails log={selectedLog} closeModal={() => setSelectedLog(undefined)} isModalOpen={!!selectedLog} />
-            {data?.content && data.content.length > 0 ? (
-                <CustomTable<Log>
-                    data={data.content.map(({ user, timestamp, ...rest }) => ({
-                        ...rest,
-                        timestamp: dateFormat(timestamp),
-                        username: user?.fullName,
-                        user,
-                    }))}
-                    headers={{ action: 'Message', type: 'Log type', username: 'User', timestamp: 'Created at' }}
-                    pagination={page}
-                    onPageChange={setPage}
-                    onClick={setSelectedLog}
-                    totalCount={data.totalCount}
-                />
-            ) : (
-                <NoDataComponent items={'logs'} />
-            )}
-        </>
+            <List<Log>
+                loading={isLoading}
+                dataSource={logs?.content}
+                pagination={{
+                    total: logs?.totalCount,
+                    current: page.page,
+                    onChange: (page, pageSize) => setPage({ page, pageSize }),
+                    position: 'bottom',
+                    pageSizeOptions: defaultPageSizeOptions,
+                    defaultPageSize: getDefaultPageSize(),
+                    showSizeChanger: true,
+                }}
+                renderItem={(log) => <LogListRow onClick={setSelectedLog} log={log} key={'logKey' + log.id} />}
+            />
+        </div>
     )
 }
 const LogsFilters = ({
@@ -75,47 +75,36 @@ const LogsFilters = ({
     setFilter: React.Dispatch<React.SetStateAction<LogsFilter>>
 }) => {
     const { isAdmin } = useContext(AuthContext)
-    const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
+    const { data: shops } = useQuery('shops', getWorkerShops, { enabled: isAdmin() })
     return (
-        <Space>
-            <div className='filterField'>
-                {isAdmin() && (
-                    <Select<Shop, false>
-                        theme={SelectTheme}
-                        styles={SelectStyles()}
-                        value={shops?.find(({ id }) => filter.shopId === id) ?? null}
-                        options={shops ?? []}
-                        placeholder='Filter by shop'
-                        isClearable
-                        onChange={(value) => setFilter({ ...filter, shopId: value?.id ?? undefined })}
-                        getOptionLabel={(shop) => shop.shopName}
-                        getOptionValue={(shop) => String(shop.id)}
-                    />
-                )}
-            </div>
-            <div className='filterField'>
-                <Select<ItemPropertyView, false>
-                    theme={SelectTheme}
-                    styles={SelectStyles()}
-                    value={LogTypeList.find(({ value }) => value === filter.type) ?? null}
-                    options={LogTypeList}
-                    placeholder='Filter by type'
-                    isClearable
-                    onChange={(value) => setFilter({ ...filter, type: value?.value as LogType })}
-                    getOptionLabel={(item) => item.value}
-                    getOptionValue={(item) => String(item.value)}
+        <Space wrap>
+            {isAdmin() && (
+                <AppSelect<number, ItemPropertyView>
+                    value={filter.shopId}
+                    options={shops ?? []}
+                    placeholder='Filter by shop'
+                    onChange={(value) => setFilter({ ...filter, shopId: value ?? undefined })}
+                    getOptionLabel={(shop) => shop.value}
+                    getOptionValue={(shop) => shop.id}
                 />
-            </div>
-            <div className='filterField'>
-                <Input
-                    placeholder='Filter by ticket id'
-                    value={filter.ticketId}
-                    onChange={(value) =>
-                        setFilter({ ...filter, ticketId: +value.target.value ? +value.target.value : undefined })
-                    }
-                    inputMode={'numeric'}
-                />
-            </div>
+            )}
+            <AppSelect<LogType, ItemPropertyView>
+                value={filter.type}
+                options={LogTypeList}
+                placeholder='Filter by type'
+                onChange={(value) => setFilter({ ...filter, type: value ?? undefined })}
+                getOptionLabel={(shop) => shop.value}
+                getOptionValue={(shop) => shop.value as LogType}
+            />
+
+            <Input
+                placeholder='Filter by ticket id'
+                value={filter.ticketId}
+                onChange={(value) =>
+                    setFilter({ ...filter, ticketId: +value.target.value ? +value.target.value : undefined })
+                }
+                inputMode={'numeric'}
+            />
             <DateTimeFilter filter={filter} setFilter={setFilter} />
         </Space>
     )

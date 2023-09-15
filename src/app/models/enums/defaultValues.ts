@@ -4,6 +4,7 @@ import { TicketFilter } from '../interfaces/filters'
 import moment from 'moment/moment'
 import { PageRequest } from '../interfaces/generalModels'
 
+export const defaultPageSizeOptions = [5, 10, 15, 20, 50, 100]
 export const setDefaultPageSize = (pageSize: number) => {
     localStorage.setItem('pageSize', pageSize + '')
 }
@@ -30,7 +31,7 @@ export const defaultUser = {
 
 export const getDefaultClient = (shopId?: number) => ({ ...defaultUser, role: 'CLIENT', shopId: shopId } as User)
 
-export const defaultDashboardFilter = (shopId?: number) =>
+export const defaultStatisticsFilter = (shopId?: number) =>
     ({
         shopId: shopId,
         createdAfter: moment().startOf('month').format('YYYY-MM-DD'),

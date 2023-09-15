@@ -3,6 +3,7 @@ import { TicketStatus } from '../enums/ticketEnums'
 import { User } from './user'
 import { InventoryItem } from './shop'
 import { Invoice } from './invoice'
+import moment from 'moment/moment'
 
 export interface Ticket extends Entity {
     deviceModel: string
@@ -27,6 +28,7 @@ export interface Ticket extends Entity {
 }
 
 export interface CreateTicket {
+    id?: number
     deviceModel: string
     deviceBrand: string
     deviceLocation: string
@@ -46,7 +48,7 @@ export interface CreateTicket {
 
 export const createTicketFromTicket = (t: Ticket): CreateTicket => {
     const clientId = t.client?.userId
-    const deadline = new Date(t.deadline)
+    const deadline = moment(t.deadline).toDate()
     return { ...t, clientId, deadline }
 }
 

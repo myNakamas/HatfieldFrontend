@@ -2,6 +2,7 @@ import { RcFile } from 'antd/es/upload'
 import { ChatMessage } from '../models/interfaces/ticket'
 import moment from 'moment/moment'
 import { User } from '../models/interfaces/user'
+import { Page, PageRequest } from '../models/interfaces/generalModels'
 
 export const capitalizeFirst = (str: string | undefined) => {
     return str?.substring(0, 1).toUpperCase().concat(str?.substring(1).toLowerCase())
@@ -17,7 +18,12 @@ export const sortChatByDate = (a: ChatMessage, b: ChatMessage) => +new Date(b.ti
 export const getCurrentTime = () => {
     return new Date().toISOString()
 }
-
+export const resetPageIfNoValues = <T>(
+    pageResponse: Page<T>,
+    setPage: (value: ((prevState: PageRequest) => PageRequest) | PageRequest) => void
+) => {
+    if (pageResponse.content.length == 0 && pageResponse.page > 1) setPage((oldVal) => ({ ...oldVal, page: 1 }))
+}
 export const generateDaysArray = (startDate?: string, endDate?: string): moment.Moment[] => {
     const start = moment(startDate).startOf('day') ?? moment().startOf('month').startOf('day')
     const end = moment(endDate).startOf('day')
@@ -31,6 +37,10 @@ export const generateDaysArray = (startDate?: string, endDate?: string): moment.
     return daysArray
 }
 
-export const getUserString = (user:User) => {
-    return `${user?.fullName} ${user?.email} ${user.phones?.join(',')}`
+export const getUserString = (user: User) => {
+    if (!!user?.fullName || !!user?.email || user?.phones?.length > 0)
+        return `${user?.fullName} ${user?.email} ${user?.phones?.join(',')}`
+    return `Unknown user`
 }
+
+export const currencyFormat = (input?: number) => (input ? `${input?.toFixed(2)}£` : '-')

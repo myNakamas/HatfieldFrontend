@@ -44,8 +44,6 @@
 
 .viewModal {
   text-align: left;
-  display: grid;
-  grid-gap: 10px;
 
   h4 {
     margin-bottom: 5px;
@@ -108,8 +106,8 @@
 }
 .editModalButton {
   position: absolute;
-  top:40px;
-  right:40px;
+  top:20px;
+  right:50px;
 }
 .sideNavIcon{
   .abs-icon {
