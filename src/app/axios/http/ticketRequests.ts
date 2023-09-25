@@ -78,13 +78,13 @@ export const putCreateDepositInvoice = ({
     return backendClient.put('ticket/worker/deposit', invoice, { params: { id }, responseType: 'blob' })
 }
 
-export const getChat = ({ ticketId }: { ticketId?: number }): Promise<ChatMessage[]> => {
-    if (!ticketId) return new Promise(() => [])
-    return backendClient.get('chat/all', { params: { ticketId } })
+export const getChat = (params: { ticketId?: number; page: number; pageSize: number }): Promise<Page<ChatMessage>> => {
+    if (!params.ticketId) return new Promise(() => [])
+    return backendClient.get('chat/all', { params })
 }
-export const getClientChat = ({ ticketId }: { ticketId?: number }): Promise<ChatMessage[]> => {
-    if (!ticketId) return new Promise(() => [])
-    return backendClient.get('chat/client/all', { params: { ticketId } })
+export const getClientChat = (params: { ticketId?: number; page: PageRequest }): Promise<Page<ChatMessage>> => {
+    if (!params.ticketId) return new Promise(() => [])
+    return backendClient.get('chat/client/all', { params })
 }
 
 export const createUsedItems = (usedItem: CreateUsedItem) => {

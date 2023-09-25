@@ -5,7 +5,7 @@ import { capitalizeFirst } from '../../utils/helperFunctions'
 import { Dropdown, MenuProps, Space } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCogs, faSignOut } from '@fortawesome/free-solid-svg-icons'
-import { ProfileImage } from './ProfileImage'
+import ProfileImage from './ProfileImage'
 import { useQuery } from 'react-query'
 import { getProfilePicture } from '../../axios/http/userRequests'
 
