@@ -57,7 +57,7 @@ export const updateTicket = ({ id, ticket }: { id?: number; ticket: CreateTicket
     return backendClient.put('ticket/worker/update/' + id, body)
 }
 
-export const putCompleteTicket = (params: { id: number }): Promise<AppError> => {
+export const putCompleteTicket = (params: { id: number; success: boolean }): Promise<AppError> => {
     return backendClient.put('ticket/worker/complete', {}, { params })
 }
 

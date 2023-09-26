@@ -34,31 +34,33 @@ export const ChangeNewPassword = () => {
     }
 
     return (
-        <Space className='mainScreen'>
-            <Card title={'Set a new password'}>
-                <p>A strong password helps prevent unauthorized access to your account.</p>
-                <form onSubmit={handleSubmit(onSubmit)} className={'modalForm'}>
-                    <div className='p-2 mw-350'>
-                        <TextField
-                            register={register('password')}
-                            label='New password'
-                            error={errors.password}
-                            type='password'
-                        />
-                        <TextField
-                            register={register('passwordConfirmation')}
-                            label='Confirm the new password'
-                            error={errors.passwordConfirmation}
-                            type='password'
-                        />
-                        <FormError error={errors.root?.message} />
+        <div className='mainScreen'>
+            <Space>
+                <Card title={'Set a new password'}>
+                    <p>A strong password helps prevent unauthorized access to your account.</p>
+                    <form onSubmit={handleSubmit(onSubmit)} className={'modalForm'}>
+                        <div className='p-2 mw-350'>
+                            <TextField
+                                register={register('password')}
+                                label='New password'
+                                error={errors.password}
+                                type='password'
+                            />
+                            <TextField
+                                register={register('passwordConfirmation')}
+                                label='Confirm the new password'
+                                error={errors.passwordConfirmation}
+                                type='password'
+                            />
+                            <FormError error={errors.root?.message} />
 
-                        <Button type='primary' htmlType='submit'>
-                            Change password
-                        </Button>
-                    </div>
-                </form>
-            </Card>
-        </Space>
+                            <Button type='primary' htmlType='submit'>
+                                Change password
+                            </Button>
+                        </div>
+                    </form>
+                </Card>
+            </Space>
+        </div>
     )
 }

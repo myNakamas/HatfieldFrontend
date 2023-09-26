@@ -12,7 +12,12 @@ import { EditTicketForm } from './EditTicketForm'
 import { putCompleteTicket, putFreezeTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
 import { useQuery, useQueryClient } from 'react-query'
 import { ItemPropertyView, PageRequest } from '../../../models/interfaces/generalModels'
-import { activeTicketStatuses, TicketStatus, TicketStatusesArray } from '../../../models/enums/ticketEnums'
+import {
+    activeTicketStatuses,
+    completedTicketStatuses,
+    TicketStatus,
+    TicketStatusesArray,
+} from '../../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { Button, Card, Space, Typography } from 'antd'
@@ -41,6 +46,7 @@ import {
     faPlay,
     faPlus,
     faSnowflake,
+    faXmark,
 } from '@fortawesome/free-solid-svg-icons'
 import { FormField } from '../../form/Field'
 import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
@@ -185,11 +191,13 @@ const TicketViewInner = ({
             .then(() => queryClient.invalidateQueries(['tickets']).then())
     }
 
-    const completeTicket = (id: number) => {
-        toast.promise(putCompleteTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps).then((error) => {
-            error && toast.warning(error.detail, toastProps)
-            return queryClient.invalidateQueries(['tickets']).then(closeModal)
-        })
+    const completeTicket = (id: number, success: boolean) => {
+        toast
+            .promise(putCompleteTicket({ id, success }), toastUpdatePromiseTemplate('ticket'), toastProps)
+            .then((error) => {
+                error && toast.warning(error.detail, toastProps)
+                return queryClient.invalidateQueries(['tickets']).then(closeModal)
+            })
     }
     const updateTicketStatus = (id: number, ticketStatus: TicketStatus) => {
         return toast
@@ -210,8 +218,8 @@ const TicketViewInner = ({
                     toastProps
                 )
                 .then(() => {
-                    queryClient.invalidateQueries(['tickets'])
-                    queryClient.invalidateQueries('deviceLocations')
+                    queryClient.invalidateQueries(['tickets']).then()
+                    queryClient.invalidateQueries('deviceLocations').then()
                 })
         }
     }
@@ -302,18 +310,30 @@ const TicketViewInner = ({
                                 </Button>
                                 <Button
                                     icon={<FontAwesomeIcon icon={faSnowflake} />}
+                                    disabled={ticket.status == 'ON_HOLD'}
                                     onClick={() => freezeTicket(ticket.id)}
                                 >
                                     Freeze ticket
-                                </Button>{' '}
-                                <Button
-                                    icon={<FontAwesomeIcon icon={faCheck} />}
-                                    onClick={() => completeTicket(ticket.id)}
-                                >
-                                    Finish repair
                                 </Button>
+                                <Button.Group>
+                                    <Button
+                                        icon={<FontAwesomeIcon icon={faCheck} />}
+                                        disabled={completedTicketStatuses.includes(ticket.status)}
+                                        onClick={() => completeTicket(ticket.id, true)}
+                                    >
+                                        Finish repair
+                                    </Button>
+                                    <Button
+                                        icon={<FontAwesomeIcon icon={faXmark} />}
+                                        disabled={completedTicketStatuses.includes(ticket.status)}
+                                        onClick={() => completeTicket(ticket.id, false)}
+                                    >
+                                        Unsuccessful repair
+                                    </Button>
+                                </Button.Group>
                                 <Button
                                     icon={<FontAwesomeIcon icon={faFileInvoiceDollar} />}
+                                    disabled={ticket.status == 'COLLECTED'}
                                     onClick={() => setShowInvoiceModal(true)}
                                 >
                                     Mark as Collected
