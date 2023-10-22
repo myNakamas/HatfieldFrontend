@@ -1,11 +1,11 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
-import React from 'react'
+import React, { memo } from 'react'
 import { Avatar, Image } from 'antd'
 import SkeletonAvatar from 'antd/es/skeleton/Avatar'
 import { NoDataComponent } from '../table/NoDataComponent'
 
-export const ProfileImage = ({
+const ProfileImage = ({
     profileImg,
     className,
     isLoading,
@@ -38,3 +38,5 @@ export const ProfileImageLarge = ({
         <NoDataComponent items={'image'} />
     )
 }
+
+export default memo(ProfileImage)

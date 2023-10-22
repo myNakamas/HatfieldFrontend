@@ -76,13 +76,13 @@ span {
   display: flex;
   flex-direction: column;
   width: 100%;
+  overflow: hidden;
 }
 .app-footer{
   border-top: 1px solid var(--primaryColor);
   margin-top: auto;
 }
 .app-content{
-  margin-bottom: 20px;
   flex: 1;
   display: flex;
   padding: 10px;

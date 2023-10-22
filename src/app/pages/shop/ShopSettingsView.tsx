@@ -33,7 +33,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faClock, faQuestion, faX } from '@fortawesome/free-solid-svg-icons'
 import { AnchorLinkItemProps } from 'antd/es/anchor/Anchor'
 import ButtonGroup from 'antd/es/button/button-group'
-import CollapsePanel from 'antd/es/collapse/CollapsePanel'
 import { sendSmsApiBalanceCheck, SmsBalanceResponse } from '../../axios/http/smsRequests'
 
 export const ShopSettingsView = () => {
@@ -424,34 +423,42 @@ const AboutPagePopover = () => (
 )
 const SMSFieldDescription = () => (
     <Typography>
-        <Collapse>
-            <CollapsePanel key={'1'} header={'Please follow these steps to acquire your unique API key:'}>
-                <ol>
-                    <li>
-                        Open your web browser and navigate to the{' '}
-                        <a href='https://app.d7networks.com/api-tokens'>API Tokens page</a> by visiting the following
-                        URL: <code>https://app.d7networks.com/api-tokens</code>.
-                    </li>
-                    <li>
-                        Once you're on the API Tokens page, you'll need to log in to your account or create a new one if
-                        you don't have an account already.
-                    </li>
-                    <li>
-                        After logging in, you will find an option to generate a new API key. Click on the "Generate New
-                        API Key" button or a similar option available on the page.
-                    </li>
-                    <li>
-                        The system will generate a unique API key for you. This API key is a confidential credential
-                        that provides secure access to our API services.
-                    </li>
-                    <li>
-                        Copy the generated API key to your clipboard. Make sure to keep this key confidential, as it
-                        grants access to your account and our API services.
-                    </li>
-                    <li>Return to this page and paste the copied API key into the text field provided below.</li>
-                </ol>
-            </CollapsePanel>
-        </Collapse>
+        <Collapse
+            items={[
+                {
+                    key: '1',
+                    label: 'Please follow these steps to acquire your unique API key:',
+                    children: (
+                        <ol>
+                            <li>
+                                Open your web browser and navigate to the{' '}
+                                <a href='https://app.d7networks.com/api-tokens'>API Tokens page</a> by visiting the
+                                following URL: <code>https://app.d7networks.com/api-tokens</code>.
+                            </li>
+                            <li>
+                                Once you're on the API Tokens page, you'll need to log in to your account or create a
+                                new one if you don't have an account already.
+                            </li>
+                            <li>
+                                After logging in, you will find an option to generate a new API key. Click on the
+                                "Generate New API Key" button or a similar option available on the page.
+                            </li>
+                            <li>
+                                The system will generate a unique API key for you. This API key is a confidential
+                                credential that provides secure access to our API services.
+                            </li>
+                            <li>
+                                Copy the generated API key to your clipboard. Make sure to keep this key confidential,
+                                as it grants access to your account and our API services.
+                            </li>
+                            <li>
+                                Return to this page and paste the copied API key into the text field provided below.
+                            </li>
+                        </ol>
+                    ),
+                },
+            ]}
+        />
     </Typography>
 )
 const pageAnchors: AnchorLinkItemProps[] = [

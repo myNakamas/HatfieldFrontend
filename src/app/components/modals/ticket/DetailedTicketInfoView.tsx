@@ -12,7 +12,7 @@ import dateFormat from 'dateformat'
 import { Deadline } from './Deadline'
 import { Log } from '../../../models/interfaces/shop'
 import { getProfilePicture } from '../../../axios/http/userRequests'
-import { ProfileImage } from '../../user/ProfileImage'
+import ProfileImage from '../../user/ProfileImage'
 import { currencyFormat, getUserString } from '../../../utils/helperFunctions'
 
 export const DetailedTicketInfoView = ({

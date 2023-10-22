@@ -9,30 +9,51 @@ import { getProfilePicture, getSimpleUsers } from '../../../axios/http/userReque
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import dateFormat from 'dateformat'
 import { faArrowRight, faCheckDouble, faCircleCheck, faSpinner } from '@fortawesome/free-solid-svg-icons'
-import { Image, Spin } from 'antd'
-import { ProfileImage } from '../../../components/user/ProfileImage'
+import { Divider, Image, Skeleton, Spin } from 'antd'
+import ProfileImage from '../../../components/user/ProfileImage'
 import { getImage } from '../../../axios/http/resourcesRequests'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import { PageRequest } from '../../../models/interfaces/generalModels'
 
 export const ChatMessages = ({
     selectedTicket,
     chat,
     openDrawer,
+    page,
+    hasNextPage,
+    fetchNextPage,
 }: {
     openDrawer: () => void
     selectedTicket?: Ticket
     chat?: Chat
+    page: PageRequest
+    hasNextPage?: boolean
+    fetchNextPage: (page: PageRequest) => void
 }) => {
     const { data: users } = useQuery(['users'], () => getSimpleUsers({}))
-
+    const loadMoreData = () => {
+        if (hasNextPage) {
+            fetchNextPage({ ...page, page: page.page + 1 })
+        }
+    }
     return (
-        <div className='chatBox'>
+        <div className={'chatBox'} id={'scrollChatBox'}>
             {stompClient.connected && selectedTicket && chat?.chat ? (
-                <>
-                    {chat?.chat.map((value, index) => {
+                <InfiniteScroll
+                    inverse
+                    className={'chatBox'}
+                    dataLength={chat?.chat.length}
+                    next={loadMoreData}
+                    hasMore={hasNextPage ?? false}
+                    loader={<Skeleton avatar paragraph={{ rows: 1 }} active />}
+                    endMessage={<Divider plain>No more messages 🤐</Divider>}
+                    scrollableTarget={'scrollChatBox'}
+                >
+                    {chat.chat.map((value, index) => {
                         const user = users?.find((user) => user.userId === value.sender)
                         return <ChatMessageRow sender={user} key={index} message={value} />
                     })}
-                </>
+                </InfiniteScroll>
             ) : selectedTicket?.id ? (
                 <div className='w-100'>
                     <Discuss />
@@ -94,7 +115,7 @@ const ChatMessageRow = ({ message, sender }: { message: ChatMessage; sender?: Us
     )
 }
 
-function ChatImage({ url }: { url: string }) {
+const ChatImage = ({ url }: { url: string }) => {
     const { data: image } = useQuery(['image', url], () => getImage(url), { suspense: true })
     return image ? <Image className={'message'} src={URL.createObjectURL(image)} width={300} height={300} /> : <></>
 }

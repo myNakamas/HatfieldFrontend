@@ -32,9 +32,9 @@ export const ForgotPassword = () => {
     }
 
     return (
-        <div>
+        <div className='mainScreen'>
             <div style={{ textAlign: 'left' }}>{contextHolder}</div>
-            <Space className='mainScreen'>
+            <Space>
                 <Card title={'Forgot your password?'}>
                     <p>Please provide your username, phone, or email, and we'll send you a password reset link.</p>
                     <form onSubmit={handleSubmit(onSubmit)} className={'modalForm'}>

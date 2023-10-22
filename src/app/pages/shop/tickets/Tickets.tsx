@@ -26,7 +26,7 @@ import {
 import { useSearchParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons'
-import { getUserString, resetPageIfNoValues } from '../../../utils/helperFunctions'
+import { currencyFormat, getUserString, resetPageIfNoValues } from '../../../utils/helperFunctions'
 import { defaultPage } from '../../../models/enums/defaultValues'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { QrReaderButton } from '../../../components/modals/QrReaderModal'
@@ -159,22 +159,23 @@ const TicketsTab = ({
                     data={data.content.map((ticket) => ({
                         ...ticket,
                         createdAt: dateFormat(ticket.timestamp),
-                        timeLeft:
-                            moment(ticket.deadline) > moment() ? (
-                                <Statistic.Countdown
-                                    title={dateFormat(ticket.deadline)}
-                                    value={ticket.deadline.valueOf()}
-                                />
-                            ) : (
-                                <Statistic title={dateFormat(ticket.deadline)} value={'Passed'} />
-                            ),
+                        timeLeft: completedTicketStatuses.includes(ticket.status) ? (
+                            <Statistic title={dateFormat(ticket.deadline)} value={ticket.status} />
+                        ) : moment(ticket.deadline) > moment() ? (
+                            <Statistic.Countdown
+                                title={dateFormat(ticket.deadline)}
+                                value={ticket.deadline.valueOf()}
+                            />
+                        ) : (
+                            <Statistic title={dateFormat(ticket.deadline)} value={'Passed'} />
+                        ),
                         device: `${ticket.deviceBrand ?? ''} ${ticket.deviceModel ?? ''}`,
                         createdByName: ticket.createdBy?.fullName,
                         price: !ticket.totalPrice
                             ? 'NEED TO QUOTE'
                             : ticket.totalPrice === ticket.deposit
                             ? 'PAID'
-                            : `£ ${ticket.totalPrice - ticket.deposit}`,
+                            : currencyFormat(+ticket.totalPrice - +ticket.deposit),
                         clientName: ticket.client ? getUserString(ticket.client) : '-',
                         actions: (
                             <Space>
