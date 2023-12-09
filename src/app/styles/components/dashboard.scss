@@ -1,11 +1,11 @@
-.dashboard-items{
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-start;
+.dashboard-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 700px);
   width: 100%;
-  flex-wrap: wrap;
-  >*{
-   margin-bottom: 10px;
+  gap: 10px;
+  justify-content: space-around;
+  align-items: start;
+  .dashboard-card {
     @media (max-width: 768px) {
       width: 100%;
     }

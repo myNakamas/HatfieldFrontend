@@ -43,14 +43,6 @@ export const ViewInventoryItem = ({
     const [sellModalOpen, setSellModalOpen] = useState(false)
     const [isUseModalOpen, setIsUseModalOpen] = useState(false)
     const queryClient = useQueryClient()
-    const printSellDocument = async () => {
-        const blob = await postPrintItemLabel(inventoryItem?.id)
-        openPdfBlob(blob)
-    }
-    const previewSellDocument = async () => {
-        const blob = await getPrintItemLabel(inventoryItem?.id)
-        openPdfBlob(blob)
-    }
 
     const markItemAsDamaged = (id: number) => {
         toast
@@ -107,10 +99,16 @@ export const ViewInventoryItem = ({
                                 <Space>
                                     <Typography>Print the label for the item</Typography>
                                     <Button.Group>
-                                        <Button onClick={printSellDocument} icon={<FontAwesomeIcon icon={faPrint} />}>
+                                        <Button
+                                            onClick={() => printItemLabel(inventoryItem)}
+                                            icon={<FontAwesomeIcon icon={faPrint} />}
+                                        >
                                             Print
                                         </Button>
-                                        <Button onClick={previewSellDocument} icon={<FontAwesomeIcon icon={faEye} />} />
+                                        <Button
+                                            onClick={() => previewItemLabel(inventoryItem)}
+                                            icon={<FontAwesomeIcon icon={faEye} />}
+                                        />
                                     </Button.Group>
                                 </Space>
                                 <Space>
@@ -188,6 +186,11 @@ export const ItemDescriptions = ({
                         <Card size={'small'} title={'Category'}>
                             {inventoryItem.categoryView.name}
                         </Card>
+                        {inventoryItem.categoryView.itemType === 'DEVICE' && inventoryItem.count === 1 && (
+                            <Card size={'small'} title={'Imei'}>
+                                {inventoryItem.imei}
+                            </Card>
+                        )}
                     </Space>
                 )}
             </Space>
@@ -335,4 +338,13 @@ const SendItemToShop = ({ item }: { item: InventoryItem }) => {
             />
         </form>
     )
+}
+
+export const printItemLabel = async (inventoryItem: InventoryItem, openPreview?: boolean) => {
+    const blob = await postPrintItemLabel(inventoryItem?.id)
+    openPreview && openPdfBlob(blob)
+}
+export const previewItemLabel = async (inventoryItem: InventoryItem) => {
+    const blob = await getPrintItemLabel(inventoryItem?.id)
+    openPdfBlob(blob)
 }

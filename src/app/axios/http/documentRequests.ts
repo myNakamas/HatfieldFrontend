@@ -40,3 +40,6 @@ export const getPrintUser = (userId: string | undefined): Promise<Blob> => {
     if (!userId) return new Promise(() => null)
     return backendClient.get('document/print/tag/user', { params: { userId }, responseType: 'blob' })
 }
+export const postPrintExample = (): Promise<void> => {
+    return backendClient.post('document/print/example')
+}

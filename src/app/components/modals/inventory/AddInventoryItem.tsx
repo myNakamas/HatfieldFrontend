@@ -14,17 +14,20 @@ import { useQuery, useQueryClient } from 'react-query'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { AppModal } from '../AppModal'
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { FormField } from '../../form/Field'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
-import { Button, Card, Space } from 'antd'
+import { App, Button, Card, Input, Modal, Popover, Space, Tooltip } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faInfo, faInfoCircle, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { AddEditCategory } from '../AddEditCategory'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
+import useModal from 'antd/es/modal/useModal'
+import { printItemLabel } from './ViewInventoryItem'
+import { currencyFormat } from '../../../utils/helperFunctions'
 
 export const AddInventoryItem = ({
     isModalOpen,
@@ -33,10 +36,11 @@ export const AddInventoryItem = ({
     isModalOpen: boolean
     closeModal: (item?: InventoryItem) => void
 }) => {
+    const { data: shop } = useQuery(['currentShop'], getShopData, { suspense: true })
     const { isWorker } = useContext(AuthContext)
 
     return (
-        <AppModal {...{ isModalOpen, closeModal }} title={'Add inventory item'} isForbidden={!isWorker()}>
+        <AppModal {...{ isModalOpen, closeModal }} title={`Adding item to ${shop?.shopName}`} isForbidden={!isWorker()}>
             <AddInventoryItemInner {...{ isModalOpen, closeModal }} />
         </AppModal>
     )
@@ -57,9 +61,9 @@ export const AddInventoryItemInner = ({
     const { data: shop } = useQuery(['currentShop'], getShopData, { suspense: true })
     const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin(), suspense: true })
 
-    const [columns, setColumns] = useState<string[]>()
+    const [category, setCategory] = useState<Category>()
     const [showCategoryModal, setShowCategoryModal] = useState(false)
-
+    const { modal } = App.useApp()
     const {
         control,
         register,
@@ -76,20 +80,33 @@ export const AddInventoryItemInner = ({
     })
     const models = watch('brand')?.models ?? []
 
-    const onCreateCategory = (formValue: Category) => {
-        return addCategory(formValue).then((category) => {
-            setShowCategoryModal(false)
-            queryClient.invalidateQueries(['allCategories']).then(() => setValue('categoryId', category.id))
-        })
+    const onCreateCategory = async (formValue: Category) => {
+        const category_1 = await addCategory(formValue)
+        setShowCategoryModal(false)
+        await queryClient.invalidateQueries(['allCategories'])
+        setValue('categoryId', category_1.id)
     }
-
     const submit = (item: CreateInventoryItem) => {
         toast
             .promise(addNewItem({ item }), toastCreatePromiseTemplate('item'), toastProps)
             .then((value) => {
                 formRef.current?.reset()
                 reset({})
-                queryClient.invalidateQueries(['shopItems']).then(() => closeModal(value))
+                queryClient
+                    .invalidateQueries(['shopItems'])
+                    .then(() => closeModal(value))
+                    .then(() => {
+                        modal.confirm({
+                            title: 'Print item label',
+                            okText: 'Print',
+                            content: <p>
+                                Name: {value.name} <br/>
+                                Price: {currencyFormat(value.sellPrice)} <br/>
+                                {value.imei && (<>Serial Number / Imei: {value.imei} <br/></>)}
+                            </p>,
+                            onOk: () => printItemLabel(value),
+                        })
+                    })
                 queryClient.invalidateQueries(['brands']).then()
             })
             .catch((error: AppError) => {
@@ -102,14 +119,14 @@ export const AddInventoryItemInner = ({
     }, [isModalOpen])
     useEffect(() => {
         const c = categories?.find((category) => category.id === watch('categoryId'))
-        setColumns(c?.columns)
+        setCategory(c)
     }, [watch('categoryId')])
 
     useEffect(() => {
         const category = categories?.find((category) => category.id === watch('categoryId'))
         const brand = watch('brand')?.value
         const model = watch('model')?.value
-        setValue('name', `${category?.name ?? ''} ${brand ?? ''} ${model ?? ''}`)
+        setValue('name', `${category?.name ?? ''} ${brand ?? ''} ${model ?? ''}`.trim())
     }, [watch('categoryId'), watch('brand'), watch('model')])
 
     return (
@@ -121,15 +138,14 @@ export const AddInventoryItemInner = ({
                 category={{} as Category}
             />
             <form className='modalForm' onSubmit={handleSubmit(submit)} ref={formRef}>
-                <div className='textFormLabel'>Adding item to shop:</div>
-                <TextField
-                    label='Name'
+                <Input
+                    title='The name of the item'
                     value={watch('name')}
-                    register={register('name')}
-                    error={errors.name}
+                    bordered={false}
                     disabled
-                    placeholder={'The name of the item'}
+                    placeholder={'Fill the form below to create the item name'}
                 />
+
                 <Space wrap className={'justify-between w-100'}>
                     <Controller
                         control={control}
@@ -201,7 +217,24 @@ export const AddInventoryItemInner = ({
                 </Space>
                 <Space wrap align={'start'} className={'w-100 justify-between'}>
                     <Space direction={'vertical'}>
-                        <TextField label='Count' register={register('count')} error={errors.count} type='number' />
+                        <Space>
+                            <TextField
+                                label='Count'
+                                register={register('count')}
+                                error={errors.count}
+                                type='number'
+                                placeholder='Number of items'
+                            />
+                            {category?.itemType === 'DEVICE' && +watch('count') === 1 && (
+                                <TextField
+                                    label='Imei'
+                                    value={watch('imei')}
+                                    register={register('imei')}
+                                    error={errors.name}
+                                    placeholder={'Serial number / Imei'}
+                                />
+                            )}
+                        </Space>
                         {isAdmin() && (
                             <Controller
                                 control={control}
@@ -238,9 +271,9 @@ export const AddInventoryItemInner = ({
                         </Space>
                     </Card>
                 </Space>
-                {columns && (
-                    <Card title={'Category specific properties'}>
-                        {columns.map((key, index) => (
+                {category && category.columns.length > 0 && (
+                    <Card title={category.name + ' properties'}>
+                        {category.columns?.map((key, index) => (
                             <TextField register={register(`properties.${key}`)} label={key} key={key + index} />
                         ))}
                     </Card>

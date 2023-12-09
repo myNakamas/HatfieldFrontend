@@ -34,7 +34,7 @@ export const WebSocketContextProvider = ({ children }: { children: ReactNode }) 
     useEffect(() => {
         if (loggedUser?.userId) {
             connectToWebsocket(() => {
-                toast.info('Connection established', { position: 'bottom-center' })
+                toast.info('Connection established', { position: 'bottom-center', toastId: 'wsConnected' })
                 registerToChat(
                     loggedUser?.userId,
                     (message: ChatMessage) => {

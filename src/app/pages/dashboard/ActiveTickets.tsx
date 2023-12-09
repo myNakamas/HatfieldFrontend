@@ -15,6 +15,7 @@ import { AuthContext } from '../../contexts/AuthContext'
 import CheckableTag from 'antd/es/tag/CheckableTag'
 import { defaultPage } from '../../models/enums/defaultValues'
 import { activeTicketStatuses, waitingTicketStatuses } from '../../models/enums/ticketEnums'
+import { faTicket } from '@fortawesome/free-solid-svg-icons'
 
 export const ActiveTickets = ({
     filter,
@@ -54,8 +55,16 @@ export const ActiveTickets = ({
 
     return (
         <Card
-            style={{ minWidth: 250 }}
-            title={title}
+            className='dashboard-card'
+            title={
+                <Button
+                    icon={<FontAwesomeIcon icon={faTicket} />}
+                    type='dashed'
+                    onClick={() => navigate('/tickets')}
+                    children={title}
+                    disabled={!isUserFromShop}
+                />
+            }
             extra={
                 <Space style={{ marginLeft: 20 }}>
                     <Button
@@ -67,7 +76,6 @@ export const ActiveTickets = ({
                     >
                         Create new
                     </Button>
-                    {isUserFromShop && <Button type='link' onClick={() => navigate('/tickets')} children={'See All'} />}
                 </Space>
             }
         >

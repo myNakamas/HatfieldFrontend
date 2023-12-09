@@ -37,6 +37,7 @@ export interface Shop extends Entity {
 
 export interface InventoryItem extends Entity {
     name?: string
+    imei?: string
     model: string
     brand: string
     count: number
@@ -57,6 +58,7 @@ export interface ShoppingList {
 
 export interface CreateInventoryItem {
     name?: string
+    imei?: string
     count: number
     shopId: number
     purchasePrice?: number

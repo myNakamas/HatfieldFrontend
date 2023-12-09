@@ -26,7 +26,8 @@ export const Dashboard = () => {
                 </Space>
                 <div className={'dashboard-items'}>
                     <ActiveTickets {...{ filter, setFilter }} />
-                    {isUserFromShop ? <ShoppingListCard filter={filter} /> : <InventoryCard filter={filter} />}
+                    <InventoryCard filter={filter} />
+                    {isUserFromShop && <ShoppingListCard filter={filter} />}
                 </div>
             </Space>
         </div>
