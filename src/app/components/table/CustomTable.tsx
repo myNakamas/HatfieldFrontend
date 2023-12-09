@@ -54,7 +54,7 @@ export const CustomTable = <T extends object>({
                               onPageChange && onPageChange({ page, pageSize })
                           },
                           pageSizeOptions: [5, 10, 15, 20, 50, 100],
-                          position: totalCount && totalCount > 5 ? ['topRight', 'bottomRight'] : ['bottomRight'],
+                          position: totalCount && totalCount > 10 ? ['topRight', 'bottomRight'] : ['bottomRight'],
                           showSizeChanger: true,
                           total: totalCount,
                       }

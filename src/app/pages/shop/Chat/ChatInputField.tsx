@@ -8,11 +8,13 @@ import { WebSocketContext } from '../../../contexts/WebSocketContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons/faPaperPlane'
 import { faFileUpload } from '@fortawesome/free-solid-svg-icons'
-import { Button, Input, Modal, Space, Upload, UploadFile, UploadProps } from 'antd'
+import { Button, Input, Modal, Popover, Space, Upload, UploadFile, UploadProps, message } from 'antd'
 import { getBase64, getCurrentTime } from '../../../utils/helperFunctions'
 import { RcFile } from 'antd/es/upload'
 import { Dictaphone } from '../../../components/form/Dictaphone'
 import CheckableTag from 'antd/es/tag/CheckableTag'
+import TextArea from 'antd/es/input/TextArea'
+import { height } from '@fortawesome/free-solid-svg-icons/faHouse'
 
 export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?: Ticket }) => {
     const { loggedUser, isWorker } = useContext(AuthContext)
@@ -70,9 +72,9 @@ export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?:
             <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={() => setPreviewOpen(false)}>
                 <img alt='example' style={{ width: '100%' }} src={previewImage} />
             </Modal>
-            <Space.Compact className={'w-100 '}>
+            <Space.Compact className={'w-100'}>
                 <Upload
-                    listType='text'
+                    listType='picture'
                     fileList={fileList}
                     onPreview={handlePreview}
                     onChange={handleChange}
@@ -83,15 +85,23 @@ export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?:
                         setFileList(newFileList)
                     }}
                     beforeUpload={(file) => {
+                        if (!file.type.startsWith('image')) {
+                            message.error(`${file.name} is not an image`)
+                            return Upload.LIST_IGNORE
+                        }
                         setFileList([...fileList, file])
                         return false
                     }}
+                    maxCount={1}
+                    accept='image/*'
                 >
-                    <Button
-                        disabled={ticket?.id === undefined}
-                        size={'large'}
-                        icon={<FontAwesomeIcon icon={faFileUpload} />}
-                    />
+                    {fileList.length == 0 && (
+                        <Button
+                            disabled={ticket?.id === undefined}
+                            size={'large'}
+                            icon={<FontAwesomeIcon icon={faFileUpload} />}
+                        />
+                    )}
                 </Upload>
                 <ChatInput
                     message={messageText}
@@ -100,15 +110,14 @@ export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?:
                     disabled={ticket?.id === undefined}
                     hidden={fileList.length === 0}
                 />
-
-                <Button
-                    type='primary'
-                    size={'large'}
-                    disabled={!stompClient.connected || !ticket?.id}
-                    onClick={() => (fileList.length === 0 ? send(messageText) : sendPicture())}
-                    icon={<FontAwesomeIcon color='white' size='lg' icon={faPaperPlane} />}
-                />
             </Space.Compact>
+            <Button
+                type='primary'
+                size={'large'}
+                disabled={!stompClient.connected || !ticket?.id}
+                onClick={() => (fileList.length === 0 ? send(messageText) : sendPicture())}
+                icon={<FontAwesomeIcon color='white' size='lg' icon={faPaperPlane} />}
+            />
             {isWorker() && (
                 <CheckableTag
                     style={{ marginLeft: 15 }}
@@ -141,19 +150,24 @@ const ChatInput = ({
         <>
             {hidden && (
                 <>
-                    <Dictaphone
-                        disabled={disabled}
-                        dictaphoneKey={'chat'}
-                        setActiveDictaphone={setDictaphoneKey}
-                        isActive={dictaphoneKey === 'chat'}
-                        setText={(text) => onChange(message + ' ' + text)}
-                        setTempText={setTempText}
-                        size={'large'}
-                    />
-                    <Input
-                        value={tempText ? `${message} ${tempText}` : message}
+                    <Popover content={tempText} open={!!tempText} autoAdjustOverflow>
+                        <Dictaphone
+                            disabled={disabled}
+                            dictaphoneKey={'chat'}
+                            setActiveDictaphone={setDictaphoneKey}
+                            isActive={dictaphoneKey === 'chat'}
+                            setText={(text) => onChange(message + ' ' + text)}
+                            setTempText={setTempText}
+                            size='large'
+                        />
+                    </Popover>
+
+                    <TextArea
+                        size='large'
+                        autoSize={{ minRows: 1, maxRows: 6 }}
+                        value={message}
                         onChange={(e) => onChange(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && onSubmit(message)}
+                        onPressEnter={() => onSubmit(message)}
                         aria-autocomplete='none'
                         disabled={disabled}
                         autoFocus

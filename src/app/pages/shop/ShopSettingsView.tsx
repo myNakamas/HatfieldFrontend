@@ -34,12 +34,18 @@ import { faCheck, faClock, faQuestion, faX } from '@fortawesome/free-solid-svg-i
 import { AnchorLinkItemProps } from 'antd/es/anchor/Anchor'
 import ButtonGroup from 'antd/es/button/button-group'
 import { sendSmsApiBalanceCheck, SmsBalanceResponse } from '../../axios/http/smsRequests'
+import { postPrintExample, printUserLabel } from '../../axios/http/documentRequests'
+import { AppError } from '../../models/interfaces/generalModels'
 
 export const ShopSettingsView = () => {
     const { id } = useParams()
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const { data: shop, isLoading } = useQuery(['shop', id], () => getShopById(Number(id)), {})
+    const [printResponse, setPrintResponse] = useState('')
+    const isPrintPossible =
+        shop?.shopSettingsView.printEnabled && shop?.shopSettingsView.printerIp && shop?.shopSettingsView.printerModel
+
     const {
         control,
         register,
@@ -67,6 +73,12 @@ export const ShopSettingsView = () => {
             .catch((error) => {
                 setError('root', { message: error })
             })
+    }
+
+    const printExample = () => {
+        postPrintExample()
+            .then(() => setPrintResponse('Success'))
+            .catch((error: AppError) => setPrintResponse(error.title))
     }
 
     return (
@@ -259,6 +271,14 @@ export const ShopSettingsView = () => {
                                         register={register('shopSettingsView.printerModel')}
                                         error={errors.shopSettingsView?.printerModel}
                                     />
+                                    <Popover
+                                        content={isPrintPossible ? '' : 'Printing not possible: Invalid configuration'}
+                                    >
+                                        <Button onClick={printExample} disabled={!isPrintPossible} type='primary'>
+                                            Print an example image
+                                        </Button>
+                                        {printResponse}
+                                    </Popover>
                                 </Card>
                                 <Card
                                     id='emailConf'

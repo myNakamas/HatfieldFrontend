@@ -22,11 +22,14 @@ export const ShoppingListCard = ({ filter }: { filter?: InvoiceFilter }) => {
     )
     return (
         <Card
-            style={{ minWidth: 250 }}
+            className='dashboard-card'
             title={
-                <Space>
-                    <FontAwesomeIcon icon={faShoppingBasket} /> Shopping list
-                </Space>
+                <Button
+                    type='dashed'
+                    icon={<FontAwesomeIcon icon={faShoppingBasket} />}
+                    onClick={() => navigate(`/inventory/${loggedUser?.shopId}/shopping-list`)}
+                    children={'Shopping list'}
+                />
             }
             extra={
                 <Space>

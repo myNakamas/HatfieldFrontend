@@ -9,8 +9,7 @@ export const SearchComponent = ({ filter, setFilter }: { filter: Filter; setFilt
     }
 
     return (
-        <Input
-            prefix={<FontAwesomeIcon className='icon' icon={faMagnifyingGlass} />}
+        <Input.Search
             value={filter.searchBy ?? ''}
             onChange={(e) => onChange(e.target.value)}
             placeholder='Search here...'

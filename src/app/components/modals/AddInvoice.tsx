@@ -36,6 +36,7 @@ import { AppCreatableSelect, AppSelect } from '../form/AppSelect'
 import { InventoryFilter } from '../../models/interfaces/filters'
 import { defaultPage } from '../../models/enums/defaultValues'
 import { AddInventoryItem } from './inventory/AddInventoryItem'
+import { ItemTypes } from '../../models/enums/shopEnums'
 
 export const AddInvoice = ({
     item,
@@ -58,10 +59,12 @@ export const AddInvoice = ({
         ? {
               ...defaultInvoice,
               count: 1,
+
               itemId: item.id,
               deviceBrand: item.brand,
               deviceModel: item.model,
               totalPrice: item.sellPrice,
+              serialNumber: item.categoryView.itemType === 'DEVICE' ? item.imei : '',
               type: 'SELL' as InvoiceType,
           }
         : defaultInvoice
