@@ -14,6 +14,7 @@ import { FormError } from '../../components/form/FormError'
 import { toastProps } from '../../components/modals/ToastProps'
 import {
     Anchor,
+    App,
     Breadcrumb,
     Button,
     Card,
@@ -42,10 +43,8 @@ export const ShopSettingsView = () => {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const { data: shop, isLoading } = useQuery(['shop', id], () => getShopById(Number(id)), {})
-    const [printResponse, setPrintResponse] = useState('')
     const isPrintPossible =
         shop?.shopSettingsView.printEnabled && shop?.shopSettingsView.printerIp && shop?.shopSettingsView.printerModel
-
     const {
         control,
         register,
@@ -77,8 +76,12 @@ export const ShopSettingsView = () => {
 
     const printExample = () => {
         postPrintExample()
-            .then(() => setPrintResponse('Success'))
-            .catch((error: AppError) => setPrintResponse(error.title))
+            .then(() => {
+                toast.success('Print has been successfull!', toastProps)
+            })
+            .catch((error: AppError) => {
+                toast.error('Print failed: ' + error.title + ':' + error.detail, toastProps)
+            })
     }
 
     return (
@@ -277,7 +280,6 @@ export const ShopSettingsView = () => {
                                         <Button onClick={printExample} disabled={!isPrintPossible} type='primary'>
                                             Print an example image
                                         </Button>
-                                        {printResponse}
                                     </Popover>
                                 </Card>
                                 <Card
