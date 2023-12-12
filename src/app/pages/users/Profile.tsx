@@ -29,8 +29,10 @@ export const Profile = () => {
             await queryClient.invalidateQueries(['profileImg', loggedUser?.userId])
         }
     }
-    const { data: profileImg, isLoading: isProfileImageLoading } = useQuery(['profileImg', loggedUser?.userId], () =>
-        getProfilePicture({ id: loggedUser?.userId })
+    const { data: profileImg, isLoading: isProfileImageLoading } = useQuery(
+        ['profileImg', loggedUser?.userId],
+        () => getProfilePicture({ id: loggedUser?.userId }),
+        { retry: false }
     )
 
     const sendDeleteAccountRequest = () => {
