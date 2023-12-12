@@ -9,11 +9,12 @@ import { getProfilePicture, getSimpleUsers } from '../../../axios/http/userReque
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import dateFormat from 'dateformat'
 import { faArrowRight, faCheckDouble, faCircleCheck, faSpinner } from '@fortawesome/free-solid-svg-icons'
-import { Divider, Image, Skeleton, Spin } from 'antd'
+import { Alert, Divider, Image, Result, Skeleton, Spin } from 'antd'
 import ProfileImage from '../../../components/user/ProfileImage'
 import { getImage } from '../../../axios/http/resourcesRequests'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { PageRequest } from '../../../models/interfaces/generalModels'
+import { AppError, PageRequest } from '../../../models/interfaces/generalModels'
+import ErrorBoundary from 'antd/es/alert/ErrorBoundary'
 
 export const ChatMessages = ({
     selectedTicket,
@@ -100,7 +101,9 @@ const ChatMessageRow = ({ message, sender }: { message: ChatMessage; sender?: Us
             <div className='message-wrapper'>
                 {message.isImage ? (
                     <Suspense fallback={<Spin />}>
+                        <div className={'message'}>
                         <ChatImage url={message.text} />
+                        </div>
                     </Suspense>
                 ) : (
                     <div className='message' title={sender?.fullName + '\n' + dateFormat(message.timestamp)}>
@@ -116,6 +119,15 @@ const ChatMessageRow = ({ message, sender }: { message: ChatMessage; sender?: Us
 }
 
 const ChatImage = ({ url }: { url: string }) => {
-    const { data: image } = useQuery(['image', url], () => getImage(url), { suspense: true })
-    return image ? <Image className={'message'} src={URL.createObjectURL(image)} width={300} height={300} /> : <></>
+    const { data: image } = useQuery(['image', url], () => getImage(url), { suspense: true, retry: false })
+    return image && image.size > 0 ? (
+        <Image wrapperClassName='message-image' src={URL.createObjectURL(image)} width={300} height={300} />
+    ) : (
+        <Alert
+            type='error'
+            message='Missing image'
+            showIcon
+            description='The image has been corrupted or deleted'
+        ></Alert>
+    )
 }
