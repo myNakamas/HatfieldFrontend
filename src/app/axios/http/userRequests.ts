@@ -56,6 +56,7 @@ export const getProfilePicture = ({ id }: { id?: string }): Promise<string> => {
     return backendClient
         .get<any, Blob>('user/profile/image', { params: { id }, responseType: 'blob' })
         .then((blob) => (blob.size > 0 ? URL.createObjectURL(blob) : ''))
+        .catch(() => '')
 }
 export const changeProfilePicture = ({ picture }: { picture: File }) => {
     const body = new FormData()
