@@ -1,7 +1,7 @@
 import { Controller, FieldError, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { CategorySchema } from '../../models/validators/FormValidators'
-import { Category } from '../../models/interfaces/shop'
+import { Category, CategoryColumn } from '../../models/interfaces/shop'
 import { TextField } from '../form/TextField'
 import { AppModal } from './AppModal'
 import React, { useContext, useEffect, useRef } from 'react'
@@ -10,10 +10,11 @@ import { FormField } from '../form/Field'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
-import { Button, Typography } from 'antd'
+import { Button, Checkbox, Divider, Empty, List, Space, Tooltip, Typography } from 'antd'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 import { AuthContext } from '../../contexts/AuthContext'
 import { AppSelect } from '../form/AppSelect'
+import { NoDataComponent } from '../table/NoDataComponent'
 
 export const AddEditCategory = ({
     isModalOpen,
@@ -48,26 +49,43 @@ export const AddEditCategory = ({
         reset(defaultValue)
     }, [isModalOpen])
 
-    const displayProperties = (value: string, index: number) => {
+    const displayProperties = (column: CategoryColumn, index: number) => {
         const error = errors.columns && (errors.columns[index] as FieldError)
         return (
-            <TextField
-                key={index}
-                register={register(`columns.${index}`)}
-                error={error}
-                label={`Column ${index + 1}`}
-                button={
+            <div key={index}>
+                <Space wrap className='w-100 justify-between'>
+                    <TextField register={register(`columns.${index}.name`)} error={error} />
+                    <Space direction='vertical'>
+                        <Tooltip title='Whether this property will be printed or not.'>
+                            <Checkbox
+                                checked={column.showOnDocument ?? false}
+                                onChange={(e) => setValue(`columns.${index}.showOnDocument`, e.target.checked)}
+                            >
+                                Show on label
+                            </Checkbox>
+                        </Tooltip>
+                        <Tooltip title={`To display the name of the column before the value on the label or not.`}>
+                            <Checkbox
+                                checked={column.showNameOnDocument ?? false}
+                                onChange={(e) => setValue(`columns.${index}.showNameOnDocument`, e.target.checked)}
+                            >
+                                Show column name on label
+                            </Checkbox>
+                        </Tooltip>
+                    </Space>
+
                     <Button
                         onClick={() =>
                             setValue(
                                 'columns',
-                                getValues('columns').filter((value, i) => i !== index)
+                                getValues('columns').filter((column, i) => i !== index)
                             )
                         }
                         icon={<FontAwesomeIcon color='red' icon={faTrash} />}
                     />
-                }
-            />
+                </Space>
+                <Divider style={{ margin: 12 }} />
+            </div>
         )
     }
 
@@ -75,33 +93,43 @@ export const AddEditCategory = ({
         <AppModal {...{ isModalOpen, closeModal }} title={'Category'} isForbidden={!isWorker()}>
             {category && (
                 <form ref={formRef} className='modalForm' onSubmit={handleSubmit(onComplete)}>
-                    <TextField register={register('name')} error={errors.name} label={'Category name'} />
-                    <Controller
-                        control={control}
-                        render={({ field, fieldState }) => (
-                            <FormField label={'Item type'} error={fieldState.error}>
-                                <AppSelect<string, ItemPropertyView>
-                                    value={field.value}
-                                    options={ItemTypesArray}
-                                    placeholder='Select Item Type'
-                                    onChange={(type) => field.onChange(type)}
-                                    getOptionLabel={(item) => item.value}
-                                    getOptionValue={(item) => item.value}
-                                />
-                            </FormField>
-                        )}
-                        name={'itemType'}
-                    />
-                    <Typography>Properties</Typography>
-                    <Button
-                        onClick={() => setValue('columns', [...getValues('columns'), ''])}
-                        icon={<FontAwesomeIcon size='lg' icon={faPlus} />}
-                    />
-                    {properties && properties.length > 0 ? (
-                        properties?.map((value, index) => displayProperties(value, index))
-                    ) : (
-                        <></>
-                    )}
+                    <Divider />
+                    <div className='flex-100 justify-between flex-wrap flex-gap align-start'>
+                        <Space direction='vertical'>
+                            <TextField register={register('name')} error={errors.name} label={'Category name'} />
+                            <Controller
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <FormField label={'Item type'} error={fieldState.error}>
+                                        <AppSelect<string, ItemPropertyView>
+                                            value={field.value}
+                                            options={ItemTypesArray}
+                                            placeholder='Select Item Type'
+                                            onChange={(type) => field.onChange(type)}
+                                            getOptionLabel={(item) => item.value}
+                                            getOptionValue={(item) => item.value}
+                                        />
+                                    </FormField>
+                                )}
+                                name={'itemType'}
+                            />
+                        </Space>
+                            <List
+                            className='properties'
+                                header={
+                                    <Space className='w-100 justify-between'>
+                                        <div>Properties</div>
+                                        <Button
+                                            onClick={() => setValue('columns', [...getValues('columns'), { name: '' }])}
+                                            icon={<FontAwesomeIcon size='lg' icon={faPlus} />}
+                                        />
+                                    </Space>
+                                }
+                                dataSource={properties}
+                                renderItem={displayProperties}
+                            ></List>
+                    </div>
+
                     <div className='flex-100 justify-end'>
                         <Button type='primary' htmlType='submit'>
                             Save

@@ -81,11 +81,13 @@ export const CategorySchema = Yup.object().shape({
     itemType: Yup.string().required(),
     columns: Yup.array()
         .of(
-            Yup.string()
-                .matches(
-                    /^[a-zA-Z0-9\-_)( ]*$/,
-                    (params) => `The column '${params.value}' must not contain special characters.`
-                )
+            Yup.object()
+                .shape({
+                    name: Yup.string().matches(
+                        /^[a-zA-Z0-9\-_)( ]*$/,
+                        (params) => `The column '${params.value}' must not contain special characters.`
+                    ),
+                })
                 .notRequired()
         )
         .notRequired(),

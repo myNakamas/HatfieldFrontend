@@ -11,7 +11,7 @@ import { CustomSuspense } from '../../components/CustomSuspense'
 import { CustomTable } from '../../components/table/CustomTable'
 import { AddEditCategory } from '../../components/modals/AddEditCategory'
 import React, { useState } from 'react'
-import { Breadcrumb, Button, Collapse, Divider, Input, Popconfirm, Space } from 'antd'
+import { Breadcrumb, Button, Card, Collapse, Divider, Input, Popconfirm, Space, Statistic, Tabs, Tag } from 'antd'
 import { faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { deleteCategory } from '../../axios/http/settingsRequests'
@@ -21,6 +21,8 @@ import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/
 import { useNavigate } from 'react-router-dom'
 import { FormField } from '../../components/form/Field'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { TabList } from 'react-tabs'
+import TabPane from 'antd/es/tabs/TabPane'
 
 export const CategorySettings = () => {
     const { data: allCategories, isLoading } = useQuery(['allCategories'], () => getAllCategories())
@@ -68,58 +70,69 @@ export const CategorySettings = () => {
                 onComplete={onCreate}
                 category={{} as Category}
             />
-            <Space direction={'vertical'} className={'w-100'}>
-                <Divider children={'Categories'} />
-                <CustomSuspense isReady={!isLoading}>
-                    {allCategories && allCategories.length > 0 ? (
-                        <CustomTable<Category>
-                            data={allCategories.map((category) => ({
-                                ...category,
-                                columnsNames: category.columns.join(', '),
-                                actions: (
-                                    <Space>
-                                        <Button
-                                            icon={<FontAwesomeIcon icon={faPen} />}
-                                            onClick={() => setSelectedCategory(category)}
-                                        />
-                                        <Popconfirm
-                                            title='Delete the category'
-                                            description='Are you sure to delete this category?'
-                                            onConfirm={() =>
-                                                deleteCategory(category.id).then(() =>
-                                                    queryClient.invalidateQueries(['allCategories']).then()
-                                                )
+            <Tabs
+                animated
+                defaultActiveKey='categories'
+                items={[
+                    {
+                        key: 'categories',
+                        label: 'Categories',
+                        children: (
+                            <CustomSuspense isReady={!isLoading}>
+                                {allCategories && allCategories.length > 0 ? (
+                                    <CustomTable<Category>
+                                        data={allCategories.map((category) => {
+                                            return {
+                                                ...category,
+                                                columnsNames: category.columns.flatMap((c) => c.name).join(', '),
+                                                actions: (
+                                                    <Space>
+                                                        <Button
+                                                            icon={<FontAwesomeIcon icon={faPen} />}
+                                                            onClick={() => setSelectedCategory(category)}
+                                                        />
+                                                        <Popconfirm
+                                                            title='Delete the category'
+                                                            description='Are you sure to delete this category?'
+                                                            onConfirm={() =>
+                                                                deleteCategory(category.id).then(() =>
+                                                                    queryClient
+                                                                        .invalidateQueries(['allCategories'])
+                                                                        .then()
+                                                                )
+                                                            }
+                                                            okText='Yes'
+                                                            cancelText='No'
+                                                        >
+                                                            <Button icon={<FontAwesomeIcon icon={faTrashCan} />} />
+                                                        </Popconfirm>
+                                                    </Space>
+                                                ),
                                             }
-                                            okText='Yes'
-                                            cancelText='No'
-                                        >
-                                            <Button icon={<FontAwesomeIcon icon={faTrashCan} />} />
-                                        </Popconfirm>
-                                    </Space>
-                                ),
-                            }))}
-                            headers={{
-                                name: 'name',
-                                itemType: 'type',
-                                columnsNames: 'columns',
-                                actions: 'actions',
-                            }}
-                            onClick={({ id }) => {
-                                setSelectedCategory(allCategories?.find((category) => category.id === id))
-                            }}
-                        />
-                    ) : (
-                        <NoDataComponent items={'categories'}>
-                            <Button type={'primary'} onClick={() => setShowModal(true)}>
-                                Add new category
-                            </Button>
-                        </NoDataComponent>
-                    )}
-                </CustomSuspense>
-                <Divider children={'Brands and Models'} />
-
-                <BrandAndModelEdit />
-            </Space>
+                                        })}
+                                        headers={{
+                                            name: 'name',
+                                            itemType: 'type',
+                                            columnsNames: 'columns',
+                                            actions: 'actions',
+                                        }}
+                                        onClick={({ id }) => {
+                                            setSelectedCategory(allCategories?.find((category) => category.id === id))
+                                        }}
+                                    />
+                                ) : (
+                                    <NoDataComponent items={'categories'}>
+                                        <Button type={'primary'} onClick={() => setShowModal(true)}>
+                                            Add new category
+                                        </Button>
+                                    </NoDataComponent>
+                                )}
+                            </CustomSuspense>
+                        ),
+                    },
+                    {key:'models', label:'Brands and models', children:<BrandAndModelEdit />}
+                ]}
+            />
         </div>
     )
 }
@@ -159,11 +172,13 @@ const BrandAndModelEdit = () => {
     const { data: brands } = useQuery('brands', getAllBrands)
 
     return (
-        <>
+        <div className='w-100'>
             <Collapse
+                defaultActiveKey={'brand0'}
                 items={brands?.map((brand: Brand, index: number) => ({
                     label: brand.value,
                     key: 'brand' + index,
+                    extra: <Tag title='Number of models'>{brand.models.length}</Tag>,
                     children: (
                         <CustomTable
                             headers={{ id: 'Id', value: 'Model', actions: 'Actions' }}
@@ -177,6 +192,6 @@ const BrandAndModelEdit = () => {
                     ),
                 }))}
             />
-        </>
+        </div>
     )
 }

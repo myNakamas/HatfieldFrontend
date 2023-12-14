@@ -18,10 +18,10 @@ import { FormField } from '../../form/Field'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
 import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
-import { Button, Card, Input, Space } from 'antd'
+import { Button, Card, Input, Space, Tag, Tooltip } from 'antd'
 import { AddEditCategory } from '../AddEditCategory'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faEye, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 
 export const EditInventoryItem = ({
@@ -221,8 +221,23 @@ export const EditInventoryItem = ({
                     </Space>
                     {category && category.columns.length > 0 && (
                         <Card title={category.name + ' properties'}>
-                            {category.columns?.map((key, index) => (
-                                <TextField register={register(`columns.${key}`)} label={key} key={key + index} />
+                            {category.columns?.map((column, index) => (
+                                <TextField
+                                    button={
+                                        column.showOnDocument && (
+                                            <Tooltip
+                                                title={`The ${column.name} will be visible on the printing label ${
+                                                    column.showNameOnDocument && 'with the column name'
+                                                }`}
+                                            >
+                                                <Tag icon={<FontAwesomeIcon icon={faEye} />} />
+                                            </Tooltip>
+                                        )
+                                    }
+                                    register={register(`columns.${column.name}`)}
+                                    label={column.name}
+                                    key={column.name + index}
+                                />
                             ))}
                         </Card>
                     )}

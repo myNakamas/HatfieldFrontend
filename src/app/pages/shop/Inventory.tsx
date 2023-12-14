@@ -212,7 +212,7 @@ export const InventoryInner = ({
             category?.columns.reduce((obj, field) => {
                 return {
                     ...obj,
-                    [field]: field,
+                    [field.name]: field.name,
                 }
             }, {}) ?? {}
         )
