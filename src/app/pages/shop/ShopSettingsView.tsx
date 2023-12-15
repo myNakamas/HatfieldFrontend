@@ -207,7 +207,6 @@ export const ShopSettingsView = () => {
                                                         <TextArea
                                                             className={'w-100'}
                                                             onChange={field.onChange}
-                                                            count={field.value?.length}
                                                             showCount
                                                             value={field.value ?? ''}
                                                             size='large'
