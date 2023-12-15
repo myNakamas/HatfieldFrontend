@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { getShopById, updateShop } from '../../axios/http/shopRequests'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -14,7 +14,6 @@ import { FormError } from '../../components/form/FormError'
 import { toastProps } from '../../components/modals/ToastProps'
 import {
     Anchor,
-    App,
     Breadcrumb,
     Button,
     Card,
@@ -35,7 +34,7 @@ import { faCheck, faClock, faQuestion, faX } from '@fortawesome/free-solid-svg-i
 import { AnchorLinkItemProps } from 'antd/es/anchor/Anchor'
 import ButtonGroup from 'antd/es/button/button-group'
 import { sendSmsApiBalanceCheck, SmsBalanceResponse } from '../../axios/http/smsRequests'
-import { postPrintExample, printUserLabel } from '../../axios/http/documentRequests'
+import { postPrintExample } from '../../axios/http/documentRequests'
 import { AppError } from '../../models/interfaces/generalModels'
 
 export const ShopSettingsView = () => {
@@ -208,6 +207,8 @@ export const ShopSettingsView = () => {
                                                         <TextArea
                                                             className={'w-100'}
                                                             onChange={field.onChange}
+                                                            count={field.value?.length}
+                                                            showCount
                                                             value={field.value ?? ''}
                                                             size='large'
                                                             bordered
@@ -330,6 +331,7 @@ export const ShopSettingsView = () => {
                                         label='Notification email password'
                                         register={register('shopSettingsView.gmailPassword')}
                                         type='password'
+                                        autoComplete='password'
                                         error={errors.shopSettingsView?.gmailPassword}
                                     />
                                 </Card>
@@ -357,6 +359,7 @@ export const ShopSettingsView = () => {
                                             label='SMS API key'
                                             register={register('shopSettingsView.smsApiKey')}
                                             type='password'
+                                            autoComplete='api-key'
                                             error={errors.shopSettingsView?.smsApiKey}
                                         />
                                         <TestSmsToken token={watch('shopSettingsView.smsApiKey')} />

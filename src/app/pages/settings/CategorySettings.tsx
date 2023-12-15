@@ -10,9 +10,9 @@ import { Brand, Category } from '../../models/interfaces/shop'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import { CustomTable } from '../../components/table/CustomTable'
 import { AddEditCategory } from '../../components/modals/AddEditCategory'
-import React, { useState } from 'react'
-import { Breadcrumb, Button, Card, Collapse, Divider, Input, Popconfirm, Space, Statistic, Tabs, Tag } from 'antd'
-import { faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons'
+import { useState } from 'react'
+import { Breadcrumb, Button, Collapse, Input, Popconfirm, Space, Tabs, Tag } from 'antd'
+import { faPen, faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { deleteCategory } from '../../axios/http/settingsRequests'
 import { NoDataComponent } from '../../components/table/NoDataComponent'
@@ -21,8 +21,6 @@ import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/
 import { useNavigate } from 'react-router-dom'
 import { FormField } from '../../components/form/Field'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
-import { TabList } from 'react-tabs'
-import TabPane from 'antd/es/tabs/TabPane'
 
 export const CategorySettings = () => {
     const { data: allCategories, isLoading } = useQuery(['allCategories'], () => getAllCategories())
@@ -56,7 +54,7 @@ export const CategorySettings = () => {
                 ]}
             />
             <Space className='button-bar'>
-                <Button onClick={() => setShowModal(true)}>Add new category</Button>
+                <Button icon={<FontAwesomeIcon icon={faPlus}/>} onClick={() => setShowModal(true)}>Add new category</Button>
             </Space>
             <AddEditCategory
                 closeModal={() => setSelectedCategory(undefined)}
@@ -130,7 +128,7 @@ export const CategorySettings = () => {
                             </CustomSuspense>
                         ),
                     },
-                    {key:'models', label:'Brands and models', children:<BrandAndModelEdit />}
+                    { key: 'models', label: 'Brands and models', children: <BrandAndModelEdit /> },
                 ]}
             />
         </div>
