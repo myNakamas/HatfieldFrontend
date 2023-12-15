@@ -301,8 +301,13 @@
   }
 }
 .properties {
-  flex: 1;
   min-width: 250px;
+
+  .ant-list-items{
+    overflow-y:auto;
+    max-height: 400px;
+
+  }
 }
 
 .svg-inline--fa {

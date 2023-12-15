@@ -6,7 +6,7 @@ import {
     Ticket,
     UsedItemView,
 } from '../../../models/interfaces/ticket'
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import dateFormat from 'dateformat'
 import { EditTicketForm } from './EditTicketForm'
 import { putCompleteTicket, putFreezeTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
@@ -35,7 +35,7 @@ import {
     postPrintTicketLabel,
 } from '../../../axios/http/documentRequests'
 import { AuthContext } from '../../../contexts/AuthContext'
-import { getAllDeviceLocations } from '../../../axios/http/shopRequests'
+import { getAllDeviceLocations, getShopData } from '../../../axios/http/shopRequests'
 import {
     faCheck,
     faEye,
@@ -179,6 +179,7 @@ const TicketViewInner = ({
     const queryClient = useQueryClient()
     const { isWorker } = useContext(AuthContext)
     const { data: locations } = useQuery('deviceLocations', getAllDeviceLocations)
+    const { data: shop } = useQuery(['currentShop'], getShopData)
 
     const startTicket = (id: number) => {
         toast
@@ -276,7 +277,7 @@ const TicketViewInner = ({
                     </Card>
                     <Space wrap className={'w-100 justify-between align-start'}>
                         <Space direction={'vertical'} className='card'>
-                            <FormField label={'Change ticket status'}>
+                            <FormField label={'Ticket status'}>
                                 <AppSelect<TicketStatus, ItemPropertyView>
                                     options={TicketStatusesArray}
                                     placeholder='Select a status'
@@ -286,7 +287,7 @@ const TicketViewInner = ({
                                     getOptionValue={(status) => status.value as TicketStatus}
                                 />
                             </FormField>
-                            <FormField label={'Change device location'}>
+                            <FormField label={'Device location'}>
                                 <AppCreatableSelect<ItemPropertyView>
                                     options={locations}
                                     placeholder='New location'
@@ -353,30 +354,60 @@ const TicketViewInner = ({
                                 </Button>
                                 <Space.Compact className={'w-100 justify-between'}>
                                     <Button
+                                        title={
+                                            !shop?.shopSettingsView.printEnabled
+                                                ? 'Printing is disabled for your shop'
+                                                : 'Print a tag for the device'
+                                        }
+                                        disabled={!shop?.shopSettingsView.printEnabled}
                                         style={{ flex: 1 }}
                                         icon={<FontAwesomeIcon icon={faPrint} />}
                                         onClick={printTicketLabel}
                                     >
                                         Print repair tag
                                     </Button>
-                                    <Button icon={<FontAwesomeIcon icon={faEye} />} onClick={previewTicketLabel} />
+                                    <Button
+                                        title={
+                                            !shop?.shopSettingsView.printEnabled
+                                                ? 'Printing is disabled for your shop'
+                                                : 'Preview the tag'
+                                        }
+                                        disabled={!shop?.shopSettingsView.printEnabled}
+                                        icon={<FontAwesomeIcon icon={faEye} />}
+                                        onClick={previewTicketLabel}
+                                    />
                                 </Space.Compact>
                                 <Space.Compact className={'w-100 justify-between'}>
                                     <Button
+                                        title={
+                                            !shop?.shopSettingsView.printEnabled
+                                                ? 'Printing is disabled for your shop'
+                                                : 'Print a ticket for the user'
+                                        }
+                                        disabled={!shop?.shopSettingsView.printEnabled}
                                         style={{ flex: 1 }}
                                         icon={<FontAwesomeIcon icon={faPrint} />}
                                         onClick={printTicket}
                                     >
                                         Print ticket
                                     </Button>
-                                    <Button icon={<FontAwesomeIcon icon={faEye} />} onClick={previewTicket} />
+                                    <Button
+                                        title={
+                                            !shop?.shopSettingsView.printEnabled
+                                                ? 'Printing is disabled for your shop'
+                                                : 'Preview the ticket'
+                                        }
+                                        disabled={!shop?.shopSettingsView.printEnabled}
+                                        icon={<FontAwesomeIcon icon={faEye} />}
+                                        onClick={previewTicket}
+                                    />
                                 </Space.Compact>
                                 <Space.Compact>
                                     <Button
                                         icon={<FontAwesomeIcon icon={faPrint} />}
                                         onClick={() => setShowDepositInvoiceModal(true)}
                                     >
-                                        Print invoice for deposit
+                                        Create invoice for deposit
                                     </Button>
                                 </Space.Compact>
 

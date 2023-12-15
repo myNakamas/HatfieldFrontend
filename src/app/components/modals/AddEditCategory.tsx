@@ -10,11 +10,12 @@ import { FormField } from '../form/Field'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
-import { Button, Checkbox, Divider, Empty, List, Space, Tooltip, Typography } from 'antd'
+import { Button, Checkbox, Divider, Empty, List, Space, Tag, Tooltip, Typography } from 'antd'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 import { AuthContext } from '../../contexts/AuthContext'
 import { AppSelect } from '../form/AppSelect'
 import { NoDataComponent } from '../table/NoDataComponent'
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 
 export const AddEditCategory = ({
     isModalOpen,
@@ -44,6 +45,8 @@ export const AddEditCategory = ({
         defaultValues: defaultValue,
     })
     const properties = watch('columns') ?? []
+    const maxColumns = watch('itemType')=='DEVICE'? 4 : 5;
+
     useEffect(() => {
         formRef.current?.reset()
         reset(defaultValue)
@@ -54,9 +57,14 @@ export const AddEditCategory = ({
         return (
             <div key={index}>
                 <Space wrap className='w-100 justify-between'>
-                    <TextField register={register(`columns.${index}.name`)} error={error} />
+                    <TextField
+                        placeholder='Column name'
+                        register={register(`columns.${index}.name`)}
+                        error={error}
+                        autoFocus
+                    />
                     <Space direction='vertical'>
-                        <Tooltip title='Whether this property will be printed or not.'>
+                        <Tooltip destroyTooltipOnHide title='Whether this property will be printed or not.'>
                             <Checkbox
                                 checked={column.showOnDocument ?? false}
                                 onChange={(e) => setValue(`columns.${index}.showOnDocument`, e.target.checked)}
@@ -64,7 +72,7 @@ export const AddEditCategory = ({
                                 Show on label
                             </Checkbox>
                         </Tooltip>
-                        <Tooltip title={`To display the name of the column before the value on the label or not.`}>
+                        <Tooltip destroyTooltipOnHide title={`To display the name of the column before the value on the label or not.`}>
                             <Checkbox
                                 checked={column.showNameOnDocument ?? false}
                                 onChange={(e) => setValue(`columns.${index}.showNameOnDocument`, e.target.checked)}
@@ -78,13 +86,14 @@ export const AddEditCategory = ({
                         onClick={() =>
                             setValue(
                                 'columns',
-                                getValues('columns').filter((column, i) => i !== index)
+                                getValues('columns').filter((_, i) => i !== index)
                             )
                         }
+                        title='Delete this column'
                         icon={<FontAwesomeIcon color='red' icon={faTrash} />}
                     />
                 </Space>
-                <Divider style={{ margin: 12 }} />
+                <Divider style={{ marginTop: 12, marginBottom: 12 }} />
             </div>
         )
     }
@@ -114,20 +123,33 @@ export const AddEditCategory = ({
                                 name={'itemType'}
                             />
                         </Space>
-                            <List
+                        <List
                             className='properties'
-                                header={
-                                    <Space className='w-100 justify-between'>
-                                        <div>Properties</div>
-                                        <Button
-                                            onClick={() => setValue('columns', [...getValues('columns'), { name: '' }])}
-                                            icon={<FontAwesomeIcon size='lg' icon={faPlus} />}
-                                        />
-                                    </Space>
-                                }
-                                dataSource={properties}
-                                renderItem={displayProperties}
-                            ></List>
+                            header={
+                                <Space className='w-100 justify-between'>
+                                    <div>Category Properties</div>
+                                    <Button
+                                        onClick={() => {
+                                            setValue('columns', [...getValues('columns'), { name: '' }])
+                                        }}
+                                        icon={<FontAwesomeIcon size='lg' icon={faPlus} />}
+                                    >
+                                        {' '}
+                                        Add a new proeprty
+                                    </Button>
+                                </Space>
+                            }
+                            dataSource={properties}
+                            renderItem={displayProperties}
+                            footer={
+                                properties.filter((column) => column.showOnDocument).length > maxColumns && (
+                                    <Tag color='gold' icon={<FontAwesomeIcon icon={faExclamationTriangle} />}>
+                                        The printable label might not have enough space for all selected properties.
+                                        <br /> Please pick <b>{maxColumns} properties or less.</b>
+                                    </Tag>
+                                )
+                            }
+                        ></List>
                     </div>
 
                     <div className='flex-100 justify-end'>

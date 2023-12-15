@@ -14,6 +14,7 @@ import { TextField } from '../../form/TextField'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { SendItemToShopSchema, UpdateItemCountSchema } from '../../../models/validators/FormValidators'
 import {
+    getShopData,
     getWorkerShops,
     postMarkItemAsDamaged,
     postMarkItemAsDefective,
@@ -42,6 +43,7 @@ export const ViewInventoryItem = ({
 }) => {
     const [sellModalOpen, setSellModalOpen] = useState(false)
     const [isUseModalOpen, setIsUseModalOpen] = useState(false)
+    const { data: shop } = useQuery(['currentShop'], getShopData)
     const queryClient = useQueryClient()
 
     const markItemAsDamaged = (id: number) => {
@@ -100,12 +102,24 @@ export const ViewInventoryItem = ({
                                     <Typography>Print the label for the item</Typography>
                                     <Button.Group>
                                         <Button
+                                            title={
+                                                !shop?.shopSettingsView.printEnabled
+                                                    ? 'Printing is disabled for this shop'
+                                                    : 'Print'
+                                            }
+                                            disabled={!shop?.shopSettingsView.printEnabled}
                                             onClick={() => printItemLabel(inventoryItem)}
                                             icon={<FontAwesomeIcon icon={faPrint} />}
                                         >
                                             Print
                                         </Button>
                                         <Button
+                                            title={
+                                                !shop?.shopSettingsView.printEnabled
+                                                    ? 'Printing is disabled for this shop'
+                                                    : 'Preview label'
+                                            }
+                                            disabled={!shop?.shopSettingsView.printEnabled}
                                             onClick={() => previewItemLabel(inventoryItem)}
                                             icon={<FontAwesomeIcon icon={faEye} />}
                                         />
