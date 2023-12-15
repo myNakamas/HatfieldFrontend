@@ -14,20 +14,20 @@ import { useQuery, useQueryClient } from 'react-query'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { AppModal } from '../AppModal'
-import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { FormField } from '../../form/Field'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
-import { App, Button, Card, Input, Modal, Popover, Space, Tag, Tooltip } from 'antd'
+import { App, Button, Card, Divider, Input, Space, Tag, Tooltip } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEye, faInfo, faInfoCircle, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faEye, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { AddEditCategory } from '../AddEditCategory'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
-import useModal from 'antd/es/modal/useModal'
 import { printItemLabel } from './ViewInventoryItem'
 import { currencyFormat } from '../../../utils/helperFunctions'
+import { usePrintConfirm } from '../PrintConfirm'
 
 export const AddInventoryItem = ({
     isModalOpen,
@@ -63,7 +63,7 @@ export const AddInventoryItemInner = ({
 
     const [category, setCategory] = useState<Category>()
     const [showCategoryModal, setShowCategoryModal] = useState(false)
-    const { modal } = App.useApp()
+    const { printConfirm: print } = usePrintConfirm()
     const {
         control,
         register,
@@ -97,20 +97,9 @@ export const AddInventoryItemInner = ({
                     .invalidateQueries(['shopItems'])
                     .then(() => closeModal(value))
                     .then(() => {
-                        modal.confirm({
+                        print({
                             title: 'Print item label',
-                            okText: 'Print',
-                            content: (
-                                <p>
-                                    Name: {value.name} <br />
-                                    Price: {currencyFormat(value.sellPrice)} <br />
-                                    {value.imei && (
-                                        <>
-                                            Serial Number / Imei: {value.imei} <br />
-                                        </>
-                                    )}
-                                </p>
-                            ),
+                            content: <ItemPrintConfirmContent item={value} />,
                             onOk: () => printItemLabel(value),
                         })
                     })
@@ -285,7 +274,11 @@ export const AddInventoryItemInner = ({
                             <TextField
                                 button={
                                     column.showOnDocument && (
-                                        <Tooltip title={`The ${column.name} will be visible on the printing label ${column.showNameOnDocument && 'with the column name'}`}>
+                                        <Tooltip
+                                            title={`The ${column.name} will be visible on the printing label ${
+                                                column.showNameOnDocument && 'with the column name'
+                                            }`}
+                                        >
                                             <Tag icon={<FontAwesomeIcon icon={faEye} />} />
                                         </Tooltip>
                                     )
@@ -309,5 +302,22 @@ export const AddInventoryItemInner = ({
                 </div>
             </form>
         </>
+    )
+}
+
+const ItemPrintConfirmContent = ({ item }: { item: InventoryItem }) => {
+    return (
+        <p className='viewModal'>
+            - Ticket label for the device x1
+            <br />
+            <Divider>Item #{item.id}</Divider>
+            Name: {item.name} <br />
+            Price: {currencyFormat(item.sellPrice)} <br />
+            {item.imei && (
+                <>
+                    Serial Number / Imei: {item.imei} <br />
+                </>
+            )}
+        </p>
     )
 }

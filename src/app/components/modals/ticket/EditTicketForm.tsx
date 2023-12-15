@@ -7,13 +7,13 @@ import { TicketStatusesArray } from '../../../models/enums/ticketEnums'
 import DateTime from 'react-datetime'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
-import { CreateTicket } from '../../../models/interfaces/ticket'
+import { CreateTicket, Ticket } from '../../../models/interfaces/ticket'
 import { useQuery, useQueryClient } from 'react-query'
 import { getAllBrands, getAllDeviceLocations } from '../../../axios/http/shopRequests'
 import { User } from '../../../models/interfaces/user'
 import { getAllClients } from '../../../axios/http/userRequests'
 import moment from 'moment/moment'
-import { Button, Card, Checkbox, Collapse, Divider, Space } from 'antd'
+import { App, Button, Card, Checkbox, Collapse, Divider, Space } from 'antd'
 import { AddClient } from '../users/AddClient'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -24,6 +24,9 @@ import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
 import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 import TextArea from 'antd/es/input/TextArea'
+import { postPrintTicket, putPrintTicketLabels } from '../../../axios/http/documentRequests'
+import { usePrintConfirm } from '../PrintConfirm'
+import dateFormat from 'dateformat'
 
 export const EditTicketForm = ({
     ticket,
@@ -36,6 +39,7 @@ export const EditTicketForm = ({
 }) => {
     const { isWorker } = useContext(AuthContext)
     const queryClient = useQueryClient()
+    const { printConfirm } = usePrintConfirm()
     const [activeDictaphone, setActiveDictaphone] = useState('')
     const {
         register,
@@ -45,6 +49,7 @@ export const EditTicketForm = ({
         setError,
         setValue,
         watch,
+        reset,
     } = useForm<CreateTicket>({ defaultValues: ticket })
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: locations } = useQuery('deviceLocations', getAllDeviceLocations)
@@ -58,8 +63,18 @@ export const EditTicketForm = ({
     const onFormSubmit = (data: CreateTicket) => {
         const onComplete = isEdit ? editTicket : createNewTicket
         onComplete(data)
-            .then(() => {
-                queryClient.invalidateQueries(['tickets']).then(() => closeModal())
+            .then((ticket) => {
+                !isEdit &&
+                    printConfirm({
+                        title: 'Print ticket labels',
+                        content: <TicketPrintConfirmContent ticket={ticket} />,
+                        onOk: () => putPrintTicketLabels(ticket.id),
+                    })
+
+                queryClient.invalidateQueries(['tickets']).then(() => {
+                    closeModal()
+                    reset(ticket)
+                })
             })
             .catch((error: AppError) => {
                 setError('root', { message: error?.detail })
@@ -487,5 +502,28 @@ const NotesTextArea = ({
                 setTempText={setTempNotes}
             />
         </div>
+    )
+}
+
+const TicketPrintConfirmContent = ({ ticket }: { ticket: Ticket }) => {
+    return (
+        <p className='viewModal'>
+            - Label for the client
+            <br />
+            - Ticket label for the device
+            <br />
+            {ticket.accessories.toLowerCase().includes('charger') && (
+                <>
+                    - Ticket label for the device
+                    <br />
+                </>
+            )}
+            <Divider>Ticket #{ticket.id}</Divider>
+            Created at: {dateFormat(ticket.timestamp)}<br />
+            Brand & Model: {ticket.deviceBrand} {ticket.deviceModel} <br />
+            Condition: {ticket.deviceCondition} <br />
+            Price: {ticket.totalPrice}
+            Deadline: {dateFormat(ticket.deadline)}
+        </p>
     )
 }
