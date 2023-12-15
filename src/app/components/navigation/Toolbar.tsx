@@ -12,6 +12,7 @@ export const Toolbar = ({ setShowNav }: { setShowNav: React.Dispatch<React.SetSt
     return (
         <div className='toolbar'>
             <Button
+                aria-label='Open Drawer'
                 shape='circle'
                 icon={<FontAwesomeIcon icon={faBars} />}
                 size={'large'}

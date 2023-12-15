@@ -1,7 +1,7 @@
 import { Badge, Drawer, Menu, Space } from 'antd'
 import CheckableTag from 'antd/es/tag/CheckableTag'
 import { NoDataComponent } from '../../../components/table/NoDataComponent'
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import { useQuery } from 'react-query'
 import { fetchAllActiveTickets, fetchClientActiveTickets } from '../../../axios/http/ticketRequests'
 import { activeTicketStatuses, completedTicketStatuses } from '../../../models/enums/ticketEnums'
@@ -46,7 +46,7 @@ export const ChatDrawer = ({
                 title='Tickets'
                 placement={'right'}
                 closable={true}
-                bodyStyle={{ padding: 0 }}
+                styles={{ body: { padding: 0 } }}
                 width={300}
                 onClose={() => setTicketDrawer(false)}
                 open={ticketDrawer}

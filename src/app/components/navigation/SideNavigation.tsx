@@ -7,8 +7,10 @@ import {
     faBuildingUser,
     faChartColumn,
     faClockRotateLeft,
+    faCubes,
     faFileInvoice,
     faPersonCircleQuestion,
+    faShoppingBasket,
 } from '@fortawesome/free-solid-svg-icons'
 import { Badge, Drawer, Menu, MenuProps } from 'antd'
 import { WebSocketContext } from '../../contexts/WebSocketContext'
@@ -49,7 +51,20 @@ export const SideNavigation = ({
     ]
     const WorkerLinks: MenuItem[] = [
         { label: 'Clients', key: '/clients', icon: <FontAwesomeIcon icon={faUsers} /> },
-        { label: 'Inventory', key: '/inventory', icon: <FontAwesomeIcon icon={faStore} /> },
+        {
+            label: 'Inventory',
+            key: '/items',
+            icon: <FontAwesomeIcon icon={faStore} />,
+            children: [
+                { label: 'Items', key: '/inventory', icon: <FontAwesomeIcon icon={faStore} /> },
+                { label: 'Categories', key: '/categories', icon: <FontAwesomeIcon icon={faCubes} /> },
+                {
+                    label: 'Shopping list',
+                    key: `/inventory/${loggedUser?.shopId}/shopping-list`,
+                    icon: <FontAwesomeIcon icon={faShoppingBasket} />,
+                },
+            ],
+        },
         ...ClientLinks,
         { label: 'Invoices', key: '/invoices', icon: <FontAwesomeIcon icon={faFileInvoice} /> },
     ]
@@ -83,7 +98,7 @@ export const SideNavigation = ({
             title={loggedUser?.shopName}
             placement={'left'}
             closable={true}
-            bodyStyle={{ padding: 0 }}
+            styles={{ body: { padding: 0 } }}
             onClose={() => setShowNav(false)}
             open={showNavigation}
         >
@@ -100,6 +115,7 @@ export const SideNavigation = ({
 
                 {isAdmin() && (
                     <Button
+                        aria-label='Open drawer'
                         style={{ position: 'absolute', bottom: 20, right: 20 }}
                         icon={<FontAwesomeIcon icon={faCogs} />}
                         onClick={() => {

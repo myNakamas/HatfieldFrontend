@@ -212,7 +212,7 @@ export const InventoryInner = ({
             category?.columns.reduce((obj, field) => {
                 return {
                     ...obj,
-                    [field]: field,
+                    [field.name]: field.name,
                 }
             }, {}) ?? {}
         )
@@ -228,7 +228,13 @@ export const InventoryInner = ({
                     itemName: item.name ?? '-',
                     sell: currencyFormat(item.sellPrice),
                     categoryType: item.categoryView?.itemType ?? '-',
-                    actions: <Button onClick={() => setEditItem(item)} icon={<FontAwesomeIcon icon={faPen} />} />,
+                    actions: (
+                        <Button
+                            aria-label={`Edit item ${item.name}`}
+                            onClick={() => setEditItem(item)}
+                            icon={<FontAwesomeIcon icon={faPen} />}
+                        />
+                    ),
                 }
             })}
             headers={{

@@ -15,6 +15,9 @@ export const postPrintTicketLabel = (ticketId: number | undefined): Promise<Blob
     if (!ticketId) return new Promise(() => null)
     return backendClient.post('document/print/tag/repair', {}, { params: { ticketId }, responseType: 'blob' })
 }
+export const putPrintTicketLabels = (id: number): Promise<void> => {
+    return backendClient.put('ticket/worker/print', {}, { params: { id } })
+}
 export const getTicketImage = (ticketId: number | undefined): Promise<Blob> => {
     if (!ticketId) return new Promise(() => null)
     return backendClient.get('document/print/ticket', { params: { ticketId, print: false }, responseType: 'blob' })

@@ -75,15 +75,17 @@ export const UserDescription = ({ user }: { user?: User }) => {
                     Email permission : <Checkbox checked={user.emailPermission} disabled />
                 </Descriptions.Item>
             )}
-            <Descriptions.Item label='Phones'>
-                {user.phones.length > 0
-                    ? user.phones.map((phone, index) => (
-                          <Typography key={'phone' + index}>
-                              Phone #{index + 1}: {phone}
-                          </Typography>
-                      ))
-                    : '-'}
-            </Descriptions.Item>
+            {user.phones && user.phones.length > 0 ? (
+                <Descriptions.Item label='Phones'>
+                    {user.phones.map((phone, index) => (
+                        <Typography key={'phone' + index}>
+                            Phone #{index + 1}: {phone}
+                        </Typography>
+                    ))}
+                </Descriptions.Item>
+            ) : (
+                '-'
+            )}
         </Descriptions>
     )
 }

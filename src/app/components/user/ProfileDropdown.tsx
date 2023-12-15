@@ -17,7 +17,7 @@ export const ProfileDropdown = () => {
     const { data: profileImg, isLoading } = useQuery(
         ['profileImg', loggedUser?.userId],
         () => getProfilePicture({ id: loggedUser?.userId }),
-        { retry: false }
+        { retry: false, retryOnMount:false }
     )
     const items: MenuProps['items'] = [
         {

@@ -32,7 +32,7 @@ export const Profile = () => {
     const { data: profileImg, isLoading: isProfileImageLoading } = useQuery(
         ['profileImg', loggedUser?.userId],
         () => getProfilePicture({ id: loggedUser?.userId }),
-        { retry: false }
+        { retry: false, retryOnMount:false }
     )
 
     const sendDeleteAccountRequest = () => {
