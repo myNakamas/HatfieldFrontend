@@ -1,5 +1,5 @@
 import { TicketFilter } from '../../models/interfaces/filters'
-import React, { useContext, useState } from 'react'
+import { useContext, useState } from 'react'
 import { useQuery } from 'react-query'
 import { getWorkerShops } from '../../axios/http/shopRequests'
 import { Space } from 'antd'
@@ -47,6 +47,7 @@ export const DashboardFilters = ({
     return (
         <Space wrap>
             <AppSelect<number, ItemPropertyView>
+                aria-label='Shop filter'
                 value={filter.shopId}
                 options={shops ?? []}
                 placeholder='Filter by shop'

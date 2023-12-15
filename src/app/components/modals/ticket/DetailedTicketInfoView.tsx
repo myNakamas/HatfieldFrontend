@@ -124,7 +124,7 @@ export const LogListRow = ({ log, onClick }: { log: Log; onClick?: (log: Log) =>
     const { data: profileImg, isLoading } = useQuery(
         ['profileImg', log?.user?.userId],
         () => getProfilePicture({ id: log?.user.userId }),
-        { retry: false }
+        { retry: false, retryOnMount:false }
     )
     return (
         <Popover

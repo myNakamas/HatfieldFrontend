@@ -76,7 +76,7 @@ const ChatMessageRow = ({ message, sender }: { message: ChatMessage; sender?: Us
     const { data: profileImg } = useQuery(
         ['profileImg', sender?.userId],
         () => getProfilePicture({ id: sender?.userId }),
-        { retry: false }
+        { retry: false, retryOnMount:false }
     )
 
     const getMessageStatusIcon = () => {

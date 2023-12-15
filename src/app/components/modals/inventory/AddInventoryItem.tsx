@@ -14,20 +14,20 @@ import { useQuery, useQueryClient } from 'react-query'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { AppModal } from '../AppModal'
-import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { FormField } from '../../form/Field'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
-import { App, Button, Card, Input, Modal, Popover, Space, Tooltip } from 'antd'
+import { Button, Card, Divider, Input, Space, Tag, Tooltip } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faInfo, faInfoCircle, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faEye, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { AddEditCategory } from '../AddEditCategory'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
-import useModal from 'antd/es/modal/useModal'
 import { printItemLabel } from './ViewInventoryItem'
 import { currencyFormat } from '../../../utils/helperFunctions'
+import { usePrintConfirm } from '../PrintConfirm'
 
 export const AddInventoryItem = ({
     isModalOpen,
@@ -63,7 +63,7 @@ export const AddInventoryItemInner = ({
 
     const [category, setCategory] = useState<Category>()
     const [showCategoryModal, setShowCategoryModal] = useState(false)
-    const { modal } = App.useApp()
+    const { printConfirm: print } = usePrintConfirm()
     const {
         control,
         register,
@@ -86,6 +86,7 @@ export const AddInventoryItemInner = ({
         await queryClient.invalidateQueries(['allCategories'])
         setValue('categoryId', category_1.id)
     }
+
     const submit = (item: CreateInventoryItem) => {
         toast
             .promise(addNewItem({ item }), toastCreatePromiseTemplate('item'), toastProps)
@@ -96,14 +97,9 @@ export const AddInventoryItemInner = ({
                     .invalidateQueries(['shopItems'])
                     .then(() => closeModal(value))
                     .then(() => {
-                        modal.confirm({
+                        print({
                             title: 'Print item label',
-                            okText: 'Print',
-                            content: <p>
-                                Name: {value.name} <br/>
-                                Price: {currencyFormat(value.sellPrice)} <br/>
-                                {value.imei && (<>Serial Number / Imei: {value.imei} <br/></>)}
-                            </p>,
+                            content: <ItemPrintConfirmContent item={value} />,
                             onOk: () => printItemLabel(value),
                         })
                     })
@@ -119,6 +115,7 @@ export const AddInventoryItemInner = ({
     }, [isModalOpen])
     useEffect(() => {
         const c = categories?.find((category) => category.id === watch('categoryId'))
+        if (c?.itemType != 'DEVICE') setValue('imei', undefined)
         setCategory(c)
     }, [watch('categoryId')])
 
@@ -182,7 +179,7 @@ export const AddInventoryItemInner = ({
                             render={({ field, fieldState }) => (
                                 <FormField label='Brand' error={fieldState.error}>
                                     <AppCreatableSelect<ItemPropertyView>
-                                        options={brands}
+                                        options={brands?.map((brand) => ({ ...brand, key: brand.id }))}
                                         placeholder='Select or add a new brand'
                                         value={field.value?.value}
                                         onCreateOption={(item) => field.onChange({ value: item })}
@@ -228,7 +225,7 @@ export const AddInventoryItemInner = ({
                             {category?.itemType === 'DEVICE' && +watch('count') === 1 && (
                                 <TextField
                                     label='Imei'
-                                    value={watch('imei')}
+                                    defaultValue={watch('imei')}
                                     register={register('imei')}
                                     error={errors.name}
                                     placeholder={'Serial number / Imei'}
@@ -273,8 +270,23 @@ export const AddInventoryItemInner = ({
                 </Space>
                 {category && category.columns.length > 0 && (
                     <Card title={category.name + ' properties'}>
-                        {category.columns?.map((key, index) => (
-                            <TextField register={register(`properties.${key}`)} label={key} key={key + index} />
+                        {category.columns?.map((column, index) => (
+                            <TextField
+                                button={
+                                    column.showOnDocument && (
+                                        <Tooltip
+                                            title={`The ${column.name} will be visible on the printing label ${
+                                                column.showNameOnDocument && 'with the column name'
+                                            }`}
+                                        >
+                                            <Tag icon={<FontAwesomeIcon icon={faEye} />} />
+                                        </Tooltip>
+                                    )
+                                }
+                                register={register(`properties.${column.name}`)}
+                                label={column.name}
+                                key={column.name + index}
+                            />
                         ))}
                     </Card>
                 )}
@@ -290,5 +302,22 @@ export const AddInventoryItemInner = ({
                 </div>
             </form>
         </>
+    )
+}
+
+const ItemPrintConfirmContent = ({ item }: { item: InventoryItem }) => {
+    return (
+        <p className='viewModal'>
+            - Ticket label for the device x1
+            <br />
+            <Divider>Item #{item.id}</Divider>
+            Name: {item.name} <br />
+            Price: {currencyFormat(item.sellPrice)} <br />
+            {item.imei && (
+                <>
+                    Serial Number / Imei: {item.imei} <br />
+                </>
+            )}
+        </p>
     )
 }

@@ -1,8 +1,7 @@
-import { Button, Card, FloatButton, Skeleton, Space } from 'antd'
+import { Button, Card, Skeleton, Space } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React, { Suspense, useContext, useState } from 'react'
+import { Suspense, useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AddTicket } from '../../components/modals/ticket/AddTicket'
 import { InvoiceFilter } from '../../models/interfaces/filters'
 import { InventoryInner } from '../shop/Inventory'
 import { PageRequest } from '../../models/interfaces/generalModels'
@@ -43,6 +42,7 @@ export const InventoryCard = ({ filter }: { filter?: InvoiceFilter }) => {
                 <Space>
                     <Search allowClear onSearch={setSearchBy} placeholder='Search all items' />
                     <Button
+                        aria-label='Create new item'
                         type='primary'
                         icon={<FontAwesomeIcon icon={faPlus} />}
                         onClick={() => setCreateModalIsOpen(true)}

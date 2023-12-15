@@ -16,7 +16,8 @@
   "prefer_related_applications": false,
   "related_applications": [
     {
-      "platform": "web"
+      "platform": "web",
+      "url": "https://businessflowsystem.co.uk"
     }
   ]
 }

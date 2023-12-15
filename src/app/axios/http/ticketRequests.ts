@@ -46,12 +46,12 @@ export const putFreezeTicket = (params: { id: number }): Promise<void> => {
 export const putCancelTicket = (params: { id: number }): Promise<void> => {
     return backendClient.put('ticket/client/cancel', {}, { params })
 }
-export const createTicket = ({ ticket }: { ticket: CreateTicket }): Promise<number> => {
+export const createTicket = ({ ticket }: { ticket: CreateTicket }): Promise<Ticket> => {
     const deadline = new Date(ticket.deadline).toISOString()
     const body = { ...ticket, deadline }
     return backendClient.post('ticket/worker/create', body)
 }
-export const updateTicket = ({ id, ticket }: { id?: number; ticket: CreateTicket }): Promise<number> => {
+export const updateTicket = ({ id, ticket }: { id?: number; ticket: CreateTicket }): Promise<Ticket> => {
     const deadline = ticket.deadline ? new Date(ticket.deadline).toISOString() : undefined
     const body = { ...ticket, deadline }
     return backendClient.put('ticket/worker/update/' + id, body)

@@ -78,11 +78,15 @@ export interface RequiredItem {
 export interface CategoryProperties {
     [key: string]: string
 }
-
+export interface CategoryColumn {
+    name: string
+    showOnDocument?: boolean
+    showNameOnDocument?: boolean
+}
 export interface Category extends Entity {
     name: string
     itemType: string
-    columns: string[]
+    columns: CategoryColumn[]
 }
 export interface ReturnItem {
     returnCount: number
