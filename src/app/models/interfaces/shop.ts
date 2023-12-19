@@ -102,6 +102,7 @@ export interface Log extends Entity {
     invoiceId?: number
     shopId?: number
 }
+
 export interface Brand extends ItemPropertyView {
     models: ItemPropertyView[]
 }

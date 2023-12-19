@@ -40,7 +40,7 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
     }))
     return (
         <Card
-            style={{ minWidth: 250 }}
+            className='dashboard-card'
             title={
                 chartType == 'COUNT'
                     ? `Created invoices: ${report?.totalCount}`
@@ -68,11 +68,11 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
                         <Legend />
                     </BarChart>
                 </ResponsiveContainer>
-                <Space wrap>
-                    Invoice count/income
+                <Space wrap className='w-100 justify-between'>
+                    <div>Invoice count/income {' '}
                     <Switch
                         onChange={() => setChartType((prevState) => (prevState === 'COUNT' ? 'INCOME' : 'COUNT'))}
-                    />
+                    /></div>
                     <AppSelect<InvoiceType, ItemPropertyView>
                         value={invoiceType}
                         options={InvoiceTypesArray}
