@@ -14,6 +14,7 @@ import { Log } from '../../../models/interfaces/shop'
 import { getProfilePicture } from '../../../axios/http/userRequests'
 import ProfileImage from '../../user/ProfileImage'
 import { currencyFormat, getUserString } from '../../../utils/helperFunctions'
+import { LogTypeText } from '../../../models/enums/logEnums'
 
 export const DetailedTicketInfoView = ({
     ticket,
@@ -124,7 +125,7 @@ export const LogListRow = ({ log, onClick }: { log: Log; onClick?: (log: Log) =>
     const { data: profileImg, isLoading } = useQuery(
         ['profileImg', log?.user?.userId],
         () => getProfilePicture({ id: log?.user.userId }),
-        { retry: false, retryOnMount:false }
+        { retry: false, retryOnMount: false }
     )
     return (
         <Popover
@@ -146,12 +147,15 @@ export const LogListRow = ({ log, onClick }: { log: Log; onClick?: (log: Log) =>
                 </ul>
             }
         >
-            <List.Item onDoubleClick={() => onClick && onClick(log)} extra={dateFormat(log.timestamp)}>
+            <List.Item
+                className='list-item'
+                onDoubleClick={() => onClick && onClick(log)}
+                about={dateFormat(log.timestamp)}
+            >
                 <List.Item.Meta
-                    style={{ textAlign: 'left' }}
                     avatar={<ProfileImage profileImg={profileImg} isLoading={isLoading} />}
-                    title={getUserString(log.user)}
-                    description={log.type}
+                    title={<div className='w-100'>{log.user?.fullName}</div>}
+                    description={<div><span className='date'>[{dateFormat(log.timestamp)}]</span> {LogTypeText[log.type]}</div>}
                 />
             </List.Item>
         </Popover>

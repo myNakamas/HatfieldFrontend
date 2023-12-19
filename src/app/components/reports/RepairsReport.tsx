@@ -30,8 +30,7 @@ export const SellReport = ({ filter }: { filter: InvoiceFilter }) => {
 
     return (
         <Card
-            style={{ minWidth: 350, height: '100%' }}
-            title='Sales Leaderboard'
+        className={'dashboard-items'}            title='Sales Leaderboard'
             extra={<Button onClick={() => navigate('/inventory')}>See all items</Button>}
         >
             <Statistic title={'Total amount in sells:'} loading={isLoading} value={report?.totalAmount} />

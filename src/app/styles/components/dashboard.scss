@@ -5,9 +5,13 @@
   gap: 10px;
   justify-content: space-around;
   align-items: start;
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, 100%);
+  }
   .dashboard-card {
-    @media (max-width: 768px) {
-      width: 100%;
+    overflow: auto;
+    .ant-card-head-title {
+      min-width: fit-content;
     }
   }
 }
