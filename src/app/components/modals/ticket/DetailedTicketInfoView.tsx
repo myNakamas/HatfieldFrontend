@@ -154,7 +154,7 @@ export const LogListRow = ({ log, onClick }: { log: Log; onClick?: (log: Log) =>
             >
                 <List.Item.Meta
                     avatar={<ProfileImage profileImg={profileImg} isLoading={isLoading} />}
-                    title={<div className='w-100'>{log.user.fullName}</div>}
+                    title={<div className='w-100'>{log.user?.fullName}</div>}
                     description={<div><span className='date'>[{dateFormat(log.timestamp)}]</span> {LogTypeText[log.type]}</div>}
                 />
             </List.Item>

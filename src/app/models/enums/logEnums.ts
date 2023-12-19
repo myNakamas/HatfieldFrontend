@@ -30,6 +30,7 @@ export type LogType =
     | 'UNBANNED_USER'
     | 'DELETED_USER'
     | 'RESTORED_USER'
+    | 'UPDATED_SHOP'
 
 export const LogType = Array(
     'CREATED_TICKET',
@@ -62,7 +63,8 @@ export const LogType = Array(
     'BANNED_USER',
     'UNBANNED_USER',
     'DELETED_USER',
-    'RESTORED_USER'
+    'RESTORED_USER',
+    'UPDATED_SHOP'
 )
 
 export const LogTypeList = LogType.map((value, index) => ({ value, id: index }))
@@ -99,4 +101,5 @@ export const LogTypeText: { [key: string]: string } = {
     UNBANNED_USER: 'User unbanned',
     DELETED_USER: 'User deleted',
     RESTORED_USER: 'User restored',
+    UPDATED_SHOP: 'Shop updated',
 }
