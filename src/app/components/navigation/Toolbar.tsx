@@ -21,7 +21,6 @@ export const Toolbar = ({ setShowNav }: { setShowNav: React.Dispatch<React.SetSt
             />
 
             <Button
-                size='large'
                 type={'text'}
                 style={{ width: 'fit-content', height: 'fit-content' }}
                 onClick={() => navigate('/home')}
