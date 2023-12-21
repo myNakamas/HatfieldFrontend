@@ -76,7 +76,7 @@ export const AddInventoryItemInner = ({
         resetField,
     } = useForm<CreateInventoryItem>({
         resolver: yupResolver(AddItemInventorySchema),
-        defaultValues: { shopId: shop?.id },
+        defaultValues: { shopId: shop?.id, count:1 },
     })
     const models = watch('brand')?.models ?? []
 

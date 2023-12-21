@@ -9,7 +9,7 @@ import { DateTimeFilter } from '../components/filters/DateTimeFilter'
 import { ItemPropertyView, PageRequest } from '../models/interfaces/generalModels'
 import { InfinitySpin } from 'react-loader-spinner'
 import { LogDetails } from '../components/modals/LogDetails'
-import { LogType, LogTypeList } from '../models/enums/logEnums'
+import { LogType, LogTypeList, LogTypeText } from '../models/enums/logEnums'
 import { AuthContext } from '../contexts/AuthContext'
 import { LogListRow } from '../components/modals/ticket/DetailedTicketInfoView'
 import { AppSelect } from '../components/form/AppSelect'
@@ -93,8 +93,8 @@ const LogsFilters = ({
                 options={LogTypeList}
                 placeholder='Filter by type'
                 onChange={(value) => setFilter({ ...filter, type: value ?? undefined })}
-                getOptionLabel={(shop) => shop.value}
-                getOptionValue={(shop) => shop.value as LogType}
+                getOptionLabel={(log) => LogTypeText[log.value]}
+                getOptionValue={(log) => log.value as LogType}
             />
 
             <Input
