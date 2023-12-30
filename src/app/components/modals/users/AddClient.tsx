@@ -99,7 +99,7 @@ export const AddClient = ({
                             icon={<FontAwesomeIcon icon={faEye} />}
                             onClick={() => printUserLabel(showResponse?.userId, false)}
                         >
-                            Print user label
+                            Preview
                         </Button>
                     </Button.Group>
                 </Typography>

@@ -86,7 +86,11 @@ export const AddTicketInvoice = ({
     }, [isModalOpen])
 
     const saveInvoice = (data: CreateTicketInvoice) => {
-        const invoice: CreateTicketInvoice = { ...data, deviceName: data.deviceBrand + ' ' + data.deviceModel }
+        const invoice: CreateTicketInvoice = {
+            ...data,
+            timestamp: new Date().toISOString(),
+            deviceName: data.deviceBrand + ' ' + data.deviceModel,
+        }
         const promise = !isDeposit ? putCollectTicket : putCreateDepositInvoice
         toast
             .promise(promise({ id: data.ticketId, invoice }), toastCreatePromiseTemplate('invoice'), toastProps)

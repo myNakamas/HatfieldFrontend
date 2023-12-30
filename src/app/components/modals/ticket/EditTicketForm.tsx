@@ -13,7 +13,7 @@ import { getAllBrands, getAllDeviceLocations } from '../../../axios/http/shopReq
 import { User } from '../../../models/interfaces/user'
 import { getAllClients } from '../../../axios/http/userRequests'
 import moment from 'moment/moment'
-import { App, Button, Card, Checkbox, Collapse, Divider, Space } from 'antd'
+import { Button, Card, Checkbox, Collapse, Divider, Space, Tooltip } from 'antd'
 import { AddClient } from '../users/AddClient'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -24,7 +24,7 @@ import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
 import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 import TextArea from 'antd/es/input/TextArea'
-import { postPrintTicket, putPrintTicketLabels } from '../../../axios/http/documentRequests'
+import { putPrintTicketLabels } from '../../../axios/http/documentRequests'
 import { usePrintConfirm } from '../PrintConfirm'
 import dateFormat from 'dateformat'
 
@@ -61,24 +61,36 @@ export const EditTicketForm = ({
     const [tempText, setTempText] = useState('')
 
     const onFormSubmit = (data: CreateTicket) => {
-        const onComplete = isEdit ? editTicket : createNewTicket
-        onComplete(data)
-            .then((ticket) => {
-                !isEdit &&
-                    printConfirm({
-                        title: 'Print ticket labels',
-                        content: <TicketPrintConfirmContent ticket={ticket} />,
-                        onOk: () => putPrintTicketLabels(ticket.id),
+        if (isEdit) {
+            editTicket(data)
+                .then((ticket) => {
+                    queryClient.invalidateQueries(['tickets']).then(() => {
+                        closeModal()
+                        reset(ticket)
                     })
-
-                queryClient.invalidateQueries(['tickets']).then(() => {
-                    closeModal()
-                    reset(ticket)
                 })
-            })
-            .catch((error: AppError) => {
-                setError('root', { message: error?.detail })
-            })
+                .catch((error: AppError) => {
+                    setError('root', { message: error?.detail })
+                })
+        } else {
+            createNewTicket(data)
+                .then((ticket) => {
+                    !isEdit &&
+                        printConfirm({
+                            title: 'Print ticket labels',
+                            content: <TicketPrintConfirmContent ticket={ticket} />,
+                            onOk: () => putPrintTicketLabels(ticket.id),
+                        })
+
+                    queryClient.invalidateQueries(['tickets']).then(() => {
+                        closeModal()
+                        reset(ticket)
+                    })
+                })
+                .catch((error: AppError) => {
+                    setError('root', { message: error?.detail })
+                })
+        }
     }
     const editTicket = (formValue: CreateTicket) => {
         return updateTicket({ id: ticket?.id, ticket: formValue })
@@ -173,14 +185,16 @@ export const EditTicketForm = ({
                                 return (
                                     <FormField label='Problem explanation' error={fieldState.error}>
                                         <div className={'flex-100'}>
-                                            <TextArea onChange={field.onChange} value={'' + field.value + tempText} />
-                                            <Dictaphone
-                                                isActive={activeDictaphone === key}
-                                                setText={(text) => field.onChange(field.value + ' ' + text)}
-                                                setTempText={setTempText}
-                                                dictaphoneKey={key}
-                                                setActiveDictaphone={setActiveDictaphone}
-                                            />
+                                            <TextArea onChange={field.onChange} value={field.value ?? ''} />
+                                            <Tooltip title={tempText} open={!!tempText}>
+                                                <Dictaphone
+                                                    isActive={activeDictaphone === key}
+                                                    setText={(text) => field.onChange(field.value + ' ' + text)}
+                                                    setTempText={setTempText}
+                                                    dictaphoneKey={key}
+                                                    setActiveDictaphone={setActiveDictaphone}
+                                                />
+                                            </Tooltip>
                                         </div>
                                     </FormField>
                                 )
@@ -361,10 +375,10 @@ export const EditTicketForm = ({
                                                 />
                                                 <FormField label='Notes' error={errors.notes}>
                                                     <Controller
-                                                        render={({ field }) => {
+                                                        render={({ field: { onChange, value } }) => {
                                                             return (
                                                                 <NotesTextArea
-                                                                    {...field}
+                                                                    {...{ onChange, value }}
                                                                     activeDictaphone={activeDictaphone}
                                                                     setActiveDictaphone={setActiveDictaphone}
                                                                 />
@@ -493,14 +507,16 @@ const NotesTextArea = ({
     const [tempNotes, setTempNotes] = useState('')
     return (
         <div className={'w-100'}>
-            <TextArea onChange={(e) => onChange(e.target.value)} value={(value ?? '') + tempNotes} />
-            <Dictaphone
-                isActive={activeDictaphone === key}
-                dictaphoneKey={key}
-                setActiveDictaphone={setActiveDictaphone}
-                setText={(text) => onChange((value ?? '') + ' ' + text)}
-                setTempText={setTempNotes}
-            />
+            <TextArea onChange={(e) => onChange(e.target.value)} value={value ?? ''} />
+            <Tooltip title={tempNotes} open={!!tempNotes}>
+                <Dictaphone
+                    isActive={activeDictaphone === key}
+                    dictaphoneKey={key}
+                    setActiveDictaphone={setActiveDictaphone}
+                    setText={(text) => onChange((value ?? '') + ' ' + text)}
+                    setTempText={setTempNotes}
+                />
+            </Tooltip>
         </div>
     )
 }
@@ -519,7 +535,8 @@ const TicketPrintConfirmContent = ({ ticket }: { ticket: Ticket }) => {
                 </>
             )}
             <Divider>Ticket #{ticket.id}</Divider>
-            Created at: {dateFormat(ticket.timestamp)}<br />
+            Created at: {dateFormat(ticket.timestamp)}
+            <br />
             Brand & Model: {ticket.deviceBrand} {ticket.deviceModel} <br />
             Condition: {ticket.deviceCondition} <br />
             Price: {ticket.totalPrice}

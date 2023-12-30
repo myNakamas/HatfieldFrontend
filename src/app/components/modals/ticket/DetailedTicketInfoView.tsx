@@ -13,7 +13,7 @@ import { Deadline } from './Deadline'
 import { Log } from '../../../models/interfaces/shop'
 import { getProfilePicture } from '../../../axios/http/userRequests'
 import ProfileImage from '../../user/ProfileImage'
-import { currencyFormat, getUserString } from '../../../utils/helperFunctions'
+import { currencyFormat } from '../../../utils/helperFunctions'
 import { LogTypeText } from '../../../models/enums/logEnums'
 
 export const DetailedTicketInfoView = ({
@@ -35,16 +35,18 @@ export const DetailedTicketInfoView = ({
     return (
         <AppModal title={'More details'} isModalOpen={show} closeModal={closeModal}>
             <Space direction={'vertical'} className={'w-100'}>
-                <Collapse
-                    items={[
-                        ticket.client && {
-                            key: '1',
-                            label: 'Client Details:',
-                            showArrow: true,
-                            children: <UserDescription user={ticket.client} />,
-                        },
-                    ]}
-                />
+                {ticket.client && (
+                    <Collapse
+                        items={[
+                            {
+                                key: '1',
+                                label: 'Client Details:',
+                                showArrow: true,
+                                children: <UserDescription user={ticket.client} />,
+                            },
+                        ]}
+                    />
+                )}
 
                 <Descriptions>
                     <DescriptionsItem label={'Created by'}>{ticket.createdBy.fullName}</DescriptionsItem>
@@ -154,8 +156,12 @@ export const LogListRow = ({ log, onClick }: { log: Log; onClick?: (log: Log) =>
             >
                 <List.Item.Meta
                     avatar={<ProfileImage profileImg={profileImg} isLoading={isLoading} />}
-                    title={<div className='w-100'>{log.user?.fullName}</div>}
-                    description={<div><span className='date'>[{dateFormat(log.timestamp)}]</span> {LogTypeText[log.type]}</div>}
+                    title={<div className='w-100'>{log.user?.fullName ?? log.user.username}</div>}
+                    description={
+                        <div>
+                            <span className='date'>[{dateFormat(log.timestamp)}]</span> {LogTypeText[log.type]}
+                        </div>
+                    }
                 />
             </List.Item>
         </Popover>

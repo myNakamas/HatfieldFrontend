@@ -60,7 +60,7 @@ export const ViewUser = ({ user, closeModal }: { closeModal: () => void; user?: 
 }
 
 export const UserDescription = ({ user }: { user?: User }) => {
-    if (!user) return <></>
+    if (!user) return <div></div>
     return (
         <Descriptions bordered size='small' layout='vertical'>
             <Descriptions.Item label='Full name'>{user.fullName}</Descriptions.Item>

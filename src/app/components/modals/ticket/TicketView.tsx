@@ -160,6 +160,62 @@ export const TicketView = ({
     )
 }
 
+const TicketStatusAndLocation = ({ ticket }: { ticket: Ticket }) => {
+    const queryClient = useQueryClient()
+    const { data: locations } = useQuery('deviceLocations', getAllDeviceLocations)
+    const [location, setLocation] = useState<string | null>(ticket.deviceLocation)
+
+    const updateTicketStatus = async (id: number, ticketStatus: TicketStatus) => {
+        await toast.promise(
+            updateTicket({ id, ticket: { id, status: ticketStatus } as unknown as CreateTicket }),
+            toastUpdatePromiseTemplate('ticket status'),
+            toastProps
+        )
+        return await queryClient.invalidateQueries(['tickets'])
+    }
+
+    const updateDeviceLocation = (id: number, deviceLocation: string | null) => {
+        setLocation(deviceLocation)
+        if (deviceLocation) {
+            toast
+                .promise(
+                    updateTicket({ id, ticket: { id, deviceLocation } as unknown as CreateTicket }),
+                    toastUpdatePromiseTemplate('device location'),
+                    toastProps
+                )
+                .then(() => {
+                    queryClient.invalidateQueries(['tickets']).then()
+                    queryClient.invalidateQueries('deviceLocations').then()
+                })
+        }
+    }
+    return (
+        <Space direction={'vertical'} className='card'>
+            <FormField label={'Ticket status'}>
+                <AppSelect<TicketStatus, ItemPropertyView>
+                    options={TicketStatusesArray}
+                    placeholder='Select a status'
+                    value={ticket.status}
+                    onChange={(value) => value && updateTicketStatus(ticket.id, value)}
+                    getOptionLabel={(status) => status.value}
+                    getOptionValue={(status) => status.value as TicketStatus}
+                />
+            </FormField>
+            <FormField label={'Device location'}>
+                <AppCreatableSelect<ItemPropertyView>
+                    options={locations}
+                    placeholder='New location'
+                    value={location}
+                    onCreateOption={(item) => updateDeviceLocation(ticket.id, item)}
+                    onChange={(newValue) => updateDeviceLocation(ticket.id, newValue)}
+                    getOptionLabel={(item) => item.value}
+                    getOptionValue={(item) => item.value}
+                />
+            </FormField>
+        </Space>
+    )
+}
+
 const TicketViewInner = ({
     ticket,
     closeModal,
@@ -178,7 +234,6 @@ const TicketViewInner = ({
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const { isWorker } = useContext(AuthContext)
-    const { data: locations } = useQuery('deviceLocations', getAllDeviceLocations)
     const { data: shop } = useQuery(['currentShop'], getShopData)
 
     const startTicket = (id: number) => {
@@ -199,30 +254,6 @@ const TicketViewInner = ({
                 error && toast.warning(error.detail, toastProps)
                 return queryClient.invalidateQueries(['tickets']).then(closeModal)
             })
-    }
-    const updateTicketStatus = (id: number, ticketStatus: TicketStatus) => {
-        return toast
-            .promise(
-                updateTicket({ id, ticket: { id, status: ticketStatus } as unknown as CreateTicket }),
-                toastUpdatePromiseTemplate('ticket status'),
-                toastProps
-            )
-            .then(() => queryClient.invalidateQueries(['tickets']))
-    }
-
-    const updateDeviceLocation = (id: number, deviceLocation?: string) => {
-        if (deviceLocation) {
-            toast
-                .promise(
-                    updateTicket({ id, ticket: { id, deviceLocation } as unknown as CreateTicket }),
-                    toastUpdatePromiseTemplate('device location'),
-                    toastProps
-                )
-                .then(() => {
-                    queryClient.invalidateQueries(['tickets']).then()
-                    queryClient.invalidateQueries('deviceLocations').then()
-                })
-        }
     }
     const printTicketLabel = () => {
         toast.promise(postPrintTicketLabel(ticket?.id), toastPrintTemplate, toastProps).then(openPdfBlob)
@@ -276,29 +307,7 @@ const TicketViewInner = ({
                         )}
                     </Card>
                     <Space wrap className={'w-100 justify-between align-start'}>
-                        <Space direction={'vertical'} className='card'>
-                            <FormField label={'Ticket status'}>
-                                <AppSelect<TicketStatus, ItemPropertyView>
-                                    options={TicketStatusesArray}
-                                    placeholder='Select a status'
-                                    value={ticket.status}
-                                    onChange={(value) => value && updateTicketStatus(ticket.id, value)}
-                                    getOptionLabel={(status) => status.value}
-                                    getOptionValue={(status) => status.value as TicketStatus}
-                                />
-                            </FormField>
-                            <FormField label={'Device location'}>
-                                <AppCreatableSelect<ItemPropertyView>
-                                    options={locations}
-                                    placeholder='New location'
-                                    value={ticket.deviceLocation}
-                                    onCreateOption={(item) => updateDeviceLocation(ticket.id, item)}
-                                    onChange={(newValue) => newValue && updateDeviceLocation(ticket.id, newValue)}
-                                    getOptionLabel={(item) => item.value}
-                                    getOptionValue={(item) => item.value}
-                                />
-                            </FormField>
-                        </Space>
+                        <TicketStatusAndLocation {...{ ticket }} />
                         <Space direction='vertical' className='card'>
                             <h3>Ticket status</h3>
                             <Space.Compact direction={'vertical'}>

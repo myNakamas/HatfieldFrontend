@@ -39,6 +39,7 @@ export interface CreateTicket {
     serialNumberOrImei: string
     accessories: string
     deadline: Date | string
+    timestamp: Date | string
     notes: string
     status: TicketStatus
     totalPrice: number
@@ -68,6 +69,7 @@ export interface CreateChatMessage {
 }
 
 type ChatMessageStatus = 'NotSent' | 'Sent'
+
 export interface ChatMessage extends Entity, CreateChatMessage {
     readByReceiver: Date
     status?: ChatMessageStatus

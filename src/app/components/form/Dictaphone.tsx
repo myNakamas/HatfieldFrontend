@@ -12,6 +12,7 @@ export const Dictaphone = ({
     dictaphoneKey,
     setActiveDictaphone,
     isActive,
+    disabled,
     ...props
 }: {
     setText: (value: string) => void
@@ -23,27 +24,35 @@ export const Dictaphone = ({
     disabled?: boolean
     size?: SizeType
 }) => {
-    const { transcript, listening, browserSupportsSpeechRecognition, finalTranscript } = useSpeechRecognition()
-    if (!browserSupportsSpeechRecognition) {
-        return <span>Browser doesn't support speech recognition.</span>
-    }
+    const { transcript, listening, isMicrophoneAvailable, browserSupportsSpeechRecognition, finalTranscript } =
+        useSpeechRecognition()
+    useEffect(() => {
+        if (isActive) setTempText(transcript)
+    }, [transcript])
 
     useEffect(() => {
-        if (isActive) {
-            if (finalTranscript) {
-                setText(finalTranscript)
-                setTempText('')
-            } else setTempText(transcript)
+        if (isActive && finalTranscript) {
+            setText(finalTranscript)
+            setTempText('')
+            setActiveDictaphone('')
         }
-    }, [transcript])
+        return () => SpeechRecognition.abortListening()
+    }, [finalTranscript])
+
+    const buttonTitle = isMicrophoneAvailable
+        ? browserSupportsSpeechRecognition
+            ? 'Click to record'
+            : "Browser doesn't support speech recognition."
+        : 'Microphone not available'
 
     return (
         <Button
             type={listening ? 'primary' : 'default'}
+            disabled={!browserSupportsSpeechRecognition || !isMicrophoneAvailable || disabled}
+            title={buttonTitle}
             onClick={() => {
                 if (listening) {
                     SpeechRecognition.stopListening()
-                    setActiveDictaphone('')
                 } else {
                     setActiveDictaphone(dictaphoneKey)
                     SpeechRecognition.startListening().then()

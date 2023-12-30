@@ -1,6 +1,5 @@
 import { stompClient } from '../../../axios/websocketClient'
 import React, { Suspense, useContext } from 'react'
-import { Discuss } from 'react-loader-spinner'
 import { Chat, ChatMessage, Ticket } from '../../../models/interfaces/ticket'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { User } from '../../../models/interfaces/user'
@@ -9,12 +8,11 @@ import { getProfilePicture, getSimpleUsers } from '../../../axios/http/userReque
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import dateFormat from 'dateformat'
 import { faArrowRight, faCheckDouble, faCircleCheck, faSpinner } from '@fortawesome/free-solid-svg-icons'
-import { Alert, Divider, Image, Result, Skeleton, Spin } from 'antd'
+import { Alert, Divider, Image, Skeleton, Spin } from 'antd'
 import ProfileImage from '../../../components/user/ProfileImage'
 import { getImage } from '../../../axios/http/resourcesRequests'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { AppError, PageRequest } from '../../../models/interfaces/generalModels'
-import ErrorBoundary from 'antd/es/alert/ErrorBoundary'
+import { PageRequest } from '../../../models/interfaces/generalModels'
 
 export const ChatMessages = ({
     selectedTicket,
@@ -57,8 +55,7 @@ export const ChatMessages = ({
                 </InfiniteScroll>
             ) : selectedTicket?.id ? (
                 <div className='w-100'>
-                    <Discuss />
-                    Loading messages
+                    <Skeleton active />
                 </div>
             ) : (
                 <div onClick={openDrawer} className={'w-100'}>
@@ -76,7 +73,7 @@ const ChatMessageRow = ({ message, sender }: { message: ChatMessage; sender?: Us
     const { data: profileImg } = useQuery(
         ['profileImg', sender?.userId],
         () => getProfilePicture({ id: sender?.userId }),
-        { retry: false, retryOnMount:false }
+        { retry: false, retryOnMount: false }
     )
 
     const getMessageStatusIcon = () => {
@@ -102,11 +99,14 @@ const ChatMessageRow = ({ message, sender }: { message: ChatMessage; sender?: Us
                 {message.isImage ? (
                     <Suspense fallback={<Spin />}>
                         <div className={'message'}>
-                        <ChatImage url={message.text} />
+                            <ChatImage url={message.text} />
                         </div>
                     </Suspense>
                 ) : (
-                    <div className='message' title={sender?.fullName + '\n' + dateFormat(message.timestamp)}>
+                    <div
+                        className='message'
+                        title={sender?.fullName ?? sender?.username + '\n' + dateFormat(message.timestamp)}
+                    >
                         {message.text}
                     </div>
                 )}

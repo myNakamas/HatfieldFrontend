@@ -4,7 +4,9 @@ import { Filter, InvoiceFilter } from '../../models/interfaces/filters'
 import { CreateItemInvoice, Invoice, InvoicesReport, SalesReport } from '../../models/interfaces/invoice'
 
 export const createInvoice = (value: CreateItemInvoice): Promise<number> => {
-    return backendClient.post('invoice/create', value)
+    const timestamp = new Date().toISOString()
+    const body = { ...value, timestamp }
+    return backendClient.post('invoice/create', body)
 }
 export const getAllInvoices = ({ page, filter }: { page: PageRequest; filter: Filter }): Promise<Page<Invoice>> => {
     return backendClient.get('invoice/all', { params: { ...page, ...filter } })

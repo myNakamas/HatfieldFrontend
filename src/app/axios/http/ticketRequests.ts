@@ -48,7 +48,8 @@ export const putCancelTicket = (params: { id: number }): Promise<void> => {
 }
 export const createTicket = ({ ticket }: { ticket: CreateTicket }): Promise<Ticket> => {
     const deadline = new Date(ticket.deadline).toISOString()
-    const body = { ...ticket, deadline }
+    const timestamp = new Date().toISOString()
+    const body = { ...ticket, deadline, timestamp }
     return backendClient.post('ticket/worker/create', body)
 }
 export const updateTicket = ({ id, ticket }: { id?: number; ticket: CreateTicket }): Promise<Ticket> => {
@@ -66,7 +67,9 @@ export const putStartTicket = (params: { id: number }): Promise<number> => {
 }
 
 export const putCollectTicket = ({ id, invoice }: { id: number; invoice: CreateTicketInvoice }): Promise<Blob> => {
-    return backendClient.put('ticket/worker/collected', invoice, { params: { id }, responseType: 'blob' })
+    const timestamp = new Date().toISOString()
+    const body = { ...invoice, timestamp }
+    return backendClient.put('ticket/worker/collected', body, { params: { id }, responseType: 'blob' })
 }
 export const putCreateDepositInvoice = ({
     id,
@@ -75,7 +78,9 @@ export const putCreateDepositInvoice = ({
     id: number
     invoice: CreateTicketInvoice
 }): Promise<Blob> => {
-    return backendClient.put('ticket/worker/deposit', invoice, { params: { id }, responseType: 'blob' })
+    const timestamp = new Date().toISOString()
+    const body = { ...invoice, timestamp }
+    return backendClient.put('ticket/worker/deposit', body, { params: { id }, responseType: 'blob' })
 }
 
 export const getChat = (params: { ticketId?: number; page: number; pageSize: number }): Promise<Page<ChatMessage>> => {
