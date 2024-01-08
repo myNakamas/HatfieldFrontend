@@ -17,12 +17,14 @@ export interface Invoice extends Entity {
     warrantyLeft: Date
     valid: boolean
 }
+
 export interface CreateInvoice {
     type: InvoiceType
     notes?: string
     totalPrice: number
     clientId?: string
     itemId?: number
+    timestamp: Date | string
     paymentMethod: PaymentMethod
     warrantyPeriod: WarrantyPeriod
     deviceName: string
@@ -47,6 +49,11 @@ export interface InvoicesReport {
 }
 
 export interface SalesReport {
+    totalAmount: number
+    leaderboard: Map<string, number>
+}
+
+export interface TicketsReport {
     totalAmount: number
     leaderboard: Map<string, number>
 }

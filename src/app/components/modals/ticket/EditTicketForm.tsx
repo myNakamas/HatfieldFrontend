@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { FormField } from '../../form/Field'
 import { Dictaphone } from '../../form/Dictaphone'
@@ -13,7 +13,7 @@ import { getAllBrands, getAllDeviceLocations } from '../../../axios/http/shopReq
 import { User } from '../../../models/interfaces/user'
 import { getAllClients } from '../../../axios/http/userRequests'
 import moment from 'moment/moment'
-import { App, Button, Card, Checkbox, Collapse, Divider, Space } from 'antd'
+import { Button, Card, Checkbox, Collapse, Divider, Space, Tooltip } from 'antd'
 import { AddClient } from '../users/AddClient'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -24,9 +24,10 @@ import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
 import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 import TextArea from 'antd/es/input/TextArea'
-import { postPrintTicket, putPrintTicketLabels } from '../../../axios/http/documentRequests'
+import { putPrintTicketLabels } from '../../../axios/http/documentRequests'
 import { usePrintConfirm } from '../PrintConfirm'
 import dateFormat from 'dateformat'
+import { defaultTicket } from '../../../models/enums/defaultValues'
 
 export const EditTicketForm = ({
     ticket,
@@ -37,6 +38,7 @@ export const EditTicketForm = ({
     closeModal: () => void
     isEdit?: boolean
 }) => {
+    const formRef = useRef<HTMLFormElement>(null);
     const { isWorker } = useContext(AuthContext)
     const queryClient = useQueryClient()
     const { printConfirm } = usePrintConfirm()
@@ -60,25 +62,42 @@ export const EditTicketForm = ({
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [tempText, setTempText] = useState('')
 
-    const onFormSubmit = (data: CreateTicket) => {
-        const onComplete = isEdit ? editTicket : createNewTicket
-        onComplete(data)
-            .then((ticket) => {
-                !isEdit &&
-                    printConfirm({
-                        title: 'Print ticket labels',
-                        content: <TicketPrintConfirmContent ticket={ticket} />,
-                        onOk: () => putPrintTicketLabels(ticket.id),
-                    })
+    const resetForm = (ticket:CreateTicket) => {
+        formRef.current?.reset();
+        reset(ticket);
+    }
 
-                queryClient.invalidateQueries(['tickets']).then(() => {
-                    closeModal()
-                    reset(ticket)
+    const onFormSubmit = (data: CreateTicket) => {
+        if (isEdit) {
+            editTicket(data)
+                .then(() => {
+                    queryClient.invalidateQueries(['tickets']).then(() => {
+                        closeModal()
+                        resetForm(defaultTicket)
+                    })
                 })
-            })
-            .catch((error: AppError) => {
-                setError('root', { message: error?.detail })
-            })
+                .catch((error: AppError) => {
+                    setError('root', { message: error?.detail })
+                })
+        } else {
+            createNewTicket(data)
+                .then((ticket) => {
+                    !isEdit &&
+                        printConfirm({
+                            title: 'Print ticket labels',
+                            content: <TicketPrintConfirmContent ticket={ticket} />,
+                            onOk: () => putPrintTicketLabels(ticket.id),
+                        })
+
+                    queryClient.invalidateQueries(['tickets']).then(() => {
+                        closeModal()
+                        resetForm(defaultTicket)
+                    })
+                })
+                .catch((error: AppError) => {
+                    setError('root', { message: error?.detail })
+                })
+        }
     }
     const editTicket = (formValue: CreateTicket) => {
         return updateTicket({ id: ticket?.id, ticket: formValue })
@@ -94,7 +113,7 @@ export const EditTicketForm = ({
                 closeModal={() => setShowCreateModal(false)}
                 onSuccess={(user) => setValue('clientId', user.userId)}
             />
-            <form className='modalForm' onSubmit={handleSubmit(onFormSubmit)}>
+            <form className='modalForm' ref={formRef} onSubmit={handleSubmit(onFormSubmit)}>
                 <div className='modalContainer'>
                     <div className='card'>
                         <Space wrap className='w-100 justify-between'>
@@ -130,10 +149,6 @@ export const EditTicketForm = ({
                                                 options={brands}
                                                 placeholder='Select or add a new brand'
                                                 value={field.value}
-                                                onCreateOption={(item) => {
-                                                    setValue('deviceModel', '')
-                                                    field.onChange(item)
-                                                }}
                                                 onChange={(newValue) => {
                                                     setValue('deviceModel', '')
                                                     field.onChange(newValue)
@@ -155,7 +170,6 @@ export const EditTicketForm = ({
                                                 options={models}
                                                 placeholder='Select or add a new model'
                                                 value={field.value}
-                                                onCreateOption={(item) => field.onChange(item)}
                                                 onChange={(newValue) => field.onChange(newValue)}
                                                 optionLabelProp={'value'}
                                                 optionFilterProp={'value'}
@@ -173,14 +187,16 @@ export const EditTicketForm = ({
                                 return (
                                     <FormField label='Problem explanation' error={fieldState.error}>
                                         <div className={'flex-100'}>
-                                            <TextArea onChange={field.onChange} value={'' + field.value + tempText} />
-                                            <Dictaphone
-                                                isActive={activeDictaphone === key}
-                                                setText={(text) => field.onChange(field.value + ' ' + text)}
-                                                setTempText={setTempText}
-                                                dictaphoneKey={key}
-                                                setActiveDictaphone={setActiveDictaphone}
-                                            />
+                                            <TextArea onChange={field.onChange} value={field.value ?? ''} />
+                                            <Tooltip title={tempText} open={!!tempText}>
+                                                <Dictaphone
+                                                    isActive={activeDictaphone === key}
+                                                    setText={(text) => field.onChange(field.value + ' ' + text)}
+                                                    setTempText={setTempText}
+                                                    dictaphoneKey={key}
+                                                    setActiveDictaphone={setActiveDictaphone}
+                                                />
+                                            </Tooltip>
                                         </div>
                                     </FormField>
                                 )
@@ -253,8 +269,8 @@ export const EditTicketForm = ({
                                     />
                                     <TicketQuickCheckBox
                                         fieldToCheck={watch('deviceCondition')}
-                                        name={'Cracked Screen/Back'}
-                                        value={'Cracked Screen/Back, '}
+                                        name={'Cracked Screen/ Cracked Back'}
+                                        value={'Cracked Screen/ Cracked Back, '}
                                         onChange={(string) => {
                                             setValue('deviceCondition', string)
                                         }}
@@ -361,10 +377,10 @@ export const EditTicketForm = ({
                                                 />
                                                 <FormField label='Notes' error={errors.notes}>
                                                     <Controller
-                                                        render={({ field }) => {
+                                                        render={({ field: { onChange, value } }) => {
                                                             return (
                                                                 <NotesTextArea
-                                                                    {...field}
+                                                                    {...{ onChange, value }}
                                                                     activeDictaphone={activeDictaphone}
                                                                     setActiveDictaphone={setActiveDictaphone}
                                                                 />
@@ -411,7 +427,6 @@ export const EditTicketForm = ({
                                                                         options={locations}
                                                                         placeholder='Where is the location of the device?'
                                                                         value={field.value}
-                                                                        onCreateOption={(item) => field.onChange(item)}
                                                                         onChange={(newValue) =>
                                                                             field.onChange(newValue)
                                                                         }
@@ -493,14 +508,16 @@ const NotesTextArea = ({
     const [tempNotes, setTempNotes] = useState('')
     return (
         <div className={'w-100'}>
-            <TextArea onChange={(e) => onChange(e.target.value)} value={(value ?? '') + tempNotes} />
-            <Dictaphone
-                isActive={activeDictaphone === key}
-                dictaphoneKey={key}
-                setActiveDictaphone={setActiveDictaphone}
-                setText={(text) => onChange((value ?? '') + ' ' + text)}
-                setTempText={setTempNotes}
-            />
+            <TextArea onChange={(e) => onChange(e.target.value)} value={value ?? ''} />
+            <Tooltip title={tempNotes} open={!!tempNotes}>
+                <Dictaphone
+                    isActive={activeDictaphone === key}
+                    dictaphoneKey={key}
+                    setActiveDictaphone={setActiveDictaphone}
+                    setText={(text) => onChange((value ?? '') + ' ' + text)}
+                    setTempText={setTempNotes}
+                />
+            </Tooltip>
         </div>
     )
 }
@@ -519,7 +536,8 @@ const TicketPrintConfirmContent = ({ ticket }: { ticket: Ticket }) => {
                 </>
             )}
             <Divider>Ticket #{ticket.id}</Divider>
-            Created at: {dateFormat(ticket.timestamp)}<br />
+            Created at: {dateFormat(ticket.timestamp)}
+            <br />
             Brand & Model: {ticket.deviceBrand} {ticket.deviceModel} <br />
             Condition: {ticket.deviceCondition} <br />
             Price: {ticket.totalPrice}

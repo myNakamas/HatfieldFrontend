@@ -1,4 +1,4 @@
-import { Button, Card, Space } from 'antd'
+import { Button, Card, Space, Tooltip } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 import { CustomSuspense } from '../../components/CustomSuspense'
@@ -57,16 +57,23 @@ export const ActiveTickets = ({
         <Card
             className='dashboard-card'
             title={
-                <Button
-                    icon={<FontAwesomeIcon icon={faTicket} />}
-                    type='dashed'
-                    onClick={() => navigate('/tickets')}
-                    children={title}
-                    disabled={!isUserFromShop}
-                />
+                <Tooltip title='Open Tickets page'>
+                    <Button
+                        icon={<FontAwesomeIcon icon={faTicket} />}
+                        type='dashed'
+                        onClick={() => navigate('/tickets')}
+                        children={title}
+                        disabled={!isUserFromShop}
+                    />
+                </Tooltip>
             }
             extra={
-                <Space style={{ marginLeft: 20 }}>
+                <Space style={{ marginLeft: 20 }} wrap>
+                    <CheckableTag
+                        checked={filter.hideCompleted ?? false}
+                        children={filter.hideCompleted ? 'Display Waiting tickets' : 'Display Active tickets'}
+                        onChange={(checked) => setFilter({ ...filter, hideCompleted: checked })}
+                    ></CheckableTag>
                     <Button
                         type='primary'
                         size={'small'}
@@ -95,14 +102,7 @@ export const ActiveTickets = ({
                     }
                 />
             </CustomSuspense>
-            <Space align={'start'} className={'w-100'}>
-                <CheckableTag
-                    checked={filter.hideCompleted ?? false}
-                    onChange={(checked) => setFilter({ ...filter, hideCompleted: checked })}
-                >
-                    Display Active tickets
-                </CheckableTag>
-            </Space>
+            <Space align={'start'} className={'w-100'}></Space>
         </Card>
     )
 }

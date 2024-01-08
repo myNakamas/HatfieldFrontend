@@ -16,6 +16,7 @@ import { AuthContext } from '../../contexts/AuthContext'
 import { AppSelect } from '../form/AppSelect'
 import { NoDataComponent } from '../table/NoDataComponent'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
+import { FormError } from '../form/FormError'
 
 export const AddEditCategory = ({
     isModalOpen,
@@ -45,22 +46,21 @@ export const AddEditCategory = ({
         defaultValues: defaultValue,
     })
     const properties = watch('columns') ?? []
-    const maxColumns = watch('itemType')=='DEVICE'? 4 : 5;
-
+    const maxColumns = watch('itemType') == 'DEVICE' ? 4 : 5
     useEffect(() => {
         formRef.current?.reset()
         reset(defaultValue)
     }, [isModalOpen])
 
     const displayProperties = (column: CategoryColumn, index: number) => {
-        const error = errors.columns && (errors.columns[index] as FieldError)
+        const error = errors.columns && (errors.columns[index])
         return (
             <div key={index}>
                 <Space wrap className='w-100 justify-between'>
                     <TextField
                         placeholder='Column name'
                         register={register(`columns.${index}.name`)}
-                        error={error}
+                        error={error as FieldError}
                         autoFocus
                     />
                     <Space direction='vertical'>
@@ -72,7 +72,10 @@ export const AddEditCategory = ({
                                 Show on label
                             </Checkbox>
                         </Tooltip>
-                        <Tooltip destroyTooltipOnHide title={`To display the name of the column before the value on the label or not.`}>
+                        <Tooltip
+                            destroyTooltipOnHide
+                            title={`To display the name of the column before the value on the label or not.`}
+                        >
                             <Checkbox
                                 checked={column.showNameOnDocument ?? false}
                                 onChange={(e) => setValue(`columns.${index}.showNameOnDocument`, e.target.checked)}
@@ -93,6 +96,7 @@ export const AddEditCategory = ({
                         icon={<FontAwesomeIcon color='red' icon={faTrash} />}
                     />
                 </Space>
+                <FormError error={error?.name?.message}/>
                 <Divider style={{ marginTop: 12, marginBottom: 12 }} />
             </div>
         )
@@ -142,16 +146,17 @@ export const AddEditCategory = ({
                             dataSource={properties}
                             renderItem={displayProperties}
                             footer={
-                                properties.filter((column) => column.showOnDocument).length > maxColumns && (
-                                    <Tag color='gold' icon={<FontAwesomeIcon icon={faExclamationTriangle} />}>
-                                        The printable label might not have enough space for all selected properties.
-                                        <br /> Please pick <b>{maxColumns} properties or less.</b>
-                                    </Tag>
-                                )
+                                <>
+                                    {properties.filter((column) => column.showOnDocument).length > maxColumns && (
+                                        <Tag color='gold' icon={<FontAwesomeIcon icon={faExclamationTriangle} />}>
+                                            The printable label might not have enough space for all selected properties.
+                                            <br /> Please pick <b>{maxColumns} properties or less.</b>
+                                        </Tag>
+                                    )}
+                                </>
                             }
                         ></List>
                     </div>
-
                     <div className='flex-100 justify-end'>
                         <Button type='primary' htmlType='submit'>
                             Save

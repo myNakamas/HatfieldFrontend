@@ -6,18 +6,17 @@ export const AppCreatableSelect = <T extends BaseOptionType>({
     options,
     onChange,
     value,
-    onCreateOption,
     getOptionLabel,
     getOptionValue,
     ...selectProps
 }: {
     onChange: (value: string | null) => void
-    onCreateOption?: (value: string) => void
     getOptionLabel?: (value: T) => string
     getOptionValue?: (value: T) => string
 } & SelectProps<string, T>) => {
     const selectOptions = options?.map((item) => ({
         ...item,
+        key: getOptionLabel ? getOptionLabel(item) : item.label,
         label: getOptionLabel ? getOptionLabel(item) : item.label,
         value: getOptionValue ? getOptionValue(item) : item.value,
     }))
@@ -44,7 +43,11 @@ export const AppCreatableSelect = <T extends BaseOptionType>({
             onKeyDown={(event) => {
                 if (event.key === 'Backspace') clearValue()
             }}
-            tagRender={(props) => <div style={{ paddingLeft: 5 }}>{props.label}</div>}
+            tagRender={(props) => (
+                <div key={`key${props.label}_${props.value}`} style={{ paddingLeft: 5 }}>
+                    {props.label}
+                </div>
+            )}
             style={{ minWidth: 200, maxWidth: 300, textAlign: 'left' }}
             dropdownStyle={{ textAlign: 'left' }}
             allowClear
@@ -72,7 +75,6 @@ export const AppSelect = <I, T extends BaseOptionType>({
     ...selectProps
 }: {
     onChange?: (value: I | null) => void
-    onCreateOption?: (value: string) => void
     getOptionLabel?: (value: T) => string
     getOptionValue?: (value: T) => I
     options?: T[]

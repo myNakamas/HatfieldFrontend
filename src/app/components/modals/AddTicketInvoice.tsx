@@ -86,7 +86,11 @@ export const AddTicketInvoice = ({
     }, [isModalOpen])
 
     const saveInvoice = (data: CreateTicketInvoice) => {
-        const invoice: CreateTicketInvoice = { ...data, deviceName: data.deviceBrand + ' ' + data.deviceModel }
+        const invoice: CreateTicketInvoice = {
+            ...data,
+            timestamp: new Date().toISOString(),
+            deviceName: data.deviceBrand + ' ' + data.deviceModel,
+        }
         const promise = !isDeposit ? putCollectTicket : putCreateDepositInvoice
         toast
             .promise(promise({ id: data.ticketId, invoice }), toastCreatePromiseTemplate('invoice'), toastProps)
@@ -145,10 +149,6 @@ export const AddTicketInvoice = ({
                                         options={brands}
                                         placeholder='Select or add a new brand'
                                         value={field.value}
-                                        onCreateOption={(item) => {
-                                            setValue('deviceModel', '')
-                                            field.onChange(item)
-                                        }}
                                         onChange={(newValue) => {
                                             setValue('deviceModel', '')
                                             field.onChange(newValue)
@@ -168,7 +168,6 @@ export const AddTicketInvoice = ({
                                         options={models}
                                         placeholder='Select or add a new model'
                                         value={field.value}
-                                        onCreateOption={(item) => field.onChange({ value: item })}
                                         onChange={(item) => field.onChange(item ? { value: item } : null)}
                                         optionLabelProp={'value'}
                                         optionFilterProp={'value'}

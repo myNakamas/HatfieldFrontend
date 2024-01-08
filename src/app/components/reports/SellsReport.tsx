@@ -13,7 +13,7 @@ interface LeaderboardEntry {
     count: number
 }
 
-export const SellReport = ({ filter }: { filter: InvoiceFilter }) => {
+export const SellsReport = ({ filter }: { filter: InvoiceFilter }) => {
     const navigate = useNavigate()
     const { token } = useContext(DesignTokenContext)
 

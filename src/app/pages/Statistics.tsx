@@ -5,7 +5,8 @@ import { AuthContext } from '../contexts/AuthContext'
 import { defaultStatisticsFilter } from '../models/enums/defaultValues'
 import { InvoicesReport } from '../components/reports/InvoicesReport'
 import { DashboardFilters } from './dashboard/Dashboard'
-import { SellReport } from '../components/reports/RepairsReport'
+import { SellsReport } from '../components/reports/SellsReport'
+import { TicketsReport } from '../components/reports/TicketsReport'
 
 export const Statistics = () => {
     const { loggedUser } = useContext(AuthContext)
@@ -19,7 +20,8 @@ export const Statistics = () => {
             </Space>
             <div className={'dashboard-items'}>
                 <InvoicesReport filter={filter} />
-                <SellReport filter={filter} />
+                <TicketsReport filter={filter} />
+                <SellsReport filter={filter} />
             </div>
         </div>
     )

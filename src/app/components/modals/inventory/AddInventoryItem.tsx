@@ -76,7 +76,7 @@ export const AddInventoryItemInner = ({
         resetField,
     } = useForm<CreateInventoryItem>({
         resolver: yupResolver(AddItemInventorySchema),
-        defaultValues: { shopId: shop?.id, count:1 },
+        defaultValues: { shopId: shop?.id, count: 1 },
     })
     const models = watch('brand')?.models ?? []
 
@@ -179,13 +179,14 @@ export const AddInventoryItemInner = ({
                             render={({ field, fieldState }) => (
                                 <FormField label='Brand' error={fieldState.error}>
                                     <AppCreatableSelect<ItemPropertyView>
-                                        options={brands?.map((brand) => ({ ...brand, key: brand.id }))}
+                                        options={brands}
                                         placeholder='Select or add a new brand'
                                         value={field.value?.value}
-                                        onCreateOption={(item) => field.onChange({ value: item })}
                                         onChange={(newValue) => {
                                             resetField('model')
-                                            field.onChange(brands?.find((brand) => brand.value === newValue) ?? null)
+                                            field.onChange(
+                                                brands?.find((brand) => brand.value === newValue) ?? { value: newValue }
+                                            )
                                         }}
                                         optionLabelProp={'value'}
                                         optionFilterProp={'value'}
@@ -202,7 +203,6 @@ export const AddInventoryItemInner = ({
                                         options={models}
                                         placeholder='Select or add a new model'
                                         value={field.value?.value}
-                                        onCreateOption={(item) => field.onChange({ value: item })}
                                         onChange={(item) => field.onChange(item ? { value: item } : null)}
                                         optionLabelProp={'value'}
                                         optionFilterProp={'value'}
