@@ -149,10 +149,6 @@ export const EditTicketForm = ({
                                                 options={brands}
                                                 placeholder='Select or add a new brand'
                                                 value={field.value}
-                                                onCreateOption={(item) => {
-                                                    setValue('deviceModel', '')
-                                                    field.onChange(item)
-                                                }}
                                                 onChange={(newValue) => {
                                                     setValue('deviceModel', '')
                                                     field.onChange(newValue)
@@ -174,7 +170,6 @@ export const EditTicketForm = ({
                                                 options={models}
                                                 placeholder='Select or add a new model'
                                                 value={field.value}
-                                                onCreateOption={(item) => field.onChange(item)}
                                                 onChange={(newValue) => field.onChange(newValue)}
                                                 optionLabelProp={'value'}
                                                 optionFilterProp={'value'}
@@ -432,7 +427,6 @@ export const EditTicketForm = ({
                                                                         options={locations}
                                                                         placeholder='Where is the location of the device?'
                                                                         value={field.value}
-                                                                        onCreateOption={(item) => field.onChange(item)}
                                                                         onChange={(newValue) =>
                                                                             field.onChange(newValue)
                                                                         }

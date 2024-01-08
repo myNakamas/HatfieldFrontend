@@ -149,10 +149,6 @@ export const AddTicketInvoice = ({
                                         options={brands}
                                         placeholder='Select or add a new brand'
                                         value={field.value}
-                                        onCreateOption={(item) => {
-                                            setValue('deviceModel', '')
-                                            field.onChange(item)
-                                        }}
                                         onChange={(newValue) => {
                                             setValue('deviceModel', '')
                                             field.onChange(newValue)
@@ -172,7 +168,6 @@ export const AddTicketInvoice = ({
                                         options={models}
                                         placeholder='Select or add a new model'
                                         value={field.value}
-                                        onCreateOption={(item) => field.onChange({ value: item })}
                                         onChange={(item) => field.onChange(item ? { value: item } : null)}
                                         optionLabelProp={'value'}
                                         optionFilterProp={'value'}

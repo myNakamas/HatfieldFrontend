@@ -206,7 +206,6 @@ const TicketStatusAndLocation = ({ ticket }: { ticket: Ticket }) => {
                     options={locations}
                     placeholder='New location'
                     value={location}
-                    onCreateOption={(item) => updateDeviceLocation(ticket.id, item)}
                     onChange={(newValue) => updateDeviceLocation(ticket.id, newValue)}
                     getOptionLabel={(item) => item.value}
                     getOptionValue={(item) => item.value}

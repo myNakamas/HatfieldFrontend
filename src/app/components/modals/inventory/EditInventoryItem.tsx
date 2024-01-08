@@ -156,10 +156,6 @@ export const EditInventoryItem = ({
                                             options={brands}
                                             placeholder='Select or add a new brand'
                                             value={field.value}
-                                            onCreateOption={(item) => {
-                                                setValue('model', '')
-                                                field.onChange(item)
-                                            }}
                                             onChange={(newValue) => {
                                                 setValue('model', '')
                                                 field.onChange(newValue)
@@ -179,7 +175,6 @@ export const EditInventoryItem = ({
                                             options={models}
                                             placeholder='Select or add a new model'
                                             value={field.value}
-                                            onCreateOption={(item) => field.onChange(item)}
                                             onChange={(newValue) => field.onChange(newValue)}
                                             optionLabelProp={'value'}
                                             optionFilterProp={'value'}

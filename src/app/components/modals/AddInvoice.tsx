@@ -220,10 +220,6 @@ export const AddInvoice = ({
                                                         options={brands}
                                                         placeholder='Select or add a new brand'
                                                         value={field.value}
-                                                        onCreateOption={(item) => {
-                                                            setValue('deviceModel', '')
-                                                            field.onChange(item)
-                                                        }}
                                                         onChange={(newValue) => {
                                                             setValue('deviceModel', '')
                                                             field.onChange(newValue)
@@ -243,7 +239,6 @@ export const AddInvoice = ({
                                                         options={models}
                                                         placeholder='Select or add a new model'
                                                         value={field.value}
-                                                        onCreateOption={(item) => field.onChange(item)}
                                                         onChange={(newValue) => field.onChange(newValue)}
                                                         optionLabelProp={'value'}
                                                         optionFilterProp={'value'}

@@ -6,13 +6,11 @@ export const AppCreatableSelect = <T extends BaseOptionType>({
     options,
     onChange,
     value,
-    onCreateOption,
     getOptionLabel,
     getOptionValue,
     ...selectProps
 }: {
     onChange: (value: string | null) => void
-    onCreateOption?: (value: string) => void
     getOptionLabel?: (value: T) => string
     getOptionValue?: (value: T) => string
 } & SelectProps<string, T>) => {
@@ -77,7 +75,6 @@ export const AppSelect = <I, T extends BaseOptionType>({
     ...selectProps
 }: {
     onChange?: (value: I | null) => void
-    onCreateOption?: (value: string) => void
     getOptionLabel?: (value: T) => string
     getOptionValue?: (value: T) => I
     options?: T[]
