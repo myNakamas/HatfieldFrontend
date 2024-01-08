@@ -206,6 +206,7 @@ const TicketsTab = ({
                     }))}
                     headers={{
                         id: 'Id',
+                        createdAt: 'Creation Date',
                         timeLeft: 'Time left timer',
                         device: 'Device Brand&Model',
                         status: 'Ticket Status',
