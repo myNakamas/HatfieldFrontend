@@ -15,6 +15,7 @@ export const getBase64 = (file: RcFile): Promise<string> =>
         reader.onerror = (error) => reject(error)
     })
 export const sortChatByDate = (a: ChatMessage, b: ChatMessage) => +new Date(b.timestamp) - +new Date(a.timestamp)
+// todo: replace all instances with this function
 export const getCurrentTime = () => {
     return new Date().toISOString()
 }

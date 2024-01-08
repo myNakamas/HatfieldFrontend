@@ -5,6 +5,8 @@ export interface Entity {
 export interface PageRequest {
     pageSize: number
     page: number
+    sortField?: string;
+    sortDirection?: string;
 }
 
 export interface Page<T> {

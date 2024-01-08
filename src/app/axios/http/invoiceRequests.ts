@@ -1,7 +1,7 @@
 import backendClient from '../backendClient'
 import { Page, PageRequest } from '../../models/interfaces/generalModels'
 import { Filter, InvoiceFilter } from '../../models/interfaces/filters'
-import { CreateItemInvoice, Invoice, InvoicesReport, SalesReport } from '../../models/interfaces/invoice'
+import { CreateItemInvoice, Invoice, InvoicesReport, SalesReport, TicketsReport } from '../../models/interfaces/invoice'
 
 export const createInvoice = (value: CreateItemInvoice): Promise<number> => {
     const timestamp = new Date().toISOString()
@@ -17,6 +17,9 @@ export const getInvoicesReport = ({ filter }: { filter: InvoiceFilter }): Promis
 }
 export const getSalesReport = ({ filter }: { filter: InvoiceFilter }): Promise<SalesReport> => {
     return backendClient.get('invoice/report/sell', { params: { ...filter } })
+}
+export const getTicketsReport = ({ filter }: { filter: InvoiceFilter }): Promise<TicketsReport> => {
+    return backendClient.get('ticket/report', { params: { ...filter } })
 }
 export const getInvoiceByClientId = (clientId: string): Promise<Invoice[]> => {
     return backendClient.get('invoice/allByClient', { params: { clientId } })

@@ -2,6 +2,13 @@ import React from 'react'
 import { Table } from 'antd'
 import { PageRequest } from '../../models/interfaces/generalModels'
 import { setDefaultPageSize } from '../../models/enums/defaultValues'
+import { ColumnsType } from 'antd/es/table'
+import type { SortOrder } from 'antd/es/table/interface'
+
+export interface SortParams<T> {
+    sortDirection?: SortOrder | null
+    sortField?: keyof T | null
+}
 
 export interface CustomTableProps<T> {
     headers: { [key: string]: string }
@@ -11,6 +18,7 @@ export interface CustomTableProps<T> {
     data: any[]
     loading?: boolean
     totalCount?: number
+    sortableColumns?: string[]
 }
 export const CustomTable = <T extends object>({
     data,
@@ -20,11 +28,13 @@ export const CustomTable = <T extends object>({
     onPageChange,
     totalCount,
     loading,
+    sortableColumns,
 }: CustomTableProps<T>) => {
-    const columns = Object.entries(headers).map(([key, value], index) => ({
+    const columns: ColumnsType<T> = Object.entries(headers).map(([key, value], index) => ({
         title: value,
         dataIndex: String(key),
         key: 'column' + index,
+        sorter: sortableColumns?.includes(key),
     }))
     // noinspection JSUnusedGlobalSymbols
     const getComponentProps = (record: T) => ({
@@ -49,10 +59,6 @@ export const CustomTable = <T extends object>({
                           defaultCurrent: 1,
                           pageSize: pagination?.pageSize,
                           current: pagination?.page,
-                          onChange: (page, pageSize) => {
-                              setDefaultPageSize(pageSize)
-                              onPageChange && onPageChange({ page, pageSize })
-                          },
                           pageSizeOptions: [5, 10, 15, 20, 50, 100],
                           position: totalCount && totalCount > 10 ? ['topRight', 'bottomRight'] : ['bottomRight'],
                           showSizeChanger: true,
@@ -60,6 +66,25 @@ export const CustomTable = <T extends object>({
                       }
                     : false
             }
+            onChange={({ current, pageSize }, _, sorter) => {
+                if (onPageChange && current && pageSize) {
+                    pageSize && setDefaultPageSize(pageSize)
+                    const sortDirection = (sorter instanceof Array ? sorter[0].order : sorter.order) ?? ''
+                    const sortField = sorter instanceof Array ? sorter[0].field : sorter.field
+                    onPageChange({
+                        page: current,
+                        pageSize,
+                        sortDirection: SortDirectionNames[sortDirection],
+                        sortField: sortField + '',
+                    })
+                }
+            }}
         />
     )
+}
+
+const SortDirectionNames = {
+    descend: 'DESC',
+    ascend: 'ASC',
+    '': undefined,
 }

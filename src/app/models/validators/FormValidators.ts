@@ -85,7 +85,7 @@ export const CategorySchema = Yup.object().shape({
                 .shape({
                     name: Yup.string().matches(
                         /^[a-zA-Z0-9\-_)( ]*$/,
-                        (params) => `The column '${params.value}' must not contain special characters.`
+                        () => `Invalid value. This field must not contain special characters.`
                     ),
                 })
                 .notRequired()

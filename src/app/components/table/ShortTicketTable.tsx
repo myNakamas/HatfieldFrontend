@@ -28,7 +28,7 @@ export const ShortTicketTable = ({
 }) => {
     if (!data || data.length === 0) return <NoDataComponent items={'tickets'} />
     const [collectTicket, setCollectTicket] = useState<Ticket | undefined>()
-    const columns = ['creation date', 'due', 'status', 'client', 'actions'].map((string, index) => ({
+    const columns = ['id','creation date', 'due', 'status', 'client', 'actions'].map((string, index) => ({
         title: string,
         dataIndex: string,
         key: 'column' + index + string,

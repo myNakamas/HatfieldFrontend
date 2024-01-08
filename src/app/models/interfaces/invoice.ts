@@ -53,6 +53,11 @@ export interface SalesReport {
     leaderboard: Map<string, number>
 }
 
+export interface TicketsReport {
+    totalAmount: number
+    leaderboard: Map<string, number>
+}
+
 export interface InvoiceDailyReport {
     date: string
     dailyIncome: number

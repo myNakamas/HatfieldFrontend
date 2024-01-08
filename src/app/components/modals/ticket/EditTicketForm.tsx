@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { FormField } from '../../form/Field'
 import { Dictaphone } from '../../form/Dictaphone'
@@ -27,6 +27,7 @@ import TextArea from 'antd/es/input/TextArea'
 import { putPrintTicketLabels } from '../../../axios/http/documentRequests'
 import { usePrintConfirm } from '../PrintConfirm'
 import dateFormat from 'dateformat'
+import { defaultTicket } from '../../../models/enums/defaultValues'
 
 export const EditTicketForm = ({
     ticket,
@@ -37,6 +38,7 @@ export const EditTicketForm = ({
     closeModal: () => void
     isEdit?: boolean
 }) => {
+    const formRef = useRef<HTMLFormElement>(null);
     const { isWorker } = useContext(AuthContext)
     const queryClient = useQueryClient()
     const { printConfirm } = usePrintConfirm()
@@ -60,13 +62,18 @@ export const EditTicketForm = ({
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [tempText, setTempText] = useState('')
 
+    const resetForm = (ticket:CreateTicket) => {
+        formRef.current?.reset();
+        reset(ticket);
+    }
+
     const onFormSubmit = (data: CreateTicket) => {
         if (isEdit) {
             editTicket(data)
-                .then((ticket) => {
+                .then(() => {
                     queryClient.invalidateQueries(['tickets']).then(() => {
                         closeModal()
-                        reset(ticket)
+                        resetForm(defaultTicket)
                     })
                 })
                 .catch((error: AppError) => {
@@ -84,7 +91,7 @@ export const EditTicketForm = ({
 
                     queryClient.invalidateQueries(['tickets']).then(() => {
                         closeModal()
-                        reset(ticket)
+                        resetForm(defaultTicket)
                     })
                 })
                 .catch((error: AppError) => {
@@ -106,7 +113,7 @@ export const EditTicketForm = ({
                 closeModal={() => setShowCreateModal(false)}
                 onSuccess={(user) => setValue('clientId', user.userId)}
             />
-            <form className='modalForm' onSubmit={handleSubmit(onFormSubmit)}>
+            <form className='modalForm' ref={formRef} onSubmit={handleSubmit(onFormSubmit)}>
                 <div className='modalContainer'>
                     <div className='card'>
                         <Space wrap className='w-100 justify-between'>
@@ -267,8 +274,8 @@ export const EditTicketForm = ({
                                     />
                                     <TicketQuickCheckBox
                                         fieldToCheck={watch('deviceCondition')}
-                                        name={'Cracked Screen/Back'}
-                                        value={'Cracked Screen/Back, '}
+                                        name={'Cracked Screen/ Cracked Back'}
+                                        value={'Cracked Screen/ Cracked Back, '}
                                         onChange={(string) => {
                                             setValue('deviceCondition', string)
                                         }}

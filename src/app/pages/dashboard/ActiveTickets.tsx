@@ -66,7 +66,13 @@ export const ActiveTickets = ({
                 />
             }
             extra={
-                <Space style={{ marginLeft: 20 }}>
+                <Space style={{ marginLeft: 20 }} wrap>
+                    <CheckableTag
+                        checked={filter.hideCompleted ?? false}
+                        onChange={(checked) => setFilter({ ...filter, hideCompleted: checked })}
+                    >
+                        Display Active tickets
+                    </CheckableTag>
                     <Button
                         type='primary'
                         size={'small'}
@@ -95,14 +101,7 @@ export const ActiveTickets = ({
                     }
                 />
             </CustomSuspense>
-            <Space align={'start'} className={'w-100'}>
-                <CheckableTag
-                    checked={filter.hideCompleted ?? false}
-                    onChange={(checked) => setFilter({ ...filter, hideCompleted: checked })}
-                >
-                    Display Active tickets
-                </CheckableTag>
-            </Space>
+            <Space align={'start'} className={'w-100'}></Space>
         </Card>
     )
 }

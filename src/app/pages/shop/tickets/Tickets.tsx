@@ -21,6 +21,7 @@ import {
     activeTicketStatuses,
     completedTicketStatuses,
     TicketStatus,
+    ticketStatusCategory,
     TicketStatusesArray,
 } from '../../../models/enums/ticketEnums'
 import { useSearchParams } from 'react-router-dom'
@@ -78,13 +79,28 @@ export const Tickets = () => {
         },
         {
             key: '2',
-            label: 'Completed tickets',
+            label: 'Waiting tickets',
             children: (
                 <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
         {
             key: '3',
+            label: 'Completed tickets',
+            children: (
+                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
+            ),
+        },
+        
+        {
+            key: '4',
+            label: 'Collected tickets',
+            children: (
+                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
+            ),
+        },
+        {
+            key: '5',
             label: 'All tickets',
             children: (
                 <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
@@ -124,12 +140,13 @@ export const Tickets = () => {
             <Tabs
                 animated
                 defaultActiveKey='active'
+                destroyInactiveTabPane
                 items={tabs}
                 onChange={(key) => {
                     setPage({ pageSize: page.pageSize, page: 1 })
                     setFilter((old) => ({
                         ...old,
-                        ticketStatuses: key === '1' ? activeTicketStatuses : key === '2' ? completedTicketStatuses : [],
+                        ticketStatuses: ticketStatusCategory[key] ?? [],
                     }))
                 }}
             />
@@ -204,6 +221,7 @@ const TicketsTab = ({
                     pagination={page}
                     onPageChange={setPage}
                     totalCount={data.totalCount}
+                    sortableColumns={['id']}
                 />
             ) : (
                 <NoDataComponent items='tickets' />

@@ -96,20 +96,24 @@ const ChatMessageRow = ({ message, sender }: { message: ChatMessage; sender?: Us
     return (
         <div className={isSenderLoggedUser ? 'message-sender' : 'message-receiver'}>
             <div className='message-wrapper'>
-                {message.isImage ? (
-                    <Suspense fallback={<Spin />}>
-                        <div className={'message'}>
-                            <ChatImage url={message.text} />
+                <div>
+                    {message.isImage ? (
+                        <Suspense fallback={<Spin />}>
+                            <div className={'message'}>
+                                <ChatImage url={message.text} />
+                            </div>
+                        </Suspense>
+                    ) : (
+                        <div
+                            className='message'
+                            title={(sender?.fullName ?? sender?.username) + '\n' + dateFormat(message.timestamp)}
+                        >
+                            {message.text}
+                            <div className='timestamp'>{dateFormat(message.timestamp)}</div>
+
                         </div>
-                    </Suspense>
-                ) : (
-                    <div
-                        className='message'
-                        title={sender?.fullName ?? sender?.username + '\n' + dateFormat(message.timestamp)}
-                    >
-                        {message.text}
-                    </div>
-                )}
+                    )}
+                </div>
 
                 <ProfileImage className={'chatProfileIcon'} profileImg={profileImg} />
                 {Icon}

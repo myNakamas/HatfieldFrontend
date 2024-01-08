@@ -13,13 +13,13 @@ interface LeaderboardEntry {
     count: number
 }
 
-export const SellReport = ({ filter }: { filter: InvoiceFilter }) => {
+export const TicketsReport = ({ filter }: { filter: InvoiceFilter }) => {
     const navigate = useNavigate()
     const { token } = useContext(DesignTokenContext)
 
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
     const { data: report, isLoading } = useQuery(
-        ['invoices', filter, 'report', 'sell'],
+        ['tickets', 'report'],
         () => getSalesReport({ filter }),
         {
             onSuccess: ({ leaderboard }) => {
