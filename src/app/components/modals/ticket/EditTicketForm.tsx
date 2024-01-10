@@ -263,12 +263,31 @@ export const EditTicketForm = ({
                                     />
                                     <TicketQuickCheckBox
                                         fieldToCheck={watch('deviceCondition')}
-                                        name={'Cracked Screen/ Cracked Back'}
-                                        value={'Cracked Screen/ Cracked Back, '}
+                                        name={'Cracked Screen'}
+                                        value={'Cracked Screen, '}
                                         onChange={(string) => {
                                             setValue('deviceCondition', string)
                                         }}
                                     />
+                                    <TicketQuickCheckBox
+                                        fieldToCheck={watch('deviceCondition')}
+                                        name={'Cracked Back'}
+                                        value={'Cracked Back, '}
+                                        onChange={(string) => {
+                                            setValue('deviceCondition', string)
+                                        }}
+                                    />
+                                    <label>
+                                        <Checkbox
+                                            checked={watch('deviceLocation') === 'With customer'}
+                                            onChange={(e) => {
+                                                e.target.checked
+                                                    ? setValue('deviceLocation', 'With customer')
+                                                    : setValue('deviceLocation', defaultTicket.deviceLocation)
+                                            }}
+                                        />{' '}
+                                        Device stays with customer
+                                    </label>
                                 </Space>
                             </Card>
                         </Space>
@@ -346,12 +365,12 @@ export const EditTicketForm = ({
                             </div>
                             <Collapse
                                 accordion
-                                defaultActiveKey={'1'}
                                 destroyInactivePanel={false}
                                 items={[
                                     {
                                         key: '1',
                                         label: 'More details',
+                                        forceRender:true,
                                         children: (
                                             <Space.Compact direction={'vertical'}>
                                                 <TextField

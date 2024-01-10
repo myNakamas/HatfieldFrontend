@@ -4,7 +4,7 @@ import { useQuery } from 'react-query'
 import { getSalesReport } from '../../axios/http/invoiceRequests'
 import { Button, Card, Statistic } from 'antd'
 import { CustomSuspense } from '../CustomSuspense'
-import React, { useContext, useState } from 'react'
+import { useContext } from 'react'
 import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { DesignTokenContext } from 'antd/es/theme/internal'
 
@@ -17,20 +17,17 @@ export const SellsReport = ({ filter }: { filter: InvoiceFilter }) => {
     const navigate = useNavigate()
     const { token } = useContext(DesignTokenContext)
 
-    const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
-    const { data: report, isLoading } = useQuery(
-        ['invoices', filter, 'report', 'sell'],
-        () => getSalesReport({ filter }),
-        {
-            onSuccess: ({ leaderboard }) => {
-                setLeaderboard(Object.entries(leaderboard).map(([key, value]) => ({ name: key, count: value })))
-            },
-        }
+    const { data: report, isLoading } = useQuery(['invoices', filter, 'report', 'sell'], () =>
+        getSalesReport({ filter })
     )
+    const leaderboard: LeaderboardEntry[] = report?.leaderboard
+        ? Object.entries(report?.leaderboard).map(([key, value]) => ({ name: key, count: value }))
+        : []
 
     return (
         <Card
-        className={'dashboard-items'}            title='Sales Leaderboard'
+            className={'dashboard-items'}
+            title='Sales Leaderboard'
             extra={<Button onClick={() => navigate('/inventory')}>See all items</Button>}
         >
             <Statistic title={'Total amount in sells:'} loading={isLoading} value={report?.totalAmount} />

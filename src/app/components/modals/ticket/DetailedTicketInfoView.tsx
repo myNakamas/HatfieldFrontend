@@ -5,7 +5,7 @@ import { LogsFilter } from '../../../models/interfaces/filters'
 import { useQuery, useQueryClient } from 'react-query'
 import { getAllLogs } from '../../../axios/http/shopRequests'
 import { AppModal } from '../AppModal'
-import { Card, Collapse, Descriptions, List, Popover, Space } from 'antd'
+import { Button, Card, Collapse, Descriptions, List, Popover, Space } from 'antd'
 import { UserDescription } from '../users/ViewUser'
 import DescriptionsItem from 'antd/lib/descriptions/Item'
 import dateFormat from 'dateformat'
@@ -109,11 +109,14 @@ export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
                 {ticket.devicePassword && <Card size={'small'} title={'Password'} children={ticket.devicePassword} />}
             </Space>
             <Descriptions bordered layout={'vertical'} className={'w-100'}>
-                {ticket.problemExplanation && (
-                    <DescriptionsItem span={2} label={'Problem'} children={ticket.problemExplanation} />
-                )}
                 {ticket.customerRequest?.length > 0 && (
                     <DescriptionsItem span={1} label={'Customer Request'} children={ticket.customerRequest} />
+                )}
+                {ticket.deviceCondition?.length > 0 && (
+                    <DescriptionsItem span={1} label={'Device condition'} children={ticket.deviceCondition} />
+                )}
+                {ticket.problemExplanation && (
+                    <DescriptionsItem span={3} label={'Problem explanation'} children={ticket.problemExplanation} />
                 )}
                 {ticket.notes?.length > 0 && <DescriptionsItem span={1} label={'Notes'} children={ticket.notes} />}
             </Descriptions>
@@ -122,6 +125,8 @@ export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
 }
 
 export const LogListRow = ({ log, onClick }: { log: Log; onClick?: (log: Log) => void }) => {
+    const [open, setOpen] = useState(false)
+
     const logMessages = log.action.split(';')
     const header = logMessages.shift()
     const { data: profileImg, isLoading } = useQuery(
@@ -131,6 +136,8 @@ export const LogListRow = ({ log, onClick }: { log: Log; onClick?: (log: Log) =>
     )
     return (
         <Popover
+            open={open}
+            onOpenChange={setOpen}
             style={{ width: 'fit-content' }}
             title={
                 <Space className={'justify-between w-100'}>
@@ -138,22 +145,28 @@ export const LogListRow = ({ log, onClick }: { log: Log; onClick?: (log: Log) =>
                 </Space>
             }
             content={
-                <ul key={`logListItemContent${log.id}`}>
-                    {logMessages.map((value, index) => {
-                        return value.length == 0 ? (
-                            <div key={`logMessage.${log.id}.${index}`}></div>
-                        ) : (
-                            <li key={`logMessage.${log.id}.${index}`}>{value}</li>
-                        )
-                    })}
-                </ul>
+                <Space direction='vertical'>
+                    <ul key={`logListItemContent${log.id}`}>
+                        {logMessages.map((value, index) => {
+                            return value.length == 0 ? (
+                                <div key={`logMessage.${log.id}.${index}`}></div>
+                            ) : (
+                                <li key={`logMessage.${log.id}.${index}`}>{value}</li>
+                            )
+                        })}
+                    </ul>
+                    <Button
+                        onClick={() => {
+                            setOpen(false)
+                            onClick && onClick(log)
+                        }}
+                    >
+                        Show details
+                    </Button>
+                </Space>
             }
         >
-            <List.Item
-                className='list-item'
-                onDoubleClick={() => onClick && onClick(log)}
-                about={dateFormat(log.timestamp)}
-            >
+            <List.Item className='list-item' about={dateFormat(log.timestamp)}>
                 <List.Item.Meta
                     avatar={<ProfileImage profileImg={profileImg} isLoading={isLoading} />}
                     title={<div className='w-100'>{log.user?.fullName ?? log.user.username}</div>}
