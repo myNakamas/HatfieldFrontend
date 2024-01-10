@@ -17,7 +17,7 @@ import { ViewInventoryItem } from '../../components/modals/inventory/ViewInvento
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { SearchComponent } from '../../components/filters/SearchComponent'
 import { AuthContext } from '../../contexts/AuthContext'
-import { Button, FloatButton, Skeleton, Space, Tour } from 'antd'
+import { Button, FloatButton, Input, Skeleton, Space, Tour } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faFileEdit, faPen, faPlus, faQuestion } from '@fortawesome/free-solid-svg-icons'
@@ -27,6 +27,7 @@ import { inventoryTourSteps } from '../../models/enums/userEnums'
 import { AppSelect } from '../../components/form/AppSelect'
 import CheckableTag from 'antd/es/tag/CheckableTag'
 import { currencyFormat, resetPageIfNoValues } from '../../utils/helperFunctions'
+import { QrReaderButton } from '../../components/modals/QrReaderModal'
 
 export const Inventory = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
@@ -98,6 +99,7 @@ export const Inventory = () => {
                 >
                     Shopping List
                 </Button>
+                <QrReaderButton title={'Scan QR'} />
             </Space>
             <div ref={refsArray[1]}>
                 <Suspense fallback={<Skeleton active loading />}>
@@ -139,6 +141,12 @@ const InventoryFilters = ({
                 >
                     Hide Empty Items
                 </CheckableTag>
+                <Input
+                    placeholder='Search by id'
+                    allowClear
+                    defaultValue={filter.id}
+                    onChange={({ target }) => setFilter({ ...filter, id: +target.value ?? undefined })}
+                />
                 <AppSelect<number, ItemPropertyView>
                     value={filter.shopId}
                     options={shops ?? []}
@@ -238,6 +246,7 @@ export const InventoryInner = ({
                 }
             })}
             headers={{
+                id: 'Item Id',
                 itemName: 'Name',
                 sell: 'Price',
                 categoryType: 'Item type',

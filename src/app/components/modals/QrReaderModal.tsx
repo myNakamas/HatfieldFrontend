@@ -1,57 +1,45 @@
 import { AppModal } from './AppModal'
-import QrScanner from 'qr-scanner'
-import { Button } from 'antd'
-import React, { useEffect, useRef, useState } from 'react'
+import { Button, Tooltip } from 'antd'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faQrcode } from '@fortawesome/free-solid-svg-icons'
+import { Html5QrcodeResult, Html5QrcodeScanner, QrcodeErrorCallback, QrcodeSuccessCallback } from 'html5-qrcode'
+import { Html5QrcodeScannerConfig } from 'html5-qrcode/esm/html5-qrcode-scanner'
 
 export const QrReaderModal = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
-    const navigate = useNavigate()
-    const videoRef = useRef<HTMLVideoElement>(null)
     const [result, setResult] = useState<URL>()
-    const qrScanner = useRef<QrScanner | null>(null) // Ref to store the qrScanner instance
 
-    useEffect(() => {
-        if (videoRef.current) {
-            const scanner = new QrScanner(
-                videoRef.current,
-                ({ data }) => {
-                    setResult(new URL(data))
-                    if (result?.host === window.location.hostname) {
-                        navigate(`${result.pathname}?${result.searchParams}`)
-                    }
-                },
-                { highlightCodeOutline: true, preferredCamera: 'environment' }
-            )
-            scanner.start().then()
-            return () => {
-                scanner.stop()
-            }
-        }
-    }, [isModalOpen])
+    const onNewScanResult = (decodedText: string) => {
+        const result = new URL(decodedText)
+        setResult(result)
+    }
 
     return (
         <AppModal
+            destroyOnClose
             isModalOpen={isModalOpen}
             closeModal={() => {
-                qrScanner.current?.stop()
                 closeModal()
             }}
             title={'Qr reader'}
         >
-            <video width={'100%'} height={'100%'} ref={videoRef} />
-            Qr value:{' '}
-            <Button
-                onClick={() => {
-                    result && navigate(`${result.pathname}?${result.searchParams}`)
-                }}
-                type={'link'}
-            >
+            <a href={result?.href} type={'link'}>
                 {result?.href}
-            </Button>
+            </a>
+            <Html5QrcodePlugin
+                rememberLastUsedCamera
+                fps={10}
+                qrbox={250}
+                disableFlip={false}
+                showZoomSliderIfSupported
+                showTorchButtonIfSupported
+                useBarCodeDetectorIfSupported
+                qrCodeSuccessCallback={onNewScanResult}
+            />
         </AppModal>
     )
 }
-
 export const QrReaderButton = ({ title, hidden }: { title: string; hidden?: boolean }) => {
     const [modalOpen, setModalOpen] = useState(false)
     return hidden ? (
@@ -59,7 +47,54 @@ export const QrReaderButton = ({ title, hidden }: { title: string; hidden?: bool
     ) : (
         <>
             <QrReaderModal isModalOpen={modalOpen} closeModal={() => setModalOpen(false)} />
-            <Button type={'primary'} children={title} onClick={() => setModalOpen((prev) => !prev)} />
+            <Button
+                icon={<FontAwesomeIcon icon={faQrcode} />}
+                type={'primary'}
+                children={title}
+                onClick={() => setModalOpen((prev) => !prev)}
+            />
         </>
     )
+}
+
+const qrcodeRegionId = 'html5qr-code-full-region'
+
+const Html5QrcodePlugin = ({
+    verbose,
+    qrCodeSuccessCallback,
+    qrCodeErrorCallback,
+    ...config
+}: {
+    verbose?: boolean
+    qrCodeSuccessCallback: QrcodeSuccessCallback
+    qrCodeErrorCallback?: QrcodeErrorCallback
+} & Html5QrcodeScannerConfig) => {
+    const navigate = useNavigate()
+
+    const stopRendering = (scanner: Html5QrcodeScanner) => {
+        if (scanner.getState() == 2) scanner.pause()
+        scanner.clear().catch((error) => {
+            console.error('Failed to clear html5QrcodeScanner. ', error)
+        })
+    }
+
+    useEffect(() => {
+        if (!qrCodeSuccessCallback) {
+            throw 'qrCodeSuccessCallback is required callback.'
+        }
+        const html5QrcodeScanner = new Html5QrcodeScanner(qrcodeRegionId, config, verbose)
+        const successCallback = (decodedText: string, result: Html5QrcodeResult) => {
+            const url = new URL(decodedText)
+            stopRendering(html5QrcodeScanner)
+            navigate(`${url.pathname}?${url.searchParams}`)
+            qrCodeSuccessCallback(decodedText, result)
+        }
+        html5QrcodeScanner.render(successCallback, qrCodeErrorCallback)
+        // cleanup function when component will unmount
+        return () => {
+            stopRendering(html5QrcodeScanner)
+        }
+    }, [])
+
+    return <div id={qrcodeRegionId} />
 }

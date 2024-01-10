@@ -1,5 +1,6 @@
 import React from 'react'
-import { Modal } from 'antd'
+import { Modal, ModalProps } from 'antd'
+import { ModalStaticFunctions } from 'antd/es/modal/confirm'
 
 const ModalSize = {
     S: 'clamp(400px,70%,500px)',
@@ -14,6 +15,7 @@ export const AppModal = ({
     title,
     size,
     isForbidden,
+    ...modalProps
 }: {
     children: React.ReactNode
     isModalOpen: boolean
@@ -21,7 +23,7 @@ export const AppModal = ({
     title?: string
     size?: 'S' | 'M' | 'L'
     isForbidden?: boolean
-}) => {
+} & ModalProps) => {
     if (isForbidden) return <></>
     return (
         <Modal
@@ -31,6 +33,7 @@ export const AppModal = ({
             title={title}
             width={ModalSize[size ?? 'M']}
             footer={<></>}
+            {...modalProps}
         >
             {children}
         </Modal>

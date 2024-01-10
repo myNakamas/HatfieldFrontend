@@ -36,10 +36,10 @@ export const CustomTable = <T extends object>({
         key: 'column' + index,
         sorter: sortableColumns?.includes(key),
     }))
-    // noinspection JSUnusedGlobalSymbols
-    const getComponentProps = (record: T) => ({
-        onDoubleClick: () => {
-            if (onClick) {
+    const getComponentProps = (record: T): React.TdHTMLAttributes<any> => ({
+        className: onClick ? 'clickable-table-row' : '',
+        onClick: (e) => {
+            if (onClick && e.target instanceof HTMLTableCellElement) {
                 onClick(record)
             }
         },

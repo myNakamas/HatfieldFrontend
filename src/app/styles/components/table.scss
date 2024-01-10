@@ -18,9 +18,14 @@ thead {
   justify-content: space-between;
   align-items: baseline;
   flex-wrap: wrap;
-
 }
 
 .dangerBg {
   background-color: rgba(183, 0, 0, 0.5);
+}
+
+.clickable-table-row {
+  &:hover {
+    cursor: pointer;
+  }
 }

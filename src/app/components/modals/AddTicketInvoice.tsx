@@ -119,8 +119,9 @@ export const AddTicketInvoice = ({
                         name={'clientId'}
                         render={({ field, fieldState }) => (
                             <FormField label='Client' error={fieldState.error}>
-                                <Space.Compact>
+                                <Space wrap>
                                     <AppSelect<string, User>
+                                        maxLength={399}
                                         options={clients}
                                         placeholder='Client'
                                         value={field.value}
@@ -134,7 +135,7 @@ export const AddTicketInvoice = ({
                                     >
                                         Create client
                                     </Button>
-                                </Space.Compact>
+                                </Space>
                             </FormField>
                         )}
                     />
