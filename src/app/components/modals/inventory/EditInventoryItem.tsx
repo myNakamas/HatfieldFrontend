@@ -13,7 +13,7 @@ import { useQuery, useQueryClient } from 'react-query'
 import { TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { AppModal } from '../AppModal'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { FormField } from '../../form/Field'
 import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { toast } from 'react-toastify'
@@ -23,6 +23,7 @@ import { AddEditCategory } from '../AddEditCategory'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
+import { AuthContext } from '../../../contexts/AuthContext'
 
 export const EditInventoryItem = ({
     isModalOpen,
@@ -38,6 +39,7 @@ export const EditInventoryItem = ({
     const { data: categories } = useQuery(['allCategories'], getAllCategories)
     const { data: shop } = useQuery(['currentShop'], getShopData)
     const [showModal, setShowModal] = useState(false)
+    const { isAdmin } = useContext(AuthContext)
 
     const {
         control,
@@ -133,14 +135,16 @@ export const EditInventoryItem = ({
                                                 getOptionLabel={(category) => category.name}
                                                 getOptionValue={(category) => category.id}
                                             />
-                                            <Button
-                                                onClick={() => {
-                                                    setShowModal(true)
-                                                }}
-                                                icon={<FontAwesomeIcon icon={faPlus} />}
-                                            >
-                                                Add a new category
-                                            </Button>
+                                            {isAdmin() && (
+                                                <Button
+                                                    onClick={() => {
+                                                        setShowModal(true)
+                                                    }}
+                                                    icon={<FontAwesomeIcon icon={faPlus} />}
+                                                >
+                                                    Add a new category
+                                                </Button>
+                                            )}
                                         </Space.Compact>
                                     </FormField>
                                 )

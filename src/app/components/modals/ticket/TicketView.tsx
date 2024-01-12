@@ -190,7 +190,7 @@ const TicketStatusAndLocation = ({ ticket }: { ticket: Ticket }) => {
         }
     }
     return (
-        <Card title='Status & Location' type='inner'>
+        <Card title='Status & Location' type='inner' size='small'>
             <FormField label={'Ticket status'}>
                 <AppSelect<TicketStatus, ItemPropertyView>
                     options={TicketStatusesArray}
@@ -307,7 +307,7 @@ const TicketViewInner = ({
                     </Card>
                     <Space wrap className={'w-100 justify-around align-start ticket-cards'}>
                         <TicketStatusAndLocation {...{ ticket }} />
-                        <Card title={'Modify actions'} extra={<Tag>{ticket.status}</Tag>} type='inner'>
+                        <Card title={'Modify actions'} extra={<Tag>{ticket.status}</Tag>} type='inner' size='small'>
                             <Space.Compact direction={'vertical'}>
                                 <Button
                                     onClick={() => startTicket(ticket.id)}
@@ -348,7 +348,7 @@ const TicketViewInner = ({
                                 </Button>
                             </Space.Compact>
                         </Card>
-                        <Card title={'Other actions'} type='inner'>
+                        <Card title={'Other actions'} type='inner' size='small'>
                             <Space.Compact direction={'vertical'}>
                                 <Button
                                     icon={<FontAwesomeIcon icon={faMessage} />}

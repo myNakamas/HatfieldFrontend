@@ -162,14 +162,16 @@ export const AddInventoryItemInner = ({
                                             getOptionLabel={(category) => category.name}
                                             getOptionValue={(category) => category.id}
                                         />
-                                        <Button
-                                            onClick={() => {
-                                                setShowCategoryModal(true)
-                                            }}
-                                            icon={<FontAwesomeIcon icon={faPlus} />}
-                                        >
-                                            Add a new category
-                                        </Button>
+                                        {isAdmin() && (
+                                            <Button
+                                                onClick={() => {
+                                                    setShowCategoryModal(true)
+                                                }}
+                                                icon={<FontAwesomeIcon icon={faPlus} />}
+                                            >
+                                                Add a new category
+                                            </Button>
+                                        )}
                                     </Space.Compact>
                                 </FormField>
                             )

@@ -1,4 +1,4 @@
-import { Button, Card, Space, Statistic } from 'antd'
+import { Button, Card, Space, Statistic, Tooltip } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import React, { useContext, useState } from 'react'
@@ -24,12 +24,15 @@ export const ShoppingListCard = ({ filter }: { filter?: InvoiceFilter }) => {
         <Card
             className='dashboard-card'
             title={
+                <Tooltip title='Open Shopping list'>
+
                 <Button
                     type='dashed'
                     icon={<FontAwesomeIcon icon={faShoppingBasket} />}
                     onClick={() => navigate(`/inventory/${loggedUser?.shopId}/shopping-list`)}
                     children={'Shopping list'}
                 />
+                </Tooltip>
             }
             extra={
                 <Space>

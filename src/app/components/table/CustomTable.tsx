@@ -20,6 +20,11 @@ export interface CustomTableProps<T> {
     totalCount?: number
     sortableColumns?: string[]
 }
+
+const fixedField: { [key: string]: 'left' | 'right' } = {
+    id: 'left',
+}
+
 export const CustomTable = <T extends object>({
     data,
     headers,
@@ -35,6 +40,8 @@ export const CustomTable = <T extends object>({
         dataIndex: String(key),
         key: 'column' + index,
         sorter: sortableColumns?.includes(key),
+        fixed: fixedField[key],
+        className: 'table-column',
     }))
     const getComponentProps = (record: T): React.TdHTMLAttributes<any> => ({
         className: onClick ? 'clickable-table-row' : '',

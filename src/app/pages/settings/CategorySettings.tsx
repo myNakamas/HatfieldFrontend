@@ -10,7 +10,7 @@ import { Brand, Category } from '../../models/interfaces/shop'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import { CustomTable } from '../../components/table/CustomTable'
 import { AddEditCategory } from '../../components/modals/AddEditCategory'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { Breadcrumb, Button, Collapse, Input, Popconfirm, Space, Tabs, Tag } from 'antd'
 import { faPen, faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -21,11 +21,13 @@ import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/
 import { useNavigate } from 'react-router-dom'
 import { FormField } from '../../components/form/Field'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { AuthContext } from '../../contexts/AuthContext'
 
 export const CategorySettings = () => {
     const { data: allCategories, isLoading } = useQuery(['allCategories'], () => getAllCategories())
     const queryClient = useQueryClient()
     const navigate = useNavigate()
+    const { isAdmin } = useContext(AuthContext)
     const [showModal, setShowModal] = useState(false)
     const [selectedCategory, setSelectedCategory] = useState<Category | undefined>()
 
@@ -54,7 +56,13 @@ export const CategorySettings = () => {
                 ]}
             />
             <Space className='button-bar'>
-                <Button icon={<FontAwesomeIcon icon={faPlus}/>} onClick={() => setShowModal(true)}>Add new category</Button>
+                <Button
+                    disabled={!isAdmin()}
+                    icon={<FontAwesomeIcon icon={faPlus} />}
+                    onClick={() => setShowModal(true)}
+                >
+                    Add new category
+                </Button>
             </Space>
             <AddEditCategory
                 closeModal={() => setSelectedCategory(undefined)}
@@ -87,6 +95,7 @@ export const CategorySettings = () => {
                                                     <Space>
                                                         <Button
                                                             icon={<FontAwesomeIcon icon={faPen} />}
+                                                            disabled={!isAdmin()}
                                                             onClick={() => setSelectedCategory(category)}
                                                         />
                                                         <Popconfirm
@@ -99,10 +108,14 @@ export const CategorySettings = () => {
                                                                         .then()
                                                                 )
                                                             }
+                                                            disabled={!isAdmin()}
                                                             okText='Yes'
                                                             cancelText='No'
                                                         >
-                                                            <Button icon={<FontAwesomeIcon icon={faTrashCan} />} />
+                                                            <Button
+                                                                disabled={!isAdmin()}
+                                                                icon={<FontAwesomeIcon icon={faTrashCan} />}
+                                                            />
                                                         </Popconfirm>
                                                     </Space>
                                                 ),
@@ -138,6 +151,7 @@ export const CategorySettings = () => {
 const ModelRow = ({ model }: { model: ItemPropertyView }) => {
     const queryClient = useQueryClient()
     const [name, setName] = useState('')
+    const { isAdmin } = useContext(AuthContext)
 
     const renameModel = (id: number, name: string) => {
         toast
@@ -159,8 +173,11 @@ const ModelRow = ({ model }: { model: ItemPropertyView }) => {
                         />
                     </FormField>
                 }
+                disabled={!isAdmin()}
             >
-                <Button icon={<FontAwesomeIcon icon={faPen} />}>Rename</Button>
+                <Button disabled={!isAdmin()} icon={<FontAwesomeIcon icon={faPen} />}>
+                    Rename
+                </Button>
             </Popconfirm>
         </Space>
     )

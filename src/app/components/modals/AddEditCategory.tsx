@@ -29,7 +29,7 @@ export const AddEditCategory = ({
     category?: Category
     onComplete: (formValue: Category) => Promise<void>
 }) => {
-    const { isWorker } = useContext(AuthContext)
+    const { isAdmin } = useContext(AuthContext)
     const formRef = useRef<HTMLFormElement>(null)
     const defaultValue = { ...category, columns: category?.columns ?? [] }
     const {
@@ -103,7 +103,7 @@ export const AddEditCategory = ({
     }
 
     return (
-        <AppModal {...{ isModalOpen, closeModal }} title={'Category'} isForbidden={!isWorker()}>
+        <AppModal {...{ isModalOpen, closeModal }} title={'Category'} isForbidden={!isAdmin()}>
             {category && (
                 <form ref={formRef} className='modalForm' onSubmit={handleSubmit(onComplete)}>
                     <Divider />
