@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import { Ticket } from '../../../models/interfaces/ticket'
 import dateFormat from 'dateformat'
 import { dateTimeMask } from '../../../models/enums/appEnums'
-import { Button, Collapse, Descriptions, Space } from 'antd'
+import { Button, Collapse, Descriptions, Space, Typography } from 'antd'
 import { TicketView } from '../../../components/modals/ticket/TicketView'
+import Paragraph from 'antd/es/skeleton/Paragraph'
 
 export const TicketChatInfo = ({ ticket, openDrawer }: { ticket: Ticket | undefined; openDrawer: () => void }) => {
     const [showModal, setShowModal] = useState(false)
@@ -45,7 +46,7 @@ export const TicketChatInfo = ({ ticket, openDrawer }: { ticket: Ticket | undefi
                                     </Descriptions.Item>
                                 )}
                                 <Descriptions.Item label='Customer Request'>{ticket.customerRequest}</Descriptions.Item>
-                                <Descriptions.Item label='Problem'>{ticket.problemExplanation}</Descriptions.Item>
+                                <Descriptions.Item label='Problem'><Typography.Paragraph ellipsis={{rows:3}}>{ticket.problemExplanation}</Typography.Paragraph ></Descriptions.Item>
                                 {!smallScreen && (
                                     <>
                                         <Descriptions.Item label='Created by'>

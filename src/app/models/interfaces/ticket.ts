@@ -75,7 +75,13 @@ export interface ChatMessage extends Entity, CreateChatMessage {
     status?: ChatMessageStatus
     isImage?: boolean
 }
-
+export interface MissedMessages {
+    countPerTicket: NotificationCount
+    totalCount: number
+}
+export interface NotificationCount {
+    [key: number]: number
+}
 export interface Chat {
     chat: ChatMessage[]
     receiver?: User

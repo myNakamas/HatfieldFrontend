@@ -2,32 +2,33 @@ import React, { ReactNode, useContext, useEffect, useState } from 'react'
 import { AuthContext } from './AuthContext'
 import { connectToWebsocket, stompClient } from '../axios/websocketClient'
 import { registerToChat } from '../axios/websocket/chat'
-import { ChatMessage, CreateChatMessage, UserChats } from '../models/interfaces/ticket'
+import { ChatMessage, CreateChatMessage, MissedMessages, UserChats } from '../models/interfaces/ticket'
 import { sortChatByDate } from '../utils/helperFunctions'
 import { toast } from 'react-toastify'
 import { toastChatProps } from '../components/modals/ToastProps'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Typography } from 'antd'
+import { useQuery } from 'react-query'
+import { getNotificationCount } from '../axios/http/ticketRequests'
 
 export interface WebSocketContextData {
     userChats: UserChats
     setUserChats: React.Dispatch<React.SetStateAction<UserChats>>
     addUnsentMessage: (message: CreateChatMessage) => void
     removeUnsentMessage: (message: ChatMessage) => void
-    notificationCount: NotificationCount
-    setNotificationCount: React.Dispatch<React.SetStateAction<NotificationCount>>
+    notificationCount: MissedMessages
+    setNotificationCount: React.Dispatch<React.SetStateAction<MissedMessages>>
 }
 
 export const WebSocketContext: React.Context<WebSocketContextData> = React.createContext({} as WebSocketContextData)
 
-interface NotificationCount {
-    [key: number]: number
-}
-
 export const WebSocketContextProvider = ({ children }: { children: ReactNode }) => {
     const { loggedUser } = useContext(AuthContext)
     const [userChats, setUserChats] = useState<UserChats>({})
-    const [notificationCount, setNotificationCount] = useState<NotificationCount>({})
+    const [notificationCount, setNotificationCount] = useState<MissedMessages>({ totalCount: 0, countPerTicket: {} })
+    useQuery(['messages', 'missed'], getNotificationCount, {
+        onSuccess: setNotificationCount,
+    })
     const location = useLocation()
     const navigate = useNavigate()
 
@@ -35,48 +36,30 @@ export const WebSocketContextProvider = ({ children }: { children: ReactNode }) 
         if (loggedUser?.userId) {
             connectToWebsocket(() => {
                 toast.info('Connection established', { position: 'bottom-center', toastId: 'wsConnected' })
-                registerToChat(
-                    loggedUser?.userId,
-                    (message: ChatMessage) => {
-                        addNotificationCount(message.ticketId).then()
-                        toast.info(
-                            <Typography onClick={() => navigate('/chats?id=' + message.ticketId)}>
-                                Ticket#{message.ticketId}:<br />
-                                {message.isImage ? ' A photo was sent' : '\n' + message.text}
-                            </Typography>,
-                            { ...toastChatProps }
-                        )
-                        addMessageToUserChats(message)
-                    },
-                    replaceOrAddMessageUserChats
-                )
+                registerToChat(loggedUser?.userId, (message: ChatMessage) => {
+                    addNotificationCount(message.ticketId).then()
+                    toast.info(
+                        <Typography onClick={() => navigate('/chats?id=' + message.ticketId)}>
+                            Ticket#{message.ticketId}:<br />
+                            {message.isImage ? ' A photo was sent' : '\n' + message.text}
+                        </Typography>,
+                        { ...toastChatProps }
+                    )
+                    addMessageToUserChats(message)
+                })
             })
         } else stompClient.deactivate().then()
     }, [loggedUser])
-
-    useEffect(() => {
-        if (location.pathname.startsWith('/chats')) {
-            const params = new URLSearchParams(location.search)
-            const ticketId = params.get('id')
-            if (ticketId) resetNotificationCount(+ticketId)
-        }
-    }, [location])
 
     const addNotificationCount = async (ticketId: number) => {
         const params = new URLSearchParams(location.search)
         const id = params.get('id') ?? -1
         if (+id !== ticketId)
             setNotificationCount((prev) => {
-                prev[ticketId] = (prev[ticketId] ?? 0) + 1
+                prev.countPerTicket[ticketId] = (prev.countPerTicket[ticketId] ?? 0) + 1
+                prev.totalCount++
                 return prev
             })
-    }
-
-    const resetNotificationCount = (ticketId: number) => {
-        setNotificationCount((prev) => {
-            prev[ticketId] = 0
-            return prev
-        })
     }
 
     const addUnsentMessage = (message: CreateChatMessage) => {
@@ -97,7 +80,7 @@ export const WebSocketContextProvider = ({ children }: { children: ReactNode }) 
     const replaceOrAddMessageUserChats = (message: ChatMessage) => {
         setUserChats((prev) => {
             const { ticketId, randomId } = message
-            const existingIndex = prev[ticketId].findIndex((m) => m.randomId === randomId)
+            const existingIndex = prev[ticketId]?.findIndex((m) => m.randomId === randomId)
             const messages = prev[ticketId] ?? []
             if (existingIndex >= 0) {
                 messages[existingIndex] = message

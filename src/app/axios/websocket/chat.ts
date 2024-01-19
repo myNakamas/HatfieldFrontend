@@ -9,27 +9,14 @@ export const sendMessage = async (message: CreateChatMessage) => {
 export const sendMessageSeen = async (message: ChatMessage) => {
     if (message?.id) stompClient.publish({ destination: '/app/chat/seen', body: JSON.stringify(message.id) })
 }
-export const registerToChat = (
-    id: string | undefined,
-    callBack: (message: ChatMessage) => void,
-    markMessageSeen: (message: ChatMessage) => void
-) => {
+export const registerToChat = (id: string | undefined, callBack: (message: ChatMessage) => void) => {
     stompClient.subscribe('/user/' + id + '/chat', (response) => {
         const message = JSON.parse(response.body)
         callBack(message)
     })
-    stompClient.subscribe('/user/' + id + '/seen', (response) => {
-        const message = JSON.parse(response.body)
-        markMessageSeen(message)
-    })
 }
 export const uploadPicture = (fileList: UploadFile<any>[], ticketId?: number, publicMessage?: boolean) => {
     const data = new FormData()
-    // fileList.forEach((file) => {
-    //     const item = file.originFileObj;
-    //     if(item)
-    //     data.append('image', item)
-    // })
     const item = fileList.at(0)?.originFileObj
     if (item) data.append('image', item)
     return backendClient.post('/chat/image', data, { params: { ticketId, publicMessage } })
