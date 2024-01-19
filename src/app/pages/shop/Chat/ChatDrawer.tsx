@@ -70,7 +70,7 @@ export const ChatDrawer = ({
                             items={tickets.map((ticket) => ({
                                 label: `Ticket#${ticket.id}`,
                                 key: ticket.id,
-                                icon: <Badge count={notificationCount[ticket.id]} />,
+                                icon: <Badge count={notificationCount.countPerTicket[ticket.id]} />,
                             }))}
                         />
                     ) : (

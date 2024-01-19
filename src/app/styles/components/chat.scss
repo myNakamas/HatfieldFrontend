@@ -128,3 +128,7 @@
   object-fit: contain;
   border-radius: 100%;
 }
+
+.ant-menu .ant-menu-item .ant-menu-item-icon >* {
+  line-height: normal;
+}

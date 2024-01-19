@@ -167,7 +167,10 @@ const ChatInput = ({
                         autoSize={{ minRows: 1, maxRows: 6 }}
                         value={message}
                         onChange={(e) => onChange(e.target.value)}
-                        onPressEnter={() => onSubmit(message)}
+                        onPressEnter={(e) => {
+                            e.preventDefault();
+                            onSubmit(message)
+                        }}
                         aria-autocomplete='none'
                         disabled={disabled}
                         autoFocus

@@ -52,7 +52,7 @@ export const EditUserSchema = Yup.object<User>().shape({
     phones: Yup.array().of(Yup.string().min(10, 'Not a valid phone number')).notRequired(),
     shopId: Yup.number().notRequired(),
 })
-
+const INT_MAX_VALUE = 2147483647;
 export const AddItemInventorySchema = Yup.object<InventoryItem>().shape({
     model: Yup.object().notRequired(),
     brand: Yup.object().notRequired(),
@@ -61,12 +61,16 @@ export const AddItemInventorySchema = Yup.object<InventoryItem>().shape({
     count: Yup.number()
         .typeError('Please enter a valid number')
         .min(0, 'Invalid count')
+        .max(INT_MAX_VALUE, 'Count is too large')
         .required('Item count is required'),
 })
 export const EditItemInventorySchema = Yup.object<InventoryItem>().shape({
     model: Yup.string().notRequired(),
     brand: Yup.string().notRequired(),
-    count: Yup.number().min(0, 'Invalid count').required('Item count is required'),
+    count: Yup.number()
+        .min(0, 'Invalid count')
+        .max(INT_MAX_VALUE, 'Count is too large')
+        .required('Item count is required'),
 })
 export const UpdateItemCountSchema = Yup.object<InventoryItem>().shape({
     count: Yup.number().min(0, 'Invalid count').required('Item count is required'),

@@ -1,6 +1,6 @@
 import { AppError, Page, PageRequest } from '../../models/interfaces/generalModels'
 import backendClient from '../backendClient'
-import { ChatMessage, CreateTicket, CreateUsedItem, Ticket } from '../../models/interfaces/ticket'
+import { ChatMessage, CreateTicket, CreateUsedItem, MissedMessages, Ticket } from '../../models/interfaces/ticket'
 import { TicketFilter } from '../../models/interfaces/filters'
 import { CreateTicketInvoice } from '../../models/interfaces/invoice'
 
@@ -90,6 +90,11 @@ export const getChat = (params: { ticketId?: number; page: number; pageSize: num
 export const getClientChat = (params: { ticketId?: number; page: PageRequest }): Promise<Page<ChatMessage>> => {
     if (!params.ticketId) return new Promise(() => [])
     return backendClient.get('chat/client/all', { params })
+}
+
+
+export const getNotificationCount = (): Promise<MissedMessages> => {
+    return backendClient.get('chat/missed', );
 }
 
 export const createUsedItems = (usedItem: CreateUsedItem) => {

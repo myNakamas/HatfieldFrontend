@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { sendMessageSeen } from '../../../axios/websocket/chat'
 import { Chat, ChatMessage } from '../../../models/interfaces/ticket'
 import { AuthContext } from '../../../contexts/AuthContext'
-import { useInfiniteQuery, useQuery } from 'react-query'
+import { useInfiniteQuery, useQuery, useQueryClient } from 'react-query'
 import { WebSocketContext } from '../../../contexts/WebSocketContext'
 import { fetchTicketById, getChat, getClientChat } from '../../../axios/http/ticketRequests'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -27,6 +27,7 @@ export const Chats = () => {
     const [chat, setChat] = useState<Chat | undefined>()
     const [params] = useSearchParams()
     const [selectedTicketId, setSelectedTicketId] = useState<number | undefined>(Number(params.get('id')) ?? undefined)
+    const queryClient = useQueryClient()
     const { data: selectedTicket } = useQuery(['ticket', selectedTicketId], () => fetchTicketById(selectedTicketId), {
         enabled: !!selectedTicketId,
     })
@@ -47,13 +48,14 @@ export const Chats = () => {
         {
             getNextPageParam: appGetNextPageParam,
             getPreviousPageParam: appGetPreviousPageParam,
-            onSuccess: () => {
+            onSuccess: ({ pages: [page] }) => {
                 if (selectedTicket?.id) {
                     setUserChats((prev) => {
                         prev[selectedTicket.id] = []
                         return { ...prev }
                     })
                 }
+                queryClient.invalidateQueries(['messages', 'missed'])
             },
         }
     )
