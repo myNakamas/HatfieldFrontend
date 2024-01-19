@@ -35,6 +35,7 @@ import moment from 'moment/moment'
 import { AddTicketInvoice } from '../../../components/modals/AddTicketInvoice'
 import { AppSelect } from '../../../components/form/AppSelect'
 import { FilterWrapper } from '../../../components/filters/FilterWrapper'
+import Paragraph from 'antd/es/typography/Paragraph'
 
 export const Tickets = () => {
     const { loggedUser, isClient, isWorker } = useContext(AuthContext)
@@ -91,7 +92,7 @@ export const Tickets = () => {
                 <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
-        
+
         {
             key: '4',
             label: 'Collected tickets',
@@ -186,6 +187,15 @@ const TicketsTab = ({
                         ) : (
                             <Statistic title={dateFormat(ticket.deadline)} value={'Passed'} />
                         ),
+                        description: (
+                            <Paragraph
+                                ellipsis={{
+                                    rows: 2,
+                                }}
+                            >
+                                {ticket.problemExplanation}
+                            </Paragraph>
+                        ),
                         device: `${ticket.deviceBrand ?? ''} ${ticket.deviceModel ?? ''}`,
                         createdByName: ticket.createdBy?.fullName,
                         price: !ticket.totalPrice
@@ -195,7 +205,7 @@ const TicketsTab = ({
                             : currencyFormat(+ticket.totalPrice - +ticket.deposit),
                         clientName: ticket.client ? getUserString(ticket.client) : '-',
                         actions: (
-                            <Space>
+                            <Space wrap>
                                 <Button
                                     icon={<FontAwesomeIcon icon={faPen} />}
                                     onClick={() => setSelectedTicket(ticket)}
@@ -208,6 +218,7 @@ const TicketsTab = ({
                         id: 'Id',
                         createdAt: 'Creation Date',
                         timeLeft: 'Time left timer',
+                        description: 'Description',
                         device: 'Device Brand&Model',
                         status: 'Ticket Status',
                         deviceLocation: 'Device Location',

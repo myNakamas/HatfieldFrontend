@@ -1,6 +1,7 @@
 import { Entity } from './generalModels'
 import { User } from './user'
 import { InvoiceType, PaymentMethod, WarrantyPeriod } from '../enums/invoiceEnums'
+import { TicketStatus } from '../enums/ticketEnums'
 
 export interface Invoice extends Entity {
     type: InvoiceType
@@ -55,11 +56,17 @@ export interface SalesReport {
 
 export interface TicketsReport {
     totalAmount: number
-    leaderboard: Map<string, number>
+    calendar: TicketDailyReport[]
 }
 
 export interface InvoiceDailyReport {
     date: string
     dailyIncome: number
     count: number
+}
+
+export interface TicketDailyReport {
+    date: string
+    created: number
+    completed: number
 }

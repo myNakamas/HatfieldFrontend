@@ -61,6 +61,7 @@ export const AddInventoryItemInner = ({
     const { data: shop } = useQuery(['currentShop'], getShopData, { suspense: true })
     const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin(), suspense: true })
 
+    const [loading, setLoading] = useState(false)
     const [category, setCategory] = useState<Category>()
     const [showCategoryModal, setShowCategoryModal] = useState(false)
     const { printConfirm: print } = usePrintConfirm()
@@ -88,12 +89,13 @@ export const AddInventoryItemInner = ({
     }
 
     const submit = (item: CreateInventoryItem) => {
+        setLoading(true)
         toast
             .promise(addNewItem({ item }), toastCreatePromiseTemplate('item'), toastProps)
             .then((value) => {
                 formRef.current?.reset()
                 reset({})
-                queryClient
+                return queryClient
                     .invalidateQueries(['shopItems'])
                     .then(() => closeModal(value))
                     .then(() => {
@@ -103,11 +105,12 @@ export const AddInventoryItemInner = ({
                             onOk: () => printItemLabel(value),
                         })
                     })
-                queryClient.invalidateQueries(['brands']).then()
             })
+            .then(() => queryClient.invalidateQueries(['brands']))
             .catch((error: AppError) => {
                 setError('root', { message: error.detail })
             })
+            .finally(() => setLoading(false))
     }
     useEffect(() => {
         formRef.current?.reset()
@@ -159,14 +162,16 @@ export const AddInventoryItemInner = ({
                                             getOptionLabel={(category) => category.name}
                                             getOptionValue={(category) => category.id}
                                         />
-                                        <Button
-                                            onClick={() => {
-                                                setShowCategoryModal(true)
-                                            }}
-                                            icon={<FontAwesomeIcon icon={faPlus} />}
-                                        >
-                                            Add a new category
-                                        </Button>
+                                        {isAdmin() && (
+                                            <Button
+                                                onClick={() => {
+                                                    setShowCategoryModal(true)
+                                                }}
+                                                icon={<FontAwesomeIcon icon={faPlus} />}
+                                            >
+                                                Add a new category
+                                            </Button>
+                                        )}
                                     </Space.Compact>
                                 </FormField>
                             )
@@ -293,7 +298,7 @@ export const AddInventoryItemInner = ({
 
                 <FormError error={errors.root?.message} />
                 <div className='flex-100 justify-end'>
-                    <Button type='primary' htmlType='submit'>
+                    <Button type='primary' htmlType='submit' loading={loading}>
                         Save
                     </Button>
                     <Button htmlType='button' onClick={() => closeModal()}>

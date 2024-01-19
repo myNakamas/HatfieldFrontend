@@ -62,7 +62,6 @@
     margin: 5px;
     justify-content: space-between;
     width: auto;
-    border-bottom: 1px dashed var(--backgroundColor20);
   }
 
   .ticketActions {
@@ -100,6 +99,14 @@
   .abs-icon {
     top: 10px;
     right: 60px;
+  }
+}
+.ticket-cards {
+  
+  @media (max-width: 768px) {
+    .ant-space-item {
+      width: 100%;
+    }
   }
 }
 .editModalButton {
@@ -288,8 +295,8 @@
   width: 100%;
   margin-bottom: 10px;
 }
-.flex-gap{
-  gap:10px;
+.flex-gap {
+  gap: 10px;
 }
 .filterColumn {
   display: grid;
@@ -303,10 +310,9 @@
 .properties {
   min-width: 250px;
 
-  .ant-list-items{
-    overflow-y:auto;
+  .ant-list-items {
+    overflow-y: auto;
     max-height: 400px;
-
   }
 }
 

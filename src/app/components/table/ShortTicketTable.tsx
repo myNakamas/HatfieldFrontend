@@ -28,14 +28,17 @@ export const ShortTicketTable = ({
 }) => {
     if (!data || data.length === 0) return <NoDataComponent items={'tickets'} />
     const [collectTicket, setCollectTicket] = useState<Ticket | undefined>()
-    const columns = ['id','creation date', 'due', 'status', 'client', 'actions'].map((string, index) => ({
+    const columns = ['id', 'creation date', 'due', 'status', 'client', 'actions'].map((string, index) => ({
         title: string,
         dataIndex: string,
         key: 'column' + index + string,
     })) as ColumnsType<Ticket>
-    const getComponentProps = (record: Ticket) => ({
-        onDoubleClick: () => {
-            onClick(record)
+    const getComponentProps = (record: Ticket): React.TdHTMLAttributes<any> => ({
+        className: 'clickable-table-row',
+        onClick: (e) => {
+            if (e.target instanceof HTMLTableCellElement) {
+                onClick(record)
+            }
         },
     })
 

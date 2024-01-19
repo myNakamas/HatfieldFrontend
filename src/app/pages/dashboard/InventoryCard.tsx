@@ -1,4 +1,4 @@
-import { Button, Card, Skeleton, Space } from 'antd'
+import { Button, Card, Skeleton, Space, Tooltip } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Suspense, useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -30,6 +30,8 @@ export const InventoryCard = ({ filter }: { filter?: InvoiceFilter }) => {
         <Card
             className='dashboard-card'
             title={
+                <Tooltip title='Open Inventory'>
+
                 <Button
                     type='dashed'
                     icon={<FontAwesomeIcon icon={faStore} />}
@@ -37,6 +39,7 @@ export const InventoryCard = ({ filter }: { filter?: InvoiceFilter }) => {
                 >
                     Inventory
                 </Button>
+                </Tooltip>
             }
             extra={
                 <Space>

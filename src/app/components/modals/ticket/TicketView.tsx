@@ -20,7 +20,7 @@ import {
 } from '../../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
-import { Button, Card, Space, Typography } from 'antd'
+import { Button, Card, Col, Row, Space, Tag, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
 import { CustomTable } from '../../table/CustomTable'
@@ -190,7 +190,7 @@ const TicketStatusAndLocation = ({ ticket }: { ticket: Ticket }) => {
         }
     }
     return (
-        <Space direction={'vertical'} className='card'>
+        <Card title='Status & Location' type='inner' size='small'>
             <FormField label={'Ticket status'}>
                 <AppSelect<TicketStatus, ItemPropertyView>
                     options={TicketStatusesArray}
@@ -211,7 +211,7 @@ const TicketStatusAndLocation = ({ ticket }: { ticket: Ticket }) => {
                     getOptionValue={(item) => item.value}
                 />
             </FormField>
-        </Space>
+        </Card>
     )
 }
 
@@ -305,10 +305,9 @@ const TicketViewInner = ({
                             <NoDataComponent items={'used items'} />
                         )}
                     </Card>
-                    <Space wrap className={'w-100 justify-between align-start'}>
+                    <Space wrap className={'w-100 justify-around align-start ticket-cards'}>
                         <TicketStatusAndLocation {...{ ticket }} />
-                        <Space direction='vertical' className='card'>
-                            <h3>Ticket status</h3>
+                        <Card title={'Modify actions'} extra={<Tag>{ticket.status}</Tag>} type='inner' size='small'>
                             <Space.Compact direction={'vertical'}>
                                 <Button
                                     onClick={() => startTicket(ticket.id)}
@@ -348,11 +347,8 @@ const TicketViewInner = ({
                                     Mark as Collected
                                 </Button>
                             </Space.Compact>
-                        </Space>
-
-                        <Space direction='vertical' className='card'>
-                            <h3>Other actions</h3>
-
+                        </Card>
+                        <Card title={'Other actions'} type='inner' size='small'>
                             <Space.Compact direction={'vertical'}>
                                 <Button
                                     icon={<FontAwesomeIcon icon={faMessage} />}
@@ -425,7 +421,7 @@ const TicketViewInner = ({
                                     onClick={() => setTicketLogOpen(true)}
                                 />
                             </Space.Compact>
-                        </Space>
+                        </Card>
                     </Space>
                 </>
             )}

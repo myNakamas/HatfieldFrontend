@@ -18,6 +18,7 @@ export interface UserFilter extends Filter {
 }
 
 export interface InventoryFilter extends Filter {
+    id?: number
     modelId?: number
     brandId?: number
     shopId?: number

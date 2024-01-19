@@ -56,25 +56,25 @@ export const PhoneSelect = ({
         }
     }, [value])
     return (
-        <>
-            <Space.Compact>
-                <Select<string, PhoneCode>
-                    options={data}
-                    showSearch
-                    style={{ width: 150 }}
-                    filterOption={filterOptions}
-                    fieldNames={{ value: 'dial_code', label: 'label' }}
-                    value={selectedPhoneCode}
-                    onChange={handlePhoneCodeChange}
-                />
-                <Input
-                    placeholder={'Add phone'}
-                    value={phoneNumber}
-                    onChange={(e) => handlePhoneNumberChange(e.currentTarget.value)}
-                />
-                {extra}
-            </Space.Compact>
+        <Space.Compact>
+            <Input
+                placeholder={'Add phone'}
+                addonBefore={
+                    <Select<string, PhoneCode>
+                        options={data}
+                        showSearch
+                        style={{ width: 150 }}
+                        filterOption={filterOptions}
+                        fieldNames={{ value: 'dial_code', label: 'label' }}
+                        value={selectedPhoneCode}
+                        onChange={handlePhoneCodeChange}
+                    />
+                }
+                value={phoneNumber}
+                onChange={(e) => handlePhoneNumberChange(e.currentTarget.value)}
+            />
+            {extra}
             <FormError error={error} />
-        </>
+        </Space.Compact>
     )
 }

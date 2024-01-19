@@ -38,11 +38,12 @@ export const EditTicketForm = ({
     closeModal: () => void
     isEdit?: boolean
 }) => {
-    const formRef = useRef<HTMLFormElement>(null);
+    const formRef = useRef<HTMLFormElement>(null)
     const { isWorker } = useContext(AuthContext)
     const queryClient = useQueryClient()
     const { printConfirm } = usePrintConfirm()
     const [activeDictaphone, setActiveDictaphone] = useState('')
+    const [formStatus, setFormStatus] = useState('')
     const {
         register,
         handleSubmit,
@@ -62,42 +63,35 @@ export const EditTicketForm = ({
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [tempText, setTempText] = useState('')
 
-    const resetForm = (ticket:CreateTicket) => {
-        formRef.current?.reset();
-        reset(ticket);
+    const resetForm = (ticket: CreateTicket) => {
+        formRef.current?.reset()
+        reset(ticket)
     }
 
     const onFormSubmit = (data: CreateTicket) => {
-        if (isEdit) {
-            editTicket(data)
-                .then(() => {
-                    queryClient.invalidateQueries(['tickets']).then(() => {
-                        closeModal()
-                        resetForm(defaultTicket)
-                    })
-                })
-                .catch((error: AppError) => {
-                    setError('root', { message: error?.detail })
-                })
-        } else {
-            createNewTicket(data)
-                .then((ticket) => {
-                    !isEdit &&
-                        printConfirm({
-                            title: 'Print ticket labels',
-                            content: <TicketPrintConfirmContent ticket={ticket} />,
-                            onOk: () => putPrintTicketLabels(ticket.id),
-                        })
-
-                    queryClient.invalidateQueries(['tickets']).then(() => {
-                        closeModal()
-                        resetForm(defaultTicket)
-                    })
-                })
-                .catch((error: AppError) => {
-                    setError('root', { message: error?.detail })
-                })
-        }
+        setFormStatus('loading')
+        const promise = isEdit
+            ? editTicket(data)
+            : createNewTicket(data).then((ticket) => {
+                  !isEdit &&
+                      printConfirm({
+                          title: 'Print ticket labels',
+                          content: <TicketPrintConfirmContent ticket={ticket} />,
+                          onOk: () => putPrintTicketLabels(ticket.id),
+                      })
+              })
+        promise
+            .then(() => {
+                return queryClient.invalidateQueries(['tickets'])
+            })
+            .then(() => {
+                closeModal()
+                resetForm(defaultTicket)
+            })
+            .catch((error: AppError) => {
+                setError('root', { message: error?.detail })
+            })
+            .finally(() => setFormStatus(''))
     }
     const editTicket = (formValue: CreateTicket) => {
         return updateTicket({ id: ticket?.id, ticket: formValue })
@@ -269,12 +263,31 @@ export const EditTicketForm = ({
                                     />
                                     <TicketQuickCheckBox
                                         fieldToCheck={watch('deviceCondition')}
-                                        name={'Cracked Screen/ Cracked Back'}
-                                        value={'Cracked Screen/ Cracked Back, '}
+                                        name={'Cracked Screen'}
+                                        value={'Cracked Screen, '}
                                         onChange={(string) => {
                                             setValue('deviceCondition', string)
                                         }}
                                     />
+                                    <TicketQuickCheckBox
+                                        fieldToCheck={watch('deviceCondition')}
+                                        name={'Cracked Back'}
+                                        value={'Cracked Back, '}
+                                        onChange={(string) => {
+                                            setValue('deviceCondition', string)
+                                        }}
+                                    />
+                                    <label>
+                                        <Checkbox
+                                            checked={watch('deviceLocation') === 'With customer'}
+                                            onChange={(e) => {
+                                                e.target.checked
+                                                    ? setValue('deviceLocation', 'With customer')
+                                                    : setValue('deviceLocation', defaultTicket.deviceLocation)
+                                            }}
+                                        />{' '}
+                                        Device stays with customer
+                                    </label>
                                 </Space>
                             </Card>
                         </Space>
@@ -352,12 +365,12 @@ export const EditTicketForm = ({
                             </div>
                             <Collapse
                                 accordion
-                                defaultActiveKey={'1'}
                                 destroyInactivePanel={false}
                                 items={[
                                     {
                                         key: '1',
                                         label: 'More details',
+                                        forceRender:true,
                                         children: (
                                             <Space.Compact direction={'vertical'}>
                                                 <TextField
@@ -449,7 +462,7 @@ export const EditTicketForm = ({
                     <FormError error={errors.root?.message} />
                 </div>
                 <Space className='buttonFooter'>
-                    <Button htmlType='submit' type='primary'>
+                    <Button htmlType='submit' type='primary' loading={formStatus == 'loading'}>
                         Submit
                     </Button>
                     <Button

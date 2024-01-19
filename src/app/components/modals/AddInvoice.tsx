@@ -64,7 +64,7 @@ export const AddInvoice = ({
               deviceBrand: item.brand,
               deviceModel: item.model,
               totalPrice: item.sellPrice,
-              serialNumber: item.categoryView.itemType === 'DEVICE' ? item.imei : '',
+              serialNumber: item.categoryView?.itemType === 'DEVICE' ? item.imei : '',
               type: 'SELL' as InvoiceType,
           }
         : defaultInvoice

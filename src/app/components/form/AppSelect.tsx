@@ -82,7 +82,7 @@ export const AppSelect = <I, T extends BaseOptionType>({
     disabled?: boolean
     optionFilterProp?: string
     placeholder?: string
-}) => {
+} & SelectProps<I,T>) => {
     const selectOptions = options?.map((item) => ({
         ...item,
         label: getOptionLabel && getOptionLabel(item),

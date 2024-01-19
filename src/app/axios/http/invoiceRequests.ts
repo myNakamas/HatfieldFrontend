@@ -19,7 +19,7 @@ export const getSalesReport = ({ filter }: { filter: InvoiceFilter }): Promise<S
     return backendClient.get('invoice/report/sell', { params: { ...filter } })
 }
 export const getTicketsReport = ({ filter }: { filter: InvoiceFilter }): Promise<TicketsReport> => {
-    return backendClient.get('ticket/report', { params: { ...filter } })
+    return backendClient.get('ticket/worker/report', { params: { ...filter } })
 }
 export const getInvoiceByClientId = (clientId: string): Promise<Invoice[]> => {
     return backendClient.get('invoice/allByClient', { params: { clientId } })
