@@ -5,7 +5,7 @@ import { LogsFilter } from '../../../models/interfaces/filters'
 import { useQuery, useQueryClient } from 'react-query'
 import { getAllLogs } from '../../../axios/http/shopRequests'
 import { AppModal } from '../AppModal'
-import { Button, Card, Collapse, Descriptions, List, Popover, Space } from 'antd'
+import { Button, Card, Collapse, Descriptions, List, Popover, Space, Typography } from 'antd'
 import { UserDescription } from '../users/ViewUser'
 import DescriptionsItem from 'antd/lib/descriptions/Item'
 import dateFormat from 'dateformat'
@@ -151,7 +151,7 @@ export const LogListRow = ({ log, onClick }: { log: Log; onClick?: (log: Log) =>
                             return value.length == 0 ? (
                                 <div key={`logMessage.${log.id}.${index}`}></div>
                             ) : (
-                                <li key={`logMessage.${log.id}.${index}`}>{value}</li>
+                                <Typography.Paragraph ellipsis={{rows:3}} prefix={'-'}  key={`logMessage.${log.id}.${index}`}>{value}</Typography.Paragraph>
                             )
                         })}
                     </ul>

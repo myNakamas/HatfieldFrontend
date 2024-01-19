@@ -227,15 +227,13 @@ export const AddInventoryItemInner = ({
                                 type='number'
                                 placeholder='Number of items'
                             />
-                            {category?.itemType === 'DEVICE' && +watch('count') === 1 && (
-                                <TextField
-                                    label='Imei'
-                                    defaultValue={watch('imei')}
-                                    register={register('imei')}
-                                    error={errors.name}
-                                    placeholder={'Serial number / Imei'}
-                                />
-                            )}
+                            <TextField
+                                label='Imei'
+                                defaultValue={watch('imei')}
+                                register={register('imei')}
+                                error={errors.name}
+                                placeholder={'Serial number / Imei'}
+                            />
                         </Space>
                         {isAdmin() && (
                             <Controller

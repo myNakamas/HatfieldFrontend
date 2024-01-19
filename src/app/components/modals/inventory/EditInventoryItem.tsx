@@ -192,15 +192,13 @@ export const EditInventoryItem = ({
                     <div>
                         <Space>
                             <TextField label='Count' register={register('count')} error={errors.count} type='number' />
-                            {category?.itemType === 'DEVICE' && +watch('count') === 1 && (
-                                <TextField
-                                    label='Serial number / Imei'
-                                    value={watch('imei')}
-                                    register={register('imei')}
-                                    error={errors.name}
-                                    placeholder={'Serial number / Imei'}
-                                />
-                            )}
+                            <TextField
+                                label='Serial number / Imei'
+                                value={watch('imei')}
+                                register={register('imei')}
+                                error={errors.name}
+                                placeholder={'Serial number / Imei'}
+                            />
                         </Space>
                     </div>
 
