@@ -1,15 +1,23 @@
-import { Badge, Drawer, Menu, Space } from 'antd'
+import { Badge, Drawer, Menu, Space, Tag } from 'antd'
 import CheckableTag from 'antd/es/tag/CheckableTag'
 import { NoDataComponent } from '../../../components/table/NoDataComponent'
 import { useContext } from 'react'
 import { useQuery } from 'react-query'
 import { fetchAllActiveTickets, fetchClientActiveTickets } from '../../../axios/http/ticketRequests'
-import { activeTicketStatuses, completedTicketStatuses } from '../../../models/enums/ticketEnums'
+import {
+    TicketStatuses,
+    TicketStatusesArray,
+    activeTicketStatuses,
+    collectedTicketStatuses,
+    completedTicketStatuses,
+    getTicketStatusColor,
+} from '../../../models/enums/ticketEnums'
 import { TicketFilter } from '../../../models/interfaces/filters'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { Ticket } from '../../../models/interfaces/ticket'
 import { CustomSuspense } from '../../../components/CustomSuspense'
 import { WebSocketContext } from '../../../contexts/WebSocketContext'
+import { ChatBadge } from '../../../components/ChatBadge'
 
 export const ChatDrawer = ({
     filter,
@@ -27,16 +35,13 @@ export const ChatDrawer = ({
     setSelectedTicketId: (value: number) => void
 }) => {
     const { isClient } = useContext(AuthContext)
-    const { notificationCount } = useContext(WebSocketContext)
 
     const { data: tickets, isLoading } = useQuery(['tickets', filter], () => {
         const query = isClient() ? fetchClientActiveTickets : fetchAllActiveTickets
         return query({
             filter: {
                 ...filter,
-                ticketStatuses: filter.hideCompleted
-                    ? activeTicketStatuses
-                    : activeTicketStatuses.concat(completedTicketStatuses),
+                ticketStatuses: filter.hideCompleted ? activeTicketStatuses : TicketStatuses,
             },
         })
     })
@@ -68,9 +73,14 @@ export const ChatDrawer = ({
                             defaultSelectedKeys={[String(selectedTicket?.id)]}
                             mode='inline'
                             items={tickets.map((ticket) => ({
-                                label: `Ticket#${ticket.id}`,
+                                label: (
+                                    <Space>
+                                        <div>Ticket #{ticket.id}</div>
+                                        <Tag color={getTicketStatusColor(ticket.status)}>{ticket.status}</Tag>
+                                    </Space>
+                                ),
                                 key: ticket.id,
-                                icon: <Badge count={notificationCount.countPerTicket[ticket.id]} />,
+                                icon: <ChatBadge ticketId={ticket.id} />,
                             }))}
                         />
                     ) : (

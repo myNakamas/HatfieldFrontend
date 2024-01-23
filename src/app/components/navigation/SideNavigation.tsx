@@ -21,6 +21,7 @@ import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket'
 import { AuthContext } from '../../contexts/AuthContext'
 import Button from 'antd/es/button'
 import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs'
+import { ChatBadge } from '../ChatBadge'
 
 export type MenuItem = Required<MenuProps>['items'][number]
 
@@ -43,9 +44,9 @@ export const SideNavigation = ({
             label: 'Chats',
             key: '/chats',
             icon: (
-                <Badge count={totalNotificationCount}>
+                <ChatBadge ticketId={totalNotificationCount}>
                     <FontAwesomeIcon icon={faCommentDots} />
-                </Badge>
+                </ChatBadge>
             ),
         },
     ]

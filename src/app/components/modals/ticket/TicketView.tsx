@@ -20,7 +20,7 @@ import {
 } from '../../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
-import { Button, Card, Col, Row, Space, Tag, Typography } from 'antd'
+import { Badge, Button, Card, Col, Row, Space, Tag, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
 import { CustomTable } from '../../table/CustomTable'
@@ -57,6 +57,8 @@ import { defaultPage } from '../../../models/enums/defaultValues'
 import { InvoiceFilter } from '../../../models/interfaces/filters'
 import { getAllInvoices } from '../../../axios/http/invoiceRequests'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft'
+import { WebSocketContext } from '../../../contexts/WebSocketContext'
+import { ChatBadge } from '../../ChatBadge'
 
 export const TicketView = ({
     ticket,
@@ -234,6 +236,7 @@ const TicketViewInner = ({
     const queryClient = useQueryClient()
     const { isWorker } = useContext(AuthContext)
     const { data: shop } = useQuery(['currentShop'], getShopData)
+    const { notificationCount } = useContext(WebSocketContext)
 
     const startTicket = (id: number) => {
         toast
@@ -351,7 +354,11 @@ const TicketViewInner = ({
                         <Card title={'Other actions'} type='inner' size='small'>
                             <Space.Compact direction={'vertical'}>
                                 <Button
-                                    icon={<FontAwesomeIcon icon={faMessage} />}
+                                    icon={
+                                        <ChatBadge ticketId={ticket.id}>
+                                            <FontAwesomeIcon icon={faMessage} />
+                                        </ChatBadge>
+                                    }
                                     onClick={() => navigate('/chats?id=' + ticket.id)}
                                 >
                                     Open Chat

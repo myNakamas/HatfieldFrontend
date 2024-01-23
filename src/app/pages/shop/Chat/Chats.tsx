@@ -19,7 +19,7 @@ const InfiniteScrollPageSize = 20
 
 export const Chats = () => {
     const { loggedUser, isClient } = useContext(AuthContext)
-    const [filter, setFilter] = useState<TicketFilter>({ hideCompleted: true, shopId: loggedUser?.shopId })
+    const [filter, setFilter] = useState<TicketFilter>({ hideCompleted: false, shopId: loggedUser?.shopId })
     const fetchChat = isClient() ? getClientChat : getChat
     const navigate = useNavigate()
     const [page, setPage] = useState<PageRequest>({ page: 1, pageSize: InfiniteScrollPageSize })

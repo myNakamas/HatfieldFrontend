@@ -27,6 +27,7 @@ export const WebSocketContextProvider = ({ children }: { children: ReactNode }) 
     const [userChats, setUserChats] = useState<UserChats>({})
     const [notificationCount, setNotificationCount] = useState<MissedMessages>({ totalCount: 0, countPerTicket: {} })
     useQuery(['messages', 'missed'], getNotificationCount, {
+        enabled: !!loggedUser,
         onSuccess: setNotificationCount,
     })
     const location = useLocation()
