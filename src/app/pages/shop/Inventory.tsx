@@ -35,17 +35,12 @@ export const Inventory = () => {
     const [editItem, setEditItem] = useState<InventoryItem>()
     const navigate = useNavigate()
     const { loggedUser } = useContext(AuthContext)
-    const [params] = useSearchParams()
     const [filter, setFilter] = useState<InventoryFilter>({ shopId: loggedUser?.shopId, onlyNonEmpty: true })
     const [createModalIsOpen, setCreateModalIsOpen] = useState(false)
     const [page, setPage] = useState<PageRequest>(defaultPage)
     const [selectedItem, setSelectedItem] = useState<InventoryItem | undefined>()
 
     const isUserFromShop = filter.shopId === loggedUser?.shopId
-    useEffect(() => {
-        const shopId = params.get('shopId')
-        if (shopId) setFilter({ shopId: +shopId })
-    }, [])
 
     return (
         <div className='mainScreen'>
@@ -130,6 +125,14 @@ const InventoryFilters = ({
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: categories } = useQuery('allCategories', getAllCategories)
     const { data: shops } = useQuery(['shops', 'short'], getWorkerShops, { enabled: !isClient() })
+    const [params] = useSearchParams()
+
+    useEffect(() => {
+        const shopId = params.get('shopId')
+        const itemId = params.get('itemId')
+        if (shopId) setFilter({ shopId: +shopId })
+        if (itemId) setFilter({ id: itemId ? +itemId : undefined })
+    }, [])
 
     return (
         <Space wrap className={'w-100 justify-between'}>
@@ -144,8 +147,8 @@ const InventoryFilters = ({
                 <Input
                     placeholder='Search by id'
                     allowClear
-                    defaultValue={filter.id}
-                    onChange={({ target }) => setFilter({ ...filter, id: +target.value ?? undefined })}
+                    value={filter.id}
+                    onChange={({ target }) => setFilter({ ...filter, id: target.value ? +target.value : undefined })}
                 />
                 <AppSelect<number, ItemPropertyView>
                     value={filter.shopId}
@@ -209,12 +212,8 @@ export const InventoryInner = ({
     const { loggedUser } = useContext(AuthContext)
     const { data: categories } = useQuery('allCategories', getAllCategories)
     const [additionalHeaders, setAdditionalHeaders] = useState({})
-    const [params] = useSearchParams()
 
     useEffect(() => {
-        if (params.get('itemId')) {
-            setSelectedItem(data?.content.find(({ id }) => String(id) === params.get('itemId')))
-        }
         const category = categories?.find(({ id }) => filter?.categoryId === id)
         setAdditionalHeaders(
             category?.columns.reduce((obj, field) => {
