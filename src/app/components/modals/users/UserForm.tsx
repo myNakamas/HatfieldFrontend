@@ -52,13 +52,14 @@ export const UserForm = ({
                                     error={error?.message}
                                     extra={
                                         <Button
+                                            danger
                                             onClick={() =>
                                                 setValue(
                                                     'phones',
                                                     getValues('phones').filter((value, i) => i !== index)
                                                 )
                                             }
-                                            icon={<FontAwesomeIcon color='red' icon={faTrash} />}
+                                            icon={<FontAwesomeIcon icon={faTrash} />}
                                         />
                                     }
                                 />

@@ -30,7 +30,7 @@ export const UserBanButton = ({ user }: { user: User }) => {
                 })
             }}
         >
-            <Button icon={<FontAwesomeIcon icon={faBan} />} />
+            <Button danger icon={<FontAwesomeIcon icon={faBan} />} />
         </Popconfirm>
     )
 }

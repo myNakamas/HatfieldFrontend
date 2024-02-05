@@ -51,6 +51,7 @@ const LogsInner = ({
         <div className={'p-2'}>
             <LogDetails log={selectedLog} closeModal={() => setSelectedLog(undefined)} isModalOpen={!!selectedLog} />
             <List<Log>
+                bordered
                 loading={isLoading}
                 dataSource={logs?.content}
                 pagination={{

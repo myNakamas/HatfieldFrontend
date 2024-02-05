@@ -40,7 +40,7 @@ export const generateDaysArray = (startDate?: string, endDate?: string): moment.
 
 export const getUserString = (user: User) => {
     if (!!user?.fullName || !!user?.email || user?.phones?.length > 0)
-        return `${user?.fullName} ${user?.email} ${user?.phones?.join(',')}`
+        return [user?.fullName, user?.email,user?.phones ? user?.phones?.join(',') : ''].join(' ');
     return `Unknown user`
 }
 

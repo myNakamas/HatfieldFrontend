@@ -8,7 +8,7 @@ import { getProfilePicture, getSimpleUsers } from '../../../axios/http/userReque
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import dateFormat from 'dateformat'
 import { faArrowRight, faCheckDouble, faCircleCheck, faSpinner } from '@fortawesome/free-solid-svg-icons'
-import { Alert, Divider, Image, Skeleton, Spin } from 'antd'
+import { Alert, Button, Card, Divider, Image, Skeleton, Spin } from 'antd'
 import ProfileImage from '../../../components/user/ProfileImage'
 import { getImage } from '../../../axios/http/resourcesRequests'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -58,10 +58,11 @@ export const ChatMessages = ({
                     <Skeleton active />
                 </div>
             ) : (
-                <div onClick={openDrawer} className={'w-100'}>
-                    <FontAwesomeIcon icon={faArrowRight} size={'xl'} />
-                    <h4>Please select a ticket to see its chat</h4>
-                </div>
+                <Card title='Please select a ticket to see its chat' onClick={openDrawer} className={'w-100'}>
+                    <Button shape='round'>
+                        <FontAwesomeIcon icon={faArrowRight} size={'xl'} />
+                    </Button>
+                </Card>
             )}
         </div>
     )
@@ -110,7 +111,6 @@ const ChatMessageRow = ({ message, sender }: { message: ChatMessage; sender?: Us
                         >
                             {message.text}
                             <div className='timestamp'>{dateFormat(message.timestamp)}</div>
-
                         </div>
                     )}
                 </div>

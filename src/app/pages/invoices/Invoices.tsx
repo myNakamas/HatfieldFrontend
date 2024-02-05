@@ -103,7 +103,7 @@ export const InvoicesTable = ({
                                 }}
                                 onCancel={() => toast.success('The invoice was NOT invalidated 😅')}
                             >
-                                <Button icon={<FontAwesomeIcon icon={faTrash} />}></Button>
+                                <Button danger icon={<FontAwesomeIcon icon={faTrash} />}></Button>
                             </Popconfirm>
                         )}
                     </Space>
