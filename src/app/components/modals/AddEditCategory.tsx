@@ -93,7 +93,8 @@ export const AddEditCategory = ({
                             )
                         }
                         title='Delete this column'
-                        icon={<FontAwesomeIcon color='red' icon={faTrash} />}
+                        danger
+                        icon={<FontAwesomeIcon icon={faTrash} />}
                     />
                 </Space>
                 <FormError error={error?.name?.message}/>

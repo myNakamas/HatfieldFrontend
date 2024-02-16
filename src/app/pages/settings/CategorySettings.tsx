@@ -114,7 +114,8 @@ export const CategorySettings = () => {
                                                         >
                                                             <Button
                                                                 disabled={!isAdmin()}
-                                                                icon={<FontAwesomeIcon icon={faTrashCan} />}
+                                                                danger
+                                                                icon={<FontAwesomeIcon color='red' icon={faTrashCan} />}
                                                             />
                                                         </Popconfirm>
                                                     </Space>

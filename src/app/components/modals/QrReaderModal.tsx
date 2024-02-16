@@ -49,7 +49,7 @@ export const QrReaderButton = ({ title, hidden }: { title: string; hidden?: bool
             <QrReaderModal isModalOpen={modalOpen} closeModal={() => setModalOpen(false)} />
             <Button
                 icon={<FontAwesomeIcon icon={faQrcode} />}
-                type={'primary'}
+                type={'dashed'}
                 children={title}
                 onClick={() => setModalOpen((prev) => !prev)}
             />
