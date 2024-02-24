@@ -1,22 +1,21 @@
+import { faPen, faQuestion } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Button, FloatButton, Space, Tabs, TabsProps, Tour } from 'antd'
 import React, { useRef, useState } from 'react'
 import { useQuery } from 'react-query'
-import { CustomTable } from '../../components/table/CustomTable'
-import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { getAllUsers, getAllWorkers } from '../../axios/http/userRequests'
-import { AddUser } from '../../components/modals/users/AddUser'
-import { User } from '../../models/interfaces/user'
 import { getAllShops, getWorkerShops } from '../../axios/http/shopRequests'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { SearchComponent } from '../../components/filters/SearchComponent'
-import { UserFilter } from '../../models/interfaces/filters'
-import { userTourSteps } from '../../models/enums/userEnums'
-import { Button, FloatButton, Space, Tabs, TabsProps, Tour } from 'antd'
-import { faPen, faQuestion } from '@fortawesome/free-solid-svg-icons'
-import { ViewUser } from '../../components/modals/users/ViewUser'
-import { EditUser } from '../../components/modals/users/EditUser'
-import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { getAllUsers } from '../../axios/http/userRequests'
 import { UserBanButton } from '../../components/UserBanButton'
+import { SearchComponent } from '../../components/filters/SearchComponent'
 import { AppSelect } from '../../components/form/AppSelect'
+import { AddUser } from '../../components/modals/users/AddUser'
+import { EditUser } from '../../components/modals/users/EditUser'
+import { ViewUser } from '../../components/modals/users/ViewUser'
+import { CustomTable } from '../../components/table/CustomTable'
+import { UserRolesArray, userTourSteps } from '../../models/enums/userEnums'
+import { UserFilter } from '../../models/interfaces/filters'
+import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { User } from '../../models/interfaces/user'
 
 export const Users = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
@@ -27,23 +26,22 @@ export const Users = () => {
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [filter, setFilter] = useState<UserFilter>({})
 
-    const { data: workers } = useQuery(['users', 'workers', { ...filter, banned: true }], () =>
-        getAllWorkers({ filter: { ...filter, banned: false } })
-    )
-    const { data: banned } = useQuery(['users', 'bannedUsers', { ...filter, banned: true }], () =>
-        getAllUsers({ filter: { ...filter, banned: true } })
-    )
+    const { data: workers, isLoading } = useQuery(['users', 'workers', filter], () => getAllUsers({ filter }))
 
     const tabs: TabsProps['items'] = [
         {
             key: '1',
             label: 'Workers',
-            children: <UsersTab {...{ users: workers, setSelectedUser, setViewUser, tourRef: refsArray[3] }} />,
+            children: (
+                <UsersTab {...{ users: workers, setSelectedUser, setViewUser, tourRef: refsArray[3], isLoading }} />
+            ),
         },
         {
             key: '2',
             label: 'Banned users',
-            children: <UsersTab {...{ users: banned, setSelectedUser, setViewUser, tourRef: refsArray[3] }} />,
+            children: (
+                <UsersTab {...{ users: workers, setSelectedUser, setViewUser, tourRef: refsArray[3], isLoading }} />
+            ),
         },
     ]
 
@@ -60,7 +58,12 @@ export const Users = () => {
                 </Button>
             </Space>
             <div ref={refsArray[2]}>
-                <Tabs animated defaultActiveKey='active' items={tabs} />
+                <Tabs
+                    animated
+                    defaultActiveKey='active'
+                    onChange={(activeKey) => setFilter({ ...filter, banned: activeKey === '2' })}
+                    items={tabs}
+                />
             </div>
             <Tour
                 type={'primary'}
@@ -82,15 +85,18 @@ const UsersTab = ({
     setSelectedUser,
     setViewUser,
     tourRef,
+    isLoading,
 }: {
     users?: User[]
     setSelectedUser: (value: ((prevState: User | undefined) => User | undefined) | User | undefined) => void
     setViewUser: (value: ((prevState: User | undefined) => User | undefined) | User | undefined) => void
     tourRef: React.MutableRefObject<null>
+    isLoading?: boolean
 }) => {
     const { data: shops } = useQuery(['shops'], getAllShops)
-    return users && users.length > 0 ? (
+    return (
         <CustomTable<User>
+            loading={isLoading}
             headers={{
                 username: 'Username',
                 fullName: 'Full name',
@@ -99,26 +105,26 @@ const UsersTab = ({
                 shop: 'Shop name',
                 actions: 'Actions',
             }}
-            data={users.map((user) => {
-                return {
-                    ...user,
-                    shop: shops?.find(({ id }) => user.shopId === id)?.shopName,
-                    actions: (
-                        <Space>
-                            <Button
-                                ref={tourRef}
-                                onClick={() => setSelectedUser(user)}
-                                icon={<FontAwesomeIcon icon={faPen} />}
-                            />
-                            <UserBanButton user={user} />
-                        </Space>
-                    ),
-                }
-            })}
+            data={
+                users?.map((user) => {
+                    return {
+                        ...user,
+                        shop: shops?.find(({ id }) => user.shopId === id)?.shopName,
+                        actions: (
+                            <Space>
+                                <Button
+                                    ref={tourRef}
+                                    onClick={() => setSelectedUser(user)}
+                                    icon={<FontAwesomeIcon icon={faPen} />}
+                                />
+                                <UserBanButton user={user} />
+                            </Space>
+                        ),
+                    }
+                }) ?? []
+            }
             onClick={({ userId }) => setViewUser(users?.find((user) => user.userId === userId))}
         />
-    ) : (
-        <NoDataComponent items='users' />
     )
 }
 
@@ -144,6 +150,14 @@ const UserFilters = ({
                     getOptionValue={(shop) => shop.id}
                 />
             </div>
+            <AppSelect<string, ItemPropertyView>
+                value={filter.roles ? filter.roles[0].value : undefined}
+                options={UserRolesArray}
+                placeholder={'Filter by role'}
+                onChange={(role) => setFilter({ ...filter, roles: role ? [{ id: 1, value: role }] : undefined })}
+                getOptionLabel={(role) => role.value}
+                getOptionValue={(role) => role.value}
+            />
         </div>
     )
 }
