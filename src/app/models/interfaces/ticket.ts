@@ -44,13 +44,13 @@ export interface CreateTicket {
     status: TicketStatus
     totalPrice: number
     deposit: number
-    clientId: string
+    client?: User
+    clientId?: string
 }
 
 export const createTicketFromTicket = (t: Ticket): CreateTicket => {
-    const clientId = t.client?.userId
     const deadline = moment(t.deadline).toDate()
-    return { ...t, clientId, deadline }
+    return { ...t, deadline }
 }
 
 /**

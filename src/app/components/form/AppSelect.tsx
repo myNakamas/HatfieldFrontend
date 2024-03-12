@@ -1,6 +1,7 @@
 import { BaseOptionType, SelectProps } from 'antd/lib/select'
 import React from 'react'
-import { Select } from 'antd'
+import { AutoComplete, AutoCompleteProps, Select } from 'antd'
+import { User } from '../../models/interfaces/user'
 
 export const AppCreatableSelect = <T extends BaseOptionType>({
     options,
@@ -13,7 +14,8 @@ export const AppCreatableSelect = <T extends BaseOptionType>({
     onChange: (value: string | null) => void
     getOptionLabel?: (value: T) => string
     getOptionValue?: (value: T) => string
-} & SelectProps<string, T>) => {
+    value:string,
+} & Omit<SelectProps<string[], T>, 'value'>) => {
     const selectOptions = options?.map((item) => ({
         ...item,
         key: getOptionLabel ? getOptionLabel(item) : item.label,
@@ -35,14 +37,12 @@ export const AppCreatableSelect = <T extends BaseOptionType>({
             : false
 
     return (
-        <Select<string, T>
+        <Select<string[], T>
             mode={'tags'}
             onSearch={() => {
                 if (value) clearValue()
             }}
-            onKeyDown={(event) => {
-                if (event.key === 'Backspace') clearValue()
-            }}
+
             tagRender={(props) => (
                 <div key={`key${props.label}_${props.value}`} style={{ paddingLeft: 5 }}>
                     {props.label}
@@ -52,13 +52,14 @@ export const AppCreatableSelect = <T extends BaseOptionType>({
             dropdownStyle={{ textAlign: 'left' }}
             allowClear
             showSearch
-            onClear={() => clearValue()}
+            onClear={clearValue}
+            onDeselect={clearValue}
             options={selectOptions}
-            onChange={(value: any) => {
+            onChange={(value: any,option) => {
                 if (value instanceof Array) onUpdate(value[value.length - 1] ?? null)
                 else onUpdate(value)
             }}
-            value={[value] as any}
+            value={value? [value]: []}
             filterOption={defaultFilterOption}
             {...selectProps}
         />
@@ -82,7 +83,7 @@ export const AppSelect = <I, T extends BaseOptionType>({
     disabled?: boolean
     optionFilterProp?: string
     placeholder?: string
-} & SelectProps<I,T>) => {
+} & SelectProps<I, T>) => {
     const selectOptions = options?.map((item) => ({
         ...item,
         label: getOptionLabel && getOptionLabel(item),
@@ -119,3 +120,5 @@ export const AppSelect = <I, T extends BaseOptionType>({
         />
     )
 }
+
+

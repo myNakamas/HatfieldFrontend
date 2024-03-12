@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react'
 import { FieldError } from 'react-hook-form'
 import { FormError } from './FormError'
+import { Form } from 'antd'
 
 export const FormField = ({ label, error, children }: { label: string; error?: FieldError; children: ReactNode }) => {
     return (
@@ -11,5 +12,24 @@ export const FormField = ({ label, error, children }: { label: string; error?: F
                 <FormError error={error?.message} />
             </label>
         </div>
+    )
+}
+
+export const AntFormField = ({
+    label,
+    error,
+    children,
+    extra,
+}: {
+    label?: string
+    error?: FieldError
+    children: ReactNode
+    extra?: ReactNode
+}) => {
+    return (
+        <Form.Item extra={extra} label={label}>
+            {children}
+            <Form.ErrorList errors={[error?.message]} />
+        </Form.Item>
     )
 }

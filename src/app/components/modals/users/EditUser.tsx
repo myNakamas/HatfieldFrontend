@@ -80,7 +80,7 @@ export const EditUser = ({
     return (
         <AppModal isModalOpen={isModalOpen} closeModal={closeModal}>
             <h3>User</h3>
-            <form ref={formRef} className='modalForm' onSubmit={handleSubmit(isSelfEdit() ? onSelfEdit : onEdit)}>
+            <form ref={formRef} className='modalForm' onSubmit={handleSubmit(isSelfEdit() ? onSelfEdit : onEdit,(errors)=>{console.log(watch(),errors)})}>
                 <TextField
                     defaultValue={''}
                     register={register('username')}

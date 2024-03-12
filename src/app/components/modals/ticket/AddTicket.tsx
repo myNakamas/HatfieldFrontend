@@ -3,6 +3,7 @@ import { EditTicketForm } from './EditTicketForm'
 import { defaultTicket } from '../../../models/enums/defaultValues'
 import { Modal } from 'antd'
 import { AuthContext } from '../../../contexts/AuthContext'
+import { TicketForm } from './TicketForm'
 
 export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
     const { isWorker } = useContext(AuthContext)
@@ -17,11 +18,9 @@ export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; c
             width={'clamp(400px,80%,900px)'}
             onCancel={closeModal}
         >
-            <EditTicketForm
+            <TicketForm
                 ticket={defaultTicket}
-                closeModal={() => {
-                    closeModal()
-                }}
+                closeModal={closeModal}
                 isEdit={false}
             />
         </Modal>

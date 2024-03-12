@@ -15,6 +15,8 @@ export interface UserFilter extends Filter {
     active?: boolean
     banned?: boolean
     phone?: string
+    email?: string
+    fullName?: string
 }
 
 export interface InventoryFilter extends Filter {
