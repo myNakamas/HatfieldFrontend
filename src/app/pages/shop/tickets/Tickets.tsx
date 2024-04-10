@@ -40,7 +40,7 @@ import Paragraph from 'antd/es/typography/Paragraph'
 export const Tickets = () => {
     const { loggedUser, isClient, isWorker } = useContext(AuthContext)
     const [collectTicket, setCollectTicket] = useState<Ticket | undefined>()
-    const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
+    const [selectedTicketId, setSelectedTicketId] = useState<number | undefined>()
     const [ticketView, setTicketView] = useState('view')
     const [showNewModal, setShowNewModal] = useState(false)
     const [filter, setFilter] = useState<TicketFilter>({
@@ -48,9 +48,7 @@ export const Tickets = () => {
         shopId: loggedUser?.shopId,
     })
     const [page, setPage] = useState<PageRequest>(defaultPage)
-    const onSelectedTicketUpdate = (data: Page<Ticket>) => {
-        setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
-    }
+
     const tickets = useQuery(
         ['tickets', filter, page],
         () => {
@@ -60,31 +58,31 @@ export const Tickets = () => {
         {
             onSuccess: (data) => {
                 resetPageIfNoValues(data, setPage)
-                onSelectedTicketUpdate(data)
             },
         }
     )
+    const { data: ticket } = useQuery(['tickets', { id: selectedTicketId }], () => fetchTicketById(selectedTicketId))
 
     const tabs: TabsProps['items'] = [
         {
             key: '1',
             label: 'Active tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
         {
             key: '2',
             label: 'Waiting tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
         {
             key: '3',
             label: 'Completed tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
 
@@ -92,14 +90,14 @@ export const Tickets = () => {
             key: '4',
             label: 'Collected tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
         {
             key: '5',
             label: 'All tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
     ]
@@ -112,9 +110,9 @@ export const Tickets = () => {
                 isModalOpen={!!collectTicket}
             />
             <TicketView
-                ticket={selectedTicket}
+                ticket={ticket}
                 closeModal={() => {
-                    setSelectedTicket(undefined)
+                    setSelectedTicketId(undefined)
                     setTicketView('view')
                 }}
                 view={ticketView}
@@ -153,14 +151,14 @@ export const Tickets = () => {
 const TicketsTab = ({
     isLoading,
     data,
-    setSelectedTicket,
+    setSelectedTicketId,
     page,
     setPage,
     setCollectTicket,
 }: {
     isLoading: boolean
     data?: Page<Ticket>
-    setSelectedTicket: React.Dispatch<React.SetStateAction<Ticket | undefined>>
+    setSelectedTicketId: React.Dispatch<React.SetStateAction<number | undefined>>
     setCollectTicket: (ticket: Ticket) => void
     page: PageRequest
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
@@ -203,7 +201,7 @@ const TicketsTab = ({
                             <Space wrap>
                                 <Button
                                     icon={<FontAwesomeIcon icon={faPen} />}
-                                    onClick={() => setSelectedTicket(ticket)}
+                                    onClick={() => setSelectedTicketId(ticket.id)}
                                 />
                                 <Button onClick={() => setCollectTicket(ticket)}>Collect</Button>
                             </Space>
@@ -222,8 +220,7 @@ const TicketsTab = ({
                         actions: 'Actions',
                     }}
                     onClick={({ id }) => {
-                        const ticket = data.content.find((ticket) => ticket.id === id)
-                        setSelectedTicket(ticket)
+                        setSelectedTicketId(id)
                     }}
                     pagination={page}
                     onPageChange={setPage}

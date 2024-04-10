@@ -68,7 +68,7 @@ export const EditTicket = ({ isModalOpen, closeModal, ticket }: { isModalOpen: b
             okText='Save changes'
         >
             <TicketForm
-                            ref={formRef}
+                            formRef={formRef}
                 form={form}
                 formStatus={formStatus}
                 ticket={defaultTicket}

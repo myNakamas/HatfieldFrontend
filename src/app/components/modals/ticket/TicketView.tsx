@@ -6,12 +6,11 @@ import {
     Ticket,
     UsedItemView,
 } from '../../../models/interfaces/ticket'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import dateFormat from 'dateformat'
-import { EditTicketForm } from './EditTicketForm'
 import { putCompleteTicket, putFreezeTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
 import { useQuery, useQueryClient } from 'react-query'
-import { ItemPropertyView, PageRequest } from '../../../models/interfaces/generalModels'
+import { AppError, ItemPropertyView, PageRequest } from '../../../models/interfaces/generalModels'
 import {
     activeTicketStatuses,
     completedTicketStatuses,
@@ -20,7 +19,7 @@ import {
 } from '../../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
-import { Badge, Button, Card, Col, Row, Space, Tag, Typography } from 'antd'
+import { Badge, Button, Card, Col, ModalProps, Row, Space, Tag, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
 import { CustomTable } from '../../table/CustomTable'
@@ -53,12 +52,16 @@ import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
 import { DetailedTicketInfoView, TicketModalDescription } from './DetailedTicketInfoView'
 import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 import { InvoicesTable, openPdfBlob } from '../../../pages/invoices/Invoices'
-import { defaultPage } from '../../../models/enums/defaultValues'
+import { defaultPage, defaultTicket } from '../../../models/enums/defaultValues'
 import { InvoiceFilter } from '../../../models/interfaces/filters'
 import { getAllInvoices } from '../../../axios/http/invoiceRequests'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft'
 import { WebSocketContext } from '../../../contexts/WebSocketContext'
 import { ChatBadge } from '../../ChatBadge'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { useForm } from 'react-hook-form'
+import { TicketSchema } from '../../../models/validators/FormValidators'
+import { TicketForm } from './TicketForm'
 
 export const TicketView = ({
     ticket,
@@ -76,16 +79,66 @@ export const TicketView = ({
     const [showInvoiceModal, setShowInvoiceModal] = useState(false)
     const [isDeposit, setIsDeposit] = useState(false)
 
+    const queryClient = useQueryClient()
+    const [formStatus, setFormStatus] = useState('')
+
+    const form = useForm<CreateTicket>({ defaultValues: ticket, resolver: yupResolver(TicketSchema) })
+    const formRef = useRef<HTMLFormElement>(null)
+
+    const resetForm = (ticket: Ticket | undefined) => {
+        formRef.current?.reset()
+        form.reset(ticket)
+    }
+
+    const onCancel = () => {
+        resetForm(ticket)
+        setMode('view')
+    }
+
+    const onFormSubmit = (data: CreateTicket) => {
+        setFormStatus('loading')
+        updateTicket({ id: data?.id, ticket: data })
+            .then(() => {
+                return queryClient.invalidateQueries(['tickets'])
+            })
+            .then(() => {
+                onCancel()
+            })
+            .catch((error: AppError) => {
+                form.setError('root', { message: error?.detail })
+            })
+            .finally(() => setFormStatus(''))
+    }
+
+    const modalProps: { [key: string]: ModalProps } = {
+        view: {
+            footer: <></>,
+        },
+        edit: {
+            footer: undefined,
+            onCancel: onCancel,
+            onOk: form.handleSubmit(onFormSubmit),
+            okText: 'Save changes',
+        },
+    }
+
     useEffect(() => {
-        if (view) setMode(view)
-        else setMode('view')
+        const newMode = view ?? 'view'
+        setMode(newMode)
+        if (newMode === 'edit') resetForm(ticket)
     }, [view])
+
+    useEffect(() => {
+        resetForm(ticket)
+    }, [ticket?.id])
 
     return (
         <AppModal
+            {...modalProps[mode]}
+            centered
+            closable
             isModalOpen={!!ticket}
             closeModal={() => {
-                setMode('view')
                 closeModal()
             }}
             title={`Ticket #${ticket?.id}`}
@@ -140,10 +193,13 @@ export const TicketView = ({
                         )}
                     </div>
                     {mode === 'edit' && (
-                        <EditTicketForm
-                            isEdit
-                            ticket={createTicketFromTicket(ticket)}
-                            closeModal={() => setMode('view')}
+                        <TicketForm
+                            formRef={formRef}
+                            form={form}
+                            formStatus={formStatus}
+                            ticket={ticket}
+                            onSubmit={onFormSubmit}
+                            onCancel={onCancel}
                         />
                     )}
                     {mode === 'view' && (

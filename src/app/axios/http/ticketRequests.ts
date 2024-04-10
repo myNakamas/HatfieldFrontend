@@ -36,7 +36,8 @@ export const fetchClientActiveTickets = ({ filter }: { filter?: TicketFilter }):
     const ticketFilter = prepareTicketFilter(filter)
     return backendClient.get('ticket/client/active', { params: { ...ticketFilter } })
 }
-export const fetchTicketById = (id?: number): Promise<Ticket> => {
+export const fetchTicketById = (id?: number): Promise<Ticket | undefined> => {
+    if(!id) return Promise.resolve(undefined);
     return backendClient.get('ticket/byId', { params: { id } })
 }
 

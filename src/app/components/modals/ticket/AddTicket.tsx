@@ -71,7 +71,7 @@ export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; c
             
         >
             <TicketForm
-                ref={formRef}
+                formRef={formRef}
                 form={form}
                 formStatus={formStatus}
                 ticket={defaultTicket}

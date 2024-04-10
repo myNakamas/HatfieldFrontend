@@ -40,10 +40,10 @@ export const TicketForm = ({
         handleSubmit,
         formState: { errors },
     },
-    ref,
+    formRef,
     onSubmit,
 }: {
-    ref: React.Ref<HTMLFormElement>,
+    formRef: React.Ref<HTMLFormElement>,
     form: UseFormReturn<CreateTicket>
     ticket: CreateTicket
     formStatus: string
@@ -63,7 +63,7 @@ export const TicketForm = ({
                 closeModal={() => setShowCreateModal(false)}
                 onSuccess={(user) => setValue('client', user)}
             />
-            <form ref={ref} onSubmit={handleSubmit(onSubmit)} className='modalForm ticketForm'>
+            <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className='modalForm ticketForm'>
                 <Form labelWrap>
                     <Space direction='vertical' className='w-100'>
                         <Row gutter={[16, 16]} justify='space-evenly' className='w-100' wrap>
