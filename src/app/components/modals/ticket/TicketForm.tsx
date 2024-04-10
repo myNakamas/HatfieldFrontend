@@ -1,28 +1,24 @@
-import React, { useContext, useRef, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useRef, useState } from 'react'
+import { Controller, UseFormReturn } from 'react-hook-form'
 import { AntFormField, FormField } from '../../form/Field'
 import { Dictaphone } from '../../form/Dictaphone'
-import { AppError, ItemPropertyView } from '../../../models/interfaces/generalModels'
+import { ItemPropertyView } from '../../../models/interfaces/generalModels'
 import { TicketStatusesArray, ticketTasks } from '../../../models/enums/ticketEnums'
-import DateTime from 'react-datetime'
-import { AntTextField, TaskDeadline, TextField } from '../../form/TextField'
+import { AntTextField, TaskDeadline } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
-import { CreateTicket, Ticket } from '../../../models/interfaces/ticket'
-import { useQuery, useQueryClient } from 'react-query'
+import { CreateTicket } from '../../../models/interfaces/ticket'
+import { useQuery } from 'react-query'
 import { getAllBrands, getAllDeviceLocations } from '../../../axios/http/shopRequests'
 import { User } from '../../../models/interfaces/user'
-import { getAllClients, getAllFilteredClients } from '../../../axios/http/userRequests'
-import moment from 'moment/moment'
+import { getAllFilteredClients } from '../../../axios/http/userRequests'
 import {
     AutoComplete,
-    Button,
     Card,
     Checkbox,
+    Col,
     Collapse,
-    Divider,
     Form,
-    FormInstance,
-    Input,
+    Row,
     Select,
     SelectProps,
     Space,
@@ -31,100 +27,34 @@ import {
     Tooltip,
 } from 'antd'
 import { AddClient } from '../users/AddClient'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import { getUserString } from '../../../utils/helperFunctions'
-import { AuthContext } from '../../../contexts/AuthContext'
-import { createTicket, updateTicket } from '../../../axios/http/ticketRequests'
-import { toast } from 'react-toastify'
-import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
-import { AppCreatableSelect } from '../../form/AppSelect'
+import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 import TextArea from 'antd/es/input/TextArea'
-import { putPrintTicketLabels } from '../../../axios/http/documentRequests'
-import { usePrintConfirm } from '../PrintConfirm'
-import dateFormat from 'dateformat'
 import { defaultTicket } from '../../../models/enums/defaultValues'
 import { UserFilter } from '../../../models/interfaces/filters'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { TicketSchema } from '../../../models/validators/FormValidators'
-import { BaseOptionType } from 'antd/es/select'
 
 export const TicketForm = ({
-    ticket,
-    closeModal,
-    isEdit,
-}: {
-    ticket: CreateTicket
-    closeModal: () => void
-    isEdit?: boolean
-}) => {
-    const formRef = useRef<HTMLFormElement>(null)
-    const { isWorker } = useContext(AuthContext)
-    const queryClient = useQueryClient()
-    const { printConfirm } = usePrintConfirm()
-    const [activeDictaphone, setActiveDictaphone] = useState('')
-    const [formStatus, setFormStatus] = useState('')
-    const {
-        register,
+    form: {
+        watch,
+        setValue,
+        control,
         handleSubmit,
         formState: { errors },
-        control,
-        setError,
-        setValue,
-        watch,
-        reset,
-    } = useForm<CreateTicket>({ defaultValues: ticket, resolver: yupResolver(TicketSchema) })
+    },
+    ref,
+    onSubmit,
+}: {
+    ref: React.Ref<HTMLFormElement>,
+    form: UseFormReturn<CreateTicket>
+    ticket: CreateTicket
+    formStatus: string
+    onCancel: () => void
+    onSubmit: (ticket: CreateTicket) => void
+}) => {
+    const [activeDictaphone, setActiveDictaphone] = useState('')
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: locations } = useQuery('deviceLocations', getAllDeviceLocations)
-    const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
-        enabled: isWorker(),
-    })
     const models = brands?.find((b) => b.value === watch('deviceBrand'))?.models ?? []
     const [showCreateModal, setShowCreateModal] = useState(false)
-    const [tempText, setTempText] = useState('')
-
-    const resetForm = (ticket: CreateTicket) => {
-        formRef.current?.reset()
-        reset(ticket)
-    }
-
-    const exit = () => {
-        resetForm(defaultTicket)
-        closeModal()
-    }
-
-    const onFormSubmit = (data: CreateTicket) => {
-        setFormStatus('loading')
-        const promise = isEdit
-            ? editTicket(data)
-            : createNewTicket(data).then((ticket) => {
-                  !isEdit &&
-                      printConfirm({
-                          title: 'Print ticket labels',
-                          content: <TicketPrintConfirmContent ticket={ticket} />,
-                          onOk: () => putPrintTicketLabels(ticket.id),
-                      })
-              })
-        promise
-            .then(() => {
-                return queryClient.invalidateQueries(['tickets'])
-            })
-            .then(() => {
-                exit()
-            })
-            .catch((error: AppError) => {
-                setError('root', { message: error?.detail })
-            })
-            .finally(() => setFormStatus(''))
-    }
-    const editTicket = (formValue: CreateTicket) => {
-        return updateTicket({ id: ticket?.id, ticket: formValue })
-    }
-    const createNewTicket = (formValue: CreateTicket) => {
-        return toast.promise(createTicket({ ticket: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)
-    }
-
-    console.log(watch())
 
     return (
         <>
@@ -133,98 +63,263 @@ export const TicketForm = ({
                 closeModal={() => setShowCreateModal(false)}
                 onSuccess={(user) => setValue('client', user)}
             />
-            <form ref={formRef} onSubmit={handleSubmit(onFormSubmit)} className='modalForm ticketForm'>
-                <div className='modalContainer'>
-                    <Space wrap className='w-100'>
-                        <ClientForm
-                            user={watch('client')}
-                            onChange={(user) => {
-                                setValue('client', user as User)
-                            }}
-                        />
+            <form ref={ref} onSubmit={handleSubmit(onSubmit)} className='modalForm ticketForm'>
+                <Form labelWrap>
+                    <Space direction='vertical' className='w-100'>
+                        <Row gutter={[16, 16]} justify='space-evenly' className='w-100' wrap>
+                            <Col flex='auto'>
+                                <ClientForm
+                                    user={watch('client')}
+                                    onChange={(user) => {
+                                        setValue('client', user as User)
+                                    }}
+                                />
+                            </Col>
 
-                        <Space.Compact direction='vertical'>
-                            <Controller
-                                control={control}
-                                name={'deviceBrand'}
-                                render={({ field, fieldState }) => (
-                                    <AntFormField label='Brand' error={fieldState.error}>
-                                        <AppCreatableSelect<ItemPropertyView>
-                                            options={brands}
-                                            placeholder='Brand of device'
-                                            value={field.value}
-                                            onChange={(newValue) => {
-                                                setValue('deviceModel', '')
-                                                field.onChange(newValue)
+                            <Col flex='auto'>
+                                <Space.Compact direction='vertical' className='w-100'>
+                                    <Controller
+                                        control={control}
+                                        name={'deviceBrand'}
+                                        render={({ field, fieldState }) => (
+                                            <AntFormField label='Brand' error={fieldState.error}>
+                                                <AppCreatableSelect<ItemPropertyView>
+                                                    options={brands}
+                                                    placeholder='Brand of device'
+                                                    value={field.value}
+                                                    onChange={(newValue) => {
+                                                        setValue('deviceModel', '')
+                                                        field.onChange(newValue)
+                                                    }}
+                                                    optionLabelProp={'value'}
+                                                    optionFilterProp={'value'}
+                                                />
+                                            </AntFormField>
+                                        )}
+                                    />
+                                    <Controller
+                                        control={control}
+                                        name={'deviceModel'}
+                                        render={({ field, fieldState }) => (
+                                            <AntFormField label='Model' error={fieldState.error}>
+                                                <AppCreatableSelect<ItemPropertyView>
+                                                    options={models}
+                                                    placeholder='Model of device'
+                                                    value={field.value}
+                                                    onChange={(newValue) => field.onChange(newValue)}
+                                                    optionLabelProp={'value'}
+                                                    optionFilterProp={'value'}
+                                                />
+                                            </AntFormField>
+                                        )}
+                                    />
+                                    <AntTextField<CreateTicket>
+                                        control={control}
+                                        name='devicePassword'
+                                        label={'Password'}
+                                        placeholder='The password of the device'
+                                    />
+                                </Space.Compact>
+                            </Col>
+                            <Col flex={'auto'}>
+                                <Card size='small' style={{ margin: 'auto' }}>
+                                    <Space className={'col-wrap'} direction={'vertical'}>
+                                        <TicketQuickCheckBox
+                                            fieldToCheck={watch('accessories')}
+                                            name={'With bag'}
+                                            value={'With Bag, '}
+                                            onChange={(string) => {
+                                                setValue('accessories', string)
                                             }}
-                                            optionLabelProp={'value'}
-                                            optionFilterProp={'value'}
                                         />
-                                    </AntFormField>
-                                )}
-                            />
-                            <Controller
-                                control={control}
-                                name={'deviceModel'}
-                                render={({ field, fieldState }) => (
-                                    <AntFormField label='Model' error={fieldState.error}>
-                                        <AppCreatableSelect<ItemPropertyView>
-                                            options={models}
-                                            placeholder='Model of device'
-                                            value={field.value}
-                                            onChange={(newValue) => field.onChange(newValue)}
-                                            optionLabelProp={'value'}
-                                            optionFilterProp={'value'}
+                                        <TicketQuickCheckBox
+                                            fieldToCheck={watch('accessories')}
+                                            name={'With charger'}
+                                            value={'With Charger, '}
+                                            onChange={(string) => {
+                                                setValue('accessories', string)
+                                            }}
                                         />
-                                    </AntFormField>
-                                )}
-                            />
-                            <AntTextField<CreateTicket>
-                                control={control}
-                                name='devicePassword'
-                                label={'Password'}
-                                placeholder='The password of the device'
-                            />
-                        </Space.Compact>
-                        <Space.Compact direction='vertical'>
-                            <Controller
-                                control={control}
-                                name={'problemExplanation'}
-                                render={({ field:{onChange, value}, fieldState }) => (
-                                    <AntFormField label='Task' error={fieldState.error}>
-                                        <AutoComplete
-                                            status={fieldState?.error ? 'error' : undefined}
-                                            placeholder='What needs to be done?'
-                                            options={ticketTasks}
-                                            onChange={onChange}
-                                            value={value}
+                                        <TicketQuickCheckBox
+                                            fieldToCheck={watch('accessories')}
+                                            name={'With case'}
+                                            value={'With Case, '}
+                                            onChange={(string) => {
+                                                setValue('accessories', string)
+                                            }}
                                         />
-                                    </AntFormField>
-                                )}
-                            />
-                            <TaskDeadline                                 
-                                control={control}
-                                name='deadline'
-                                label={'Deadline:'}/>
-                            Task details - Task dropdown - Deadline - Notes
-                        </Space.Compact>
-                        <Space.Compact direction='vertical'>Payment details - Deposit - Full Price</Space.Compact>
+                                        <TicketQuickCheckBox
+                                            fieldToCheck={watch('deviceCondition')}
+                                            name={'Dead device'}
+                                            value={'Dead device, '}
+                                            onChange={(string) => {
+                                                setValue('deviceCondition', string)
+                                            }}
+                                        />
+                                        <TicketQuickCheckBox
+                                            fieldToCheck={watch('deviceCondition')}
+                                            name={'Cracked Screen'}
+                                            value={'Cracked Screen, '}
+                                            onChange={(string) => {
+                                                setValue('deviceCondition', string)
+                                            }}
+                                        />
+                                        <TicketQuickCheckBox
+                                            fieldToCheck={watch('deviceCondition')}
+                                            name={'Cracked Back'}
+                                            value={'Cracked Back, '}
+                                            onChange={(string) => {
+                                                setValue('deviceCondition', string)
+                                            }}
+                                        />
+                                        <label>
+                                            <Checkbox
+                                                checked={watch('deviceLocation') === 'With customer'}
+                                                onChange={(e) => {
+                                                    e.target.checked
+                                                        ? setValue('deviceLocation', 'With customer')
+                                                        : setValue('deviceLocation', defaultTicket.deviceLocation)
+                                                }}
+                                            />{' '}
+                                            Device stays with customer
+                                        </label>
+                                    </Space>
+                                </Card>
+                            </Col>
+                        </Row>
+                        <Row gutter={[16, 16]} justify='space-evenly' className='w-100' wrap>
+                            <Col flex='auto'>
+                                <Space.Compact direction='vertical' className='w-100'>
+                                    <Controller
+                                        control={control}
+                                        name={'problemExplanation'}
+                                        render={({ field: { onChange, value }, fieldState }) => (
+                                            <AntFormField label='Task' error={fieldState.error}>
+                                                <AutoComplete
+                                                    status={fieldState?.error ? 'error' : undefined}
+                                                    placeholder='What needs to be done?'
+                                                    options={ticketTasks}
+                                                    onChange={onChange}
+                                                    value={value}
+                                                />
+                                            </AntFormField>
+                                        )}
+                                    />
+                                    <Controller
+                                        render={({ field: { onChange, value } }) => {
+                                            return (
+                                                <NotesTextArea
+                                                    {...{ onChange, value }}
+                                                    activeDictaphone={activeDictaphone}
+                                                    setActiveDictaphone={setActiveDictaphone}
+                                                />
+                                            )
+                                        }}
+                                        name={'notes'}
+                                        control={control}
+                                    />
+                                    <TaskDeadline control={control} name='deadline' label={'Deadline:'} />
+                                </Space.Compact>
+                            </Col>
+                            <Col flex='auto'>
+                                <Card title='Payment' size='small'>
+                                    <Space.Compact direction='vertical' className='w-100'>
+                                        <AntTextField<CreateTicket>
+                                            control={control}
+                                            name='deposit'
+                                            inputMode={'numeric'}
+                                            placeholder='Deposit'
+                                            label={'Deposit'}
+                                            prefix='£'
+                                            type='currency'
+                                        />
+                                        <AntTextField<CreateTicket>
+                                            control={control}
+                                            name='totalPrice'
+                                            inputMode={'numeric'}
+                                            placeholder='Total price'
+                                            label={'Total price'}
+                                            prefix='£'
+                                            type='currency'
+                                        />
+                                    </Space.Compact>
+                                </Card>
+                            </Col>
+                        </Row>
+                        <Collapse
+                            size='small'
+                            
+                            items={[
+                                {
+                                    label: 'More details',
+                                    forceRender: true,
+                                    destroyInactivePanel: false,
+                                    children: (
+                                        <Space wrap className='justify-between'>
+                                            <AntTextField
+                                                control={control}
+                                                name={'serialNumberOrImei'}
+                                                label={'Serial number or Imei'}
+                                                placeholder={'Serial number or Imei'}
+                                            />
+                                            <AntTextField
+                                                control={control}
+                                                name={'deviceCondition'}
+                                                label={'Device condition'}
+                                                placeholder={'Device condition'}
+                                            />
+                                            <AntTextField
+                                                control={control}
+                                                name={'accessories'}
+                                                label={'Accessories'}
+                                                placeholder={'Accessories'}
+                                            />
+                                            <div className='flex-100 justify-between flex-wrap'>
+                                                <div>
+                                                    <Controller
+                                                        control={control}
+                                                        name={'status'}
+                                                        render={({ field, fieldState }) => (
+                                                            <FormField label='Ticket status' error={fieldState.error}>
+                                                                <AppSelect<string, ItemPropertyView>
+                                                                    options={TicketStatusesArray}
+                                                                    placeholder='Select or add a new user'
+                                                                    value={field.value}
+                                                                    onChange={(newValue) => field.onChange(newValue)}
+                                                                    getOptionLabel={(item) => item.value}
+                                                                    getOptionValue={(item) => item.value}
+                                                                />
+                                                            </FormField>
+                                                        )}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Controller
+                                                        control={control}
+                                                        name={'deviceLocation'}
+                                                        render={({ field, fieldState }) => (
+                                                            <FormField label='Device Location' error={fieldState.error}>
+                                                                <AppCreatableSelect<ItemPropertyView>
+                                                                    options={locations}
+                                                                    placeholder='Where is the location of the device?'
+                                                                    value={field.value}
+                                                                    onChange={(newValue) => field.onChange(newValue)}
+                                                                    getOptionLabel={(item) => item.value}
+                                                                    getOptionValue={(item) => item.value}
+                                                                />
+                                                            </FormField>
+                                                        )}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </Space>
+                                    ),
+                                },
+                            ]}
+                        />
                     </Space>
-                </div>
+                </Form>
                 <FormError error={errors.root?.message} />
-                <Space className='buttonFooter'>
-                    <Button
-                        htmlType='submit'
-                        type='primary'
-                        loading={formStatus == 'loading'}
-                        onClick={() => console.log(watch())}
-                    >
-                        Submit
-                    </Button>
-                    <Button type='text' htmlType='reset' onClick={exit}>
-                        Cancel
-                    </Button>
-                </Space>
             </form>
         </>
     )
@@ -262,9 +357,10 @@ const ClientForm = ({ user, onChange }: { user?: User; onChange: (user?: Partial
 
     return (
         <Card
+            className='w-100'
             type='inner'
             size='small'
-            title={userExists ? `Selected client` : 'Creating client'}
+            title={userExists ? `Selected client` : 'Creating a new client'}
             extra={
                 <Tag
                     closable={userExists}
@@ -370,42 +466,21 @@ const NotesTextArea = ({
     const key = 'notes'
     const [tempNotes, setTempNotes] = useState('')
     return (
-        <div className={'w-100'}>
+        <AntFormField
+            label='Notes'
+            extra={
+                <Tooltip title={tempNotes} open={!!tempNotes}>
+                    <Dictaphone
+                        isActive={activeDictaphone === key}
+                        dictaphoneKey={key}
+                        setActiveDictaphone={setActiveDictaphone}
+                        setText={(text) => onChange((value ?? '') + ' ' + text)}
+                        setTempText={setTempNotes}
+                    />
+                </Tooltip>
+            }
+        >
             <TextArea onChange={(e) => onChange(e.target.value)} value={value ?? ''} />
-            <Tooltip title={tempNotes} open={!!tempNotes}>
-                <Dictaphone
-                    isActive={activeDictaphone === key}
-                    dictaphoneKey={key}
-                    setActiveDictaphone={setActiveDictaphone}
-                    setText={(text) => onChange((value ?? '') + ' ' + text)}
-                    setTempText={setTempNotes}
-                />
-            </Tooltip>
-        </div>
+        </AntFormField>
     )
 }
-
-const TicketPrintConfirmContent = ({ ticket }: { ticket: Ticket }) => {
-    return (
-        <p className='viewModal'>
-            - Label for the client
-            <br />
-            - Ticket label for the device
-            <br />
-            {ticket.accessories.toLowerCase().includes('charger') && (
-                <>
-                    - Ticket label for the device
-                    <br />
-                </>
-            )}
-            <Divider>Ticket #{ticket.id}</Divider>
-            Created at: {dateFormat(ticket.timestamp)}
-            <br />
-            Brand & Model: {ticket.deviceBrand} {ticket.deviceModel} <br />
-            Condition: {ticket.deviceCondition} <br />
-            Price: {ticket.totalPrice}
-            Deadline: {dateFormat(ticket.deadline)}
-        </p>
-    )
-}
-

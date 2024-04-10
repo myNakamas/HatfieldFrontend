@@ -33,6 +33,7 @@ export interface InventoryFilter extends Filter {
 export interface TicketFilter extends Filter {
     modelId?: number
     brandId?: number
+    ticketId?: number
     deviceLocation?: number
     shopId?: number
     clientId?: string

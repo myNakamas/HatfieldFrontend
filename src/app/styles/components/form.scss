@@ -45,6 +45,16 @@
     margin: unset;
   }
 }
+.ticketModal{ 
+  .ant-modal-content{
+    padding-right: 10px;
+    .ant-modal-body {
+      max-height: 80svh;
+      overflow-y: auto;
+      width: auto;
+    }
+  }
+  }
 .viewModal {
   text-align: left;
 

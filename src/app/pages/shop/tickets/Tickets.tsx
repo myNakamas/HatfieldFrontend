@@ -16,7 +16,7 @@ import { Shop } from '../../../models/interfaces/shop'
 import { User } from '../../../models/interfaces/user'
 import { getAllClients, getAllWorkers } from '../../../axios/http/userRequests'
 import { DateTimeFilter } from '../../../components/filters/DateTimeFilter'
-import { Button, Select, Space, Statistic, Tabs, TabsProps } from 'antd'
+import { Button, Input, Select, Space, Statistic, Tabs, TabsProps } from 'antd'
 import {
     activeTicketStatuses,
     completedTicketStatuses,
@@ -39,7 +39,6 @@ import Paragraph from 'antd/es/typography/Paragraph'
 
 export const Tickets = () => {
     const { loggedUser, isClient, isWorker } = useContext(AuthContext)
-    const [params] = useSearchParams()
     const [collectTicket, setCollectTicket] = useState<Ticket | undefined>()
     const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
     const [ticketView, setTicketView] = useState('view')
@@ -65,10 +64,6 @@ export const Tickets = () => {
             },
         }
     )
-
-    useEffect(() => {
-        params.get('ticketId') && fetchTicketById(Number(params.get('ticketId'))).then(setSelectedTicket)
-    }, [])
 
     const tabs: TabsProps['items'] = [
         {
@@ -251,6 +246,8 @@ const TicketFilters = ({
 }) => {
     const { isWorker, isAdmin } = useContext(AuthContext)
     const [advanced, setAdvanced] = useState(false)
+    const [params] = useSearchParams()
+
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
@@ -260,10 +257,24 @@ const TicketFilters = ({
         enabled: isAdmin(),
     })
     const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
+
+    useEffect(() => {
+        const id = params.get('ticketId')
+        if (id) setFilter({ ticketId: +id })
+    }, [])
+
     return advanced ? (
         <Space className='largeFilter' wrap align={'start'}>
             <FilterWrapper title={'General filters'}>
                 <SearchComponent {...{ filter, setFilter }} />
+                <Input
+                    placeholder='Ticket ID'
+                    pattern='[0-9\s]*'
+                    value={filter?.ticketId}
+                    onChange={({ currentTarget }) =>
+                        setFilter({ ...filter, ticketId: currentTarget.value ? +currentTarget.value : undefined })
+                    }
+                />
                 <Select<TicketStatus[], ItemPropertyView>
                     style={{ minWidth: 200, maxWidth: 300, textAlign: 'left' }}
                     dropdownStyle={{ textAlign: 'left' }}
@@ -351,6 +362,14 @@ const TicketFilters = ({
     ) : (
         <Space wrap>
             <SearchComponent {...{ filter, setFilter }} />
+            <Input
+                placeholder='Ticket ID'
+                pattern='[0-9\s]*'
+                value={filter?.ticketId}
+                onChange={({ currentTarget }) =>
+                    setFilter({ ...filter, ticketId: currentTarget.value ? +currentTarget.value : undefined })
+                }
+            />
             <Button type={'link'} onClick={() => setAdvanced(true)} children={'Advanced search'} />
         </Space>
     )

@@ -207,7 +207,7 @@ const TicketStatusAndLocation = ({ ticket }: { ticket: Ticket }) => {
                 <AppCreatableSelect<ItemPropertyView>
                     options={locations}
                     placeholder='New location'
-                    value={location}
+                    value={location ?? undefined}
                     onChange={(newValue) => updateDeviceLocation(ticket.id, newValue)}
                     getOptionLabel={(item) => item.value}
                     getOptionValue={(item) => item.value}

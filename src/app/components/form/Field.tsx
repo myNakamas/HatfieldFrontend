@@ -27,7 +27,7 @@ export const AntFormField = ({
     extra?: ReactNode
 }) => {
     return (
-        <Form.Item extra={extra} label={label}>
+        <Form.Item  extra={extra} label={label}>
             {children}
             <Form.ErrorList errors={[error?.message]} />
         </Form.Item>

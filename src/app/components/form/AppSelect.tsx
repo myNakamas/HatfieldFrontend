@@ -14,8 +14,8 @@ export const AppCreatableSelect = <T extends BaseOptionType>({
     onChange: (value: string | null) => void
     getOptionLabel?: (value: T) => string
     getOptionValue?: (value: T) => string
-    value:string,
-} & Omit<SelectProps<string[], T>, 'value'>) => {
+    value?:string,
+} & Omit<SelectProps<string[], T>, 'value' | 'onChange'>) => {
     const selectOptions = options?.map((item) => ({
         ...item,
         key: getOptionLabel ? getOptionLabel(item) : item.label,
