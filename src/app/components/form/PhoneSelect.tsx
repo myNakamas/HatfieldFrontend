@@ -36,7 +36,7 @@ export const PhoneSelect = ({
     const defaultCode = data.find(({ dial_code }) => value.startsWith(dial_code)) ?? UKCodeDefault
     const [selectedPhoneCode, setSelectedPhoneCode] = useState<string>(defaultCode.dial_code)
     const [phoneNumber, setPhoneNumber] = useState(value.replace(defaultCode.dial_code, '') ?? '')
-
+// todo finish
     const handlePhoneCodeChange = (newCode: string) => {
         setSelectedPhoneCode(newCode)
         const newValue = newCode + '-' + phoneNumber

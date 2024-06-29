@@ -9,12 +9,12 @@ import { User } from '../../../models/interfaces/user'
 import { FieldErrors } from 'react-hook-form/dist/types/errors'
 import React from 'react'
 import { TextField } from '../../form/TextField'
-import { Button, Space, Switch, Typography } from 'antd'
+import { Button, Input, Space, Switch, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 import { Controller } from 'react-hook-form'
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
-import { FormField } from '../../form/Field'
+import { AntFormField, FormField } from '../../form/Field'
 import { PhoneSelect } from '../../form/PhoneSelect'
 
 export const UserForm = ({
@@ -46,23 +46,19 @@ export const UserForm = ({
                         <Controller
                             control={control}
                             render={({ field, fieldState: { error } }) => (
-                                <PhoneSelect
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    error={error?.message}
-                                    extra={
-                                        <Button
-                                            danger
-                                            onClick={() =>
-                                                setValue(
-                                                    'phones',
-                                                    getValues('phones').filter((value, i) => i !== index)
-                                                )
-                                            }
-                                            icon={<FontAwesomeIcon icon={faTrash} />}
-                                        />
-                                    }
-                                />
+                                <Space>
+                                    <TextField type='tel' required value={field.value.replaceAll('-','')} onChange={field.onChange} error={error}></TextField>
+                                    <Button
+                                        danger
+                                        onClick={() =>
+                                            setValue(
+                                                'phones',
+                                                getValues('phones').filter((value, i) => i !== index)
+                                            )
+                                        }
+                                        icon={<FontAwesomeIcon icon={faTrash} />}
+                                    />
+                                </Space>
                             )}
                             name={`phones.${index}`}
                         />

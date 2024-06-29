@@ -110,7 +110,11 @@ export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
                         <Card
                             title={'Client'}
                             size={'small'}
-                            extra={<Tag title='Client Username' color={ticket.client ? 'blue' : 'red'}>{ticket.client?.username}</Tag>}
+                            extra={
+                                <Tag title='Client Username' color={ticket.client ? 'blue' : 'red'}>
+                                    {ticket.client?.username}
+                                </Tag>
+                            }
                         >
                             <Typography>
                                 Fullname:<b> {ticket.client?.fullName ?? '-'}</b>
@@ -131,7 +135,6 @@ export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
                         children={`${ticket.deviceBrand ?? ''}  ${ticket.deviceModel ?? ''}`}
                     />
                 </Col>
-
                 {(ticket.deposit || ticket.totalPrice) && (
                     <Col>
                         <Descriptions bordered size={'small'} layout='horizontal'>
@@ -143,7 +146,17 @@ export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
                                 />
                             )}
                             {ticket.totalPrice && (
-                                <DescriptionsItem label={'Total price'} children={currencyFormat(ticket.totalPrice)} />
+                                <>
+                                    <DescriptionsItem
+                                        label={'Total price'}
+                                        children={currencyFormat(ticket.totalPrice)}
+                                    />
+                                    <DescriptionsItem
+                                        label={'Left to pay'}
+                                        span={2}
+                                        children={currencyFormat(ticket.totalPrice - (ticket.deposit ?? 0))}
+                                    />
+                                </>
                             )}
                         </Descriptions>
                     </Col>
