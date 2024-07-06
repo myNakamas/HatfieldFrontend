@@ -38,7 +38,7 @@ export const UserForm = ({
             <Space direction='vertical'>
                 <Typography>Phones</Typography>
                 <Button
-                    onClick={() => setValue('phones', [...getValues('phones'), ''])}
+                    onClick={() => setValue('phones', [...getValues('phones'), '+44-'])}
                     icon={<FontAwesomeIcon size='lg' icon={faPlus} />}
                 />
                 {watch('phones')?.map((phone, index) => (
@@ -47,7 +47,7 @@ export const UserForm = ({
                             control={control}
                             render={({ field, fieldState: { error } }) => (
                                 <Space>
-                                    <TextField type='tel' required value={field.value.replaceAll('-','')} onChange={field.onChange} error={error}></TextField>
+                                    <PhoneSelect error={error?.message} value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
                                     <Button
                                         danger
                                         onClick={() =>
@@ -58,6 +58,7 @@ export const UserForm = ({
                                         }
                                         icon={<FontAwesomeIcon icon={faTrash} />}
                                     />
+                                    
                                 </Space>
                             )}
                             name={`phones.${index}`}

@@ -3,6 +3,49 @@ import { Input, Select, Space } from 'antd'
 import { ReactNode, useEffect, useState } from 'react'
 import { FormError } from './FormError'
 
+interface Phone {
+    phone: string
+    code: string
+}
+const getPhoneString = (phone: Phone) => {
+    return phone.code + '-' + phone.phone
+}
+const parsePhone = (str: string, code?: string) => {
+    let result = { code: code ?? UKCodeDefault.dial_code, phone: '' }
+    if (!str || str.trim().length == 0) return result
+    const i = str.indexOf('-')
+    if (i > 0) {
+        const arr = str.split('-')
+        result.code = arr[0]
+        result.phone = arr[1]
+    } else {
+        result = parsePhoneNumber(str, result)
+    }
+    return result
+}
+const parsePhoneNumber = (str: string, result: Phone) => {
+    if (str.startsWith('00')) str = str.replace(/^00/, '+')
+    if (str.startsWith('+')) {
+        const code = parseCode(str)
+        if (code) {
+            result.code = code.dial_code
+            result.phone = str.replace(code.dial_code, '')
+        }
+    } else if (str.startsWith('0')) {
+        result.phone = str.replace(/^0/, '')
+    }
+    return result
+}
+const parseCode = (str: string): PhoneCode | undefined => {
+    return (
+        data.find((entry) => entry.dial_code === str.substring(0, 5)) ??
+        data.find((entry) => entry.dial_code === str.substring(0, 4)) ??
+        data.find((entry) => entry.dial_code === str.substring(0, 3)) ??
+        data.find((entry) => entry.dial_code === str.substring(0, 2)) ??
+        data.find((entry) => entry.dial_code === str.substring(0, 1))
+    )
+}
+
 interface PhoneCode {
     name: string
     dial_code: string
@@ -25,36 +68,21 @@ const filterOptions = (inputValue: string, option?: PhoneCode) =>
 export const PhoneSelect = ({
     value,
     onChange,
+    onBlur,
     error,
     extra,
 }: {
     value: string
     onChange: (value: string | undefined) => void
+    onBlur: () => void
     error?: string
     extra?: ReactNode
 }) => {
-    const defaultCode = data.find(({ dial_code }) => value.startsWith(dial_code)) ?? UKCodeDefault
-    const [selectedPhoneCode, setSelectedPhoneCode] = useState<string>(defaultCode.dial_code)
-    const [phoneNumber, setPhoneNumber] = useState(value.replace(defaultCode.dial_code, '') ?? '')
-// todo finish
-    const handlePhoneCodeChange = (newCode: string) => {
-        setSelectedPhoneCode(newCode)
-        const newValue = newCode + '-' + phoneNumber
-        onChange(newValue)
+    const [phone, setPhone] = useState<Phone>(parsePhone(value))
+    const update = (phone: Phone) => {
+        setPhone(phone)
+        onChange(getPhoneString(phone))
     }
-
-    const handlePhoneNumberChange = (newPhoneNumber: string) => {
-        setPhoneNumber(newPhoneNumber)
-        const newValue = selectedPhoneCode + '-' + newPhoneNumber
-        onChange(newValue)
-    }
-    useEffect(() => {
-        const phoneParts = value.split('-')
-        if (phoneParts.length === 2) {
-            setSelectedPhoneCode(phoneParts[0])
-            setPhoneNumber(phoneParts[1])
-        }
-    }, [value])
     return (
         <Space.Compact>
             <Input
@@ -66,12 +94,16 @@ export const PhoneSelect = ({
                         style={{ width: 150 }}
                         filterOption={filterOptions}
                         fieldNames={{ value: 'dial_code', label: 'label' }}
-                        value={selectedPhoneCode}
-                        onChange={handlePhoneCodeChange}
+                        value={phone.code}
+                        onChange={(newCode) => update({ ...phone, code: newCode })}
                     />
                 }
-                value={phoneNumber}
-                onChange={(e) => handlePhoneNumberChange(e.currentTarget.value)}
+                value={phone.phone}
+                onBlur={(e) => {
+                    update(parsePhoneNumber(e.currentTarget.value, phone))
+                    onBlur()
+                }}
+                onChange={(e) => update({ ...phone, phone: e.currentTarget.value })}
             />
             {extra}
             <FormError error={error} />
