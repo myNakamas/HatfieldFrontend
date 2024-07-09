@@ -84,7 +84,7 @@ export const PhoneSelect = ({
         onChange(getPhoneString(phone))
     }
     return (
-        <Space.Compact>
+        <Space direction='vertical'>
             <Input
                 placeholder={'Add phone'}
                 addonBefore={
@@ -104,9 +104,9 @@ export const PhoneSelect = ({
                     onBlur()
                 }}
                 onChange={(e) => update({ ...phone, phone: e.currentTarget.value })}
+                addonAfter={extra}
             />
-            {extra}
             <FormError error={error} />
-        </Space.Compact>
+        </Space>
     )
 }

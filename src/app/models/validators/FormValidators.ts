@@ -26,6 +26,7 @@ export const SetPasswordSchema = Yup.object().shape({
 export const ForgotPasswordSchema = Yup.object().shape({
     username: Yup.string().min(5, 'Minimum of 5 characters required!'),
 })
+const PhoneSchema = Yup.array().of(Yup.string().matches(/^[+]\d{1,4}-[1-9][0-9]+$/, (message) => message.value + ' is not a valid number').required()).notRequired();
 export const SimpleUserSchema = Yup.object<User>().shape({
     userId: Yup.string().notRequired(),
     username: Yup.string().min(5, 'Minimum of 5 characters required!').max(50, 'Too Long!').required('Required'),
@@ -33,14 +34,14 @@ export const SimpleUserSchema = Yup.object<User>().shape({
     password: Yup.string().min(5, 'Too Short!').max(50, 'Too Long!').required('Required'),
     email: Yup.string().email('Invalid email').required('Required'),
     role: Yup.string().oneOf(UserRoles).required(),
-    phones: Yup.array().of(Yup.string().min(10, 'Not a valid phone number')).notRequired(),
+    phones: PhoneSchema,
     shopId: Yup.number().notRequired(),
 })
 export const ClientSchema = Yup.object().shape({
     fullName: Yup.string().notRequired(),
     email: Yup.string().email('Invalid email').notRequired(),
     role: Yup.string().oneOf(UserRoles).required(),
-    phones: Yup.array().of(Yup.string().min(10, 'Not a valid phone number')).notRequired(),
+    phones: PhoneSchema,
     shopId: Yup.number().notRequired(),
 })
 export const EditUserSchema = Yup.object<User>().shape({
@@ -49,7 +50,7 @@ export const EditUserSchema = Yup.object<User>().shape({
     fullName: Yup.string().notRequired(),
     email: Yup.string().email('Invalid email').notRequired(),
     role: Yup.string().oneOf(UserRoles).required(),
-    phones: Yup.array().of(Yup.string().min(10, 'Not a valid phone number')).notRequired(),
+    phones: PhoneSchema,
     shopId: Yup.number().notRequired(),
 })
 const INT_MAX_VALUE = 2147483647
