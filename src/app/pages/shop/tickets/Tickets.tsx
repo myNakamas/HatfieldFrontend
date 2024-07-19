@@ -16,7 +16,7 @@ import { Shop } from '../../../models/interfaces/shop'
 import { User } from '../../../models/interfaces/user'
 import { getAllClients, getAllWorkers } from '../../../axios/http/userRequests'
 import { DateTimeFilter } from '../../../components/filters/DateTimeFilter'
-import { Button, Select, Space, Statistic, Tabs, TabsProps } from 'antd'
+import { Button, Input, Select, Space, Statistic, Tabs, TabsProps } from 'antd'
 import {
     activeTicketStatuses,
     completedTicketStatuses,
@@ -39,9 +39,8 @@ import Paragraph from 'antd/es/typography/Paragraph'
 
 export const Tickets = () => {
     const { loggedUser, isClient, isWorker } = useContext(AuthContext)
-    const [params] = useSearchParams()
     const [collectTicket, setCollectTicket] = useState<Ticket | undefined>()
-    const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
+    const [selectedTicketId, setSelectedTicketId] = useState<number | undefined>()
     const [ticketView, setTicketView] = useState('view')
     const [showNewModal, setShowNewModal] = useState(false)
     const [filter, setFilter] = useState<TicketFilter>({
@@ -49,9 +48,7 @@ export const Tickets = () => {
         shopId: loggedUser?.shopId,
     })
     const [page, setPage] = useState<PageRequest>(defaultPage)
-    const onSelectedTicketUpdate = (data: Page<Ticket>) => {
-        setSelectedTicket((ticket) => (ticket ? data.content?.find(({ id }) => ticket.id === id) : undefined))
-    }
+
     const tickets = useQuery(
         ['tickets', filter, page],
         () => {
@@ -61,35 +58,31 @@ export const Tickets = () => {
         {
             onSuccess: (data) => {
                 resetPageIfNoValues(data, setPage)
-                onSelectedTicketUpdate(data)
             },
         }
     )
-
-    useEffect(() => {
-        params.get('ticketId') && fetchTicketById(Number(params.get('ticketId'))).then(setSelectedTicket)
-    }, [])
+    const { data: ticket } = useQuery(['tickets', { id: selectedTicketId }], () => fetchTicketById(selectedTicketId))
 
     const tabs: TabsProps['items'] = [
         {
             key: '1',
             label: 'Active tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
         {
             key: '2',
             label: 'Waiting tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
         {
             key: '3',
             label: 'Completed tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
 
@@ -97,14 +90,14 @@ export const Tickets = () => {
             key: '4',
             label: 'Collected tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
         {
             key: '5',
             label: 'All tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicket, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
             ),
         },
     ]
@@ -117,9 +110,9 @@ export const Tickets = () => {
                 isModalOpen={!!collectTicket}
             />
             <TicketView
-                ticket={selectedTicket}
+                ticket={ticket}
                 closeModal={() => {
-                    setSelectedTicket(undefined)
+                    setSelectedTicketId(undefined)
                     setTicketView('view')
                 }}
                 view={ticketView}
@@ -158,14 +151,14 @@ export const Tickets = () => {
 const TicketsTab = ({
     isLoading,
     data,
-    setSelectedTicket,
+    setSelectedTicketId,
     page,
     setPage,
     setCollectTicket,
 }: {
     isLoading: boolean
     data?: Page<Ticket>
-    setSelectedTicket: React.Dispatch<React.SetStateAction<Ticket | undefined>>
+    setSelectedTicketId: React.Dispatch<React.SetStateAction<number | undefined>>
     setCollectTicket: (ticket: Ticket) => void
     page: PageRequest
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
@@ -208,7 +201,7 @@ const TicketsTab = ({
                             <Space wrap>
                                 <Button
                                     icon={<FontAwesomeIcon icon={faPen} />}
-                                    onClick={() => setSelectedTicket(ticket)}
+                                    onClick={() => setSelectedTicketId(ticket.id)}
                                 />
                                 <Button onClick={() => setCollectTicket(ticket)}>Collect</Button>
                             </Space>
@@ -227,8 +220,7 @@ const TicketsTab = ({
                         actions: 'Actions',
                     }}
                     onClick={({ id }) => {
-                        const ticket = data.content.find((ticket) => ticket.id === id)
-                        setSelectedTicket(ticket)
+                        setSelectedTicketId(id)
                     }}
                     pagination={page}
                     onPageChange={setPage}
@@ -251,6 +243,8 @@ const TicketFilters = ({
 }) => {
     const { isWorker, isAdmin } = useContext(AuthContext)
     const [advanced, setAdvanced] = useState(false)
+    const [params] = useSearchParams()
+
     const { data: models } = useQuery('models', getAllModels)
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: clients } = useQuery(['users', 'clients'], () => getAllClients({}), {
@@ -260,10 +254,24 @@ const TicketFilters = ({
         enabled: isAdmin(),
     })
     const { data: shops } = useQuery('shops', getAllShops, { enabled: isAdmin() })
+
+    useEffect(() => {
+        const id = params.get('ticketId')
+        if (id) setFilter({ ticketId: +id })
+    }, [])
+
     return advanced ? (
         <Space className='largeFilter' wrap align={'start'}>
             <FilterWrapper title={'General filters'}>
                 <SearchComponent {...{ filter, setFilter }} />
+                <Input
+                    placeholder='Ticket ID'
+                    pattern='[0-9\s]*'
+                    value={filter?.ticketId}
+                    onChange={({ currentTarget }) =>
+                        setFilter({ ...filter, ticketId: currentTarget.value ? +currentTarget.value : undefined })
+                    }
+                />
                 <Select<TicketStatus[], ItemPropertyView>
                     style={{ minWidth: 200, maxWidth: 300, textAlign: 'left' }}
                     dropdownStyle={{ textAlign: 'left' }}
@@ -351,6 +359,14 @@ const TicketFilters = ({
     ) : (
         <Space wrap>
             <SearchComponent {...{ filter, setFilter }} />
+            <Input
+                placeholder='Ticket ID'
+                pattern='[0-9\s]*'
+                value={filter?.ticketId}
+                onChange={({ currentTarget }) =>
+                    setFilter({ ...filter, ticketId: currentTarget.value ? +currentTarget.value : undefined })
+                }
+            />
             <Button type={'link'} onClick={() => setAdvanced(true)} children={'Advanced search'} />
         </Space>
     )

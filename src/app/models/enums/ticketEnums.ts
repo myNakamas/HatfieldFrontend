@@ -1,4 +1,5 @@
 import { TagProps } from 'antd'
+import { ItemPropertyView } from '../interfaces/generalModels'
 
 //Todo: get from the backend ( initial config )
 export const DeviceLocation = ['IN_THE_FRONT', 'IN_STORAGE', 'IN_LAB']
@@ -46,3 +47,9 @@ export const getTicketStatusColor = (status: TicketStatus): TagProps['color'] =>
     if (completedTicketStatuses.includes(status)) return 'green'
     return 'default'
 }
+
+
+export const ticketTasks = [
+    {key:'option_fix', value:'Fix device',label:'Fix device'},
+    {key:'option_estimate', value:'Estimate price of repair',label:'Estimate price of repair'}
+]

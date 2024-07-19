@@ -17,15 +17,15 @@ import { useQueryClient } from 'react-query'
 import { usePrintConfirm } from '../PrintConfirm'
 import dateFormat from 'dateformat'
 
-export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) => {
+export const EditTicket = ({ isModalOpen, closeModal, ticket }: { isModalOpen: boolean; closeModal: () => void, ticket:Ticket }) => {
     const { isWorker } = useContext(AuthContext)
     const queryClient = useQueryClient()
     const [formStatus, setFormStatus] = useState('')
-    const { printConfirm } = usePrintConfirm()
+
 
     if (!isWorker()) return <></>
 
-    const form = useForm<CreateTicket>({ defaultValues: defaultTicket, resolver: yupResolver(TicketSchema) })
+    const form = useForm<CreateTicket>({ defaultValues: ticket, resolver: yupResolver(TicketSchema) })
     const formRef = useRef<HTMLFormElement>(null)
 
     const onCancel = () => {
@@ -34,44 +34,41 @@ export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; c
         closeModal()
     }
 
+
     const onFormSubmit = (data: CreateTicket) => {
         setFormStatus('loading')
-        createNewTicket(data)
-            .then((ticket) => {
-                printConfirm({
-                    title: 'Print ticket labels',
-                    content: <TicketPrintConfirmContent ticket={ticket} />,
-                    onOk: () => putPrintTicketLabels(ticket.id),
-                })
-            })
+        editTicket(data)
             .then(() => {
                 return queryClient.invalidateQueries(['tickets'])
             })
-            .then(() => closeModal())
+            .then(() => {
+                closeModal();
+            })
             .catch((error: AppError) => {
                 form.setError('root', { message: error?.detail })
             })
             .finally(() => setFormStatus(''))
     }
-    const createNewTicket = (formValue: CreateTicket) => {
-        return toast.promise(createTicket({ ticket: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)
+    const editTicket = (formValue: CreateTicket) => {
+        return updateTicket({ id: ticket?.id, ticket: formValue })
     }
+
+
 
     return (
         <Modal
-            title='Create Ticket'
+            title='Edit Ticket'
             open={isModalOpen}
-            centered
             closable
+            centered
             className='ticketModal'
             width={'clamp(400px,80%,900px)'}
             onCancel={closeModal}
             onOk={form.handleSubmit(onFormSubmit)}
-            okText='Create ticket'
-            
+            okText='Save changes'
         >
             <TicketForm
-                formRef={formRef}
+                            formRef={formRef}
                 form={form}
                 formStatus={formStatus}
                 ticket={defaultTicket}
@@ -79,29 +76,5 @@ export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; c
                 onCancel={onCancel}
             />
         </Modal>
-    )
-}
-
-const TicketPrintConfirmContent = ({ ticket }: { ticket: Ticket }) => {
-    return (
-        <p className='viewModal'>
-            - Label for the client
-            <br />
-            - Ticket label for the device
-            <br />
-            {ticket.accessories.toLowerCase().includes('charger') && (
-                <>
-                    - Ticket label for the device
-                    <br />
-                </>
-            )}
-            <Divider>Ticket #{ticket.id}</Divider>
-            Created at: {dateFormat(ticket.timestamp)}
-            <br />
-            Brand & Model: {ticket.deviceBrand} {ticket.deviceModel} <br />
-            Condition: {ticket.deviceCondition} <br />
-            Price: {ticket.totalPrice}
-            Deadline: {dateFormat(ticket.deadline)}
-        </p>
     )
 }

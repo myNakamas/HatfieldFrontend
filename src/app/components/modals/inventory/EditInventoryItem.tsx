@@ -10,7 +10,7 @@ import {
     putUpdateItem,
 } from '../../../axios/http/shopRequests'
 import { useQuery, useQueryClient } from 'react-query'
-import { TextField } from '../../form/TextField'
+import { AntTextField, TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { AppModal } from '../AppModal'
 import React, { useContext, useEffect, useState } from 'react'
@@ -24,6 +24,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 import { AuthContext } from '../../../contexts/AuthContext'
+import { BarcodeReaderButton } from '../QrReaderModal'
 
 export const EditInventoryItem = ({
     isModalOpen,
@@ -191,29 +192,43 @@ export const EditInventoryItem = ({
 
                     <div>
                         <Space>
-                            <TextField label='Count' register={register('count')} error={errors.count} type='number' />
-                            <TextField
-                                label='Serial number / Imei'
-                                value={watch('imei')}
-                                register={register('imei')}
-                                error={errors.name}
-                                placeholder={'Serial number / Imei'}
+                            <AntTextField<InventoryItem>
+                                label='Count'
+                                control={control}
+                                name='count'
+                                type='number'
+                                placeholder='Number of items'
                             />
+                            <Space.Compact>
+                                <AntTextField<InventoryItem>
+                                    label='Imei'
+                                    control={control}
+                                    name='imei'
+                                    placeholder={'Serial number / Imei'}
+                                />
+                                <BarcodeReaderButton
+                                    title='Scan imei'
+                                    onScan={(scanResult) => setValue('imei', scanResult)}
+                                />
+                            </Space.Compact>
                         </Space>
                     </div>
 
-                    <Space>
-                        <TextField
+                    <Space wrap className={'w-100 justify-between'}>
+                        <AntTextField<InventoryItem>
                             label='Purchase Price'
-                            register={register('purchasePrice')}
-                            error={errors.purchasePrice}
+                            control={control}
+                            name='purchasePrice'
                             type='currency'
+                            placeholder={'Purchase price'}
                         />
-                        <TextField
+
+                        <AntTextField<InventoryItem>
                             label='Sell Price'
-                            register={register('sellPrice')}
-                            error={errors.sellPrice}
+                            control={control}
+                            name='sellPrice'
                             type='currency'
+                            placeholder={'Sell price'}
                         />
                     </Space>
                     {category && category.columns.length > 0 && (

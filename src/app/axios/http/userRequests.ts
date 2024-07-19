@@ -38,6 +38,10 @@ export const getAllClients = ({ filter }: { filter?: UserFilter }): Promise<User
     const userFilter = toUserFilterView(filter)
     return backendClient.get('user/worker/all/clients', { params: userFilter })
 }
+export const getAllFilteredClients = ({ filter }: { filter?: UserFilter }): Promise<User[]> => {
+    const userFilter = toUserFilterView(filter)
+    return backendClient.get('user/worker/filtered/clients', { params: userFilter })
+}
 export const getAllClientsPage = ({
     filter,
     page,
