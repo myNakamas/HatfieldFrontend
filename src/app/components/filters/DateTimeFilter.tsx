@@ -1,7 +1,6 @@
 import { Filter } from '../../models/interfaces/filters'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import moment, { Moment } from 'moment/moment'
-import { RangeValue } from 'rc-picker/lib/interface'
 import generatePicker from 'antd/es/date-picker/generatePicker'
 import momentGenerateConfig from 'rc-picker/lib/generate/moment'
 
@@ -24,7 +23,7 @@ export const DateTimeFilter = ({
         filter[after] ? moment(filter[after]) : null,
         filter[before] ? moment(filter[before]) : null,
     ])
-    const updateFilter = (dates: RangeValue<Moment>) => {
+    const updateFilter = (dates: any) => {
         setFilter({
             ...filter,
             [after]: dates?.at(0)?.format('YYYY-MM-DD') ?? null,
@@ -48,3 +47,6 @@ export const DateTimeFilter = ({
         />
     )
 }
+
+declare type EventValue<DateType> = DateType | null;
+declare type RangeValue<DateType> = [EventValue<DateType>, EventValue<DateType>] | null;
