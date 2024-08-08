@@ -26,9 +26,9 @@ export const getSimpleUsers = ({ filter }: { filter?: UserFilter }): Promise<Use
     const userFilter = toUserFilterView(filter)
     return backendClient.get('user/all', { params: userFilter })
 }
-export const getAllUsers = ({ filter }: { filter?: UserFilter }): Promise<User[]> => {
+export const getAllUsers = ({ filter,page }: { filter?: UserFilter, page:PageRequest }): Promise<Page<User>> => {
     const userFilter = toUserFilterView(filter)
-    return backendClient.get('user/worker/all', { params: userFilter })
+    return backendClient.get('user/worker/page', { params: {...userFilter, ...page} })
 }
 export const getAllWorkers = ({ filter }: { filter?: UserFilter }): Promise<User[]> => {
     const userFilter = toUserFilterView(filter)

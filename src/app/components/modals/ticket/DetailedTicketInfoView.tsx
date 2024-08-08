@@ -137,7 +137,7 @@ export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
                 </Col>
                 {(ticket.deposit || ticket.totalPrice) && (
                     <Col>
-                        <Descriptions bordered size={'small'} layout='horizontal'>
+                        <Descriptions bordered size={'small'} layout='horizontal' column={3}>
                             {ticket.deposit && (
                                 <DescriptionsItem
                                     span={2}
@@ -167,12 +167,15 @@ export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
                     </Col>
                 )}
             </Row>
-            <Descriptions bordered layout={'vertical'} className={'w-100'}>
+            <Descriptions bordered layout={'vertical'} className={'w-100'} column={3}>
                 {ticket.customerRequest?.length > 0 && (
-                    <DescriptionsItem span={1} label={'Customer Request'} children={ticket.customerRequest} />
+                    <DescriptionsItem label={'Customer Request'} children={ticket.customerRequest} />
                 )}
                 {ticket.deviceCondition?.length > 0 && (
-                    <DescriptionsItem span={1} label={'Device condition'} children={ticket.deviceCondition} />
+                    <DescriptionsItem label={'Device condition'} children={ticket.deviceCondition} />
+                )}
+                {ticket.accessories?.length > 0 && (
+                    <DescriptionsItem label={'Accessories'} children={ticket.accessories} />
                 )}
                 {ticket.problemExplanation && (
                     <DescriptionsItem span={3} label={'Problem explanation'} children={ticket.problemExplanation} />
@@ -208,15 +211,17 @@ export const LogListRow = ({ log, onClick }: { log: Log; onClick?: (log: Log) =>
                     <ul key={`logListItemContent${log.id}`}>
                         {logMessages.map((value, index) => {
                             return value.length == 0 ? (
-                                <div key={`logMessage.${log.id}.${index}`}></div>
+                                <></>
                             ) : (
-                                <Typography.Paragraph
-                                    ellipsis={{ rows: 3 }}
-                                    prefix={'-'}
-                                    key={`logMessage.${log.id}.${index}`}
-                                >
-                                    {value}
-                                </Typography.Paragraph>
+                                <li>
+                                    <Typography.Paragraph
+                                        ellipsis={{ rows: 3 }}
+                                        prefix={'-'}
+                                        key={`logMessage.${log.id}.${index}`}
+                                    >
+                                        {value}
+                                    </Typography.Paragraph>
+                                </li>
                             )
                         })}
                     </ul>

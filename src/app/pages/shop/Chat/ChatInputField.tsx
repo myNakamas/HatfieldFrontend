@@ -7,7 +7,7 @@ import { useQueryClient } from 'react-query'
 import { WebSocketContext } from '../../../contexts/WebSocketContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons/faPaperPlane'
-import { faFileUpload } from '@fortawesome/free-solid-svg-icons'
+import { faEye, faEyeSlash, faFileUpload } from '@fortawesome/free-solid-svg-icons'
 import { Button, Input, Modal, Popover, Space, Upload, UploadFile, UploadProps, message } from 'antd'
 import { getBase64, getCurrentTime } from '../../../utils/helperFunctions'
 import { RcFile } from 'antd/es/upload'
@@ -124,7 +124,8 @@ export const MessageInputField = ({ selectedTicket: ticket }: { selectedTicket?:
                     checked={showToClient}
                     onChange={() => setShowToClient((prev) => !prev)}
                 >
-                    Send to client
+                    <FontAwesomeIcon icon={showToClient? faEye:faEyeSlash} />
+                    {showToClient? 'Visible to client':'Not visible to client'}
                 </CheckableTag>
             )}
         </div>

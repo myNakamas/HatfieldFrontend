@@ -229,18 +229,17 @@ export const AddInventoryItemInner = ({
                                 type='number'
                                 placeholder='Number of items'
                             />
-                            <Space.Compact>
                                 <AntTextField<CreateInventoryItem>
                                     label='Imei'
                                     control={control}
                                     name='imei'
                                     placeholder={'Serial number / Imei'}
+                                    addonAfter= {<BarcodeReaderButton
+                                        title='Scan'
+                                        onScan={(scanResult) => setValue('imei', scanResult)}
+                                    />}
                                 />
-                                <BarcodeReaderButton
-                                    title='Scan imei'
-                                    onScan={(scanResult) => setValue('imei', scanResult)}
-                                />
-                            </Space.Compact>
+                                
                         </Space>
                         {isAdmin() && (
                             <Controller

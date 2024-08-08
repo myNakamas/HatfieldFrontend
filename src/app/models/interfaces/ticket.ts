@@ -3,7 +3,7 @@ import { TicketStatus } from '../enums/ticketEnums'
 import { User } from './user'
 import { InventoryItem } from './shop'
 import { Invoice } from './invoice'
-import moment from 'moment/moment'
+import moment, { Duration } from 'moment/moment'
 
 export interface Ticket extends Entity {
     deviceModel: string
@@ -39,6 +39,7 @@ export interface CreateTicket {
     serialNumberOrImei: string
     accessories: string
     deadline: Date | string
+    deadlineDuration?: Duration
     timestamp: Date | string
     notes: string
     status: TicketStatus

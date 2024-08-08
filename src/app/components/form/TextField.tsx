@@ -1,4 +1,13 @@
-import { Control, Controller, FieldError, FieldValues, Path, PathValue, UseFormRegisterReturn } from 'react-hook-form'
+import {
+    Control,
+    Controller,
+    FieldError,
+    FieldValues,
+    Path,
+    PathValue,
+    UseFormRegisterReturn,
+    UseFormSetValue,
+} from 'react-hook-form'
 import React, { ReactNode, useState } from 'react'
 import { FormError } from './FormError'
 import {
@@ -20,7 +29,7 @@ import {
 import { AntFormField } from './Field'
 
 import dateFormat from 'dateformat'
-import moment, { Moment } from 'moment'
+import moment, { duration, Duration, Moment } from 'moment'
 import MomentDatePicker from './MomentDatePicker'
 
 interface TextFieldProps
@@ -72,16 +81,23 @@ export const AntTextField = <T extends FieldValues>({
 }
 
 interface TaskDeadlineProps<T extends FieldValues> {
+    duration?: Duration,
+    setDuration: (duration?: Duration) => void
     control: Control<T, any>
     name: Path<T>
     label?: string
     extra?: ReactNode
 }
-export const TaskDeadline = <T extends FieldValues>({ label, extra, ...rest }: TaskDeadlineProps<T>) => {
+export const TaskDeadline = <T extends FieldValues>({ label, extra, setDuration,duration, ...rest }: TaskDeadlineProps<T>) => {
     return (
         <Controller
             {...rest}
             render={({ field: { onChange, value: deadline }, fieldState: { error } }) => {
+                const currentDeadline = !!duration ? moment().add(duration) : moment(deadline);
+                const updateDeadline = (duration?: Duration) => {
+                    setDuration(duration)
+                    onChange(moment().add(duration).toDate())
+                }
                 return (
                     <Collapse
                         size='small'
@@ -89,35 +105,49 @@ export const TaskDeadline = <T extends FieldValues>({ label, extra, ...rest }: T
                             {
                                 label: 'Deadline',
                                 extra: (
-                                    <Tag color={moment(deadline) < moment().add(30, 'minutes') ? 'red' : 'blue'}>
-                                        {moment(deadline).fromNow()}
+                                    <Tag color={currentDeadline < moment().add(30, 'minutes') ? 'red' : 'blue'}>
+                                        {currentDeadline?.fromNow()}
                                     </Tag>
                                 ),
                                 children: (
                                     <Space direction='vertical'>
-                                        <MomentDatePicker onChange={onChange} value={deadline ? moment(deadline) : undefined} showTime />
+                                        <MomentDatePicker
+                                            onChange={(value) => {
+                                                onChange(value)
+                                                setDuration(undefined)
+                                            }}
+                                            value={deadline ? moment(deadline) : undefined}
+                                            showTime
+                                        />
                                         <Space.Compact>
-                                            <Button onClick={() => onChange(moment().add(15, 'minutes').toDate())}>
+                                            <Button
+                                                onClick={() => {
+                                                    updateDeadline(moment.duration({ minutes: 15 }))
+                                                }}
+                                            >
                                                 15 minutes
                                             </Button>
-                                            <Button onClick={() => onChange(moment().add(20, 'minutes').toDate())}>
+                                            <Button onClick={() => updateDeadline(moment.duration({ minutes: 20 }))}>
                                                 20 minutes
                                             </Button>
-                                            <Button onClick={() => onChange(moment().add(45, 'minutes').toDate())}>
+                                            <Button onClick={() => updateDeadline(moment.duration({ minutes: 45 }))}>
                                                 45 minutes
                                             </Button>
                                         </Space.Compact>
                                         <Space.Compact>
-                                            <Button onClick={() => onChange(moment().add(1, 'hour').toDate())}>1 hour</Button>
-                                            <Button onClick={() => onChange(moment().add(2, 'hours').toDate())}>
+                                            <Button onClick={() => updateDeadline(moment.duration({ hour: 1 }))}>
+                                                1 hour
+                                            </Button>
+                                            <Button onClick={() => updateDeadline(moment.duration({ hours: 2 }))}>
                                                 2 hours
                                             </Button>
                                             <Button
-                                                onClick={() =>
+                                                onClick={() => {
+                                                    setDuration(undefined)
                                                     onChange(
                                                         moment().add(1, 'days').hours(10).minutes(0).seconds(0).toDate()
                                                     )
-                                                }
+                                                }}
                                             >
                                                 10 AM Tomorrow
                                             </Button>

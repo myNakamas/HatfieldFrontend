@@ -2,7 +2,7 @@ import { CreateItemInvoice } from '../../models/interfaces/invoice'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useQuery, useQueryClient } from 'react-query'
-import { TextField } from '../form/TextField'
+import { AntTextField, TextField } from '../form/TextField'
 import { AppModal } from './AppModal'
 import { Button, Card, Select, Space } from 'antd'
 import { getAllClients } from '../../axios/http/userRequests'
@@ -37,6 +37,7 @@ import { InventoryFilter } from '../../models/interfaces/filters'
 import { defaultPage } from '../../models/enums/defaultValues'
 import { AddInventoryItem } from './inventory/AddInventoryItem'
 import { ItemTypes } from '../../models/enums/shopEnums'
+import { BarcodeReaderButton } from './QrReaderModal'
 
 export const AddInvoice = ({
     item,
@@ -255,10 +256,17 @@ export const AddInvoice = ({
                                             error={errors.count}
                                             type='number'
                                         />
-                                        <TextField
-                                            label={'Serial number / IMEI'}
-                                            register={register('serialNumber')}
-                                            error={errors.serialNumber}
+                                        <AntTextField<CreateItemInvoice>
+                                            label='Imei'
+                                            control={control}
+                                            name='serialNumber'
+                                            placeholder={'Serial number / IMEI'}
+                                            addonAfter={
+                                                <BarcodeReaderButton
+                                                    title='Scan'
+                                                    onScan={(scanResult) => setValue('serialNumber', scanResult)}
+                                                />
+                                            }
                                         />
                                     </Space>
                                 </Space>

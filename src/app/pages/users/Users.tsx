@@ -1,6 +1,6 @@
 import { faPen, faQuestion } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Button, FloatButton, Space, Tabs, TabsProps, Tour } from 'antd'
+import { Button, FloatButton, Input, Space, Tabs, TabsProps, Tour } from 'antd'
 import React, { useRef, useState } from 'react'
 import { useQuery } from 'react-query'
 import { getAllShops, getWorkerShops } from '../../axios/http/shopRequests'
@@ -14,33 +14,54 @@ import { ViewUser } from '../../components/modals/users/ViewUser'
 import { CustomTable } from '../../components/table/CustomTable'
 import { UserRolesArray, userTourSteps } from '../../models/enums/userEnums'
 import { UserFilter } from '../../models/interfaces/filters'
-import { ItemPropertyView } from '../../models/interfaces/generalModels'
+import { ItemPropertyView, Page, PageRequest } from '../../models/interfaces/generalModels'
 import { User } from '../../models/interfaces/user'
+import { defaultPage } from '../../models/enums/defaultValues'
 
 export const Users = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
     const refsArray = Array.from({ length: 4 }, () => useRef(null))
-
+    const [page, setPage] = useState<PageRequest>(defaultPage)
     const [viewUser, setViewUser] = useState<User | undefined>()
     const [selectedUser, setSelectedUser] = useState<User | undefined>()
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [filter, setFilter] = useState<UserFilter>({})
 
-    const { data: workers, isLoading } = useQuery(['users', 'workers', filter], () => getAllUsers({ filter }))
+    const { data: workers, isLoading } = useQuery(['users', filter, page], () => getAllUsers({ filter, page }))
 
     const tabs: TabsProps['items'] = [
         {
             key: '1',
             label: 'Workers',
             children: (
-                <UsersTab {...{ users: workers, setSelectedUser, setViewUser, tourRef: refsArray[3], isLoading }} />
+                <UsersTab
+                    {...{
+                        users: workers,
+                        setSelectedUser,
+                        setViewUser,
+                        tourRef: refsArray[3],
+                        isLoading,
+                        page,
+                        setPage,
+                    }}
+                />
             ),
         },
         {
             key: '2',
             label: 'Banned users',
             children: (
-                <UsersTab {...{ users: workers, setSelectedUser, setViewUser, tourRef: refsArray[3], isLoading }} />
+                <UsersTab
+                    {...{
+                        users: workers,
+                        setSelectedUser,
+                        setViewUser,
+                        tourRef: refsArray[3],
+                        isLoading,
+                        page,
+                        setPage,
+                    }}
+                />
             ),
         },
     ]
@@ -86,12 +107,16 @@ const UsersTab = ({
     setViewUser,
     tourRef,
     isLoading,
+    page,
+    setPage,
 }: {
-    users?: User[]
+    users?: Page<User>
     setSelectedUser: (value: ((prevState: User | undefined) => User | undefined) | User | undefined) => void
     setViewUser: (value: ((prevState: User | undefined) => User | undefined) | User | undefined) => void
     tourRef: React.MutableRefObject<null>
     isLoading?: boolean
+    page: PageRequest
+    setPage: (page: PageRequest) => void
 }) => {
     const { data: shops } = useQuery(['shops'], getAllShops)
     return (
@@ -106,7 +131,7 @@ const UsersTab = ({
                 actions: 'Actions',
             }}
             data={
-                users?.map((user) => {
+                users?.content.map((user) => {
                     return {
                         ...user,
                         shop: shops?.find(({ id }) => user.shopId === id)?.shopName,
@@ -123,7 +148,10 @@ const UsersTab = ({
                     }
                 }) ?? []
             }
-            onClick={({ userId }) => setViewUser(users?.find((user) => user.userId === userId))}
+            onClick={({ userId }) => setViewUser(users?.content.find((user) => user.userId === userId))}
+            totalCount={users?.totalCount}
+            pagination={page}
+            onPageChange={setPage}
         />
     )
 }
@@ -139,17 +167,35 @@ const UserFilters = ({
 
     return (
         <div className='filterRow'>
-            <SearchComponent {...{ filter, setFilter }} />
-            <div className='filterField'>
-                <AppSelect<number, ItemPropertyView>
-                    value={filter.shopId}
-                    options={shops ?? []}
-                    placeholder='Filter by shop'
-                    onChange={(value) => setFilter({ ...filter, shopId: value ?? undefined })}
-                    getOptionLabel={(shop) => shop.value}
-                    getOptionValue={(shop) => shop.id}
-                />
-            </div>
+            <AppSelect<number, ItemPropertyView>
+                value={filter.shopId}
+                options={shops ?? []}
+                placeholder='Filter by shop'
+                onChange={(value) => setFilter({ ...filter, shopId: value ?? undefined })}
+                getOptionLabel={(shop) => shop.value}
+                getOptionValue={(shop) => shop.id}
+            />
+
+            <Input
+                value={filter.phone}
+                onChange={(e) =>
+                    setFilter({ ...filter, phone: !!e.currentTarget.value ? e.currentTarget.value : undefined })
+                }
+                placeholder={'Filter by phone'}
+                type='search'
+            />
+            <Input
+                value={filter.email}
+                onChange={(e) => setFilter({ ...filter, email: e.currentTarget.value ?? undefined })}
+                placeholder={'Filter by email'}
+                type='search'
+            />
+            <Input
+                value={filter.fullName}
+                onChange={(e) => setFilter({ ...filter, fullName: e.currentTarget.value ?? undefined })}
+                placeholder={'Filter by Full name'}
+                type='search'
+            />
             <AppSelect<string, ItemPropertyView>
                 value={filter.roles ? filter.roles[0].value : undefined}
                 options={UserRolesArray}

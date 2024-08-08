@@ -36,6 +36,7 @@ import { AddTicketInvoice } from '../../../components/modals/AddTicketInvoice'
 import { AppSelect } from '../../../components/form/AppSelect'
 import { FilterWrapper } from '../../../components/filters/FilterWrapper'
 import Paragraph from 'antd/es/typography/Paragraph'
+import { AdvancedSearchButton } from '../../../components/filters/AdvancedSearchButton'
 
 export const Tickets = () => {
     const { loggedUser, isClient, isWorker } = useContext(AuthContext)
@@ -61,28 +62,36 @@ export const Tickets = () => {
             },
         }
     )
-    const { data: ticket } = useQuery(['tickets', { id: selectedTicketId }], () => fetchTicketById(selectedTicketId))
 
     const tabs: TabsProps['items'] = [
         {
             key: '1',
             label: 'Active tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab
+                    {...{ ...tickets, setSelectedTicketId, page, setPage }}
+                    setCollectTicket={setCollectTicket}
+                />
             ),
         },
         {
             key: '2',
             label: 'Waiting tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab
+                    {...{ ...tickets, setSelectedTicketId, page, setPage }}
+                    setCollectTicket={setCollectTicket}
+                />
             ),
         },
         {
             key: '3',
             label: 'Completed tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab
+                    {...{ ...tickets, setSelectedTicketId, page, setPage }}
+                    setCollectTicket={setCollectTicket}
+                />
             ),
         },
 
@@ -90,14 +99,20 @@ export const Tickets = () => {
             key: '4',
             label: 'Collected tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab
+                    {...{ ...tickets, setSelectedTicketId, page, setPage }}
+                    setCollectTicket={setCollectTicket}
+                />
             ),
         },
         {
             key: '5',
             label: 'All tickets',
             children: (
-                <TicketsTab {...{ ...tickets, setSelectedTicketId, page, setPage }} setCollectTicket={setCollectTicket} />
+                <TicketsTab
+                    {...{ ...tickets, setSelectedTicketId, page, setPage }}
+                    setCollectTicket={setCollectTicket}
+                />
             ),
         },
     ]
@@ -110,7 +125,8 @@ export const Tickets = () => {
                 isModalOpen={!!collectTicket}
             />
             <TicketView
-                ticket={ticket}
+                open={!!selectedTicketId}
+                ticketId={selectedTicketId}
                 closeModal={() => {
                     setSelectedTicketId(undefined)
                     setTicketView('view')
@@ -263,7 +279,6 @@ const TicketFilters = ({
     return advanced ? (
         <Space className='largeFilter' wrap align={'start'}>
             <FilterWrapper title={'General filters'}>
-                <SearchComponent {...{ filter, setFilter }} />
                 <Input
                     placeholder='Ticket ID'
                     pattern='[0-9\s]*'
@@ -290,13 +305,13 @@ const TicketFilters = ({
                     value={filter.brandId}
                     options={brands}
                     placeholder='Filter by brand'
-                    onChange={(id) => setFilter({ ...filter, brandId: id ?? undefined })}
+                    onChange={(id) => setFilter({ ...filter, brandId: id ?? undefined, modelId: undefined })}
                     getOptionLabel={(brand) => brand.value}
                     getOptionValue={(brand) => brand.id}
                 />
                 <AppSelect<number, ItemPropertyView>
                     value={filter.modelId}
-                    options={models}
+                    options={filter.brandId ? brands?.find(({ id }) => id == filter.brandId)?.models : models}
                     placeholder='Filter by model'
                     onChange={(id) => setFilter({ ...filter, modelId: id ?? undefined })}
                     getOptionLabel={(model) => model.value}
@@ -367,7 +382,7 @@ const TicketFilters = ({
                     setFilter({ ...filter, ticketId: currentTarget.value ? +currentTarget.value : undefined })
                 }
             />
-            <Button type={'link'} onClick={() => setAdvanced(true)} children={'Advanced search'} />
+            <AdvancedSearchButton onClick={() => setAdvanced(true)} />
         </Space>
     )
 }

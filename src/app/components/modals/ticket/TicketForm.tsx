@@ -31,6 +31,9 @@ import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 import TextArea from 'antd/es/input/TextArea'
 import { defaultTicket } from '../../../models/enums/defaultValues'
 import { UserFilter } from '../../../models/interfaces/filters'
+import moment from 'moment'
+import { getPhoneString, parsePhone } from '../../form/PhoneSelect'
+import { BarcodeReaderButton } from '../QrReaderModal'
 
 export const TicketForm = ({
     form: {
@@ -42,8 +45,9 @@ export const TicketForm = ({
     },
     formRef,
     onSubmit,
+    ticket,
 }: {
-    formRef: React.Ref<HTMLFormElement>,
+    formRef: React.Ref<HTMLFormElement>
     form: UseFormReturn<CreateTicket>
     ticket: CreateTicket
     formStatus: string
@@ -71,28 +75,33 @@ export const TicketForm = ({
                                 <ClientForm
                                     user={watch('client')}
                                     onChange={(user) => {
-                                        setValue('client', user as User)
+                                        if (validUserForTicket(user)) {
+                                            setValue('client', user as User)
+                                        } else setValue('client', undefined)
                                     }}
                                 />
                             </Col>
 
                             <Col flex='auto'>
-                                <Space.Compact direction='vertical' className='w-100'>
+                                <Space.Compact
+                                    direction='vertical'
+                                    className='w-100'
+                                    key={ticket?.id + 'brand_model_password'}
+                                >
                                     <Controller
                                         control={control}
                                         name={'deviceBrand'}
                                         render={({ field, fieldState }) => (
                                             <AntFormField label='Brand' error={fieldState.error}>
-                                                <AppCreatableSelect<ItemPropertyView>
+                                                <AutoComplete
                                                     options={brands}
-                                                    placeholder='Brand of device'
                                                     value={field.value}
+                                                    filterOption
                                                     onChange={(newValue) => {
                                                         setValue('deviceModel', '')
                                                         field.onChange(newValue)
                                                     }}
-                                                    optionLabelProp={'value'}
-                                                    optionFilterProp={'value'}
+                                                    allowClear
                                                 />
                                             </AntFormField>
                                         )}
@@ -102,13 +111,12 @@ export const TicketForm = ({
                                         name={'deviceModel'}
                                         render={({ field, fieldState }) => (
                                             <AntFormField label='Model' error={fieldState.error}>
-                                                <AppCreatableSelect<ItemPropertyView>
+                                                <AutoComplete
                                                     options={models}
-                                                    placeholder='Model of device'
                                                     value={field.value}
+                                                    filterOption
                                                     onChange={(newValue) => field.onChange(newValue)}
-                                                    optionLabelProp={'value'}
-                                                    optionFilterProp={'value'}
+                                                    allowClear
                                                 />
                                             </AntFormField>
                                         )}
@@ -218,7 +226,13 @@ export const TicketForm = ({
                                         name={'notes'}
                                         control={control}
                                     />
-                                    <TaskDeadline control={control} name='deadline' label={'Deadline:'} />
+                                    <TaskDeadline
+                                        control={control}
+                                        name='deadline'
+                                        label={'Deadline:'}
+                                        duration={watch('deadlineDuration')}
+                                        setDuration={(duration) => setValue('deadlineDuration', duration)}
+                                    />
                                 </Space.Compact>
                             </Col>
                             <Col flex='auto'>
@@ -248,7 +262,6 @@ export const TicketForm = ({
                         </Row>
                         <Collapse
                             size='small'
-                            
                             items={[
                                 {
                                     label: 'More details',
@@ -256,11 +269,19 @@ export const TicketForm = ({
                                     destroyInactivePanel: false,
                                     children: (
                                         <Space wrap className='justify-between'>
-                                            <AntTextField
+                                            <AntTextField<CreateTicket>
+                                                label='Imei'
                                                 control={control}
-                                                name={'serialNumberOrImei'}
-                                                label={'Serial number or Imei'}
-                                                placeholder={'Serial number or Imei'}
+                                                name='serialNumberOrImei'
+                                                placeholder={'Serial number / IMEI'}
+                                                addonAfter={
+                                                    <BarcodeReaderButton
+                                                        title='Scan'
+                                                        onScan={(scanResult) =>
+                                                            setValue('serialNumberOrImei', scanResult)
+                                                        }
+                                                    />
+                                                }
                                             />
                                             <AntTextField
                                                 control={control}
@@ -381,11 +402,13 @@ const ClientForm = ({ user, onChange }: { user?: User; onChange: (user?: Partial
                     placeholder='Phone number'
                     options={options.map((user) => ({ ...user, label: user.phones?.join(', ') }))}
                     onSearch={(value) => {
-                        setFilter({ phone: value })
+                        const search = parsePhone(value).phone
+                        setFilter({ phone: search || value })
                         onChange(userExists ? undefined : { ...user, phones: undefined })
                     }}
                     onSelect={(value: string, option) => {
-                        onChange(option.userId ? option : { ...user, phones: [value] })
+                        const newPhone = getPhoneString(parsePhone(value))
+                        onChange(option.userId ? option : { ...user, phones: [newPhone] })
                     }}
                     onClear={() => onChange(userExists ? undefined : { ...user, phones: undefined })}
                     onDeselect={() => onChange(userExists ? undefined : { ...user, phones: undefined })}
@@ -483,4 +506,16 @@ const NotesTextArea = ({
             <TextArea onChange={(e) => onChange(e.target.value)} value={value ?? ''} />
         </AntFormField>
     )
+}
+
+export const formatDeadline = (ticket: CreateTicket) => {
+    if (ticket.deadlineDuration != undefined) {
+        ticket.deadline = moment().add(ticket.deadlineDuration).toDate()
+        ticket.deadlineDuration = undefined
+    }
+    return ticket.deadline
+}
+
+const validUserForTicket = (user: Partial<User> | undefined) => {
+    return user && (user?.userId || user?.email || (user?.phones && user?.phones?.length > 0) || user?.fullName)
 }

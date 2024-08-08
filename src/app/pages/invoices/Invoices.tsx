@@ -11,7 +11,7 @@ import { getAllInvoices, getInvoicePdf, invalidateInvoice } from '../../axios/ht
 import dateFormat from 'dateformat'
 import { InvoiceType, invoiceTypeIcon, InvoiceTypesArray, paymentMethodIcon } from '../../models/enums/invoiceEnums'
 import { Button, InputNumber, Popconfirm, Popover, Skeleton, Space } from 'antd'
-import { faExclamationTriangle, faPrint } from '@fortawesome/free-solid-svg-icons'
+import { faExclamationTriangle, faMagnifyingGlass, faPrint } from '@fortawesome/free-solid-svg-icons'
 import { getAllBrands, getAllModels, getAllShops } from '../../axios/http/shopRequests'
 import { getAllClients, getAllWorkers } from '../../axios/http/userRequests'
 import { SearchComponent } from '../../components/filters/SearchComponent'
@@ -31,6 +31,7 @@ import { Invoice } from '../../models/interfaces/invoice'
 import CheckableTag from 'antd/es/tag/CheckableTag'
 import { FilterWrapper } from '../../components/filters/FilterWrapper'
 import { currencyFormat, resetPageIfNoValues } from '../../utils/helperFunctions'
+import { AdvancedSearchButton } from '../../components/filters/AdvancedSearchButton'
 
 export const openPdfBlob = (pdfBlob: Blob) => {
     if (pdfBlob) {
@@ -190,7 +191,6 @@ const InvoiceFilters = ({
     return advanced ? (
         <Space wrap align={'start'}>
             <FilterWrapper title={'General filters'}>
-                <SearchComponent {...{ filter, setFilter }} />
                 <AppSelect<InvoiceType, ItemPropertyView>
                     value={filter.type}
                     options={InvoiceTypesArray}
@@ -202,20 +202,20 @@ const InvoiceFilters = ({
             </FilterWrapper>
             <FilterWrapper title={'Device filters'}>
                 <AppSelect<string, ItemPropertyView>
+                    value={filter.brand}
+                    options={brands}
+                    placeholder='Filter by brand'
+                    onChange={(value) => setFilter({ ...filter, brand: value ?? undefined, model: undefined })}
+                    getOptionLabel={(brand) => brand.value}
+                    getOptionValue={(brand) => String(brand.value)}
+                />
+                <AppSelect<string, ItemPropertyView>
                     value={filter.model}
-                    options={models}
+                    options={filter.brand ? brands?.find(({ value }) => value === filter.brand)?.models : models}
                     placeholder='Filter by model'
                     onChange={(value) => setFilter({ ...filter, model: value ?? undefined })}
                     getOptionLabel={(model) => model.value}
                     getOptionValue={(model) => String(model.value)}
-                />
-                <AppSelect<string, ItemPropertyView>
-                    value={filter.brand}
-                    options={brands}
-                    placeholder='Filter by brand'
-                    onChange={(value) => setFilter({ ...filter, brand: value ?? undefined })}
-                    getOptionLabel={(brand) => brand.value}
-                    getOptionValue={(brand) => String(brand.value)}
                 />
             </FilterWrapper>
             <FilterWrapper title={'Filter by users'}>
@@ -274,11 +274,27 @@ const InvoiceFilters = ({
             </FilterWrapper>
         </Space>
     ) : (
-        <div className='flex'>
-            <SearchComponent {...{ filter, setFilter }} />
-            <Button type={'link'} onClick={() => setAdvanced(true)}>
-                Advanced search
-            </Button>
-        </div>
+        <Space wrap>
+            <AppSelect<InvoiceType, ItemPropertyView>
+                value={filter.type}
+                options={InvoiceTypesArray}
+                onChange={(value) => setFilter({ ...filter, type: value ?? undefined })}
+                placeholder='Filter by status'
+                getOptionLabel={(status) => status.value}
+                getOptionValue={(status) => status.value as InvoiceType}
+            />
+            <DateTimeFilter
+                filter={filter}
+                setFilter={({ from, to }) => {
+                    setFilter((oldVal) => ({
+                        ...oldVal,
+                        createdAfter: from?.slice(0, 10) ?? undefined,
+                        createdBefore: to?.slice(0, 10) ?? undefined,
+                    }))
+                }}
+                placeholder={'Created'}
+            />
+            <AdvancedSearchButton onClick={() => setAdvanced(true)} />
+        </Space>
     )
 }

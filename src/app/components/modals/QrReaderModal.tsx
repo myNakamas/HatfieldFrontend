@@ -133,8 +133,8 @@ export const BarcodeReaderButton = ({
 
             <Button
                 icon={<FontAwesomeIcon icon={faQrcode} />}
-                type={'dashed'}
                 children={title}
+                size='small'
                 onClick={() => setModalOpen((prev) => !prev)}
             />
         </>

@@ -19,6 +19,7 @@ export const defaultTicket = {
     status: 'PENDING',
     deviceLocation: 'IN_THE_FRONT',
     deadline: moment().add(1, 'hour').toDate(),
+    deadlineDuration:moment.duration({hours:1}),
 } as CreateTicket
 
 export const defaultUser = {

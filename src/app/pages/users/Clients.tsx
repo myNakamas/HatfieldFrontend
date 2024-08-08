@@ -121,7 +121,6 @@ const ClientsFilters = ({
     const { data: shops } = useQuery(['shops', 'short'], getWorkerShops, { enabled: isAdmin() })
     return (
         <div className='filterRow'>
-            <SearchComponent {...{ filter, setFilter }} />
             {isAdmin() && (
                 <AppSelect<number, ItemPropertyView>
                     value={filter.shopId}
@@ -134,8 +133,21 @@ const ClientsFilters = ({
             )}
             <Input
                 value={filter.phone}
-                onChange={(e) => setFilter({ ...filter, phone: e.currentTarget.value })}
-                placeholder={'Filter by exact phone'}
+                onChange={(e) => setFilter({ ...filter, phone:!!e.currentTarget.value? e.currentTarget.value : undefined })}
+                placeholder={'Filter by phone'}
+                type='search'
+            />
+            <Input
+                value={filter.email}
+                onChange={(e) => setFilter({ ...filter, email: e.currentTarget.value ?? undefined })}
+                placeholder={'Filter by email'}
+                type='search'
+            />
+            <Input
+                value={filter.fullName}
+                onChange={(e) => setFilter({ ...filter, fullName: e.currentTarget.value ?? undefined })}
+                placeholder={'Filter by Full name'}
+                type='search'
             />
             <Space>
                 <CheckableTag

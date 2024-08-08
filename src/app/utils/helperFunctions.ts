@@ -25,6 +25,7 @@ export const resetPageIfNoValues = <T>(
 ) => {
     if (pageResponse.content.length == 0 && pageResponse.page > 1) setPage((oldVal) => ({ ...oldVal, page: 1 }))
 }
+
 export const generateDaysArray = (startDate?: string, endDate?: string): moment.Moment[] => {
     const start = moment(startDate).startOf('day') ?? moment().startOf('month').startOf('day')
     const end = moment(endDate).startOf('day')

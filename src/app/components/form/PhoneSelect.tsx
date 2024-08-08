@@ -7,10 +7,10 @@ interface Phone {
     phone: string
     code: string
 }
-const getPhoneString = (phone: Phone) => {
+export const getPhoneString = (phone: Phone) => {
     return phone.code + '-' + phone.phone
 }
-const parsePhone = (str: string, code?: string) => {
+export const parsePhone = (str: string, code?: string) => {
     let result = { code: code ?? UKCodeDefault.dial_code, phone: '' }
     if (!str || str.trim().length == 0) return result
     const i = str.indexOf('-')
@@ -33,6 +33,9 @@ const parsePhoneNumber = (str: string, result: Phone) => {
         }
     } else if (str.startsWith('0')) {
         result.phone = str.replace(/^0/, '')
+    }
+    else {
+        result.phone = str;
     }
     return result
 }

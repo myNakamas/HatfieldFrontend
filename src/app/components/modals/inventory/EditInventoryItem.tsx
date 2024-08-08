@@ -199,18 +199,18 @@ export const EditInventoryItem = ({
                                 type='number'
                                 placeholder='Number of items'
                             />
-                            <Space.Compact>
-                                <AntTextField<InventoryItem>
-                                    label='Imei'
-                                    control={control}
-                                    name='imei'
-                                    placeholder={'Serial number / Imei'}
-                                />
-                                <BarcodeReaderButton
-                                    title='Scan imei'
-                                    onScan={(scanResult) => setValue('imei', scanResult)}
-                                />
-                            </Space.Compact>
+                            <AntTextField<InventoryItem>
+                                label='Imei'
+                                control={control}
+                                name='imei'
+                                placeholder={'Serial number / Imei'}
+                                addonAfter={
+                                    <BarcodeReaderButton
+                                        title='Scan imei'
+                                        onScan={(scanResult) => setValue('imei', scanResult)}
+                                    />
+                                }
+                            />
                         </Space>
                     </div>
 

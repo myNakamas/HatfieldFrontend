@@ -3,7 +3,7 @@ import { EditTicketForm } from './EditTicketForm'
 import { defaultTicket } from '../../../models/enums/defaultValues'
 import { Divider, Modal } from 'antd'
 import { AuthContext } from '../../../contexts/AuthContext'
-import { TicketForm } from './TicketForm'
+import { formatDeadline, TicketForm } from './TicketForm'
 import { CreateTicket, Ticket } from '../../../models/interfaces/ticket'
 import { TicketSchema } from '../../../models/validators/FormValidators'
 import { toast } from 'react-toastify'
@@ -35,6 +35,7 @@ export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; c
     }
 
     const onFormSubmit = (data: CreateTicket) => {
+        data.deadline = formatDeadline(data);
         setFormStatus('loading')
         createNewTicket(data)
             .then((ticket) => {
@@ -45,9 +46,9 @@ export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; c
                 })
             })
             .then(() => {
-                return queryClient.invalidateQueries(['tickets'])
+                queryClient.invalidateQueries(['tickets'])
             })
-            .then(() => closeModal())
+            .then(() => onCancel())
             .catch((error: AppError) => {
                 form.setError('root', { message: error?.detail })
             })

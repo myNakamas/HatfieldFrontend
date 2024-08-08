@@ -17,7 +17,7 @@ import { ViewInventoryItem } from '../../components/modals/inventory/ViewInvento
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { SearchComponent } from '../../components/filters/SearchComponent'
 import { AuthContext } from '../../contexts/AuthContext'
-import { Button, FloatButton, Input, Skeleton, Space, Tour } from 'antd'
+import { AutoComplete, Button, FloatButton, Input, Skeleton, Space, Tour } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faFileEdit, faPen, faPlus, faQuestion } from '@fortawesome/free-solid-svg-icons'
@@ -136,7 +136,21 @@ const InventoryFilters = ({
 
     return (
         <Space wrap className={'w-100 justify-between'}>
-            <SearchComponent {...{ filter, setFilter }} />
+            <AutoComplete
+            className='mw-200'
+                placeholder='Search'
+                value={filter.searchBy}
+                options={
+                    filter.categoryId
+                        ? categories
+                              ?.find(({ id }) => filter.categoryId == id)
+                              ?.columns.map((column) => ({ ...column, value: column.name }))
+                        : []
+                }
+                filterOption
+                onSelect={(column) => setFilter({ ...filter, searchBy: column + ':' })}
+                onChange={(value) => setFilter({ ...filter, searchBy: value })}
+            />
             <Space wrap>
                 <CheckableTag
                     checked={filter.onlyNonEmpty ?? false}
@@ -159,18 +173,18 @@ const InventoryFilters = ({
                     getOptionValue={(shop) => shop.id}
                 />
                 <AppSelect<number, ItemPropertyView>
-                    value={filter.modelId}
-                    options={models}
-                    placeholder='Filter by model'
-                    onChange={(value) => setFilter({ ...filter, modelId: value ?? undefined })}
+                    value={filter.brandId}
+                    options={brands}
+                    placeholder='Filter by brand'
+                    onChange={(value) => setFilter({ ...filter, brandId: value ?? undefined, modelId: undefined })}
                     getOptionLabel={(shop) => shop.value}
                     getOptionValue={(shop) => shop.id}
                 />
                 <AppSelect<number, ItemPropertyView>
-                    value={filter.brandId}
-                    options={brands}
-                    placeholder='Filter by brand'
-                    onChange={(value) => setFilter({ ...filter, brandId: value ?? undefined })}
+                    value={filter.modelId}
+                    options={filter.brandId ? brands?.find(({ id }) => filter.brandId === id)?.models : models}
+                    placeholder='Filter by model'
+                    onChange={(value) => setFilter({ ...filter, modelId: value ?? undefined })}
                     getOptionLabel={(shop) => shop.value}
                     getOptionValue={(shop) => shop.id}
                 />
@@ -193,7 +207,6 @@ export const InventoryInner = ({
     setPage,
     page,
     filter,
-    openCreateModal,
 }: {
     filter?: InventoryFilter
     setSelectedItem: React.Dispatch<React.SetStateAction<InventoryItem | undefined>>
@@ -224,11 +237,9 @@ export const InventoryInner = ({
             }, {}) ?? {}
         )
     }, [filter?.categoryId])
-    const isUserFromShop = filter?.shopId === loggedUser?.shopId
 
-    return data && data.content.length > 0 ? (
-        <CustomTable<InventoryItem>
-            data={data.content.map((item) => {
+    return <CustomTable<InventoryItem>
+            data={data?.content.map((item) => {
                 return {
                     ...item.columns,
                     ...item,
@@ -243,7 +254,7 @@ export const InventoryInner = ({
                         />
                     ),
                 }
-            })}
+            })??[]}
             headers={{
                 id: 'Item Id',
                 itemName: 'Name',
@@ -256,15 +267,6 @@ export const InventoryInner = ({
             onClick={({ id }) => setSelectedItem(data?.content.find((row) => row.id === id))}
             pagination={page}
             onPageChange={setPage}
-            totalCount={data.totalCount}
+            totalCount={data?.totalCount}
         />
-    ) : (
-        <NoDataComponent items='items in inventory'>
-            {isUserFromShop && (
-                <Button type='primary' onClick={openCreateModal}>
-                    Create Now
-                </Button>
-            )}
-        </NoDataComponent>
-    )
 }

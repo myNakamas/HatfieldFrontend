@@ -44,7 +44,7 @@ export const AppCreatableSelect = <T extends BaseOptionType>({
             }}
 
             tagRender={(props) => (
-                <div key={`key${props.label}_${props.value}`} style={{ paddingLeft: 5 }}>
+                <div key={`key${props.label}_${props.value}`} className='ps-1'>
                     {props.label}
                 </div>
             )}
