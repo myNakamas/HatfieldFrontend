@@ -52,7 +52,7 @@ export const TicketForm = ({
 }: {
     formRef: React.Ref<HTMLFormElement>
     form: UseFormReturn<CreateTicket>
-    ticket: CreateTicket
+    ticket: Partial<CreateTicket>
     formStatus: string
     onCancel: () => void
     onSubmit: (ticket: CreateTicket) => void
@@ -192,7 +192,7 @@ export const TicketForm = ({
                                                 onChange={(e) => {
                                                     e.target.checked
                                                         ? setValue('deviceLocation', 'With customer')
-                                                        : setValue('deviceLocation', defaultTicket.deviceLocation)
+                                                        : setValue('deviceLocation', defaultTicket.deviceLocation!)
                                                 }}
                                             />{' '}
                                             Device stays with customer
@@ -399,8 +399,7 @@ const ClientForm = ({
             type='inner'
             size='small'
             title={<Space>
-                <Switch onChange={setWithClient} value={withClient} />
-
+                <Switch title='Client toggle' onChange={setWithClient} value={withClient} />
                 {!withClient?"No client":userExists ? `Selected client` : 'Creating a new client'}</Space>}
             extra={
                 withClient && (<Tag
