@@ -24,6 +24,7 @@ export const ActiveTickets = ({
     filter: TicketFilter
     setFilter: (filter: TicketFilter) => void
 }) => {
+    
     const navigate = useNavigate()
     const [page, setPage] = useState(defaultPage)
     const { loggedUser } = useContext(AuthContext)
@@ -86,6 +87,7 @@ export const ActiveTickets = ({
             )}
             <CustomSuspense isReady={!isLoading}>
                 <ShortTicketTable
+                    showCollect={isUserFromShop}
                     page={page}
                     setPage={setPage}
                     data={tickets?.content}

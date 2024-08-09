@@ -22,6 +22,7 @@ export interface Ticket extends Entity {
     totalPrice: number
     deposit: number
     createdBy: User
+    withClient?: boolean
     client: User
     usedParts: UsedItemView[]
     invoice?: Invoice
@@ -45,7 +46,8 @@ export interface CreateTicket {
     status: TicketStatus
     totalPrice: number
     deposit: number
-    client?: User
+    withClient?: boolean
+    client?: Partial<User>
     clientId?: string
 }
 

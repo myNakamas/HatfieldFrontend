@@ -21,8 +21,10 @@ import {
     Row,
     Select,
     SelectProps,
+    Skeleton,
     Space,
     Spin,
+    Switch,
     Tag,
     Tooltip,
 } from 'antd'
@@ -41,6 +43,7 @@ export const TicketForm = ({
         setValue,
         control,
         handleSubmit,
+        getValues,
         formState: { errors },
     },
     formRef,
@@ -60,6 +63,7 @@ export const TicketForm = ({
     const models = brands?.find((b) => b.value === watch('deviceBrand'))?.models ?? []
     const [showCreateModal, setShowCreateModal] = useState(false)
 
+    console.log(watch('client'))
     return (
         <>
             <AddClient
@@ -74,9 +78,11 @@ export const TicketForm = ({
                             <Col flex='auto'>
                                 <ClientForm
                                     user={watch('client')}
+                                    withClient={watch('withClient')}
+                                    setWithClient={(val)=>setValue('withClient', val)}
                                     onChange={(user) => {
-                                        if (validUserForTicket(user)) {
-                                            setValue('client', user as User)
+                                        if (validUserForTicket(user) && getValues('withClient')) {
+                                            setValue('client', user)
                                         } else setValue('client', undefined)
                                     }}
                                 />
@@ -348,7 +354,18 @@ export const TicketForm = ({
 
 type LabeledUser = User & { label: string; value: string }
 
-const ClientForm = ({ user, onChange }: { user?: User; onChange: (user?: Partial<User>) => void }) => {
+const ClientForm = ({
+    user,
+    onChange,
+    withClient,
+    setWithClient
+}: {
+    user?: Partial<User>
+    withClient?: boolean
+    setWithClient: (withClient:boolean)=>void
+
+    onChange: (user?: Partial<User>) => void
+}) => {
     const [filter, setFilter] = useState<UserFilter>({})
     const { data, isFetching } = useQuery(['clients', filter], () => getAllFilteredClients({ filter }), {})
 
@@ -381,9 +398,12 @@ const ClientForm = ({ user, onChange }: { user?: User; onChange: (user?: Partial
             className='w-100'
             type='inner'
             size='small'
-            title={userExists ? `Selected client` : 'Creating a new client'}
+            title={<Space>
+                <Switch onChange={setWithClient} value={withClient} />
+
+                {!withClient?"No client":userExists ? `Selected client` : 'Creating a new client'}</Space>}
             extra={
-                <Tag
+                withClient && (<Tag
                     closable={userExists}
                     onClose={(e) => {
                         e.preventDefault()
@@ -392,9 +412,11 @@ const ClientForm = ({ user, onChange }: { user?: User; onChange: (user?: Partial
                     color={userExists ? 'blue' : 'green'}
                 >
                     {userExists ? user.fullName ?? user.username : 'New User'}
-                </Tag>
+                </Tag>)
             }
         >
+            <Skeleton loading={!withClient} title={false} >
+
             <Space direction='vertical'>
                 <Select<Array<string>, LabeledUser>
                     {...props}
@@ -445,6 +467,8 @@ const ClientForm = ({ user, onChange }: { user?: User; onChange: (user?: Partial
                     onDeselect={() => onChange(userExists ? undefined : { ...user, fullName: undefined })}
                 />
             </Space>
+            
+            </Skeleton>
         </Card>
     )
 }
@@ -517,5 +541,6 @@ export const formatDeadline = (ticket: CreateTicket) => {
 }
 
 const validUserForTicket = (user: Partial<User> | undefined) => {
+    console.log(user)
     return user && (user?.userId || user?.email || (user?.phones && user?.phones?.length > 0) || user?.fullName)
 }
