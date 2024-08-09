@@ -1,5 +1,4 @@
-import React, { useContext, useRef, useState } from 'react'
-import { EditTicketForm } from './EditTicketForm'
+import { useContext, useRef, useState } from 'react'
 import { defaultTicket } from '../../../models/enums/defaultValues'
 import { Divider, Modal } from 'antd'
 import { AuthContext } from '../../../contexts/AuthContext'
@@ -7,7 +6,7 @@ import { formatDeadline, TicketForm } from './TicketForm'
 import { CreateTicket, Ticket } from '../../../models/interfaces/ticket'
 import { TicketSchema } from '../../../models/validators/FormValidators'
 import { toast } from 'react-toastify'
-import { createTicket, updateTicket } from '../../../axios/http/ticketRequests'
+import { createTicket } from '../../../axios/http/ticketRequests'
 import { putPrintTicketLabels } from '../../../axios/http/documentRequests'
 import { AppError } from '../../../models/interfaces/generalModels'
 import { toastCreatePromiseTemplate, toastProps } from '../ToastProps'
@@ -30,12 +29,12 @@ export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; c
 
     const onCancel = () => {
         form.reset(defaultTicket)
-        formRef.current?.reset();
+        formRef.current?.reset()
         closeModal()
     }
 
     const onFormSubmit = (data: CreateTicket) => {
-        data.deadline = formatDeadline(data);
+        data.deadline = formatDeadline(data)
         setFormStatus('loading')
         createNewTicket(data)
             .then((ticket) => {
@@ -69,7 +68,6 @@ export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; c
             onCancel={closeModal}
             onOk={form.handleSubmit(onFormSubmit)}
             okText='Create ticket'
-            
         >
             <TicketForm
                 formRef={formRef}
