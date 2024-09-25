@@ -1,10 +1,10 @@
 import { toast } from 'react-toastify'
 import { toastCreatePromiseTemplate, toastProps } from './ToastProps'
-import { CreateTicketInvoice } from '../../models/interfaces/invoice'
+import { CreateInvoice, CreateTicketInvoice } from '../../models/interfaces/invoice'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useQuery, useQueryClient } from 'react-query'
-import { TextField } from '../form/TextField'
+import { AntTextField, TextField } from '../form/TextField'
 import { AppModal } from './AppModal'
 import { putCollectTicket, putCreateDepositInvoice } from '../../axios/http/ticketRequests'
 import { Button, Space, Typography } from 'antd'
@@ -23,6 +23,7 @@ import { AuthContext } from '../../contexts/AuthContext'
 import { getAllBrands } from '../../axios/http/shopRequests'
 import { Ticket } from '../../models/interfaces/ticket'
 import { AppCreatableSelect, AppSelect } from '../form/AppSelect'
+import { BarcodeReaderButton } from './QrReaderModal'
 
 export const AddTicketInvoice = ({
     ticket,
@@ -96,7 +97,7 @@ export const AddTicketInvoice = ({
             .promise(promise({ id: data.ticketId, invoice }), toastCreatePromiseTemplate('invoice'), toastProps)
             .then(() => {
                 closeModal()
-                queryClient.invalidateQueries(['tickets']).then()
+                queryClient.invalidateQueries(['ticket', ticket?.id]).then()
             })
             .catch(({ detail }: AppError) => {
                 setError('root', { message: detail })
@@ -112,7 +113,7 @@ export const AddTicketInvoice = ({
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice)}>
                 <Typography>
                     <FormField label={'Ticket Id'} error={errors.ticketId}>
-                        <input readOnly className='input' disabled defaultValue={ticket?.id} />
+                        <input readOnly className='input' disabled defaultValue={ticket?.id} title='Ticket ID'/>
                     </FormField>
                     <Controller
                         control={control}
@@ -176,10 +177,17 @@ export const AddTicketInvoice = ({
                                 </FormField>
                             )}
                         />
-                        <TextField
-                            label={'Serial number'}
-                            register={register('serialNumber')}
-                            error={errors.serialNumber}
+                        <AntTextField<CreateTicketInvoice>
+                            label='Imei'
+                            control={control}
+                            name='serialNumber'
+                            placeholder={'Serial number / IMEI'}
+                            addonAfter={
+                                <BarcodeReaderButton
+                                    title='Scan'
+                                    onScan={(scanResult) => setValue('serialNumber', scanResult)}
+                                />
+                            }
                         />
                     </Space>
                     <Space wrap>

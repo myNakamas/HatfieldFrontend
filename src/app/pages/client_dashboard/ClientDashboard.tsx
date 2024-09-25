@@ -34,18 +34,19 @@ export const ClientDashboard = () => {
     const refsArray = Array.from({ length: 5 }, () => useRef(null))
     const { loggedUser } = useContext(AuthContext)
     const filter: TicketFilter = { clientId: loggedUser?.userId }
-    const [selectedTicket, setSelectedTicket] = useState<Ticket | undefined>()
+    const [selectedTicketId, setSelectedTicketId] = useState<number | undefined>()
 
     const { data: shop } = useQuery(['currentShop'], getShopData)
     useEffect(() => {
-        params.get('ticketId') && fetchTicketById(Number(params.get('ticketId'))).then(setSelectedTicket)
+        const ticketId = params.get('ticketId') ?? undefined
+        ticketId && setSelectedTicketId(+ticketId)
     }, [])
 
     return (
         <div className={'mainScreen'}>
-            <TicketView ticket={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
+            <TicketView open={!!selectedTicketId} ticketId={selectedTicketId} closeModal={() => setSelectedTicketId(undefined)} />
             <div className={'dashboard-items'}>
-                <ClientTicketTable refs={refsArray} filter={filter} setSelectedTicket={setSelectedTicket} />
+                <ClientTicketTable refs={refsArray} filter={filter} setSelectedTicket={setSelectedTicketId} />
                 <Card ref={refsArray[3]} style={{ minWidth: 350 }} title={`Invoices: `}>
                     <Suspense fallback={<Spin />}>
                         <InnerInvoices {...{ filter }} />
@@ -74,19 +75,21 @@ export const ClientTicketTable = ({
     refs,
 }: {
     filter: TicketFilter
-    setSelectedTicket: React.Dispatch<React.SetStateAction<Ticket | undefined>>
+    setSelectedTicket: React.Dispatch<React.SetStateAction<number | undefined>>
     refs: React.Ref<HTMLDivElement>[]
 }) => {
     const [page, setPage] = useState(defaultPage)
     const [showCompletedTickets, setShowCompletedTickets] = useState(false)
-    const { data: tickets, isLoading } = useQuery(['tickets', filter], () =>
-        fetchClientTickets({
-            page,
-            filter: {
-                ...filter,
-                ticketStatuses: showCompletedTickets ? completedTicketStatuses : activeTicketStatuses,
-            },
-        })
+    const { data: tickets, isLoading } = useQuery(
+        ['tickets', filter],
+        () =>
+            fetchClientTickets({
+                page,
+                filter: {
+                    ...filter,
+                    ticketStatuses: showCompletedTickets ? completedTicketStatuses : activeTicketStatuses,
+                },
+            }),
     )
 
     return (
@@ -135,7 +138,7 @@ export const ActiveTicketsTable = ({
 }: {
     isLoading: boolean
     data?: Page<Ticket>
-    setSelectedTicket: React.Dispatch<React.SetStateAction<Ticket | undefined>>
+    setSelectedTicket: React.Dispatch<React.SetStateAction<number | undefined>>
     page: PageRequest
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
 }) => {
@@ -193,7 +196,7 @@ export const ActiveTicketsTable = ({
                             leftPrice: 'Left to pay',
                             actions: 'Actions',
                         }}
-                        onClick={({ id }) => setSelectedTicket(data.content.find((ticket) => ticket.id === id))}
+                        onClick={({ id }) => setSelectedTicket(id)}
                         pagination={page}
                         onPageChange={setPage}
                         totalCount={data.totalCount}
@@ -215,7 +218,7 @@ export const CompletedTicketsTable = ({
 }: {
     isLoading: boolean
     data?: Page<Ticket>
-    setSelectedTicket: React.Dispatch<React.SetStateAction<Ticket | undefined>>
+    setSelectedTicket: React.Dispatch<React.SetStateAction<number | undefined>>
     page: PageRequest
     setPage: React.Dispatch<React.SetStateAction<PageRequest>>
 }) => {
@@ -254,7 +257,7 @@ export const CompletedTicketsTable = ({
                             warrantyLeft: 'Warranty left',
                             actions: 'Actions',
                         }}
-                        onClick={({ id }) => setSelectedTicket(data.content.find((ticket) => ticket.id === id))}
+                        onClick={({ id }) => setSelectedTicket(id)}
                         pagination={page}
                         onPageChange={setPage}
                         totalCount={data.totalCount}

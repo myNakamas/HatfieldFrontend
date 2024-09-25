@@ -11,7 +11,7 @@ import {
     getShopData,
 } from '../../../axios/http/shopRequests'
 import { useQuery, useQueryClient } from 'react-query'
-import { TextField } from '../../form/TextField'
+import { AntTextField, TextField } from '../../form/TextField'
 import { FormError } from '../../form/FormError'
 import { AppModal } from '../AppModal'
 import { useContext, useEffect, useRef, useState } from 'react'
@@ -28,6 +28,7 @@ import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 import { printItemLabel } from './ViewInventoryItem'
 import { currencyFormat } from '../../../utils/helperFunctions'
 import { usePrintConfirm } from '../PrintConfirm'
+import { BarcodeReaderButton } from '../QrReaderModal'
 
 export const AddInventoryItem = ({
     isModalOpen,
@@ -72,6 +73,7 @@ export const AddInventoryItemInner = ({
         formState: { errors },
         setError,
         watch,
+        getValues,
         setValue,
         reset,
         resetField,
@@ -220,20 +222,24 @@ export const AddInventoryItemInner = ({
                 <Space wrap align={'start'} className={'w-100 justify-between'}>
                     <Space direction={'vertical'}>
                         <Space>
-                            <TextField
+                            <AntTextField<CreateInventoryItem>
                                 label='Count'
-                                register={register('count')}
-                                error={errors.count}
+                                control={control}
+                                name='count'
                                 type='number'
                                 placeholder='Number of items'
                             />
-                            <TextField
-                                label='Imei'
-                                defaultValue={watch('imei')}
-                                register={register('imei')}
-                                error={errors.name}
-                                placeholder={'Serial number / Imei'}
-                            />
+                                <AntTextField<CreateInventoryItem>
+                                    label='Imei'
+                                    control={control}
+                                    name='imei'
+                                    placeholder={'Serial number / Imei'}
+                                    addonAfter= {<BarcodeReaderButton
+                                        title='Scan'
+                                        onScan={(scanResult) => setValue('imei', scanResult)}
+                                    />}
+                                />
+                                
                         </Space>
                         {isAdmin() && (
                             <Controller
@@ -256,19 +262,25 @@ export const AddInventoryItemInner = ({
                     </Space>
                     <Card title={'Pricing'}>
                         <Space wrap className={'w-100 justify-between'}>
-                            <TextField
+                            <AntTextField<CreateInventoryItem>
                                 label='Purchase Price'
-                                register={register('purchasePrice')}
-                                error={errors.purchasePrice}
+                                control={control}
+                                name='purchasePrice'
                                 type='currency'
+                                placeholder={'Purchase price'}
                             />
-                            <TextField
+
+                            <AntTextField<CreateInventoryItem>
                                 label='Sell Price'
-                                register={register('sellPrice')}
-                                error={errors.sellPrice}
+                                control={control}
+                                name='sellPrice'
                                 type='currency'
+                                placeholder={'Sell price'}
                             />
                         </Space>
+                        <span>
+                            Profit per item: {currencyFormat((watch('sellPrice') ?? 0) - (watch('purchasePrice') ?? 0))}
+                        </span>
                     </Card>
                 </Space>
                 {category && category.columns.length > 0 && (

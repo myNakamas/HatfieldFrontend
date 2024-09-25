@@ -14,12 +14,14 @@ export const getDefaultPageSize = (): number => {
 }
 export const defaultPage: PageRequest = { pageSize: getDefaultPageSize(), page: 1 }
 
-export const defaultTicket = {
+export const defaultTicket:Partial<CreateTicket> = {
     problemExplanation: '',
     status: 'PENDING',
     deviceLocation: 'IN_THE_FRONT',
-    deadline: moment().add(30, 'minutes').toDate(),
-} as CreateTicket
+    deadline: moment().add(1, 'hour').toDate(),
+    deadlineDuration:moment.duration({hours:1}),
+    withClient: true
+}
 
 export const defaultUser = {
     phones: [''],

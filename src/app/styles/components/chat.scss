@@ -23,6 +23,7 @@
   padding: 10px;
   width: fit-content;
   margin-top: 5px;
+
 }
 
 .user {
@@ -53,6 +54,10 @@
     background-color: var(--primaryColor);
     margin-left: auto;
     margin-right: 5px;
+  }
+  .no-receiver {
+    border: 2px dashed var(--secondaryColor);
+    opacity: 0.7;
   }
 }
 

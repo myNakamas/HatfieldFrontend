@@ -1,17 +1,21 @@
 import { AppModal } from '../AppModal'
 import {
     CreateTicket,
-    createTicketFromTicket,
     CreateUsedItem,
     Ticket,
     UsedItemView,
 } from '../../../models/interfaces/ticket'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import dateFormat from 'dateformat'
-import { EditTicketForm } from './EditTicketForm'
-import { putCompleteTicket, putFreezeTicket, putStartTicket, updateTicket } from '../../../axios/http/ticketRequests'
+import {
+    fetchTicketById,
+    putCompleteTicket,
+    putFreezeTicket,
+    putStartTicket,
+    updateTicket,
+} from '../../../axios/http/ticketRequests'
 import { useQuery, useQueryClient } from 'react-query'
-import { ItemPropertyView, PageRequest } from '../../../models/interfaces/generalModels'
+import { AppError, ItemPropertyView, PageRequest } from '../../../models/interfaces/generalModels'
 import {
     activeTicketStatuses,
     completedTicketStatuses,
@@ -20,7 +24,7 @@ import {
 } from '../../../models/enums/ticketEnums'
 import { toast } from 'react-toastify'
 import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
-import { Badge, Button, Card, Col, Row, Space, Tag, Typography } from 'antd'
+import { Button, Card, Result, Skeleton, Space, Spin, Tag, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
 import { CustomTable } from '../../table/CustomTable'
@@ -46,6 +50,7 @@ import {
     faPlay,
     faPlus,
     faSnowflake,
+    faX,
     faXmark,
 } from '@fortawesome/free-solid-svg-icons'
 import { FormField } from '../../form/Field'
@@ -57,108 +62,180 @@ import { defaultPage } from '../../../models/enums/defaultValues'
 import { InvoiceFilter } from '../../../models/interfaces/filters'
 import { getAllInvoices } from '../../../axios/http/invoiceRequests'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft'
-import { WebSocketContext } from '../../../contexts/WebSocketContext'
 import { ChatBadge } from '../../ChatBadge'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { useForm } from 'react-hook-form'
+import { TicketSchema } from '../../../models/validators/FormValidators'
+import { formatDeadline, TicketForm } from './TicketForm'
 
 export const TicketView = ({
-    ticket,
+    ticketId,
+    open,
     closeModal,
     view,
 }: {
-    ticket?: Ticket
+    ticketId?: number
+    open: boolean
     closeModal: () => void
     view?: string
 }) => {
+    const {
+        data: ticket,
+        isFetching,
+        isError,
+    } = useQuery(['ticket', ticketId], () => fetchTicketById(ticketId), {
+        enabled: !!ticketId,
+        refetchInterval: false,
+    })
+    const [mode, setMode] = useState(view ?? 'view')
+
+    return (
+        <AppModal
+            centered
+            closeIcon={<FontAwesomeIcon icon={faX} />}
+            isModalOpen={open}
+            closeModal={() => closeModal()}
+            maskClosable={false}
+            title={`Ticket #${ticketId}`}
+        >
+            {isFetching ? (
+                <Spin tip={'Loading ticket'}>
+                    <Skeleton loading active paragraph={{ rows: 8 }} title round />
+                </Spin>
+            ) : isError || !ticket ? (
+                <Result status={'error'} title='Could not find ticket' />
+            ) : (
+                <TicketViewContent ticket={ticket} mode={mode} setMode={setMode} />
+            )}
+        </AppModal>
+    )
+}
+
+const TicketViewContent = ({
+    ticket,
+    mode,
+    setMode,
+}: {
+    ticket: Ticket
+    mode?: string
+    setMode: (mode: string) => void
+}) => {
     const { isWorker } = useContext(AuthContext)
-    const [mode, setMode] = useState('view')
     const [ticketLogOpen, setTicketLogOpen] = useState(false)
     const [isUseModalOpen, setIsUseModalOpen] = useState(false)
     const [showInvoiceModal, setShowInvoiceModal] = useState(false)
     const [isDeposit, setIsDeposit] = useState(false)
 
+    const queryClient = useQueryClient()
+    const [formStatus, setFormStatus] = useState('')
+
+    const form = useForm<CreateTicket>({ defaultValues: ticket, resolver: yupResolver(TicketSchema) })
+    const formRef = useRef<HTMLFormElement>(null)
+
+    const resetForm = (ticket: Ticket | undefined) => {
+        formRef.current?.reset()
+        form.reset(ticket)
+    }
+
+    const onCancel = () => {
+        resetForm(ticket)
+        setMode('view')
+    }
+
+    const onFormSubmit = (data: CreateTicket) => {
+        data.deadline = formatDeadline(data)
+        setFormStatus('loading')
+        updateTicket({ id: data?.id, ticket: data })
+            .then(() => {
+                return queryClient.invalidateQueries(['ticket', data?.id])
+            })
+            .then(() => {
+                onCancel()
+            })
+            .catch((error: AppError) => {
+                form.setError('root', { message: error?.detail })
+            })
+            .finally(() => setFormStatus(''))
+    }
+
     useEffect(() => {
-        if (view) setMode(view)
-        else setMode('view')
-    }, [view])
+        resetForm(ticket)
+    }, [ticket?.id])
 
     return (
-        <AppModal
-            isModalOpen={!!ticket}
-            closeModal={() => {
-                setMode('view')
-                closeModal()
-            }}
-            title={`Ticket #${ticket?.id}`}
-        >
-            {ticket && (
+        <>
+            {isWorker() && (
                 <>
-                    {isWorker() && (
-                        <>
-                            <DetailedTicketInfoView
-                                ticket={ticket}
-                                closeModal={() => {
-                                    setTicketLogOpen(false)
-                                    setIsDeposit(false)
-                                }}
-                                show={ticketLogOpen}
-                            />
-                            <AddUsedItem
-                                usedItem={
-                                    { itemId: undefined, count: 1, ticketId: ticket.id } as unknown as CreateUsedItem
-                                }
-                                closeModal={() => setIsUseModalOpen(false)}
-                                show={isUseModalOpen}
-                            />
-                            <AddTicketInvoice
-                                ticket={ticket}
-                                isDeposit={isDeposit}
-                                closeModal={() => setShowInvoiceModal(false)}
-                                isModalOpen={showInvoiceModal}
-                            />
-                        </>
-                    )}
-                    <div className='editModalButton '>
-                        {mode === 'view' && isWorker() ? (
-                            <Space>
-                                <Button
-                                    icon={<FontAwesomeIcon icon={faPenToSquare} size={'lg'} />}
-                                    onClick={() => setMode('edit')}
-                                    title={'Edit ticket'}
-                                />
-                                <Button
-                                    icon={<FontAwesomeIcon icon={faFileInvoice} size={'lg'} />}
-                                    onClick={() => setMode('invoice')}
-                                    title={'View Ticket invoices'}
-                                />
-                            </Space>
-                        ) : (
-                            <Button
-                                icon={<FontAwesomeIcon icon={faArrowLeft} size={'lg'} />}
-                                onClick={() => setMode('view')}
-                                title={'Go back to ticket view'}
-                            />
-                        )}
-                    </div>
-                    {mode === 'edit' && (
-                        <EditTicketForm
-                            isEdit
-                            ticket={createTicketFromTicket(ticket)}
-                            closeModal={() => setMode('view')}
-                        />
-                    )}
-                    {mode === 'view' && (
-                        <TicketViewInner
-                            {...{ ticket, setIsUseModalOpen, setTicketLogOpen, setShowInvoiceModal, closeModal }}
-                            setShowDepositInvoiceModal={(bool) => {
-                                setShowInvoiceModal(bool)
-                                setIsDeposit(bool)
-                            }}
-                        />
-                    )}
-                    {mode === 'invoice' && <TicketInvoices ticket={ticket} />}
+                    <DetailedTicketInfoView
+                        ticket={ticket}
+                        closeModal={() => {
+                            setTicketLogOpen(false)
+                            setIsDeposit(false)
+                        }}
+                        show={ticketLogOpen}
+                    />
+                    <AddUsedItem
+                        usedItem={{ itemId: undefined, count: 1, ticketId: ticket.id } as unknown as CreateUsedItem}
+                        closeModal={() => setIsUseModalOpen(false)}
+                        show={isUseModalOpen}
+                    />
+                    <AddTicketInvoice
+                        ticket={ticket}
+                        isDeposit={isDeposit}
+                        closeModal={() => setShowInvoiceModal(false)}
+                        isModalOpen={showInvoiceModal}
+                    />
                 </>
             )}
-        </AppModal>
+            <div className='editModalButton '>
+                {mode === 'view' && isWorker() ? (
+                    <Space>
+                        <Button
+                            icon={<FontAwesomeIcon icon={faPenToSquare} size={'lg'} />}
+                            onClick={() => setMode('edit')}
+                            title={'Edit ticket'}
+                        />
+                        <Button
+                            icon={<FontAwesomeIcon icon={faFileInvoice} size={'lg'} />}
+                            onClick={() => setMode('invoice')}
+                            title={'View Ticket invoices'}
+                        />
+                    </Space>
+                ) : (
+                    <Button
+                        icon={<FontAwesomeIcon icon={faArrowLeft} size={'lg'} />}
+                        onClick={() => setMode('view')}
+                        title={'Go back to ticket view'}
+                    />
+                )}
+            </div>
+            {mode === 'edit' && (
+                <div>
+                    <TicketForm
+                        formRef={formRef}
+                        form={form}
+                        formStatus={formStatus}
+                        ticket={ticket}
+                        onSubmit={onFormSubmit}
+                        onCancel={onCancel}
+                    />
+                    <Space className='w-100 justify-end p-2'>
+                        <Button children='Save changes' onClick={form.handleSubmit(onFormSubmit)} type='primary' />
+                        <Button children='Cancel' onClick={onCancel} type='default' />
+                    </Space>
+                </div>
+            )}
+            {mode === 'view' && (
+                <TicketViewInner
+                    {...{ ticket, setIsUseModalOpen, setTicketLogOpen, setShowInvoiceModal }}
+                    setShowDepositInvoiceModal={(bool) => {
+                        setShowInvoiceModal(bool)
+                        setIsDeposit(bool)
+                    }}
+                />
+            )}
+            {mode === 'invoice' && <TicketInvoices ticket={ticket} />}
+        </>
     )
 }
 
@@ -173,7 +250,7 @@ const TicketStatusAndLocation = ({ ticket }: { ticket: Ticket }) => {
             toastUpdatePromiseTemplate('ticket status'),
             toastProps
         )
-        return await queryClient.invalidateQueries(['tickets'])
+        return await queryClient.invalidateQueries(['ticket', ticket.id])
     }
 
     const updateDeviceLocation = (id: number, deviceLocation: string | null) => {
@@ -186,7 +263,7 @@ const TicketStatusAndLocation = ({ ticket }: { ticket: Ticket }) => {
                     toastProps
                 )
                 .then(() => {
-                    queryClient.invalidateQueries(['tickets']).then()
+                    queryClient.invalidateQueries(['ticket', ticket.id]).then()
                     queryClient.invalidateQueries('deviceLocations').then()
                 })
         }
@@ -207,7 +284,7 @@ const TicketStatusAndLocation = ({ ticket }: { ticket: Ticket }) => {
                 <AppCreatableSelect<ItemPropertyView>
                     options={locations}
                     placeholder='New location'
-                    value={location}
+                    value={location ?? undefined}
                     onChange={(newValue) => updateDeviceLocation(ticket.id, newValue)}
                     getOptionLabel={(item) => item.value}
                     getOptionValue={(item) => item.value}
@@ -219,14 +296,12 @@ const TicketStatusAndLocation = ({ ticket }: { ticket: Ticket }) => {
 
 const TicketViewInner = ({
     ticket,
-    closeModal,
     setIsUseModalOpen,
     setShowInvoiceModal,
     setShowDepositInvoiceModal,
     setTicketLogOpen,
 }: {
     ticket: Ticket
-    closeModal: () => void
     setIsUseModalOpen: (value: boolean) => void
     setShowInvoiceModal: (value: boolean) => void
     setShowDepositInvoiceModal: (value: boolean) => void
@@ -236,17 +311,16 @@ const TicketViewInner = ({
     const queryClient = useQueryClient()
     const { isWorker } = useContext(AuthContext)
     const { data: shop } = useQuery(['currentShop'], getShopData)
-    const { notificationCount } = useContext(WebSocketContext)
 
     const startTicket = (id: number) => {
         toast
             .promise(putStartTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps)
-            .then(() => queryClient.invalidateQueries(['tickets']).then())
+            .then(() => queryClient.invalidateQueries(['ticket', ticket.id]).then())
     }
     const freezeTicket = (id: number) => {
         toast
             .promise(putFreezeTicket({ id }), toastUpdatePromiseTemplate('ticket'), toastProps)
-            .then(() => queryClient.invalidateQueries(['tickets']).then())
+            .then(() => queryClient.invalidateQueries(['ticket', ticket.id]).then())
     }
 
     const completeTicket = (id: number, success: boolean) => {
@@ -254,7 +328,7 @@ const TicketViewInner = ({
             .promise(putCompleteTicket({ id, success }), toastUpdatePromiseTemplate('ticket'), toastProps)
             .then((error) => {
                 error && toast.warning(error.detail, toastProps)
-                return queryClient.invalidateQueries(['tickets']).then(closeModal)
+                return queryClient.invalidateQueries(['ticket', ticket.id])
             })
     }
     const printTicketLabel = () => {
@@ -308,7 +382,7 @@ const TicketViewInner = ({
                             <NoDataComponent items={'used items'} />
                         )}
                     </Card>
-                    <Space wrap className={'w-100 justify-around align-start ticket-cards'}>
+                    <Space wrap className={'w-100 justify-between align-start ticket-cards'}>
                         <TicketStatusAndLocation {...{ ticket }} />
                         <Card title={'Modify actions'} extra={<Tag>{ticket.status}</Tag>} type='inner' size='small'>
                             <Space.Compact direction={'vertical'}>
@@ -361,7 +435,7 @@ const TicketViewInner = ({
                                     }
                                     onClick={() => navigate('/chats?id=' + ticket.id)}
                                 >
-                                    Open Chat
+                                    Open chat
                                 </Button>
                                 <Space.Compact className={'w-100 justify-between'}>
                                     <Button

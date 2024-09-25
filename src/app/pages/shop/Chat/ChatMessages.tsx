@@ -8,7 +8,7 @@ import { getProfilePicture, getSimpleUsers } from '../../../axios/http/userReque
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import dateFormat from 'dateformat'
 import { faArrowRight, faCheckDouble, faCircleCheck, faSpinner } from '@fortawesome/free-solid-svg-icons'
-import { Alert, Button, Card, Divider, Image, Skeleton, Spin } from 'antd'
+import { Alert, Button, Card, Divider, FloatButton, Image, Skeleton, Spin } from 'antd'
 import ProfileImage from '../../../components/user/ProfileImage'
 import { getImage } from '../../../axios/http/resourcesRequests'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -100,14 +100,14 @@ const ChatMessageRow = ({ message, sender }: { message: ChatMessage; sender?: Us
                 <div>
                     {message.isImage ? (
                         <Suspense fallback={<Spin />}>
-                            <div className={'message'}>
+                            <div className={`message`}>
                                 <ChatImage url={message.text} />
                             </div>
                         </Suspense>
                     ) : (
                         <div
-                            className='message'
-                            title={(sender?.fullName ?? sender?.username) + '\n' + dateFormat(message.timestamp)}
+                            className={`message ${(!message.receiver || !message.publicMessage) && 'no-receiver'}`}
+                            title={`Sent by ${sender?.fullName ?? sender?.username}\n${(!message.receiver || !message.publicMessage) ?'Hidden for the client' : ''}\n${dateFormat(message.timestamp)}`}
                         >
                             {message.text}
                             <div className='timestamp'>{dateFormat(message.timestamp)}</div>

@@ -29,4 +29,8 @@ export interface User extends UsernamePassword {
     isBanned: boolean
     smsPermission: boolean
     emailPermission: boolean
+
+    // label does not exist in BE
+    label:string;
 }
+

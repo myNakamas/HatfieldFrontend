@@ -4,7 +4,6 @@ import dateFormat from 'dateformat'
 import { dateTimeMask } from '../../../models/enums/appEnums'
 import { Button, Collapse, Descriptions, Space, Typography } from 'antd'
 import { TicketView } from '../../../components/modals/ticket/TicketView'
-import Paragraph from 'antd/es/skeleton/Paragraph'
 
 export const TicketChatInfo = ({ ticket, openDrawer }: { ticket: Ticket | undefined; openDrawer: () => void }) => {
     const [showModal, setShowModal] = useState(false)
@@ -13,7 +12,7 @@ export const TicketChatInfo = ({ ticket, openDrawer }: { ticket: Ticket | undefi
     if (!ticket) return <></>
     return (
         <div className='ticketInfo'>
-            <TicketView ticket={showModal ? ticket : undefined} closeModal={() => setShowModal(false)} />
+            <TicketView ticketId={ticket.id} open={showModal} closeModal={() => setShowModal(false)} />
             <Collapse
                 defaultActiveKey={!smallScreen ? 'ticket' : ''}
                 collapsible={'header'}

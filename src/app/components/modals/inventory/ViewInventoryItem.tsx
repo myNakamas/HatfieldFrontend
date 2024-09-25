@@ -1,8 +1,16 @@
 import { InventoryItem, TransferItem } from '../../../models/interfaces/shop'
 import { AppModal } from '../AppModal'
-import { Button, Card, Collapse, Descriptions, Divider, Input, Space, Typography } from 'antd'
+import { Button, Card, Collapse, Descriptions, Divider, Input, Space, Tag, Typography } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBoltLightning, faEye, faFileCircleExclamation, faPen } from '@fortawesome/free-solid-svg-icons'
+import {
+    faBoltLightning,
+    faCashRegister,
+    faCircleDollarToSlot,
+    faEye,
+    faFileCircleExclamation,
+    faFunnelDollar,
+    faPen,
+} from '@fortawesome/free-solid-svg-icons'
 import React, { useContext, useEffect, useState } from 'react'
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons/faShoppingCart'
 import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
@@ -209,19 +217,40 @@ export const ItemDescriptions = ({
                 )}
             </Space>
             <div className={'justify-around align-start flex-100 flex-wrap'}>
-                <Card title={'Pricing'} style={{ flex: 1 }}>
-                    {inventoryItem?.sellPrice && (
-                        <>
-                            <div className='bold'>Selling Price: {currencyFormat(inventoryItem.sellPrice)}</div>
-                            <Divider />
-                        </>
-                    )}
+                <Descriptions bordered title={'Pricing'} layout={'horizontal'} column={3} className='mb-1'>
                     {inventoryItem?.purchasePrice && (
-                        <div className='bold'>Purchased for: {currencyFormat(inventoryItem.purchasePrice)}</div>
+                        <Descriptions.Item
+                            label={
+                                <>
+                                    Purchased for
+                                    <FontAwesomeIcon icon={faCircleDollarToSlot} color='#ff0000'/>
+                                </>
+                            }
+                        >
+                            {currencyFormat(inventoryItem.purchasePrice)}
+                        </Descriptions.Item>
                     )}
-                </Card>
+                    {inventoryItem?.sellPrice && (
+                        <Descriptions.Item
+                            label={
+                                <>
+                                    Selling Price
+                                    <FontAwesomeIcon icon={faCashRegister} color='#00ff00' />
+                                </>
+                            }
+                        >
+                            {currencyFormat(inventoryItem.sellPrice)}
+                        </Descriptions.Item>
+                    )}
+
+                    {inventoryItem?.purchasePrice && inventoryItem?.sellPrice && (
+                        <Descriptions.Item label='Profit per item'>
+                            {currencyFormat(+inventoryItem.sellPrice - +inventoryItem.purchasePrice)}
+                        </Descriptions.Item>
+                    )}
+                </Descriptions>
                 <Space wrap className={'w-100 justify-around'} style={{ flex: 3 }} align={'start'}>
-                    <Card title={'Properties'}>
+                    <Card title={'Category specific properties'} extra={<Tag color={'blue'} children={'IMEI: ' + inventoryItem?.imei} />}>
                         <Descriptions layout={'horizontal'} style={{ flex: 1, width: '100%' }}>
                             {Object.entries(inventoryItem.columns).map(([name, value], index) => (
                                 <Descriptions.Item key={name + index} label={name}>

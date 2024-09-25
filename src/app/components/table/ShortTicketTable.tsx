@@ -20,11 +20,13 @@ export const ShortTicketTable = ({
     onClick,
     page,
     setPage,
+    showCollect
 }: {
     data?: Ticket[]
     onClick: (ticket: Ticket) => void
     page: PageRequest
-    setPage: (value: PageRequest) => void
+    setPage: (value: PageRequest) => void,
+    showCollect?:boolean
 }) => {
     if (!data || data.length === 0) return <NoDataComponent items={'tickets'} />
     const [collectTicket, setCollectTicket] = useState<Ticket | undefined>()
@@ -59,7 +61,7 @@ export const ShortTicketTable = ({
                         client: ticket.client?.fullName,
                         actions: (
                             <Space>
-                                <Button onClick={() => setCollectTicket(ticket)}>Collect</Button>
+                                <Button disabled={!showCollect} onClick={() => setCollectTicket(ticket)}>Collect</Button>
                             </Space>
                         ),
                     })) as unknown as Ticket[]

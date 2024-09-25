@@ -36,7 +36,7 @@ export const SideNavigation = ({
     const { loggedUser, isWorker, isAdmin } = useContext(AuthContext)
     const navigate = useNavigate()
     const { pathname } = useLocation()
-    const totalNotificationCount = notificationCount.totalCount
+    const totalNotificationCount = notificationCount?.totalCount ?? 0
     const ClientLinks: MenuItem[] = [
         { label: 'Tickets', key: '/tickets', icon: <FontAwesomeIcon icon={faTicket} /> },
 

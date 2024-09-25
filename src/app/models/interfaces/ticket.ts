@@ -3,7 +3,7 @@ import { TicketStatus } from '../enums/ticketEnums'
 import { User } from './user'
 import { InventoryItem } from './shop'
 import { Invoice } from './invoice'
-import moment from 'moment/moment'
+import moment, { Duration } from 'moment/moment'
 
 export interface Ticket extends Entity {
     deviceModel: string
@@ -22,6 +22,7 @@ export interface Ticket extends Entity {
     totalPrice: number
     deposit: number
     createdBy: User
+    withClient?: boolean
     client: User
     usedParts: UsedItemView[]
     invoice?: Invoice
@@ -39,18 +40,20 @@ export interface CreateTicket {
     serialNumberOrImei: string
     accessories: string
     deadline: Date | string
+    deadlineDuration?: Duration
     timestamp: Date | string
     notes: string
     status: TicketStatus
     totalPrice: number
     deposit: number
-    clientId: string
+    withClient?: boolean
+    client?: Partial<User>
+    clientId?: string
 }
 
 export const createTicketFromTicket = (t: Ticket): CreateTicket => {
-    const clientId = t.client?.userId
     const deadline = moment(t.deadline).toDate()
-    return { ...t, clientId, deadline }
+    return { ...t, deadline }
 }
 
 /**
