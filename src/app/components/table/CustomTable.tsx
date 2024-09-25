@@ -1,9 +1,10 @@
-import React from 'react'
 import { Table } from 'antd'
-import { PageRequest } from '../../models/interfaces/generalModels'
-import { setDefaultPageSize } from '../../models/enums/defaultValues'
 import { ColumnsType } from 'antd/es/table'
 import type { SortOrder } from 'antd/es/table/interface'
+import { TablePaginationConfig } from 'antd/lib'
+import React from 'react'
+import { setDefaultPageSize } from '../../models/enums/defaultValues'
+import { PageRequest } from '../../models/interfaces/generalModels'
 
 export interface SortParams<T> {
     sortDirection?: SortOrder | null
@@ -59,20 +60,7 @@ export const CustomTable = <T extends object>({
             scroll={{ x: true, scrollToFirstRowOnChange: true }}
             onRow={getComponentProps}
             loading={loading}
-            pagination={
-                pagination
-                    ? {
-                          defaultPageSize: 10,
-                          defaultCurrent: 1,
-                          pageSize: pagination?.pageSize,
-                          current: pagination?.page,
-                          pageSizeOptions: [5, 10, 15, 20, 50, 100],
-                          position: totalCount && totalCount > 10 ? ['topRight', 'bottomRight'] : ['bottomRight'],
-                          showSizeChanger: true,
-                          total: totalCount,
-                      }
-                    : false
-            }
+            pagination={pagination ? getPagination(pagination, totalCount) : false}
             onChange={({ current, pageSize }, _, sorter) => {
                 if (onPageChange && current && pageSize) {
                     pageSize && setDefaultPageSize(pageSize)
@@ -94,4 +82,18 @@ const SortDirectionNames = {
     descend: 'DESC',
     ascend: 'ASC',
     '': undefined,
+}
+
+export const getPagination = (pagination: PageRequest, totalCount: number | undefined): TablePaginationConfig => {
+    return {
+        defaultPageSize: 10,
+        defaultCurrent: 1,
+        pageSize: pagination?.pageSize,
+        current: pagination?.page,
+        pageSizeOptions: [5, 10, 15, 20, 50, 100],
+        position: totalCount && totalCount > 10 ? ['topRight', 'bottomRight'] : ['bottomRight'],
+        showSizeChanger: true,
+        showTotal:(total, range) => `${range[0]}-${range[1]} of ${total} tickets`,
+        total: totalCount,
+    }
 }

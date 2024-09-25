@@ -183,3 +183,34 @@ span {
 .ant-select-auto-complete{
   text-align: left;
 }
+.ticket-missing-property{
+  opacity: 0.4;
+}
+.align-right{
+  text-align: right;
+}
+.task-grid {
+  overflow-x: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 5px;
+  column-gap: 5px;
+  text-align: left;
+  justify-content: space-between;
+  .task-row{
+    grid-column-start: 1;
+    grid-column-end: 3;
+    text-align: center;
+  }
+}
+.user-elipsis {
+  text-overflow: ellipsis;
+  max-width: fit-content;
+  white-space: wrap;
+}
+
+.short-email {
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

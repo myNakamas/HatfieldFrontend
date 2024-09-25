@@ -1,45 +1,3 @@
-import { AppModal } from '../AppModal'
-import {
-    CreateTicket,
-    CreateUsedItem,
-    Ticket,
-    UsedItemView,
-} from '../../../models/interfaces/ticket'
-import { useContext, useEffect, useRef, useState } from 'react'
-import dateFormat from 'dateformat'
-import {
-    fetchTicketById,
-    putCompleteTicket,
-    putFreezeTicket,
-    putStartTicket,
-    updateTicket,
-} from '../../../axios/http/ticketRequests'
-import { useQuery, useQueryClient } from 'react-query'
-import { AppError, ItemPropertyView, PageRequest } from '../../../models/interfaces/generalModels'
-import {
-    activeTicketStatuses,
-    completedTicketStatuses,
-    TicketStatus,
-    TicketStatusesArray,
-} from '../../../models/enums/ticketEnums'
-import { toast } from 'react-toastify'
-import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
-import { Button, Card, Result, Skeleton, Space, Spin, Tag, Typography } from 'antd'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
-import { CustomTable } from '../../table/CustomTable'
-import { NoDataComponent } from '../../table/NoDataComponent'
-import { AddUsedItem } from './AddUsedItem'
-import { useNavigate } from 'react-router-dom'
-import { AddTicketInvoice } from '../AddTicketInvoice'
-import {
-    getTicketImage,
-    getTicketLabelImage,
-    postPrintTicket,
-    postPrintTicketLabel,
-} from '../../../axios/http/documentRequests'
-import { AuthContext } from '../../../contexts/AuthContext'
-import { getAllDeviceLocations, getShopData } from '../../../axios/http/shopRequests'
 import {
     faCheck,
     faEye,
@@ -53,19 +11,56 @@ import {
     faX,
     faXmark,
 } from '@fortawesome/free-solid-svg-icons'
-import { FormField } from '../../form/Field'
-import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
-import { DetailedTicketInfoView, TicketModalDescription } from './DetailedTicketInfoView'
-import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
-import { InvoicesTable, openPdfBlob } from '../../../pages/invoices/Invoices'
-import { defaultPage } from '../../../models/enums/defaultValues'
-import { InvoiceFilter } from '../../../models/interfaces/filters'
-import { getAllInvoices } from '../../../axios/http/invoiceRequests'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft'
-import { ChatBadge } from '../../ChatBadge'
+import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare'
+import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { Button, Card, Result, Skeleton, Space, Spin, Tag, Typography } from 'antd'
+import dateFormat from 'dateformat'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useQuery, useQueryClient } from 'react-query'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import {
+    getTicketImage,
+    getTicketLabelImage,
+    postPrintTicket,
+    postPrintTicketLabel,
+} from '../../../axios/http/documentRequests'
+import { getAllInvoices } from '../../../axios/http/invoiceRequests'
+import { getAllDeviceLocations, getShopData } from '../../../axios/http/shopRequests'
+import {
+    fetchTicketById,
+    putCompleteTicket,
+    putFreezeTicket,
+    putStartTicket,
+    updateTicket,
+} from '../../../axios/http/ticketRequests'
+import { AuthContext } from '../../../contexts/AuthContext'
+import { defaultPage } from '../../../models/enums/defaultValues'
+import {
+    activeTicketStatuses,
+    completedTicketStatuses,
+    TicketStatus,
+    TicketStatusesArray,
+} from '../../../models/enums/ticketEnums'
+import { InvoiceFilter } from '../../../models/interfaces/filters'
+import { AppError, ItemPropertyView, PageRequest } from '../../../models/interfaces/generalModels'
+import { CreateTicket, CreateUsedItem, Ticket, UsedItemView } from '../../../models/interfaces/ticket'
 import { TicketSchema } from '../../../models/validators/FormValidators'
+import { InvoicesTable, openPdfBlob } from '../../../pages/invoices/Invoices'
+import { ChatBadge } from '../../ChatBadge'
+import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
+import { FormField } from '../../form/Field'
+import { CustomTable } from '../../table/CustomTable'
+import { NoDataComponent } from '../../table/NoDataComponent'
+import { AddTicketInvoice } from '../AddTicketInvoice'
+import { AppModal } from '../AppModal'
+import { toastPrintTemplate, toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
+import { AddUsedItem } from './AddUsedItem'
+import { DetailedTicketInfoView, TicketModalDescription } from './DetailedTicketInfoView'
 import { formatDeadline, TicketForm } from './TicketForm'
 
 export const TicketView = ({
@@ -88,7 +83,9 @@ export const TicketView = ({
         refetchInterval: false,
     })
     const [mode, setMode] = useState(view ?? 'view')
-
+    useEffect(() => {
+        if (view && view !==mode) setMode(view)
+    }, [view])
     return (
         <AppModal
             centered
