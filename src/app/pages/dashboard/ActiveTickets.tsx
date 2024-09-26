@@ -4,7 +4,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 import { CustomSuspense } from '../../components/CustomSuspense'
 import { ShortTicketTable } from '../../components/table/ShortTicketTable'
 import React, { useContext, useState } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { fetchAllTickets } from '../../axios/http/ticketRequests'
 import { useNavigate } from 'react-router-dom'
 import { TicketFilter } from '../../models/interfaces/filters'
@@ -28,6 +28,8 @@ export const ActiveTickets = ({
     const navigate = useNavigate()
     const [page, setPage] = useState(defaultPage)
     const { loggedUser } = useContext(AuthContext)
+    const queryClient = useQueryClient();
+
     const [selectedTicket, setSelectedTicket] = useState<number | undefined>()
     const [showNewTicketModal, setShowNewTicketModal] = useState(false)
     const isUserFromShop = filter.shopId === loggedUser?.shopId
@@ -81,7 +83,10 @@ export const ActiveTickets = ({
         >
             {isUserFromShop && (
                 <>
-                    <TicketView open={!!selectedTicket} ticketId={selectedTicket} closeModal={() => setSelectedTicket(undefined)} />
+                    <TicketView open={!!selectedTicket} ticketId={selectedTicket} closeModal={() => {
+                        setSelectedTicket(undefined)
+    queryClient.invalidateQueries(["tickets"]);}
+                        } />
                     <AddTicket isModalOpen={showNewTicketModal} closeModal={() => setShowNewTicketModal(false)} />
                 </>
             )}

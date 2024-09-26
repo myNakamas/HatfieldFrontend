@@ -4,15 +4,19 @@ import dateFormat from 'dateformat'
 import { dateTimeMask } from '../../../models/enums/appEnums'
 import { Button, Collapse, Descriptions, Space, Typography } from 'antd'
 import { TicketView } from '../../../components/modals/ticket/TicketView'
+import { useQueryClient } from 'react-query'
 
 export const TicketChatInfo = ({ ticket, openDrawer }: { ticket: Ticket | undefined; openDrawer: () => void }) => {
     const [showModal, setShowModal] = useState(false)
+    const queryClient = useQueryClient();
     const [smallScreen, setSmallScreen] = useState<boolean>(window.innerWidth < 768)
     window.addEventListener('resize', () => setSmallScreen(window.innerWidth < 768))
     if (!ticket) return <></>
     return (
         <div className='ticketInfo'>
-            <TicketView ticketId={ticket.id} open={showModal} closeModal={() => setShowModal(false)} />
+            <TicketView ticketId={ticket.id} open={showModal} closeModal={() => {setShowModal(false)
+                    queryClient.invalidateQueries(["tickets"]);
+            }} />
             <Collapse
                 defaultActiveKey={!smallScreen ? 'ticket' : ''}
                 collapsible={'header'}

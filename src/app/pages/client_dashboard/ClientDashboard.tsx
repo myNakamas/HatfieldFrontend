@@ -30,7 +30,7 @@ import { currencyFormat } from '../../utils/helperFunctions'
 export const ClientDashboard = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
     const [params] = useSearchParams()
-
+    const queryClient = useQueryClient()
     const refsArray = Array.from({ length: 5 }, () => useRef(null))
     const { loggedUser } = useContext(AuthContext)
     const filter: TicketFilter = { clientId: loggedUser?.userId }
@@ -44,7 +44,14 @@ export const ClientDashboard = () => {
 
     return (
         <div className={'mainScreen'}>
-            <TicketView open={!!selectedTicketId} ticketId={selectedTicketId} closeModal={() => setSelectedTicketId(undefined)} />
+            <TicketView
+                open={!!selectedTicketId}
+                ticketId={selectedTicketId}
+                closeModal={() => {
+                    setSelectedTicketId(undefined)
+                    queryClient.invalidateQueries(['tickets'])
+                }}
+            />
             <div className={'dashboard-items'}>
                 <ClientTicketTable refs={refsArray} filter={filter} setSelectedTicket={setSelectedTicketId} />
                 <Card ref={refsArray[3]} style={{ minWidth: 350 }} title={`Invoices: `}>
@@ -80,16 +87,14 @@ export const ClientTicketTable = ({
 }) => {
     const [page, setPage] = useState(defaultPage)
     const [showCompletedTickets, setShowCompletedTickets] = useState(false)
-    const { data: tickets, isLoading } = useQuery(
-        ['tickets', filter],
-        () =>
-            fetchClientTickets({
-                page,
-                filter: {
-                    ...filter,
-                    ticketStatuses: showCompletedTickets ? completedTicketStatuses : activeTicketStatuses,
-                },
-            }),
+    const { data: tickets, isLoading } = useQuery(['tickets', filter], () =>
+        fetchClientTickets({
+            page,
+            filter: {
+                ...filter,
+                ticketStatuses: showCompletedTickets ? completedTicketStatuses : activeTicketStatuses,
+            },
+        })
     )
 
     return (
