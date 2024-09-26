@@ -213,6 +213,7 @@ const TicketsTab = ({
                             <>
                                 {data.content.map((ticket) => (
                                     <TicketListItem
+                                        key={'ticketListItem#' + ticket.id}
                                         {...{ ticket, setSelectedTicketId, setEditTicketId, setCollectTicket }}
                                     />
                                 ))}
@@ -460,8 +461,7 @@ const TicketListItem = ({
         <Card
             className='mb-1'
             size='small'
-            inlist={true}
-            key={'ticketId' + ticket.id}
+            key={'ticketListId' + ticket.id}
             title={<div onClick={() => setSelectedTicketId(ticket.id)}>Ticket #{ticket.id}</div>}
             extra={<Tag color={getTicketStatusColor(ticket.status)}>{ticket.status}</Tag>}
             hoverable
@@ -545,7 +545,8 @@ const getClientString = (user: User) => {
         <>
             {user?.fullName && <div>{user?.fullName}</div>}
             {user?.email && <div className='short-email'>{user?.email}</div>}
-            {user?.phones && user?.phones.map((phone) => <div>{phone}</div>)}
+            {user?.phones &&
+                user?.phones.map((phone) => <div key={'user' + user?.userId + 'phone' + phone}>{phone}</div>)}
         </>
     )
 }

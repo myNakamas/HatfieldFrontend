@@ -62,8 +62,6 @@ export const TicketForm = ({
     const { data: locations } = useQuery('deviceLocations', getAllDeviceLocations)
     const models = brands?.find((b) => b.value === watch('deviceBrand'))?.models ?? []
     const [showCreateModal, setShowCreateModal] = useState(false)
-
-    console.log(watch('client'))
     return (
         <>
             <AddClient
