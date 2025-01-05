@@ -144,6 +144,7 @@ const TicketViewContent = ({
         setFormStatus('loading')
         updateTicket({ id: data?.id, ticket: data })
             .then(() => {
+                queryClient.invalidateQueries(['tickets'])
                 return queryClient.invalidateQueries(['ticket', data?.id])
             })
             .then(() => {

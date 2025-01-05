@@ -7,7 +7,9 @@ import { CreateTicketInvoice } from '../../models/interfaces/invoice'
 function prepareTicketFilter(filter?: TicketFilter) {
     return { ...filter, ticketStatuses: filter?.ticketStatuses?.join(',') }
 }
-
+export const getTicketAutocomplete = () : Promise<string[]> => {
+    return backendClient.get('ticket/worker/autocomplete')
+}
 export const fetchAllTickets = ({
     page,
     filter,

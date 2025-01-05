@@ -130,7 +130,8 @@ export const InvoicesTable = ({
 
 export const Invoices = () => {
     const [params] = useSearchParams()
-    const [filter, setFilter] = useState<InvoiceFilter>({ valid: true })
+    const { loggedUser } = useContext(AuthContext);
+    const [filter, setFilter] = useState<InvoiceFilter>({ valid: true, shopId: loggedUser?.shopId })
     const [addInvoiceModalOpen, setAddInvoiceModalOpen] = useState(false)
     const [page, setPage] = useState<PageRequest>(defaultPage)
     const { data: invoices, isLoading } = useQuery(['invoices', page, filter], () => getAllInvoices({ page, filter }), {

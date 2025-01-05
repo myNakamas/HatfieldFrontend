@@ -20,7 +20,17 @@ export const defaultTicket:Partial<CreateTicket> = {
     deviceLocation: 'IN_THE_FRONT',
     deadline: moment().add(1, 'hour').toDate(),
     deadlineDuration:moment.duration({hours:1}),
-    withClient: true
+    withClient: true,
+    accessories: undefined,
+    deviceBrand: undefined,
+    deviceModel: undefined,
+    deviceCondition: undefined,
+    devicePassword: undefined,
+    totalPrice: 0,
+    deposit: 0,
+    notes: undefined,
+    serialNumberOrImei: undefined,
+    customerRequest: undefined,
 }
 
 export const defaultUser = {

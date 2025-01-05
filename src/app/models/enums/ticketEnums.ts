@@ -47,9 +47,3 @@ export const getTicketStatusColor = (status: TicketStatus): TagProps['color'] =>
     if (completedTicketStatuses.includes(status)) return 'green'
     return 'default'
 }
-
-
-export const ticketTasks = [
-    {key:'option_fix', value:'Fix device',label:'Fix device'},
-    {key:'option_estimate', value:'Estimate price of repair',label:'Estimate price of repair'}
-]

@@ -1,22 +1,21 @@
 import { faPen, faQuestion } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Button, FloatButton, Input, Space, Tabs, TabsProps, Tour } from 'antd'
+import { Button, FloatButton, Input, Select, Space, Tabs, TabsProps, Tour } from 'antd'
 import React, { useRef, useState } from 'react'
 import { useQuery } from 'react-query'
 import { getAllShops, getWorkerShops } from '../../axios/http/shopRequests'
 import { getAllUsers } from '../../axios/http/userRequests'
 import { UserBanButton } from '../../components/UserBanButton'
-import { SearchComponent } from '../../components/filters/SearchComponent'
 import { AppSelect } from '../../components/form/AppSelect'
 import { AddUser } from '../../components/modals/users/AddUser'
 import { EditUser } from '../../components/modals/users/EditUser'
 import { ViewUser } from '../../components/modals/users/ViewUser'
 import { CustomTable } from '../../components/table/CustomTable'
+import { defaultPage } from '../../models/enums/defaultValues'
 import { UserRolesArray, userTourSteps } from '../../models/enums/userEnums'
 import { UserFilter } from '../../models/interfaces/filters'
 import { ItemPropertyView, Page, PageRequest } from '../../models/interfaces/generalModels'
 import { User } from '../../models/interfaces/user'
-import { defaultPage } from '../../models/enums/defaultValues'
 
 export const Users = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
@@ -25,7 +24,7 @@ export const Users = () => {
     const [viewUser, setViewUser] = useState<User | undefined>()
     const [selectedUser, setSelectedUser] = useState<User | undefined>()
     const [showCreateModal, setShowCreateModal] = useState(false)
-    const [filter, setFilter] = useState<UserFilter>({})
+    const [filter, setFilter] = useState<UserFilter>({roles: [{ id: 1, value: 'ENGINEER' }, { id: 2, value: 'SALESMAN' }]})
 
     const { data: workers, isLoading } = useQuery(['users', filter, page], () => getAllUsers({ filter, page }))
 
@@ -196,14 +195,18 @@ const UserFilters = ({
                 placeholder={'Filter by Full name'}
                 type='search'
             />
-            <AppSelect<string, ItemPropertyView>
-                value={filter.roles ? filter.roles[0].value : undefined}
-                options={UserRolesArray}
-                placeholder={'Filter by role'}
-                onChange={(role) => setFilter({ ...filter, roles: role ? [{ id: 1, value: role }] : undefined })}
-                getOptionLabel={(role) => role.value}
-                getOptionValue={(role) => role.value}
-            />
+                            <Select<ItemPropertyView[], ItemPropertyView>
+                    style={{ minWidth: 200, maxWidth: 300, textAlign: 'left' }}
+                    dropdownStyle={{ textAlign: 'left' }}
+                    mode={'tags'}
+                    allowClear
+                    options={UserRolesArray}
+                    value={filter.roles ? filter.roles : []}
+                    placeholder='Filter by status'
+                    onChange={(values, options) => setFilter({ ...filter, roles: options instanceof Array ? options : []})}
+                    optionFilterProp={'value'}
+                    optionLabelProp={'value'}
+                />
         </div>
     )
 }
