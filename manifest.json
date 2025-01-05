@@ -4,7 +4,7 @@
   "description": "A convenient and reliable phone repair service in London.",
   "icons": [
     {
-      "src": "public/icon.png",
+      "src": "public/hatfield-logo.svg",
       "sizes": "any",
       "type": "image/svg"
     }
