@@ -24,7 +24,7 @@ import { TicketView } from '../../../components/modals/ticket/TicketView'
 import { CustomTable, getPagination } from '../../../components/table/CustomTable'
 import { NoDataComponent } from '../../../components/table/NoDataComponent'
 import { AuthContext } from '../../../contexts/AuthContext'
-import { defaultPage } from '../../../models/enums/defaultValues'
+import { defaultPage, setDefaultPageSize } from '../../../models/enums/defaultValues'
 import {
     activeTicketStatuses,
     collectedTicketStatuses,
@@ -221,8 +221,15 @@ const TicketsTab = ({
                         )}
                         <Pagination
                             {...getPagination(page, data.totalCount)}
-                            onShowSizeChange={(page, pageSize) => setPage({ page, pageSize })}
-                            onChange={(page, pageSize) => setPage({ page, pageSize })}
+                            onShowSizeChange={(page, pageSize) => {
+                                setPage({ page, pageSize })
+                                pageSize && setDefaultPageSize(pageSize)
+                            }
+                        }
+                            onChange={(page, pageSize) => {
+                                setPage({ page, pageSize })
+                                pageSize && setDefaultPageSize(pageSize)
+                            }}
                         ></Pagination>
                     </Space>
                 ) : (

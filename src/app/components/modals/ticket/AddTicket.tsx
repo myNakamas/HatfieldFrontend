@@ -65,7 +65,7 @@ export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; c
             closable
             className='ticketModal'
             width={'clamp(400px,80%,900px)'}
-            onCancel={closeModal}
+            onCancel={onCancel}
             onOk={form.handleSubmit(onFormSubmit)}
             okText='Create ticket'
         >

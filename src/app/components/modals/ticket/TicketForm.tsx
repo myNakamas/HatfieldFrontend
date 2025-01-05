@@ -1,16 +1,3 @@
-import { useRef, useState } from 'react'
-import { Controller, UseFormReturn } from 'react-hook-form'
-import { AntFormField, FormField } from '../../form/Field'
-import { Dictaphone } from '../../form/Dictaphone'
-import { ItemPropertyView } from '../../../models/interfaces/generalModels'
-import { TicketStatusesArray, ticketTasks } from '../../../models/enums/ticketEnums'
-import { AntTextField, TaskDeadline } from '../../form/TextField'
-import { FormError } from '../../form/FormError'
-import { CreateTicket } from '../../../models/interfaces/ticket'
-import { useQuery } from 'react-query'
-import { getAllBrands, getAllDeviceLocations } from '../../../axios/http/shopRequests'
-import { User } from '../../../models/interfaces/user'
-import { getAllFilteredClients } from '../../../axios/http/userRequests'
 import {
     AutoComplete,
     Card,
@@ -28,15 +15,41 @@ import {
     Tag,
     Tooltip,
 } from 'antd'
-import { AddClient } from '../users/AddClient'
-import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
 import TextArea from 'antd/es/input/TextArea'
-import { defaultTicket } from '../../../models/enums/defaultValues'
-import { UserFilter } from '../../../models/interfaces/filters'
 import moment from 'moment'
+import { useState } from 'react'
+import { Controller, UseFormReturn } from 'react-hook-form'
+import { useQuery } from 'react-query'
+import { getAllBrands, getAllDeviceLocations } from '../../../axios/http/shopRequests'
+import { getTicketAutocomplete } from '../../../axios/http/ticketRequests'
+import { getAllFilteredClients } from '../../../axios/http/userRequests'
+import { defaultTicket } from '../../../models/enums/defaultValues'
+import { TicketStatusesArray } from '../../../models/enums/ticketEnums'
+import { UserFilter } from '../../../models/interfaces/filters'
+import { ItemPropertyView } from '../../../models/interfaces/generalModels'
+import { CreateTicket } from '../../../models/interfaces/ticket'
+import { User } from '../../../models/interfaces/user'
+import { AppCreatableSelect, AppSelect } from '../../form/AppSelect'
+import { Dictaphone } from '../../form/Dictaphone'
+import { AntFormField, FormField } from '../../form/Field'
+import { FormError } from '../../form/FormError'
 import { getPhoneString, parsePhone } from '../../form/PhoneSelect'
+import { AntTextField, TaskDeadline } from '../../form/TextField'
 import { BarcodeReaderButton } from '../QrReaderModal'
+import { AddClient } from '../users/AddClient'
 
+const defaultTaskAutofill = {
+    key: 'option_estimate',
+    value: 'Estimate price of repair',
+    label: 'Estimate price of repair',
+}
+const getTicketAutofill = (ticketTaskAutocompleteList: string[] | undefined) => {
+    const ticketAutofillList =
+        ticketTaskAutocompleteList?.map((task) => ({ key: task, value: task, label: task })) ?? []
+    if (!ticketAutofillList.find((task) => task.label === defaultTaskAutofill.label))
+        ticketAutofillList.push(defaultTaskAutofill)
+    return ticketAutofillList
+}
 export const TicketForm = ({
     form: {
         watch,
@@ -60,7 +73,9 @@ export const TicketForm = ({
     const [activeDictaphone, setActiveDictaphone] = useState('')
     const { data: brands } = useQuery('brands', getAllBrands)
     const { data: locations } = useQuery('deviceLocations', getAllDeviceLocations)
-    const models = brands?.find((b) => b.value === watch('deviceBrand'))?.models ?? []
+    const { data: ticketTaskAutocompleteList } = useQuery('ticketAutocompletes', getTicketAutocomplete)
+    const models = brands?.find((b) => b.value?.toLowerCase() === watch('deviceBrand')?.toLowerCase())?.models ?? []
+
     const [showCreateModal, setShowCreateModal] = useState(false)
     return (
         <>
@@ -77,7 +92,7 @@ export const TicketForm = ({
                                 <ClientForm
                                     user={watch('client')}
                                     withClient={watch('withClient')}
-                                    setWithClient={(val)=>setValue('withClient', val)}
+                                    setWithClient={(val) => setValue('withClient', val)}
                                     onChange={(user) => {
                                         if (validUserForTicket(user) && getValues('withClient')) {
                                             setValue('client', user)
@@ -137,6 +152,7 @@ export const TicketForm = ({
                                 <Card size='small' style={{ margin: 'auto' }}>
                                     <Space className={'col-wrap'} direction={'vertical'}>
                                         <TicketQuickCheckBox
+                                            key={'bag_' + watch('accessories')}
                                             fieldToCheck={watch('accessories')}
                                             name={'With bag'}
                                             value={'With Bag, '}
@@ -145,6 +161,7 @@ export const TicketForm = ({
                                             }}
                                         />
                                         <TicketQuickCheckBox
+                                            key={'charger_' + watch('accessories')}
                                             fieldToCheck={watch('accessories')}
                                             name={'With charger'}
                                             value={'With Charger, '}
@@ -153,6 +170,7 @@ export const TicketForm = ({
                                             }}
                                         />
                                         <TicketQuickCheckBox
+                                            key={'case_' + watch('accessories')}
                                             fieldToCheck={watch('accessories')}
                                             name={'With case'}
                                             value={'With Case, '}
@@ -161,6 +179,7 @@ export const TicketForm = ({
                                             }}
                                         />
                                         <TicketQuickCheckBox
+                                            key={'box_' + watch('deviceCondition')}
                                             fieldToCheck={watch('deviceCondition')}
                                             name={'Dead device'}
                                             value={'Dead device, '}
@@ -169,6 +188,7 @@ export const TicketForm = ({
                                             }}
                                         />
                                         <TicketQuickCheckBox
+                                            key={'screen_' + watch('deviceCondition')}
                                             fieldToCheck={watch('deviceCondition')}
                                             name={'Cracked Screen'}
                                             value={'Cracked Screen, '}
@@ -177,6 +197,7 @@ export const TicketForm = ({
                                             }}
                                         />
                                         <TicketQuickCheckBox
+                                            key={'cracked_back_' + watch('deviceCondition')}
                                             fieldToCheck={watch('deviceCondition')}
                                             name={'Cracked Back'}
                                             value={'Cracked Back, '}
@@ -186,6 +207,7 @@ export const TicketForm = ({
                                         />
                                         <label>
                                             <Checkbox
+                                                key={'location_' + watch('deviceLocation')}
                                                 checked={watch('deviceLocation') === 'With customer'}
                                                 onChange={(e) => {
                                                     e.target.checked
@@ -210,7 +232,8 @@ export const TicketForm = ({
                                                 <AutoComplete
                                                     status={fieldState?.error ? 'error' : undefined}
                                                     placeholder='What needs to be done?'
-                                                    options={ticketTasks}
+                                                    title='Task'
+                                                    options={getTicketAutofill(ticketTaskAutocompleteList)}
                                                     onChange={onChange}
                                                     value={value}
                                                 />
@@ -356,11 +379,11 @@ const ClientForm = ({
     user,
     onChange,
     withClient,
-    setWithClient
+    setWithClient,
 }: {
     user?: Partial<User>
     withClient?: boolean
-    setWithClient: (withClient:boolean)=>void
+    setWithClient: (withClient: boolean) => void
 
     onChange: (user?: Partial<User>) => void
 }) => {
@@ -396,75 +419,78 @@ const ClientForm = ({
             className='w-100'
             type='inner'
             size='small'
-            title={<Space>
-                <Switch title='Client toggle' onChange={setWithClient} value={withClient} />
-                {!withClient?"No client":userExists ? `Selected client` : 'Creating a new client'}</Space>}
+            title={
+                <Space>
+                    <Switch title='Client toggle' onChange={setWithClient} value={withClient} />
+                    {!withClient ? 'No client' : userExists ? `Selected client` : 'Creating a new client'}
+                </Space>
+            }
             extra={
-                withClient && (<Tag
-                    closable={userExists}
-                    onClose={(e) => {
-                        e.preventDefault()
-                        onChange(undefined)
-                    }}
-                    color={userExists ? 'blue' : 'green'}
-                >
-                    {userExists ? user.fullName ?? user.username : 'New User'}
-                </Tag>)
+                withClient && (
+                    <Tag
+                        closable={userExists}
+                        onClose={(e) => {
+                            e.preventDefault()
+                            onChange(undefined)
+                        }}
+                        color={userExists ? 'blue' : 'green'}
+                    >
+                        {userExists ? user.fullName ?? user.username : 'New User'}
+                    </Tag>
+                )
             }
         >
-            <Skeleton loading={!withClient} title={false} >
+            <Skeleton loading={!withClient} title={false}>
+                <Space direction='vertical'>
+                    <Select<Array<string>, LabeledUser>
+                        {...props}
+                        value={user?.phones ? [user.phones.join(', ')] : []}
+                        placeholder='Phone number'
+                        options={options.map((user) => ({ ...user, label: user.phones?.join(', ') }))}
+                        onSearch={(value) => {
+                            const search = parsePhone(value).phone
+                            setFilter({ phone: search || value })
+                            onChange(userExists ? undefined : { ...user, phones: undefined })
+                        }}
+                        onSelect={(value: string, option) => {
+                            const newPhone = getPhoneString(parsePhone(value))
+                            onChange(option.userId ? option : { ...user, phones: [newPhone] })
+                        }}
+                        onClear={() => onChange(userExists ? undefined : { ...user, phones: undefined })}
+                        onDeselect={() => onChange(userExists ? undefined : { ...user, phones: undefined })}
+                    />
 
-            <Space direction='vertical'>
-                <Select<Array<string>, LabeledUser>
-                    {...props}
-                    value={user?.phones ? [user.phones.join(', ')] : []}
-                    placeholder='Phone number'
-                    options={options.map((user) => ({ ...user, label: user.phones?.join(', ') }))}
-                    onSearch={(value) => {
-                        const search = parsePhone(value).phone
-                        setFilter({ phone: search || value })
-                        onChange(userExists ? undefined : { ...user, phones: undefined })
-                    }}
-                    onSelect={(value: string, option) => {
-                        const newPhone = getPhoneString(parsePhone(value))
-                        onChange(option.userId ? option : { ...user, phones: [newPhone] })
-                    }}
-                    onClear={() => onChange(userExists ? undefined : { ...user, phones: undefined })}
-                    onDeselect={() => onChange(userExists ? undefined : { ...user, phones: undefined })}
-                />
-
-                <Select<Array<string>, LabeledUser>
-                    {...props}
-                    value={user?.email ? [user.email] : []}
-                    placeholder='Email'
-                    options={options.map((user) => ({ ...user, label: user.email }))}
-                    onSearch={(value) => {
-                        setFilter({ email: value })
-                        onChange(userExists ? undefined : { ...user, email: undefined })
-                    }}
-                    onSelect={(value, option) => {
-                        onChange(option.userId ? option : { ...user, email: value })
-                    }}
-                    onClear={() => onChange(userExists ? undefined : { ...user, email: undefined })}
-                    onDeselect={() => onChange(userExists ? undefined : { ...user, email: undefined })}
-                />
-                <Select<Array<string>, LabeledUser>
-                    {...props}
-                    value={user?.fullName ? [user.fullName] : []}
-                    placeholder='Full name'
-                    options={options.map((user) => ({ ...user, label: user.fullName }))}
-                    onSearch={(value) => {
-                        setFilter({ fullName: value })
-                        onChange(userExists ? undefined : { ...user, fullName: undefined })
-                    }}
-                    onSelect={(value, option) => {
-                        onChange(option.userId ? option : { ...user, fullName: value })
-                    }}
-                    onClear={() => onChange(userExists ? undefined : { ...user, fullName: undefined })}
-                    onDeselect={() => onChange(userExists ? undefined : { ...user, fullName: undefined })}
-                />
-            </Space>
-            
+                    <Select<Array<string>, LabeledUser>
+                        {...props}
+                        value={user?.email ? [user.email] : []}
+                        placeholder='Email'
+                        options={options.map((user) => ({ ...user, label: user.email }))}
+                        onSearch={(value) => {
+                            setFilter({ email: value })
+                            onChange(userExists ? undefined : { ...user, email: undefined })
+                        }}
+                        onSelect={(value, option) => {
+                            onChange(option.userId ? option : { ...user, email: value })
+                        }}
+                        onClear={() => onChange(userExists ? undefined : { ...user, email: undefined })}
+                        onDeselect={() => onChange(userExists ? undefined : { ...user, email: undefined })}
+                    />
+                    <Select<Array<string>, LabeledUser>
+                        {...props}
+                        value={user?.fullName ? [user.fullName] : []}
+                        placeholder='Name'
+                        options={options.map((user) => ({ ...user, label: user.fullName }))}
+                        onSearch={(value) => {
+                            setFilter({ fullName: value })
+                            onChange(userExists ? undefined : { ...user, fullName: undefined })
+                        }}
+                        onSelect={(value, option) => {
+                            onChange(option.userId ? option : { ...user, fullName: value })
+                        }}
+                        onClear={() => onChange(userExists ? undefined : { ...user, fullName: undefined })}
+                        onDeselect={() => onChange(userExists ? undefined : { ...user, fullName: undefined })}
+                    />
+                </Space>
             </Skeleton>
         </Card>
     )

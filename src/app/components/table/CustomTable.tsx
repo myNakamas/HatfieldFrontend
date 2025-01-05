@@ -93,7 +93,7 @@ export const getPagination = (pagination: PageRequest, totalCount: number | unde
         pageSizeOptions: [5, 10, 15, 20, 50, 100],
         position: totalCount && totalCount > 10 ? ['topRight', 'bottomRight'] : ['bottomRight'],
         showSizeChanger: true,
-        showTotal:(total, range) => `${range[0]}-${range[1]} of ${total} tickets`,
+        showTotal:(total, range) => `${range[0]}-${range[1]} of ${total} items`,
         total: totalCount,
     }
 }
