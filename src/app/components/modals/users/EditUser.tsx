@@ -31,7 +31,7 @@ export const EditUser = ({
 }) => {
     const { loggedUser, setLoggedUser } = useContext(AuthContext)
     const isSelfEdit = () => loggedUser?.userId === user?.userId
-    const { data: shops } = useQuery('shops', getAllShops, { enabled: !isSelfEdit() })
+    const { data: shops } = useQuery('shops', getAllShops, { enabled: !isSelfEdit() || loggedUser?.role === 'ADMIN' })
 
     const formRef = useRef<HTMLFormElement>(null)
     const queryClient = useQueryClient()
