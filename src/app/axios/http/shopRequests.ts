@@ -139,3 +139,16 @@ export const exchangeDefectiveItem = (params: { itemId: number; count?: number }
 export const deleteDefectiveItem = (params: { itemId: number; count?: number }): Promise<void> => {
     return backendClient.delete('inventory/item/mark/defective', { params })
 }
+
+export const changeShopPicture = ({ picture, shopId }: { picture: File, shopId?:string }) => {
+    const body = new FormData()
+    body.append('image', picture)
+    return backendClient.put('shop/admin/image', body, { params: { shopId }})
+}
+export const getShopPicture = ({ shopId }: { shopId?: string }): Promise<string> => {
+    if (!shopId) return new Promise(() => '')
+    return backendClient
+        .get<any, Blob>('shop/image', { params: { shopId }, responseType: 'blob' })
+        .then((blob) => (blob.size > 0 ? URL.createObjectURL(blob) : ''))
+        .catch(() => '')
+}

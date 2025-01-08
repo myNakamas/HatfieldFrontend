@@ -1,17 +1,6 @@
-import { useEffect, useState } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
-import { getShopById, updateShop } from '../../axios/http/shopRequests'
-import { useNavigate, useParams } from 'react-router-dom'
-import { Shop } from '../../models/interfaces/shop'
-import { Controller, useForm } from 'react-hook-form'
+import { faCheck, faClock, faQuestion, faUpload, faX } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
-import { ShopSchema } from '../../models/validators/FormValidators'
-import { TextField } from '../../components/form/TextField'
-import { FormField } from '../../components/form/Field'
-import { CustomSuspense } from '../../components/CustomSuspense'
-import { toast } from 'react-toastify'
-import { FormError } from '../../components/form/FormError'
-import { toastProps } from '../../components/modals/ToastProps'
 import {
     Anchor,
     Breadcrumb,
@@ -21,21 +10,34 @@ import {
     ColorPicker,
     Descriptions,
     Divider,
+    Image,
     Input,
     Popover,
     Space,
     Switch,
     Typography,
 } from 'antd'
-import TextArea from 'antd/es/input/TextArea'
-import ReactMarkdown from 'react-markdown'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faClock, faQuestion, faX } from '@fortawesome/free-solid-svg-icons'
 import { AnchorLinkItemProps } from 'antd/es/anchor/Anchor'
 import ButtonGroup from 'antd/es/button/button-group'
-import { sendSmsApiBalanceCheck, SmsBalanceResponse } from '../../axios/http/smsRequests'
+import TextArea from 'antd/es/input/TextArea'
+import { useEffect, useRef, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import ReactMarkdown from 'react-markdown'
+import { useQuery, useQueryClient } from 'react-query'
+import { useNavigate, useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { postPrintExample } from '../../axios/http/documentRequests'
+import { changeShopPicture, getShopById, getShopPicture, updateShop } from '../../axios/http/shopRequests'
+import { sendSmsApiBalanceCheck, SmsBalanceResponse } from '../../axios/http/smsRequests'
+import { CustomSuspense } from '../../components/CustomSuspense'
+import { FormField } from '../../components/form/Field'
+import { FormError } from '../../components/form/FormError'
+import { TextField } from '../../components/form/TextField'
+import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
+import { ImageLarge } from '../../components/user/ProfileImage'
 import { AppError } from '../../models/interfaces/generalModels'
+import { Shop } from '../../models/interfaces/shop'
+import { ShopSchema } from '../../models/validators/FormValidators'
 
 export const ShopSettingsView = () => {
     const { id } = useParams()
@@ -72,6 +74,25 @@ export const ShopSettingsView = () => {
                 setError('root', { message: error })
             })
     }
+    const uploadRef = useRef<HTMLInputElement>(null)
+    const uploadPicture = async (files: FileList | null) => {
+        if (files && files.length > 0) {
+            if (files[0].size > 2 * 1024 * 1024) {
+                toast.error('The image size must not exceed 2Mb', toastProps)
+                return
+            }
+            await toast.promise(
+                changeShopPicture({ picture: files[0], shopId: id }),
+                toastUpdatePromiseTemplate('shop picture')
+            )
+            await queryClient.invalidateQueries(['shopImage', id])
+        }
+    }
+    const { data: shopImg, isLoading: isShopImageLoading } = useQuery(
+        ['shopImage', id],
+        () => getShopPicture({ shopId: id }),
+        { retry: false, retryOnMount: false }
+    )
 
     const printExample = () => {
         postPrintExample()
@@ -139,6 +160,27 @@ export const ShopSettingsView = () => {
                             <div className='w-100 mb-1'>
                                 <Card id={'shopCol'} title={'Shop Colors'} className='w-100'>
                                     <Space className='w-100 justify-start align-start' direction={'vertical'}>
+                                        <Space wrap>
+                                            <ImageLarge isLoading={isShopImageLoading} profileImg={shopImg} />
+                                            <Image />
+                                            <div className='p-2 profileDesc'>
+                                                <p>Personalize your Shop with a photo:</p>
+                                                <input
+                                                    ref={uploadRef}
+                                                    id={'uploadProfilePic'}
+                                                    type='file'
+                                                    hidden={true}
+                                                    onChange={(e) => uploadPicture(e.target.files)}
+                                                />
+                                                <Button
+                                                    onClick={() => uploadRef.current?.click()}
+                                                    icon={<FontAwesomeIcon icon={faUpload} />}
+                                                >
+                                                    Upload a new image
+                                                </Button>
+                                                The image size must not exceed 2Mb
+                                            </div>
+                                        </Space>
                                         <Controller
                                             control={control}
                                             name='shopSettingsView.primaryColor'

@@ -98,6 +98,7 @@ export const AddTicketInvoice = ({
             .then(() => {
                 closeModal()
                 queryClient.invalidateQueries(['ticket', ticket?.id]).then()
+                queryClient.invalidateQueries(['tickets']).then()
             })
             .catch(({ detail }: AppError) => {
                 setError('root', { message: detail })

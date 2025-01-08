@@ -1,19 +1,18 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React, { ReactNode, useContext, useRef, useState } from 'react'
-import { AuthContext } from '../../contexts/AuthContext'
-import { useNavigate } from 'react-router-dom'
-import { User } from '../../models/interfaces/user'
 import { faUserLock } from '@fortawesome/free-solid-svg-icons'
+import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
+import { faUpload } from '@fortawesome/free-solid-svg-icons/faUpload'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Button, Card, Image, Popconfirm, Space } from 'antd'
+import React, { ReactNode, useContext, useRef, useState } from 'react'
+import { useQuery, useQueryClient } from 'react-query'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { changeProfilePicture, deletePersonalAccount, getProfilePicture } from '../../axios/http/userRequests'
 import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
-import { toast } from 'react-toastify'
-import { useQuery, useQueryClient } from 'react-query'
-import { ProfileImageLarge } from '../../components/user/ProfileImage'
-import { Button, Card, Image, Popconfirm, Space } from 'antd'
 import { EditUser } from '../../components/modals/users/EditUser'
-import { faUpload } from '@fortawesome/free-solid-svg-icons/faUpload'
-import { Text } from 'recharts'
-import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
+import { ImageLarge } from '../../components/user/ProfileImage'
+import { AuthContext } from '../../contexts/AuthContext'
+import { User } from '../../models/interfaces/user'
 
 export const Profile = () => {
     const uploadRef = useRef<HTMLInputElement>(null)
@@ -47,7 +46,7 @@ export const Profile = () => {
                 )}
                 <Card className='card' title={'Your info'}>
                     <Space wrap>
-                        <ProfileImageLarge isLoading={isProfileImageLoading} profileImg={profileImg} />
+                        <ImageLarge isLoading={isProfileImageLoading} profileImg={profileImg} />
                         <Image />
                         <div className='p-2 profileDesc'>
                             <p>Personalize your account with a photo:</p>
@@ -64,7 +63,7 @@ export const Profile = () => {
                             >
                                 Upload a new image
                             </Button>
-                            <Text fontSize={5}>The image size must not exceed 2Mb</Text>
+                            The image size must not exceed 2Mb
                         </div>
                     </Space>
 
