@@ -80,22 +80,44 @@ export const EditUser = ({
     return (
         <AppModal isModalOpen={isModalOpen} closeModal={closeModal}>
             <h3>User</h3>
-            <form ref={formRef} className='modalForm' onSubmit={handleSubmit(isSelfEdit() ? onSelfEdit : onEdit,(errors)=>{console.log(watch(),errors)})}>
+            <form
+                ref={formRef}
+                className='modalForm'
+                onSubmit={handleSubmit(isSelfEdit() ? onSelfEdit : onEdit, (errors) => {
+                    console.log(watch(), errors)
+                })}
+            >
                 <TextField
                     defaultValue={''}
                     register={register('username')}
                     error={errors.username}
                     label={'Username'}
                 />
-                {!isSelfEdit() && (
-                    <TextField
-                        defaultValue={''}
-                        register={register('fullName')}
-                        error={errors.fullName}
-                        label={'Full name'}
+                <TextField
+                    defaultValue={''}
+                    register={register('fullName')}
+                    error={errors.fullName}
+                    label={'Full name'}
+                />
+                <UserForm {...{ register, control, watch, setValue, getValues, errors }} />
+                {isSelfEdit() && loggedUser?.role === 'ADMIN' && (
+                    <Controller
+                        control={control}
+                        name='shopId'
+                        render={({ field, fieldState }) => (
+                            <FormField error={fieldState.error} label='Shop'>
+                                <AppSelect<number, Shop>
+                                    value={field.value}
+                                    options={shops}
+                                    placeholder='Assign to shop'
+                                    onChange={(shopId) => field.onChange(shopId)}
+                                    getOptionLabel={(shop) => shop.shopName}
+                                    getOptionValue={(shop) => shop.id}
+                                />
+                            </FormField>
+                        )}
                     />
                 )}
-                <UserForm {...{ register, control, watch, setValue, getValues, errors }} />
                 {!isSelfEdit() && (
                     <>
                         <Controller
