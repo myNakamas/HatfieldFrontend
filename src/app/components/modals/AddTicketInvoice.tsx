@@ -171,7 +171,7 @@ export const AddTicketInvoice = ({
                                         options={models}
                                         placeholder='Select or add a new model'
                                         value={field.value}
-                                        onChange={(item) => field.onChange(item ? { value: item } : null)}
+                                        onChange={(item) => field.onChange(item ? item : null)}
                                         optionLabelProp={'value'}
                                         optionFilterProp={'value'}
                                     />
