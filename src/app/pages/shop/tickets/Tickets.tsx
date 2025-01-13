@@ -1,6 +1,6 @@
 import { faCheck, faList, faPen, faTable } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Button, Card, Input, Pagination, Segmented, Select, Space, Tabs, TabsProps, Tag } from 'antd'
+import { Button, Card, Input, Pagination, Popover, Segmented, Select, Space, Tabs, TabsProps, Tag } from 'antd'
 import Paragraph from 'antd/es/typography/Paragraph'
 import dateFormat from 'dateformat'
 
@@ -49,6 +49,7 @@ export const Tickets = () => {
     const [listView, setListView] = useState(window.innerWidth > 1000 ? 'table' : 'list')
     const [ticketView, setTicketView] = useState('view')
     const [showNewModal, setShowNewModal] = useState(false)
+    const [ticketError, setTicketError] = useState<string>()
     const [filter, setFilter] = useState<TicketFilter>({
         ticketStatuses: activeTicketStatuses,
         shopId: loggedUser?.shopId,
@@ -136,7 +137,13 @@ export const Tickets = () => {
                     <QrReaderButton title={'Scan QR code to open ticket'} />
                 </Space>
                 <Space wrap align={'start'}>
-                    <TicketFilters {...{ filter, setFilter }} />
+                    <TicketFilters
+                        {...{
+                            ticketIdError: filter.ticketId != undefined && tickets.data?.totalCount === 0,
+                            filter,
+                            setFilter,
+                        }}
+                    />
                 </Space>
             </Space>
             <Tabs
@@ -224,8 +231,7 @@ const TicketsTab = ({
                             onShowSizeChange={(page, pageSize) => {
                                 setPage({ page, pageSize })
                                 pageSize && setDefaultPageSize(pageSize)
-                            }
-                        }
+                            }}
                             onChange={(page, pageSize) => {
                                 setPage({ page, pageSize })
                                 pageSize && setDefaultPageSize(pageSize)
@@ -316,9 +322,11 @@ const TicketTable = ({
 }
 
 const TicketFilters = ({
+    ticketIdError,
     filter,
     setFilter,
 }: {
+    ticketIdError?: boolean
     filter: TicketFilter
     setFilter: (value: ((prevState: TicketFilter) => TicketFilter) | TicketFilter) => void
 }) => {
@@ -344,14 +352,17 @@ const TicketFilters = ({
     return advanced ? (
         <Space className='largeFilter' wrap align={'start'}>
             <FilterWrapper title={'General filters'}>
-                <Input
-                    placeholder='Ticket ID'
-                    pattern='[0-9\s]*'
-                    value={filter?.ticketId}
-                    onChange={({ currentTarget }) =>
-                        setFilter({ ...filter, ticketId: currentTarget.value ? +currentTarget.value : undefined })
-                    }
-                />
+                <Popover open={ticketIdError} content={'You do not have access to the ticket or it does not exist!'}>
+                    <Input
+                        placeholder='Ticket ID'
+                        pattern='[0-9\s]*'
+                        value={filter?.ticketId}
+                        onChange={({ currentTarget }) =>
+                            setFilter({ ...filter, ticketId: currentTarget.value ? +currentTarget.value : undefined })
+                        }
+                    />
+                </Popover>
+
                 <Select<TicketStatus[], ItemPropertyView>
                     style={{ minWidth: 200, maxWidth: 300, textAlign: 'left' }}
                     dropdownStyle={{ textAlign: 'left' }}
@@ -439,14 +450,16 @@ const TicketFilters = ({
     ) : (
         <Space wrap>
             <SearchComponent {...{ filter, setFilter }} />
-            <Input
-                placeholder='Ticket ID'
-                pattern='[0-9\s]*'
-                value={filter?.ticketId}
-                onChange={({ currentTarget }) =>
-                    setFilter({ ...filter, ticketId: currentTarget.value ? +currentTarget.value : undefined })
-                }
-            />
+            <Popover open={ticketIdError} content={'You do not have access to the ticket or it does not exist!'}>
+                <Input
+                    placeholder='Ticket ID'
+                    pattern='[0-9\s]*'
+                    value={filter?.ticketId}
+                    onChange={({ currentTarget }) =>
+                        setFilter({ ...filter, ticketId: currentTarget.value ? +currentTarget.value : undefined })
+                    }
+                />
+            </Popover>
             <AdvancedSearchButton onClick={() => setAdvanced(true)} />
         </Space>
     )
