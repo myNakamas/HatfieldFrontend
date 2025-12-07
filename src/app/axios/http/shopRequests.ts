@@ -1,6 +1,5 @@
-import backendClient from '../backendClient'
-import { ItemPropertyView, Page, PageRequest } from '../../models/interfaces/generalModels'
 import { Filter, InventoryFilter } from '../../models/interfaces/filters'
+import { ItemPropertyView, Page, PageRequest } from '../../models/interfaces/generalModels'
 import {
     Brand,
     Category,
@@ -11,6 +10,7 @@ import {
     ShoppingList,
     TransferItem,
 } from '../../models/interfaces/shop'
+import backendClient from '../backendClient'
 
 export const getAllShops = (): Promise<Shop[]> => {
     return backendClient.get('shop/admin/all')
@@ -80,6 +80,9 @@ export const getAllModels = (): Promise<ItemPropertyView[]> => {
 export const getAllBrands = (): Promise<Brand[]> => {
     return backendClient.get('inventory/brand/all')
 }
+export const getPublicBrands = (): Promise<Brand[]> => {
+    return backendClient.get('public/brands')
+}
 export const patchRenameModel = (body: { id: number; value: string }) => {
     return backendClient.patch('inventory/model/edit', body)
 }
@@ -143,10 +146,10 @@ export const deleteDefectiveItem = (params: { itemId: number; count?: number }):
     return backendClient.delete('inventory/item/mark/defective', { params })
 }
 
-export const changeShopPicture = ({ picture, shopId }: { picture: File, shopId?:string }) => {
+export const changeShopPicture = ({ picture, shopId }: { picture: File; shopId?: string }) => {
     const body = new FormData()
     body.append('image', picture)
-    return backendClient.put('shop/admin/image', body, { params: { shopId }})
+    return backendClient.put('shop/admin/image', body, { params: { shopId } })
 }
 export const getShopPicture = ({ shopId }: { shopId?: string }): Promise<string> => {
     if (!shopId) return new Promise(() => '')

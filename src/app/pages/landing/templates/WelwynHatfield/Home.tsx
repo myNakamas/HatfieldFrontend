@@ -16,25 +16,25 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Shop } from '../../../../models/interfaces/shop'
+import { useContext } from 'react'
+import { ShopContext } from '../../../../contexts/ShopContext'
 
-interface HomeProps {
-    shop: Shop
-}
 
-export const Home = ({ shop }: HomeProps) => {
+export const Home = () => {
     return (
         <div>
             <div className='cover'>
                 <div className='coverImage'>
                     <div className='gradient' />
                 </div>
-                <Heading shop={shop} />
+                <Heading/>
             </div>
             <WhyChooseUs />
         </div>
     )
 }
-const Heading = ({ shop }: { shop: Shop }) => {
+const Heading = () => {
+    const {shop} = useContext(ShopContext);
     return (
         <div className='heading'>
             <h1 className='shop-header__title'>{shop.shopName}</h1>

@@ -4,14 +4,17 @@ import { Shop } from '../../../../models/interfaces/shop'
 import { Home } from './Home'
 import NavBar from './NavBar'
 import { Prices } from './Prices'
+import { useContext } from 'react'
+import { ShopContext } from '../../../../contexts/ShopContext'
 
-export const WelwynHatfield = ({ shop }: { shop: Shop }) => {
+export const WelwynHatfield = () => {
+    const {shop} = useContext(ShopContext);
     return (
         <div className='hatfield'>
             <NavBar shop={shop} />
             <Routes>
-                <Route path='/' element={<Home shop={shop} />} />
-                <Route path='/prices' element={<Prices shop={shop}/>} />
+                <Route path='/' element={<Home />} />
+                <Route path='/prices' element={<Prices />} />
                 <Route path='/blog' element={'blog'} />
                 <Route path='/accessories' element={'accessories'} />
                 <Route path='/contact' element={'contact'} />

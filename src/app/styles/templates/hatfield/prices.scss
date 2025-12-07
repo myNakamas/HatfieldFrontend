@@ -12,11 +12,15 @@
     }
     .card {
         color: black;
+        
         margin: 20px, 0;
         background-color: #ffffff;
         border-radius: 40px;
         padding: 20px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        .ant-breadcrumb,.ant-breadcrumb-link,a,li{
+            color: black;
+        }
     }
     .choice-grid {
         display: grid;
@@ -43,5 +47,12 @@
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             }
         }
+    }
+
+    @media (max-width: 768px) {
+        .card {
+            width: 90%;
+        }
+        
     }
 }
