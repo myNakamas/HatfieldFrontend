@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router'
 import { Shop } from '../../../../models/interfaces/shop'
 import { Home } from './Home'
 import NavBar from './NavBar'
+import { Prices } from './Prices'
 
 export const WelwynHatfield = ({ shop }: { shop: Shop }) => {
     return (
@@ -10,10 +11,14 @@ export const WelwynHatfield = ({ shop }: { shop: Shop }) => {
             <NavBar shop={shop} />
             <Routes>
                 <Route path='/' element={<Home shop={shop} />} />
-                <Route path='/prices' element={'prices'} />
+                <Route path='/prices' element={<Prices shop={shop}/>} />
                 <Route path='/blog' element={'blog'} />
                 <Route path='/accessories' element={'accessories'} />
                 <Route path='/contact' element={'contact'} />
+                <Route path='/faq' element={'faq'} />
+                <Route path='/terms_and_conditions' element={'terms_and_conditions'} />
+                <Route path='/privacy_policy' element={'privacy_policy'} />
+                <Route path='/about_us' element={'about_us'} />
             </Routes>
             <Footer shop={shop} />
         </div>

@@ -1,29 +1,3 @@
-.hatfield {
-    .navBar {
-        background-color: gradient(90deg, #30000000 50%, #ff000000 100%);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        height: fit-content;
-        margin: 10px 0;
-        img {
-            height: 45px;
-            width: auto;
-            margin: 0 12px;
-        }
-        .menu {
-            margin-right: 12px;
-        }
-        .mini-nav {
-            display: flex;
-        }
-        .buttons {
-            gap: 10px;
-            align-items: center;
-            justify-content: center;
-        }
-    }
     .cover {
         display: flex;
         min-height: 500px;
@@ -33,7 +7,7 @@
         .coverImage {
             width: 100%;
             object-fit: cover;
-            background-image: url(/templates/dash-background.png);
+            background-image: url(/templates/hatfield/dash-background.png);
             background-position: center;
             position: relative;
             z-index: 1;
@@ -229,24 +203,7 @@
             }
         }
     }
-    .footer {
-        padding: 20px;
-        text-align: center;
-        border-top: 1px solid #f0f0f0;
-        .links {
-            width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            align-items: center;
-        }
-        .copyright {
-            text-align: left;
-            margin-top: 20px;
-            color: #888;
-            font-size: 14px;
-        }
-    }
+    
     .why-choose-us {
         padding: 30px 20px;
         background: #fff;
@@ -299,9 +256,6 @@
             align-items: center;
             justify-content: space-around;
             margin: 0 0 20px;
-            background: #f8f9fa;
-            border-radius: 50%;
-
             font-size: 30px;
             color: #333;
 
@@ -335,4 +289,3 @@
             }
         }
     }
-}

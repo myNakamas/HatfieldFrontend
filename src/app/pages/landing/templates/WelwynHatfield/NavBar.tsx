@@ -66,7 +66,7 @@ const NavBar = ({ shop }: NavBarProps) => {
     return (
         <div className='navBar'>
             <div className='mini-nav'>
-                <img src='/templates/welwyn-hatfield-logo.png' alt='Welwyn Hatfield Logo' />
+                <img src='/templates/hatfield/welwyn-hatfield-logo.png' alt='Welwyn Hatfield Logo' />
                 {isMobile && (
                     <Button
                         type='text'
@@ -99,7 +99,7 @@ const NavBar = ({ shop }: NavBarProps) => {
             </div>
 
             <Drawer
-                title={<div style={{ color: '#fff', fontWeight: 'bold' }}>Menu</div>}
+                title='Menu'
                 placement='right'
                 onClose={() => setDrawerVisible(false)}
                 open={drawerVisible}

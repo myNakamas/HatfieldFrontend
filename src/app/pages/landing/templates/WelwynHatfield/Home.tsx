@@ -69,9 +69,8 @@ const Heading = ({ shop }: { shop: Shop }) => {
                 </div>
 
                 <div className='shop-header__services-item'>
-                    <div className='icon'>
-                        <FontAwesomeIcon icon={faChargingStation} />
-                    </div>
+                    <img className='icon' src='/icons/electric_scooter.svg' alt='PlayStation' />
+
                     <div className='label'>Electric Scooters</div>
                 </div>
 
