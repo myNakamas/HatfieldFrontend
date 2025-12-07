@@ -8,6 +8,7 @@ export interface ThemeColors {
 }
 
 export interface ShopTemplatesSettings {
+    templateName: string
     aboutPage: string
 }
 

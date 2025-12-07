@@ -64,6 +64,9 @@ export const getShopData = (): Promise<Shop> => {
 export const getShopById = (shopId: number): Promise<Shop> => {
     return backendClient.get('shop/admin/byId', { params: { shopId } })
 }
+export const getShopPublicData = (shopName?: string): Promise<Shop> => {
+    return backendClient.get('public/shop', { params: { shopName } })
+}
 export const updateShop = (value: Shop): Promise<Shop> => {
     return backendClient.put('shop/admin/update', value)
 }
