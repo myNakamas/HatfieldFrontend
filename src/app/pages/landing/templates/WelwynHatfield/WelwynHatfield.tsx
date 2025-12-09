@@ -1,47 +1,50 @@
 import { Button } from 'antd'
-import { Route, Routes } from 'react-router'
-import { Shop } from '../../../../models/interfaces/shop'
+import { useContext } from 'react'
+import { Route, Routes, useNavigate } from 'react-router'
+import { ShopContext } from '../../../../contexts/ShopContext'
 import { Home } from './Home'
+import Terms from './legal/Terms'
 import NavBar from './NavBar'
 import { Prices } from './Prices'
-import { useContext } from 'react'
-import { ShopContext } from '../../../../contexts/ShopContext'
+import { HatfieldPolicy } from './legal/HatfieldPolicy'
+import { FAQ } from './legal/FAQ'
 
 export const WelwynHatfield = () => {
-    const {shop} = useContext(ShopContext);
     return (
         <div className='hatfield'>
-            <NavBar shop={shop} />
+            <NavBar />
             <Routes>
                 <Route path='/' element={<Home />} />
                 <Route path='/prices' element={<Prices />} />
                 <Route path='/blog' element={'blog'} />
                 <Route path='/accessories' element={'accessories'} />
                 <Route path='/contact' element={'contact'} />
-                <Route path='/faq' element={'faq'} />
-                <Route path='/terms_and_conditions' element={'terms_and_conditions'} />
-                <Route path='/privacy_policy' element={'privacy_policy'} />
+                <Route path='/faq' element={<FAQ/>} />
+                <Route path='/terms_and_conditions' element={<Terms />} />
+                <Route path='/privacy_policy' element={<HatfieldPolicy />} />
                 <Route path='/about_us' element={'about_us'} />
             </Routes>
-            <Footer shop={shop} />
+            <Footer />
         </div>
     )
 }
 
-const Footer = ({ shop }: { shop: Shop }) => {
+const Footer = () => {
+    useContext(ShopContext)
+    const navigate = useNavigate()
     return (
         <div className='footer'>
             <div className='links'>
-                <Button type='text' size='large'>
+                <Button type='text' size='large' onClick={() => navigate('faq')}>
                     FAQs
                 </Button>
-                <Button type='text' size='large'>
+                <Button type='text' size='large' onClick={() => navigate('terms_and_conditions')}>
                     Terms and Conditions
                 </Button>
-                <Button type='text' size='large'>
+                <Button type='text' size='large' onClick={() => navigate('privacy_policy')}>
                     Privacy Policy
                 </Button>
-                <Button type='text' size='large'>
+                <Button type='text' size='large' onClick={() => navigate('about_us')}>
                     About us
                 </Button>
                 <Button type='link' size='large'>

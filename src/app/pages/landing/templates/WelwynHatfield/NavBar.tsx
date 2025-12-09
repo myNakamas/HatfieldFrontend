@@ -2,20 +2,18 @@ import { PhoneOutlined } from '@ant-design/icons'
 import { faBars, faLocationPin, faPhone } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, Drawer, Menu, Space, Typography } from 'antd'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Shop } from '../../../../models/interfaces/shop'
+import { ShopContext } from '../../../../contexts/ShopContext'
 
 const { Text } = Typography
 
-interface NavBarProps {
-    shop: Shop
-}
-
-const NavBar = ({ shop }: NavBarProps) => {
+const NavBar = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
     const [drawerVisible, setDrawerVisible] = useState(false)
     const location = useLocation().pathname.replace(/\/+$/, '')
+    const {shop} = useContext(ShopContext);
 
     const handleResize = () => {
         setIsMobile(window.innerWidth <= 768)
@@ -35,14 +33,13 @@ const NavBar = ({ shop }: NavBarProps) => {
         {
             key: 'phone',
             label: (
-                <Space>
-                    <PhoneOutlined rev={undefined} />
-                    <Text strong style={{ color: '#fff' }}>
+                <a href={`tel:${shop.phone}`}>
+                    <FontAwesomeIcon icon={faPhone} />
+                    <Text strong>
                         {shop.phone}
                     </Text>
-                </Space>
+                </a>
             ),
-            disabled: true, // not clickable
         },
     ]
 
