@@ -1,6 +1,6 @@
 import { Button } from 'antd'
-import React, { useContext } from 'react'
-import { Route, Routes, useLocation, useNavigate, useNavigationType } from 'react-router'
+import { useContext } from 'react'
+import { Route, Routes, useNavigate } from 'react-router'
 import { ShopContext } from '../../../../contexts/ShopContext'
 import PriceResult from '../../PriceResult'
 import { ContactUs } from './ContactUs'
@@ -13,14 +13,6 @@ import { HatfieldPolicy } from './footer/HatfieldPolicy'
 import Terms from './footer/Terms'
 
 export const WelwynHatfield = () => {
-    const location = useLocation()
-    const navigationType = useNavigationType() // "POP" | "PUSH" | "REPLACE"
-
-    React.useEffect(() => {
-        console.log('The current URL is', { ...location })
-        console.log('The last navigation action was', navigationType)
-    }, [location, navigationType])
-
     return (
         <div className='hatfield'>
             <NavBar />

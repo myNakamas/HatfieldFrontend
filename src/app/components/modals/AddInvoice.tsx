@@ -1,6 +1,5 @@
 import { CreateItemInvoice } from '../../models/interfaces/invoice'
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
 import { useQuery, useQueryClient } from 'react-query'
 import { AntTextField, TextField } from '../form/TextField'
 import { AppModal } from './AppModal'
@@ -36,8 +35,8 @@ import { AppCreatableSelect, AppSelect } from '../form/AppSelect'
 import { InventoryFilter } from '../../models/interfaces/filters'
 import { defaultPage } from '../../models/enums/defaultValues'
 import { AddInventoryItem } from './inventory/AddInventoryItem'
-import { ItemTypes } from '../../models/enums/shopEnums'
 import { BarcodeReaderButton } from './QrReaderModal'
+import { useForm, Controller } from 'react-hook-form'
 
 export const AddInvoice = ({
     item,

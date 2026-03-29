@@ -296,15 +296,15 @@ const SelectDevice = ({ setDevice, isMobile, selectedDeviceType }: { setDevice: 
             title: deviceTypes.computer,
         },
         {
-            icon: <img src='/icons/electric_scooter.svg' alt='Electric scooter' />,
+            icon: <img src='/custom-icons/electric_scooter.svg' alt='Electric scooter' />,
             title: deviceTypes.scooter,
         },
         {
-            icon: <img src='/icons/playstation-brands-solid-full.svg' alt='PlayStation' />,
+            icon: <img src='/custom-icons/playstation-brands-solid-full.svg' alt='PlayStation' />,
             title: deviceTypes.ps,
         },
         {
-            icon: <img src='/icons/fa-brands--nintendo-switch.svg' alt='Nintendo switch' />,
+            icon: <img src='/custom-icons/nintendo-switch.svg' alt='Nintendo switch' />,
             title: deviceTypes.Nswitch,
         },
         {

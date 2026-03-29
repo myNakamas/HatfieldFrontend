@@ -6,7 +6,7 @@ export const PrivateRoute = () => {
     const token = localStorage.getItem('token')
     const navigate = useNavigate()
     useEffect(() => {
-        if (!token && !location.pathname.includes('login')) navigate('/login', { state: { from: location } })
+        if (!token && !location.pathname.includes('login')) navigate('/login' )
     }, [token])
 
     return (

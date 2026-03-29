@@ -167,7 +167,7 @@ const WhyChooseUs = () => {
             text: 'We strive to use quality parts and maintain low prices by avoiding re-sellers and monitoring local requirements.',
         },
         {
-            icon: <img src='/icons/replace_monitor.svg' alt='Screen replacement icon' />,
+            icon: <img src='/custom-icons/replace_monitor.svg' alt='Screen replacement icon' />,
             title: 'Proof of quality work',
             text: 'In the last month we have fixed 674 devices.',
         },
