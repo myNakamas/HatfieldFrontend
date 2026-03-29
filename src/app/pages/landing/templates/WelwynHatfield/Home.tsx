@@ -99,7 +99,7 @@ const Heading = () => {
                     className='shop-header__services-item'
                     onClick={() => navigate('prices?type=' + deviceTypes.Nswitch)}
                 >
-                    <img className='icon' src='/icons/fa-brands--nintendo-switch.svg' alt='Nintendo switch' />
+                    <img className='icon' src='/icons/fa-brands-nintendo-switch.svg' alt='Nintendo switch' />
                     <div className='label'>Nintendo Switch</div>
                 </div>
 
