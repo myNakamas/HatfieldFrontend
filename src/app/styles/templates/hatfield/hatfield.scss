@@ -1,0 +1,64 @@
+.hatfield {
+    @import './home.scss';
+    @import './prices.scss';
+
+    .navBar {
+        background-color: var(--backgroundColor20);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        height: fit-content;
+        padding: 10px 0;
+        img {
+            height: 45px;
+            width: auto;
+            margin: 0 12px;
+        }
+        .menu {
+            margin-right: 12px;
+        }
+        .mini-nav {
+            display: flex;
+        }
+        .buttons {
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    .footer {
+        padding: 20px;
+        text-align: center;
+        border-top: 1px solid #f0f0f0;
+        .links {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .copyright {
+            text-align: left;
+            margin-top: 20px;
+            color: #888;
+            font-size: 14px;
+        }
+    }
+    .staticPageCard {
+        background-color: var(--backgroundColor);
+        text-align: left;
+        max-width: 850px;
+        margin: 0 auto;
+        margin-top: 40px;
+        padding: 40px;
+        border: #ffffff 2px solid;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 100px;
+        h1  {
+          text-align: center;
+        }
+    }
+}

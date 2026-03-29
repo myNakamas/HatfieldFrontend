@@ -1,8 +1,3 @@
-import { useLocation, useNavigate } from 'react-router-dom'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHouse } from '@fortawesome/free-solid-svg-icons/faHouse'
-import { faCommentDots } from '@fortawesome/free-solid-svg-icons/faCommentDots'
-import React, { useContext } from 'react'
 import {
     faBuildingUser,
     faChartColumn,
@@ -11,16 +6,22 @@ import {
     faFileInvoice,
     faPersonCircleQuestion,
     faShoppingBasket,
+    faTag,
 } from '@fortawesome/free-solid-svg-icons'
-import { Badge, Drawer, Menu, MenuProps } from 'antd'
-import { WebSocketContext } from '../../contexts/WebSocketContext'
+import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs'
+import { faCommentDots } from '@fortawesome/free-solid-svg-icons/faCommentDots'
+import { faHouse } from '@fortawesome/free-solid-svg-icons/faHouse'
 import { faStore } from '@fortawesome/free-solid-svg-icons/faStore'
+import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket'
 import { faUserShield } from '@fortawesome/free-solid-svg-icons/faUserShield'
 import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
-import { faTicket } from '@fortawesome/free-solid-svg-icons/faTicket'
-import { AuthContext } from '../../contexts/AuthContext'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Drawer, Menu, MenuProps } from 'antd'
 import Button from 'antd/es/button'
-import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs'
+import React, { useContext } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { AuthContext } from '../../contexts/AuthContext'
+import { WebSocketContext } from '../../contexts/WebSocketContext'
 import { ChatBadge } from '../ChatBadge'
 
 export type MenuItem = Required<MenuProps>['items'][number]
@@ -52,6 +53,7 @@ export const SideNavigation = ({
     ]
     const WorkerLinks: MenuItem[] = [
         { label: 'Clients', key: '/clients', icon: <FontAwesomeIcon icon={faUsers} /> },
+        { label: 'Prices', key: '/prices', icon: <FontAwesomeIcon icon={faTag} /> },
         {
             label: 'Inventory',
             key: '/items',

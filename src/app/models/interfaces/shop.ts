@@ -8,6 +8,7 @@ export interface ThemeColors {
 }
 
 export interface ShopTemplatesSettings {
+    templateName: string
     aboutPage: string
 }
 
@@ -111,4 +112,11 @@ export interface TransferItem {
     itemId: number
     shopId: number
     count: number
+}
+
+export interface PricingEvaluation {
+    price: number
+    originalPrice: number
+    priceExists: boolean 
+    action: string // can be 'CALL', 'VISIT_SHOP'
 }

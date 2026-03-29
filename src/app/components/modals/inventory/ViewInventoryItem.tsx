@@ -74,7 +74,7 @@ export const ViewInventoryItem = ({
         <AppModal
             isModalOpen={!!inventoryItem}
             closeModal={closeModal}
-            title={`Item #${inventoryItem?.id} ${inventoryItem?.name}` ?? ''}
+            title={`Item #${inventoryItem?.id} ${inventoryItem?.name}`}
         >
             <AddUsedItem
                 usedItem={{ itemId: inventoryItem?.id, count: 1, ticketId: undefined } as unknown as CreateUsedItem}

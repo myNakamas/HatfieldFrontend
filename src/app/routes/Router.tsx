@@ -20,9 +20,10 @@ import { Shops } from '../pages/shop/Shops'
 import { ShopSettingsView } from '../pages/shop/ShopSettingsView'
 import { PageNotFound } from '../pages/PageNotFound'
 import { Statistics } from '../pages/Statistics'
-import React from 'react'
 import { ChangeNewPassword } from '../pages/users/ChangeNewPassword'
 import { ForgotPassword } from '../pages/users/ForgotPassword'
+import { LandingPage } from '../pages/landing/LandingPage'
+import AdminPricingsPage from '../pages/pricing/Pricing'
 
 export const Router = () => {
     return (
@@ -30,6 +31,7 @@ export const Router = () => {
             <Route path='/login' element={<Login />} />
             <Route path='/login/update-password' element={<ChangeNewPassword />} />
             <Route path='/login/forgot-password' element={<ForgotPassword />} />
+            <Route path='/shop/:shopName/*' element={<LandingPage />} />
             <Route path='/' element={<PrivateRoute />}>
                 <Route path='/' element={<Navigate to={'/home'} />} />
                 <Route path='/home' element={HomePage()} />
@@ -50,6 +52,7 @@ export const Router = () => {
                     <Route path='/invoices' element={<Invoices />} />
                     <Route path='/categories' element={<CategorySettings />} />
                     <Route path='/logs' element={<Logs />} />
+                    <Route path='/prices' element={<AdminPricingsPage />} />
                 </Route>
                 <Route path='/' element={<RoleRestrictionRoute role={['ADMIN']} />}>
                     <Route path='/workers' element={<Users />} />
