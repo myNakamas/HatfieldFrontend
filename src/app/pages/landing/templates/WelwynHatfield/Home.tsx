@@ -85,13 +85,13 @@ const Heading = () => {
                     className='shop-header__services-item'
                     onClick={() => navigate('prices?type=' + deviceTypes.scooter)}
                 >
-                    <img className='icon' src='/icons/electric_scooter.svg' alt='PlayStation' />
+                    <img className='icon' src='/custom-icons/electric_scooter.svg' alt='PlayStation' />
 
                     <div className='label'>Electric Scooters</div>
                 </div>
 
                 <div className='shop-header__services-item' onClick={() => navigate('prices?type=' + deviceTypes.ps)}>
-                    <img className='icon' src='/icons/playstation-brands-solid-full.svg' alt='PlayStation' />
+                    <img className='icon' src='/custom-icons/playstation-brands-solid-full.svg' alt='PlayStation' />
                     <div className='label'>PlayStation</div>
                 </div>
 
@@ -99,7 +99,7 @@ const Heading = () => {
                     className='shop-header__services-item'
                     onClick={() => navigate('prices?type=' + deviceTypes.Nswitch)}
                 >
-                    <img className='icon' src='/icons/fa-brands-nintendo-switch.svg' alt='Nintendo switch' />
+                    <img className='icon' src='/custom-icons/fa-brands-nintendo-switch.svg' alt='Nintendo switch' />
                     <div className='label'>Nintendo Switch</div>
                 </div>
 
