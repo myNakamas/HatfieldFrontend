@@ -36,7 +36,7 @@ export const Dictaphone = ({
             setTempText('')
             setActiveDictaphone('')
         }
-        return () => SpeechRecognition.abortListening()
+        return () => void SpeechRecognition.abortListening()
     }, [finalTranscript])
 
     const buttonTitle = isMicrophoneAvailable

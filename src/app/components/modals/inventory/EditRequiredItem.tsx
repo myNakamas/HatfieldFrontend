@@ -1,18 +1,18 @@
-import { InventoryItem } from '../../../models/interfaces/shop'
-import { AppModal } from '../AppModal'
-import { Button, Collapse, Space, Switch } from 'antd'
-import React, { useEffect } from 'react'
-import { TextField } from '../../form/TextField'
-import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
-import { EditRequiredItemSchema } from '../../../models/validators/FormValidators'
-import { updateRequiredItemCount } from '../../../axios/http/shopRequests'
-import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
-import { toast } from 'react-toastify'
-import { useQueryClient } from 'react-query'
-import { FormField } from '../../form/Field'
+import { Button, Collapse, Space, Switch } from 'antd'
 import FormItemLabel from 'antd/es/form/FormItemLabel'
+import { useEffect } from 'react'
+import { useQueryClient } from 'react-query'
+import { toast } from 'react-toastify'
+import { updateRequiredItemCount } from '../../../axios/http/shopRequests'
+import { InventoryItem } from '../../../models/interfaces/shop'
+import { EditRequiredItemSchema } from '../../../models/validators/FormValidators'
+import { FormField } from '../../form/Field'
+import { TextField } from '../../form/TextField'
+import { AppModal } from '../AppModal'
+import { toastProps, toastUpdatePromiseTemplate } from '../ToastProps'
 import { ItemDescriptions } from './ViewInventoryItem'
+import { Controller, ControllerRenderProps, useForm } from 'react-hook-form'
 
 export const EditRequiredItem = ({
     inventoryItem,
@@ -78,25 +78,27 @@ export const EditRequiredItem = ({
                             error={errors.requiredItem?.requiredAmount}
                         />
                         <FormField label={'Current count in  store'}>
-                            <input className={'input'} disabled readOnly value={inventoryItem.count + ''} />
+                            <input className={'input'} disabled readOnly value={inventoryItem.count + ''} title="Current count in store" />
                         </FormField>
                         <FormField label={'Missing'}>
                             <input
                                 className={'input'}
                                 readOnly
                                 disabled
-                                value={Math.max(watch('requiredItem.requiredAmount') - inventoryItem.count, 0) + ''}
+                                value={Math.max(watch('requiredItem.requiredAmount') ?? 0 - inventoryItem.count, 0) + ''}
+                                title="Missing count"
                             />
                         </FormField>
                     </Space>
                     <Controller
                         control={control}
                         name={'requiredItem.isNeeded'}
-                        render={({ field: { value, onChange } }) => {
+                        render={({ field }: { field: ControllerRenderProps<InventoryItem, 'requiredItem.isNeeded'> }) => {
+                            const { value, onChange } = field
                             return (
                                 <Space>
                                     <FormItemLabel prefixCls={''} label={'Does the shop require this item'} />
-                                    <Switch checked={value} onChange={() => onChange(!value)} />
+                                    <Switch checked={value} onChange={() => onChange(!value)} aria-label="Does the shop require this item" />
                                 </Space>
                             )
                         }}
