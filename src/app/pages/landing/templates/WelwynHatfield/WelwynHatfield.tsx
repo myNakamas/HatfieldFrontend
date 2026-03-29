@@ -1,29 +1,42 @@
 import { Button } from 'antd'
-import { useContext } from 'react'
-import { Route, Routes, useNavigate } from 'react-router'
+import React, { useContext } from 'react'
+import { Route, Routes, useLocation, useNavigate, useNavigationType } from 'react-router'
 import { ShopContext } from '../../../../contexts/ShopContext'
+import PriceResult from '../../PriceResult'
+import { ContactUs } from './ContactUs'
 import { Home } from './Home'
-import Terms from './legal/Terms'
 import NavBar from './NavBar'
 import { Prices } from './Prices'
-import { HatfieldPolicy } from './legal/HatfieldPolicy'
-import { FAQ } from './legal/FAQ'
+import { AboutUs } from './footer/AboutUs'
+import { FAQ } from './footer/FAQ'
+import { HatfieldPolicy } from './footer/HatfieldPolicy'
+import Terms from './footer/Terms'
 
 export const WelwynHatfield = () => {
+    const location = useLocation()
+    const navigationType = useNavigationType() // "POP" | "PUSH" | "REPLACE"
+
+    React.useEffect(() => {
+        console.log('The current URL is', { ...location })
+        console.log('The last navigation action was', navigationType)
+    }, [location, navigationType])
+
     return (
         <div className='hatfield'>
             <NavBar />
             <Routes>
                 <Route path='/' element={<Home />} />
                 <Route path='/prices' element={<Prices />} />
+                <Route path='/prices/result' element={<PriceResult />} />
                 <Route path='/blog' element={'blog'} />
                 <Route path='/accessories' element={'accessories'} />
-                <Route path='/contact' element={'contact'} />
-                <Route path='/faq' element={<FAQ/>} />
+                <Route path='/contact' element={<ContactUs />} />
+                <Route path='/faq' element={<FAQ />} />
                 <Route path='/terms_and_conditions' element={<Terms />} />
                 <Route path='/privacy_policy' element={<HatfieldPolicy />} />
-                <Route path='/about_us' element={'about_us'} />
+                <Route path='/about_us' element={<AboutUs />} />
             </Routes>
+
             <Footer />
         </div>
     )

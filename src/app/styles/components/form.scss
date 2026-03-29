@@ -22,7 +22,7 @@
   }
 }
 
-.ant-select-item-option-content{
+.ant-select-item-option-content {
   text-align: left;
 }
 .button {
@@ -44,12 +44,12 @@
   margin-top: 5px;
 }
 .ticketForm {
-  .field{
+  .field {
     margin: unset;
   }
 }
-.ticketModal{ 
-  .ant-modal-content{
+.ticketModal {
+  .ant-modal-content {
     padding-right: 10px;
     .ant-modal-body {
       max-height: 80svh;
@@ -57,7 +57,7 @@
       width: auto;
     }
   }
-  }
+}
 .viewModal {
   text-align: left;
 
@@ -119,7 +119,6 @@
   }
 }
 .ticket-cards {
-  
   @media (max-width: 768px) {
     .ant-space-item {
       width: 100%;
@@ -339,4 +338,33 @@
 
 .col-wrap {
   flex: 1;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(100px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+  .choice-icon {
+    height: 50px;
+    width: auto;
+    align-content: center;
+    img {
+      height: 45px;
+      width: auto;
+    }
+  }
+  .choice-item {
+    background-color: #f9f9f9;
+    border: 2px solid #000000;
+    border-radius: 20px;
+    padding: 10px;
+    text-align: center;
+    color: black;
+    align-content: center;
+  }
+  .selected {
+    background-color: var(--primaryColor);
+    box-shadow: 0 0 10px 2px var(--primaryColor);
+  }
 }

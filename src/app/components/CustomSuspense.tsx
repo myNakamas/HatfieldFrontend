@@ -1,6 +1,6 @@
-import { ReactNode, Suspense, useContext } from 'react'
-import { InfinitySpin } from 'react-loader-spinner'
-import { ThemeContext } from '../contexts/ThemeContext'
+import { ReactNode, Suspense, useContext } from 'react';
+import { InfinitySpin } from 'react-loader-spinner';
+import { ThemeContext } from '../contexts/ThemeContext';
 
 export const CustomSuspense = ({ children, isReady }: { isReady?: boolean; children: ReactNode }) => {
     const { colors } = useContext(ThemeContext)
@@ -9,6 +9,6 @@ export const CustomSuspense = ({ children, isReady }: { isReady?: boolean; child
     return isReady ? (
         <Suspense fallback={<InfinitySpin color={color} />}>{children}</Suspense>
     ) : (
-        <InfinitySpin color={color} />
+        <InfinitySpin width="100%" color={color} />
     )
 }

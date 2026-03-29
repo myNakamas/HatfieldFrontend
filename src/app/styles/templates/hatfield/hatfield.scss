@@ -3,13 +3,13 @@
     @import './prices.scss';
 
     .navBar {
-        background-color: gradient(90deg, #30000000 50%, #ff000000 100%);
+        background-color: var(--backgroundColor20);
         display: flex;
         justify-content: space-between;
         align-items: center;
         width: 100%;
         height: fit-content;
-        margin: 10px 0;
+        padding: 10px 0;
         img {
             height: 45px;
             width: auto;
@@ -51,6 +51,7 @@
         text-align: left;
         max-width: 850px;
         margin: 0 auto;
+        margin-top: 40px;
         padding: 40px;
         border: #ffffff 2px solid;
         border-radius: 10px;

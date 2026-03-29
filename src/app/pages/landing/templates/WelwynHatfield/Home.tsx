@@ -1,24 +1,24 @@
 import {
-    faMobileAlt,
-    faTabletAlt,
-    faDesktop,
-    faLaptop,
-    faChargingStation,
-    faGamepad,
-    faDollarSign,
-    faPhone,
     faClock,
-    faHandHoldingDollar,
-    faMedal,
-    faUsers,
-    faHandshake,
+    faDesktop,
+    faDollarSign,
     faFileInvoiceDollar,
+    faGamepad,
+    faHandHoldingDollar,
+    faHandshake,
+    faLaptop,
+    faMedal,
+    faMobileAlt,
+    faPhone,
+    faTabletAlt,
+    faUsers,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Shop } from '../../../../models/interfaces/shop'
+import { Button } from 'antd'
 import { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ShopContext } from '../../../../contexts/ShopContext'
-
+import { deviceTypes } from '../../../../models/enums/deviceTypeEnums'
 
 export const Home = () => {
     return (
@@ -27,14 +27,15 @@ export const Home = () => {
                 <div className='coverImage'>
                     <div className='gradient' />
                 </div>
-                <Heading/>
+                <Heading />
             </div>
             <WhyChooseUs />
         </div>
     )
 }
 const Heading = () => {
-    const {shop} = useContext(ShopContext);
+    const { shop } = useContext(ShopContext)
+    const navigate = useNavigate()
     return (
         <div className='heading'>
             <h1 className='shop-header__title'>{shop.shopName}</h1>
@@ -42,49 +43,70 @@ const Heading = () => {
             <h2 className='shop-header__section-title'>Expert repairs for</h2>
 
             <div className='shop-header__services'>
-                <div className='shop-header__services-item'>
+                <div
+                    className='shop-header__services-item'
+                    onClick={() => navigate('prices?type=' + deviceTypes.mobile)}
+                >
                     <div className='icon'>
                         <FontAwesomeIcon icon={faMobileAlt} />
                     </div>
                     <div className='label'>Smartphones</div>
                 </div>
-                <div className='shop-header__services-item'>
+                <div
+                    className='shop-header__services-item'
+                    onClick={() => navigate('prices?type=' + deviceTypes.tablet)}
+                >
                     <div className='icon'>
                         <FontAwesomeIcon icon={faTabletAlt} />
                     </div>
                     <div className='label'>Tablets</div>
                 </div>
-                <div className='shop-header__services-item'>
+                <div
+                    className='shop-header__services-item'
+                    onClick={() => navigate('prices?type=' + deviceTypes.computer)}
+                >
                     <div className='icon'>
                         <FontAwesomeIcon icon={faDesktop} />
                     </div>
                     <div className='label'>PC</div>
                 </div>
 
-                <div className='shop-header__services-item'>
+                <div
+                    className='shop-header__services-item'
+                    onClick={() => navigate('prices?type=' + deviceTypes.laptop)}
+                >
                     <div className='icon'>
                         <FontAwesomeIcon icon={faLaptop} />
                     </div>
                     <div className='label'>Laptops</div>
                 </div>
 
-                <div className='shop-header__services-item'>
+                <div
+                    className='shop-header__services-item'
+                    onClick={() => navigate('prices?type=' + deviceTypes.scooter)}
+                >
                     <img className='icon' src='/icons/electric_scooter.svg' alt='PlayStation' />
 
                     <div className='label'>Electric Scooters</div>
                 </div>
 
-                <div className='shop-header__services-item'>
+                <div className='shop-header__services-item' onClick={() => navigate('prices?type=' + deviceTypes.ps)}>
                     <img className='icon' src='/icons/playstation-brands-solid-full.svg' alt='PlayStation' />
                     <div className='label'>PlayStation</div>
                 </div>
 
-                <div className='shop-header__services-item'>
+                <div
+                    className='shop-header__services-item'
+                    onClick={() => navigate('prices?type=' + deviceTypes.Nswitch)}
+                >
                     <img className='icon' src='/icons/fa-brands--nintendo-switch.svg' alt='Nintendo switch' />
                     <div className='label'>Nintendo Switch</div>
                 </div>
 
-                <div className='shop-header__services-item'>
+                <div
+                    className='shop-header__services-item'
+                    onClick={() => navigate('prices?type=' + deviceTypes.Gconsole)}
+                >
                     <div className='icon'>
                         <FontAwesomeIcon icon={faGamepad} />
                     </div>
@@ -102,15 +124,24 @@ const Heading = () => {
                         <li>Sell smoking accessories</li>
                     </ul>
                     <div className='we-also-cta'>
-                        <div className='cta-button'>
-                            <FontAwesomeIcon icon={faDollarSign} className='cta-icon' size='xl' />
-                            <span className='cta-text'>Find the price of your repair here!</span>
-                        </div>
-
-                        <div className='cta-button'>
-                            <FontAwesomeIcon icon={faPhone} className='cta-icon' size='xl' />
-                            <span className='cta-text'>Or directly call us!</span>
-                        </div>
+                        <Button
+                            className='cta-button'
+                            type='primary'
+                            size='large'
+                            icon={<FontAwesomeIcon className='cta-icon' size='lg' icon={faDollarSign} />}
+                            onClick={() => navigate('prices?type=' + deviceTypes.mobile)}
+                        >
+                            Find the price of your repair here!
+                        </Button>
+                        <Button
+                            className='cta-button'
+                            type='primary'
+                            size='large'
+                            icon={<FontAwesomeIcon className='cta-icon' icon={faPhone} />}
+                            href={`tel:${shop.phone}`}
+                        >
+                            Or directly call us!
+                        </Button>
                     </div>
                 </div>
             </section>

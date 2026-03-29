@@ -23,6 +23,7 @@ import { Statistics } from '../pages/Statistics'
 import { ChangeNewPassword } from '../pages/users/ChangeNewPassword'
 import { ForgotPassword } from '../pages/users/ForgotPassword'
 import { LandingPage } from '../pages/landing/LandingPage'
+import AdminPricingsPage from '../pages/pricing/Pricing'
 
 export const Router = () => {
     return (
@@ -51,6 +52,7 @@ export const Router = () => {
                     <Route path='/invoices' element={<Invoices />} />
                     <Route path='/categories' element={<CategorySettings />} />
                     <Route path='/logs' element={<Logs />} />
+                    <Route path='/prices' element={<AdminPricingsPage />} />
                 </Route>
                 <Route path='/' element={<RoleRestrictionRoute role={['ADMIN']} />}>
                     <Route path='/workers' element={<Users />} />

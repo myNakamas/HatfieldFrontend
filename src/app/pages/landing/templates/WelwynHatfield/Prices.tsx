@@ -9,11 +9,13 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Breadcrumb, Button, Progress } from 'antd'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getPublicBrands } from '../../../../axios/http/shopRequests'
 import { CustomSuspense } from '../../../../components/CustomSuspense'
 import { ThemeContext } from '../../../../contexts/ThemeContext'
+import { deviceTypes } from '../../../../models/enums/deviceTypeEnums'
 import { ItemPropertyView } from '../../../../models/interfaces/generalModels'
 import { Brand } from '../../../../models/interfaces/shop'
 
@@ -26,15 +28,20 @@ interface EvaluationTask {
 
 export const Prices = () => {
     const isMobile = window.innerWidth <= 768
-    const [info, setInfo] = useState({ deviceType: '', brand: {} as Brand, model: '', issue: '' })
-    const [stepNum, setStepNum] = useState(0)
+    const [urlParams, setUrlParams] = useSearchParams()
+    const selectedDeviceType = urlParams.get('type') ?? ''
+    const cleanDeviceType = Object.values(deviceTypes).includes(selectedDeviceType) ? selectedDeviceType : ''
+    const [info, setInfo] = useState({ deviceType: cleanDeviceType, brand: {} as Brand, model: '', issue: '' })
+    const [stepNum, setStepNum] = useState(!!cleanDeviceType ? 1 : 0)
 
     const SetDevice = (
         <SelectDevice
             isMobile={isMobile}
+            selectedDeviceType={info.deviceType}
             setDevice={(deviceType: string) => {
                 setInfo((i) => ({ ...i, deviceType }))
                 setStepNum(1)
+                setUrlParams({ type: deviceType }, { replace: true })
             }}
         />
     )
@@ -124,22 +131,33 @@ const EvaluationSteps = ({
     isMobile: boolean
 }) => {
     const { colors } = useContext(ThemeContext)
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if (stepNum >= tasks.length) {
+            navigate(`result?deviceType=${info.deviceType}&brand=${info.brand?.value}&model=${info.model}&issue=${info.issue}`)
+        }
+    }, [stepNum, tasks.length, navigate, info.deviceType, info.brand?.value, info.model, info.issue])
+
     if (stepNum >= tasks.length) {
-        return <div className='card'>Show final prices here</div>
+        return null // or a loading indicator
     }
     const currentStep = tasks[stepNum]
     return (
         <div className='card'>
-            <div className='flex'>
-                <Button
-                    type='primary'
-                    disabled={stepNum <= 0}
-                    onClick={() => setStepNum(stepNum - 1)}
-                    icon={<FontAwesomeIcon icon={faArrowLeft} />}
-                />
-                <h2>Price evaluation</h2>
+            <div className='flex justify-between'>
+                <div className='flex'>
+                    <Button
+                        type='primary'
+                        disabled={stepNum <= 1}
+                        onClick={() => setStepNum(stepNum - 1)}
+                        icon={<FontAwesomeIcon icon={faArrowLeft} />}
+                        className='button'
+                    />
+                    <h2>Price evaluation</h2>
+                </div>
+
                 <span className='step-count'>
-                    {' '}
                     Step {stepNum + 1} of {tasks.length + 1}
                 </span>
             </div>
@@ -147,18 +165,34 @@ const EvaluationSteps = ({
             {isMobile && (
                 <Breadcrumb
                     items={[
-                        {
-                            title: info.deviceType ? <a onClick={() => setStepNum(0)}>{info.deviceType}</a> : null,
-                        },
-                        {
-                            title: info?.brand?.value ? <a onClick={() => setStepNum(1)}>{info.brand?.value}</a> : null,
-                        },
-                        {
-                            title: info.model ? <a onClick={() => setStepNum(2)}>{info.model}</a> : null,
-                        },
-                        {
-                            title: info.issue ? <a onClick={() => setStepNum(3)}>{info.issue}</a> : null,
-                        },
+                        ...(info.deviceType
+                            ? [
+                                  {
+                                      title: <a onClick={() => setStepNum(0)}>{info.deviceType}</a>,
+                                  },
+                              ]
+                            : []),
+                        ...(info?.brand?.value
+                            ? [
+                                  {
+                                      title: <a onClick={() => setStepNum(1)}>{info.brand?.value}</a>,
+                                  },
+                              ]
+                            : []),
+                        ...(info.model
+                            ? [
+                                  {
+                                      title: <a onClick={() => setStepNum(2)}>{info.model}</a>,
+                                  },
+                              ]
+                            : []),
+                        ...(info.issue
+                            ? [
+                                  {
+                                      title: <a onClick={() => setStepNum(3)}>{info.issue}</a>,
+                                  },
+                              ]
+                            : []),
                     ]}
                 />
             )}
@@ -174,31 +208,34 @@ const EvaluationSteps = ({
                     <div className='task-content'>{currentStep.content}</div>
                 </div>
             ) : (
-                'loading'
+                <div className='select-device-prompt'>
+                    <h3>Please select a device type first</h3>
+                    <p>Choose the type of device you need repaired from the options above to continue with the price evaluation.</p>
+                </div>
             )}
         </div>
     )
 }
 
+export const issues = {
+    smartphone: [
+        'Cracked screen',
+        'Back cracked',
+        'Phone not starting',
+        'Battery not working',
+        'Not charging',
+        'Other issue',
+    ],
+    laptop: ['Cracked screen', 'Laptop not starting', 'Battery not working', 'Not charging', 'Other issue'],
+    tablet: ['Cracked screen', 'Tablet not starting', 'Battery not working', 'Not charging', 'Other issue'],
+    pc: ['Operation system issues', 'PC not starting', 'Hark disk space not enough', 'Other issue'],
+}
 const SelectIssue = ({ deviceType, setIssue }: { setIssue: (issue: string) => void; deviceType: string }) => {
-    const issues = {
-        smartphone: [
-            'Cracked screen',
-            'Back cracked',
-            'Phone not starting',
-            'Battery not working',
-            'Not charging',
-            'Other issue',
-        ],
-        laptop: ['Cracked screen', 'Laptop not starting', 'Battery not working', 'Not charging', 'Other issue'],
-        tablet: ['Cracked screen', 'Tablet not starting', 'Battery not working', 'Not charging', 'Other issue'],
-        pc: ['Operation system issues', 'PC not starting', 'Hark disk space not enough', 'Other issue'],
-    }
     return (
         <div className='choice-grid'>
             {issues[deviceType.toLowerCase() as keyof typeof issues].map((issue, index) => (
                 <div key={'issue' + index} className='choice-item' onClick={() => setIssue(issue)}>
-                    <div className='choice-item'>{issue}</div>
+                    {issue}
                 </div>
             ))}
         </div>
@@ -210,11 +247,11 @@ const SelectModel = ({ models, setModel }: { models: ItemPropertyView[]; setMode
         <div className='choice-grid'>
             {models?.map((model, index) => (
                 <div key={'model' + index} className='choice-item' onClick={() => setModel(model.value)}>
-                    <div className='choice-item'>{model.value}</div>
+                    {model.value}
                 </div>
             ))}
             <div key={'other'} className='choice-item' onClick={() => setModel('Other model')}>
-                <div className='choice-item'>Other brand</div>
+                Other model
             </div>
         </div>
     )
@@ -226,7 +263,7 @@ const SelectBrand = ({ setBrand }: { setBrand: (brand: Brand) => void }) => {
             <CustomSuspense isReady={!isLoading}>
                 {brands?.map((brand, index) => (
                     <div key={'brand' + index} className='choice-item' onClick={() => setBrand(brand)}>
-                        <div className='choice-item'>{brand.value}</div>
+                        {brand.value}
                     </div>
                 ))}
                 <div
@@ -234,49 +271,49 @@ const SelectBrand = ({ setBrand }: { setBrand: (brand: Brand) => void }) => {
                     className='choice-item'
                     onClick={() => setBrand({ id: -1, value: 'Other brand', models: [] })}
                 >
-                    <div className='choice-item'>Other brand</div>
+                    Other brand
                 </div>
             </CustomSuspense>
         </div>
     )
 }
-const SelectDevice = ({ setDevice, isMobile }: { setDevice: (deviceType: string) => void; isMobile: boolean }) => {
+const SelectDevice = ({ setDevice, isMobile, selectedDeviceType }: { setDevice: (deviceType: string) => void; isMobile: boolean; selectedDeviceType: string }) => {
     const choices = [
         {
             icon: <FontAwesomeIcon icon={faMobile} size='2xl' />,
-            title: 'Smartphone',
+            title: deviceTypes.mobile,
         },
         {
             icon: <FontAwesomeIcon icon={faTablet} size='2xl' />,
-            title: 'Tablet',
+            title: deviceTypes.tablet,
         },
         {
             icon: <FontAwesomeIcon icon={faLaptop} size='2xl' />,
-            title: 'Laptop',
+            title: deviceTypes.laptop,
         },
         {
             icon: <FontAwesomeIcon icon={faDesktop} size='2xl' />,
-            title: 'PC',
+            title: deviceTypes.computer,
         },
         {
             icon: <img src='/icons/electric_scooter.svg' alt='Electric scooter' />,
-            title: 'Electric scooter',
+            title: deviceTypes.scooter,
         },
         {
             icon: <img src='/icons/playstation-brands-solid-full.svg' alt='PlayStation' />,
-            title: 'PlayStation',
+            title: deviceTypes.ps,
         },
         {
             icon: <img src='/icons/fa-brands--nintendo-switch.svg' alt='Nintendo switch' />,
-            title: 'PlayStation',
+            title: deviceTypes.Nswitch,
         },
         {
             icon: <FontAwesomeIcon icon={faGamepad} size='2xl' />,
-            title: 'Game console',
+            title: deviceTypes.Gconsole,
         },
         {
             icon: <FontAwesomeIcon icon={faQuestion} size='2xl' />,
-            title: 'Other device',
+            title: deviceTypes.other,
         },
     ]
     return (
@@ -290,7 +327,7 @@ const SelectDevice = ({ setDevice, isMobile }: { setDevice: (deviceType: string)
 
             <div className='choice-grid'>
                 {choices.map((choice, index) => (
-                    <div key={index} className='choice-item' onClick={() => setDevice(choice.title)}>
+                    <div key={index} className={`choice-item ${choice.title === selectedDeviceType ? 'selected' : ''}`} onClick={() => setDevice(choice.title)}>
                         <div className='choice-icon'>{choice.icon}</div>
                         <span>{choice.title}</span>
                     </div>

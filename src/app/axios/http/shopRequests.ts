@@ -6,6 +6,7 @@ import {
     CreateInventoryItem,
     InventoryItem,
     Log,
+    PricingEvaluation,
     Shop,
     ShoppingList,
     TransferItem,

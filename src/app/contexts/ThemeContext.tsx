@@ -23,7 +23,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
     const { loggedUser } = useContext(AuthContext)
     const { defaultAlgorithm, darkAlgorithm } = theme
-    const isLoading = getAndSetThemeColors(loggedUser, setColors)
+    const isLoading = useGetThemeColors(loggedUser, setColors)
 
     useEffect(() => {
         const mediaResult = window.matchMedia('(prefers-color-scheme: dark)')
@@ -58,40 +58,34 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         </CustomSuspense>
     )
 }
-function getAndSetThemeColors(
+function useGetThemeColors(
     loggedUser: User | undefined,
     setColors: React.Dispatch<React.SetStateAction<ShopSettingsModel | undefined>>
-) {
-    if (loggedUser !== undefined) {
-        const { isLoading } = useQuery(['theme'], () => getShopSettings(), {
-            retry: false,
-            enabled: loggedUser != undefined,
-            onSuccess: (response) => {
-                if (response) {
-                    const root = document.documentElement
-                    root?.style.setProperty('--primaryColor', response.primaryColor)
-                    root?.style.setProperty('--secondaryColor', response.secondaryColor)
-                    setColors(response)
-                }
-            },
-        })
-        return isLoading
-    }
-    if (location.pathname.startsWith('/shop/')) {
-        const shopName = location.pathname.split('/shop/')[1].split('/')[0]
-        const { isLoading } = useQuery(['public-theme', shopName], () => getShopPublicData(shopName), {
-            retry: false,
-            enabled: shopName !== undefined,
-            onSuccess: (shop) => {
-                if (shop != null && shop.shopSettingsView != null) {
-                    const root = document.documentElement
-                    root?.style.setProperty('--primaryColor', shop.shopSettingsView.primaryColor)
-                    root?.style.setProperty('--secondaryColor', shop.shopSettingsView.secondaryColor)
-                    setColors(shop.shopSettingsView)
-                }
-            },
-        })
-        return isLoading
-    }
-    return false
+): boolean {
+    const { isLoading: isLoadingTheme } = useQuery(['theme'], () => getShopSettings(), {
+        retry: false,
+        enabled: loggedUser != undefined,
+        onSuccess: (response) => {
+            if (response) {
+                const root = document.documentElement
+                root?.style.setProperty('--primaryColor', response.primaryColor)
+                root?.style.setProperty('--secondaryColor', response.secondaryColor)
+                setColors(response)
+            }
+        },
+    })
+    const shopName = location.pathname.includes('/shop/') ? location.pathname.split('/shop/')[1].split('/')[0] : undefined;
+    const { isLoading: isLoadingPublic } = useQuery(['public-theme', shopName], () => getShopPublicData(shopName), {
+        retry: false,
+        enabled: shopName !== undefined && location.pathname.startsWith('/shop/'),
+        onSuccess: (shop) => {
+            if (shop != null && shop.shopSettingsView != null) {
+                const root = document.documentElement
+                root?.style.setProperty('--primaryColor', shop.shopSettingsView.primaryColor)
+                root?.style.setProperty('--secondaryColor', shop.shopSettingsView.secondaryColor)
+                setColors(shop.shopSettingsView)
+            }
+        },
+    })
+    return isLoadingTheme || isLoadingPublic
 }

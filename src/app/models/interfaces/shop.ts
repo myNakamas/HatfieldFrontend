@@ -113,3 +113,10 @@ export interface TransferItem {
     shopId: number
     count: number
 }
+
+export interface PricingEvaluation {
+    price: number
+    originalPrice: number
+    priceExists: boolean 
+    action: string // can be 'CALL', 'VISIT_SHOP'
+}
