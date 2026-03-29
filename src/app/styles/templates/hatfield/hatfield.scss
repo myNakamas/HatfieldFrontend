@@ -1,6 +1,7 @@
+@use "./home.scss" as *;
+@use "./prices.scss" as *;
+
 .hatfield {
-    @import './home.scss';
-    @import './prices.scss';
 
     .navBar {
         background-color: var(--backgroundColor20);

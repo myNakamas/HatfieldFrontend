@@ -383,7 +383,7 @@ const InventoryItemSelect = ({
             onSearch={handleSearch}
             allowClear
             onClear={() => onChange(null)}
-            onChange={(id, item) => !(item instanceof Array) && onChange(item)}
+            onChange={(id, item) => item && !(item instanceof Array) && onChange(item)}
             options={data?.content}
             fieldNames={{ label: 'name', value: 'id' }}
         />

@@ -1,37 +1,37 @@
-import { useQuery, useQueryClient } from 'react-query'
-import { fetchClientTickets, fetchTicketById, putCancelTicket, putFreezeTicket } from '../../axios/http/ticketRequests'
-import { TicketFilter } from '../../models/interfaces/filters'
-import { AuthContext } from '../../contexts/AuthContext'
-import React, { Suspense, useContext, useEffect, useRef, useState } from 'react'
-import { Button, Card, FloatButton, Popconfirm, Skeleton, Space, Spin, Switch, Tour } from 'antd'
-import { CustomSuspense } from '../../components/CustomSuspense'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { TicketView } from '../../components/modals/ticket/TicketView'
-import { Ticket } from '../../models/interfaces/ticket'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCancel, faMessage, faPrint, faQuestion, faSnowflake } from '@fortawesome/free-solid-svg-icons'
-import { welcomePageTourSteps } from '../../models/enums/userEnums'
-import { getShopData } from '../../axios/http/shopRequests'
-import { getAllInvoices, getClientInvoicePdf, getInvoicePdf } from '../../axios/http/invoiceRequests'
-import { defaultPage } from '../../models/enums/defaultValues'
-import { CustomTable } from '../../components/table/CustomTable'
-import { NoDataComponent } from '../../components/table/NoDataComponent'
-import { InventoryItem } from '../../models/interfaces/shop'
-import { invoiceTypeIcon, paymentMethodIcon } from '../../models/enums/invoiceEnums'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Button, Card, FloatButton, Popconfirm, Skeleton, Space, Spin, Switch, Tour } from 'antd'
 import dateFormat from 'dateformat'
-import { Page, PageRequest } from '../../models/interfaces/generalModels'
-import { activeTicketStatuses, completedTicketStatuses } from '../../models/enums/ticketEnums'
+import React, { Suspense, useContext, useEffect, useRef, useState } from 'react'
+import { useQuery, useQueryClient } from 'react-query'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { getAllInvoices, getClientInvoicePdf, getInvoicePdf } from '../../axios/http/invoiceRequests'
+import { getShopData } from '../../axios/http/shopRequests'
+import { fetchClientTickets, putCancelTicket, putFreezeTicket } from '../../axios/http/ticketRequests'
+import { CustomSuspense } from '../../components/CustomSuspense'
 import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { Deadline } from '../../components/modals/ticket/Deadline'
-import { openPdfBlob } from '../invoices/Invoices'
+import { TicketView } from '../../components/modals/ticket/TicketView'
+import { CustomTable } from '../../components/table/CustomTable'
+import { NoDataComponent } from '../../components/table/NoDataComponent'
+import { AuthContext } from '../../contexts/AuthContext'
+import { defaultPage } from '../../models/enums/defaultValues'
+import { invoiceTypeIcon, paymentMethodIcon } from '../../models/enums/invoiceEnums'
+import { activeTicketStatuses, completedTicketStatuses } from '../../models/enums/ticketEnums'
+import { welcomePageTourSteps } from '../../models/enums/userEnums'
+import { TicketFilter } from '../../models/interfaces/filters'
+import { Page, PageRequest } from '../../models/interfaces/generalModels'
+import { InventoryItem } from '../../models/interfaces/shop'
+import { Ticket } from '../../models/interfaces/ticket'
 import { currencyFormat } from '../../utils/helperFunctions'
+import { openPdfBlob } from '../invoices/Invoices'
 
 export const ClientDashboard = () => {
     const [tourIsOpen, setTourIsOpen] = useState(false)
     const [params] = useSearchParams()
     const queryClient = useQueryClient()
-    const refsArray = Array.from({ length: 5 }, () => useRef(null))
+    const refsArray = Array.from({ length: 5 }, () => useRef<HTMLDivElement>(null))
     const { loggedUser } = useContext(AuthContext)
     const filter: TicketFilter = { clientId: loggedUser?.userId }
     const [selectedTicketId, setSelectedTicketId] = useState<number | undefined>()
@@ -104,7 +104,9 @@ export const ClientTicketTable = ({
             title={`Your Tickets: `}
             extra={
                 <Space>
-                    Completed <Switch ref={refs[2]} onChange={() => setShowCompletedTickets((i) => !i)} />
+                    <div ref={refs[2]}>
+                        Completed <Switch onChange={() => setShowCompletedTickets((i) => !i)} />
+                    </div>
                 </Space>
             }
         >
