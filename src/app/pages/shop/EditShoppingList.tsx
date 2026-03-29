@@ -16,6 +16,7 @@ import { EditRequiredItem } from '../../components/modals/inventory/EditRequired
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft'
 import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { toast } from 'react-toastify'
+import { TransferKey } from 'antd/es/transfer/interface'
 
 const getInventoryItemKey = (item: InventoryItem) => String(item.id)
 const nonRequiredColumns = [
@@ -51,19 +52,19 @@ export const EditShoppingList = () => {
         }
     )
 
-    const [selectedKeys, setSelectedKeys] = useState<string[]>([])
+    const [selectedKeys, setSelectedKeys] = useState<TransferKey[]>([])
 
-    const onChange = (nextTargetKeys: string[], direction: TransferDirection, moveKeys: string[]) => {
+    const onChange = (nextTargetKeys: TransferKey[], direction: TransferDirection, moveKeys: TransferKey[]) => {
         toast
             .promise(
-                changeMultipleNeed({ ids: moveKeys, isNeeded: direction === 'right' }),
+                changeMultipleNeed({ ids: moveKeys as string[], isNeeded: direction === 'right' }),
                 toastUpdatePromiseTemplate('status'),
                 toastProps
             )
             .then(() => queryClient.invalidateQueries(['shopItems']))
     }
 
-    const onSelectChange = (sourceSelectedKeys: string[], targetSelectedKeys: string[]) => {
+    const onSelectChange = (sourceSelectedKeys: TransferKey[], targetSelectedKeys: TransferKey[]) => {
         setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys])
     }
 
