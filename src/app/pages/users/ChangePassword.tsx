@@ -1,7 +1,7 @@
 import React from 'react'
 import { SettingsCard } from './Profile'
 import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { ResetPasswordSchema } from '../../models/validators/FormValidators'
 import { ResetPassword } from '../../models/interfaces/user'
 import { TextField } from '../../components/form/TextField'
@@ -18,7 +18,7 @@ export const ChangePassword = () => {
         handleSubmit,
         formState: { errors },
         setError,
-    } = useForm<ResetPassword>({ resolver: yupResolver(ResetPasswordSchema) })
+    } = useForm<ResetPassword>({ resolver: yupResolver(ResetPasswordSchema) as any })
     const navigate = useNavigate()
     const onSubmit = ({ password, oldPassword }: ResetPassword) => {
         toast

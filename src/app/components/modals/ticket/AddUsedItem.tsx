@@ -41,7 +41,7 @@ export const AddUsedItem = ({
         reset,
         setError,
         watch,
-    } = useForm<CreateUsedItem>({ resolver: yupResolver(UsedItemSchema), defaultValues: usedItem })
+    } = useForm<CreateUsedItem>({ resolver: yupResolver(UsedItemSchema)  as any, defaultValues: usedItem })
     const queryClient = useQueryClient()
     useEffect(() => reset(usedItem), [show])
 
@@ -73,7 +73,7 @@ export const AddUsedItem = ({
             size='S'
             isForbidden={!isWorker()}
         >
-            <Space direction='vertical' style={{ width: '100%' }}>
+            <Space orientation='vertical' style={{ width: '100%' }}>
                 <CustomSuspense isReady={!!tickets && !!items}>
                     <Form className='modalForm' onSubmitCapture={handleSubmit(createUsedItem)}>
                         <Controller

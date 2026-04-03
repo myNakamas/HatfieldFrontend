@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 export const PageNotFound = () => {
     const navigate = useNavigate()
     return (
-        <Space direction={'vertical'} className={'mainScreen'}>
+        <Space orientation={'vertical'} className={'mainScreen'}>
             <NoFound />
             <Typography>
                 <h4>Sorry, the page you tried to visit does not exist.</h4>

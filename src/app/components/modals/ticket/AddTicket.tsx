@@ -24,7 +24,7 @@ export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; c
 
     if (!isWorker()) return <></>
 
-    const form = useForm<CreateTicket>({ defaultValues: defaultTicket, resolver: yupResolver(TicketSchema) })
+    const form = useForm<CreateTicket>({ defaultValues: defaultTicket, resolver: yupResolver(TicketSchema) as any })
     const formRef = useRef<HTMLFormElement>(null)
 
     const onCancel = () => {
@@ -36,7 +36,7 @@ export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; c
     const onFormSubmit = (data: CreateTicket) => {
         data.deadline = formatDeadline(data)
         setFormStatus('loading')
-        createNewTicket(data)
+        toast.promise(createTicket({ ticket: data })
             .then((ticket) => {
                 printConfirm({
                     title: 'Print ticket labels',
@@ -51,10 +51,7 @@ export const AddTicket = ({ isModalOpen, closeModal }: { isModalOpen: boolean; c
             .catch((error: AppError) => {
                 form.setError('root', { message: error?.detail })
             })
-            .finally(() => setFormStatus(''))
-    }
-    const createNewTicket = (formValue: CreateTicket) => {
-        return toast.promise(createTicket({ ticket: formValue }), toastCreatePromiseTemplate('ticket'), toastProps)
+            .finally(() => setFormStatus('')), toastCreatePromiseTemplate('ticket'), toastProps)
     }
 
     return (

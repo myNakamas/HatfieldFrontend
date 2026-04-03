@@ -37,7 +37,7 @@ export const SellsReport = ({ filter }: { filter: InvoiceFilter }) => {
                         <XAxis dataKey={'name'} />
                         <YAxis allowDecimals={false} />
                         {<Bar dataKey={'count'} name={'Items sold'} fill={token.colorPrimary} />}
-                        <Tooltip<string, string>
+                        <Tooltip
                             contentStyle={{
                                 borderRadius: token.borderRadius,
                                 backgroundColor: token.colorInfo,

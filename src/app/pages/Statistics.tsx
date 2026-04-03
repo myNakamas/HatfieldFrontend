@@ -40,7 +40,7 @@ export const StatisticsFilters = ({
 }) => {
     const { isClient } = useContext(AuthContext)
     const { data: shops } = useQuery(['shops', 'short'], getWorkerShops, { enabled: !isClient() })
-
+    console.log(shops)
     return (
         <Space wrap>
             <AppSelect<number, ItemPropertyView>

@@ -3,7 +3,8 @@ import { TicketStatus } from '../enums/ticketEnums'
 import { User } from './user'
 import { InventoryItem } from './shop'
 import { Invoice } from './invoice'
-import moment, { Duration } from 'moment/moment'
+import dayjs from 'dayjs'
+import {Duration} from 'dayjs/plugin/duration'
 
 export interface Ticket extends Entity {
     deviceModel: string
@@ -52,7 +53,7 @@ export interface CreateTicket {
 }
 
 export const createTicketFromTicket = (t: Ticket): CreateTicket => {
-    const deadline = moment(t.deadline).toDate()
+    const deadline = dayjs(t.deadline).toDate()
     return { ...t, deadline }
 }
 

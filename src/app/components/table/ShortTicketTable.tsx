@@ -2,17 +2,16 @@ import { Ticket } from '../../models/interfaces/ticket'
 import dateFormat from 'dateformat'
 import { Button, Space, Statistic, Table } from 'antd'
 import { NoDataComponent } from './NoDataComponent'
-import moment from 'moment/moment'
 import React, { useState } from 'react'
 import { ColumnsType } from 'antd/es/table'
 import { AddTicketInvoice } from '../modals/AddTicketInvoice'
 import { PageRequest } from '../../models/interfaces/generalModels'
 import { defaultPageSizeOptions } from '../../models/enums/defaultValues'
+import dayjs from 'dayjs'
 
 const Deadline = ({ deadline }: { deadline: Date }) => {
-    const { Countdown } = Statistic
 
-    return <Countdown title={dateFormat(deadline)} value={deadline.valueOf()} />
+    return <Statistic.Timer type='countdown' title={dateFormat(deadline)} value={deadline.valueOf()} />
 }
 
 export const ShortTicketTable = ({
@@ -75,7 +74,7 @@ export const ShortTicketTable = ({
                     onChange: (page, pageSize) => setPage({ page, pageSize }),
                 }}
                 scroll={{ x: true, scrollToFirstRowOnChange: true }}
-                rowClassName={({ deadline }: Ticket) => (moment(deadline).isBefore(moment()) ? 'dangerBg' : '')}
+                rowClassName={({ deadline }: Ticket) => (dayjs(deadline).isBefore(dayjs()) ? 'dangerBg' : '')}
             />
         </>
     )

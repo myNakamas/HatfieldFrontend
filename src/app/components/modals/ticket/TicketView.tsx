@@ -92,11 +92,11 @@ export const TicketView = ({
             closeIcon={<FontAwesomeIcon icon={faX} />}
             isModalOpen={open}
             closeModal={() => closeModal()}
-            maskClosable={false}
+            mask={{closable:false}}
             title={`Ticket #${ticketId}`}
         >
             {isFetching ? (
-                <Spin tip={'Loading ticket'}>
+                <Spin description={'Loading ticket'}>
                     <Skeleton loading active paragraph={{ rows: 8 }} title round />
                 </Spin>
             ) : isError || !ticket ? (
@@ -126,7 +126,7 @@ const TicketViewContent = ({
     const queryClient = useQueryClient()
     const [formStatus, setFormStatus] = useState('')
 
-    const form = useForm<CreateTicket>({ defaultValues: ticket, resolver: yupResolver(TicketSchema) })
+    const form = useForm<CreateTicket>({ defaultValues: ticket, resolver: yupResolver(TicketSchema) as any })
     const formRef = useRef<HTMLFormElement>(null)
 
     const resetForm = (ticket: Ticket | undefined) => {
@@ -325,21 +325,21 @@ const TicketViewInner = ({
         toast
             .promise(putCompleteTicket({ id, success }), toastUpdatePromiseTemplate('ticket'), toastProps)
             .then((error) => {
-                error && toast.warning(error.detail, toastProps)
+                error && toast.warning((error as any)?.detail ?? error, toastProps)
                 return queryClient.invalidateQueries(['ticket', ticket.id])
             })
     }
     const printTicketLabel = () => {
-        toast.promise(postPrintTicketLabel(ticket?.id), toastPrintTemplate, toastProps).then(openPdfBlob)
+        toast.promise(postPrintTicketLabel(ticket?.id).then(openPdfBlob), toastPrintTemplate, toastProps)
     }
     const previewTicketLabel = () => {
-        toast.promise(getTicketLabelImage(ticket?.id), toastPrintTemplate, toastProps).then(openPdfBlob)
+        toast.promise(getTicketLabelImage(ticket?.id).then(openPdfBlob), toastPrintTemplate, toastProps)
     }
     const printTicket = () => {
-        toast.promise(postPrintTicket(ticket?.id), toastPrintTemplate, toastProps).then(openPdfBlob)
+        toast.promise(postPrintTicket(ticket?.id).then(openPdfBlob), toastPrintTemplate, toastProps)
     }
     const previewTicket = () => {
-        toast.promise(getTicketImage(ticket?.id), toastPrintTemplate, toastProps).then(openPdfBlob)
+        toast.promise(getTicketImage(ticket?.id).then(openPdfBlob), toastPrintTemplate, toastProps)
     }
 
     return (
@@ -383,7 +383,7 @@ const TicketViewInner = ({
                     <Space wrap className={'w-100 justify-between align-start ticket-cards'}>
                         <TicketStatusAndLocation {...{ ticket }} />
                         <Card title={'Modify actions'} extra={<Tag>{ticket.status}</Tag>} type='inner' size='small'>
-                            <Space.Compact direction={'vertical'}>
+                            <Space.Compact orientation={'vertical'}>
                                 <Button
                                     onClick={() => startTicket(ticket.id)}
                                     disabled={ticket.status !== 'PENDING'}
@@ -398,7 +398,7 @@ const TicketViewInner = ({
                                 >
                                     Freeze ticket
                                 </Button>
-                                <Button.Group>
+                                <Space.Compact>
                                     <Button
                                         icon={<FontAwesomeIcon icon={faCheck} />}
                                         disabled={completedTicketStatuses.includes(ticket.status)}
@@ -413,7 +413,7 @@ const TicketViewInner = ({
                                     >
                                         Unsuccessful repair
                                     </Button>
-                                </Button.Group>
+                                </Space.Compact>
                                 <Button
                                     icon={<FontAwesomeIcon icon={faFileInvoiceDollar} />}
                                     disabled={ticket.status == 'COLLECTED'}
@@ -424,7 +424,7 @@ const TicketViewInner = ({
                             </Space.Compact>
                         </Card>
                         <Card title={'Other actions'} type='inner' size='small'>
-                            <Space.Compact direction={'vertical'}>
+                            <Space.Compact orientation={'vertical'}>
                                 <Button
                                     icon={
                                         <ChatBadge ticketId={ticket.id}>

@@ -91,7 +91,7 @@ export const getPagination = (pagination: PageRequest, totalCount: number | unde
         pageSize: pagination?.pageSize,
         current: pagination?.page,
         pageSizeOptions: [5, 10, 15, 20, 50, 100],
-        position: totalCount && totalCount > 10 ? ['topRight', 'bottomRight'] : ['bottomRight'],
+        placement: totalCount && totalCount > 10 ? ['topEnd', 'bottomEnd'] : ['bottomEnd'],
         showSizeChanger: true,
         showTotal:(total, range) => `${range[0]}-${range[1]} of ${total} items`,
         total: totalCount,

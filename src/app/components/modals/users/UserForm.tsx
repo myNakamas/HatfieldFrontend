@@ -3,10 +3,9 @@ import {
     UseFormGetValues,
     UseFormRegister,
     UseFormSetValue,
-    UseFormWatch,
-} from 'react-hook-form/dist/types/form'
+    UseFormWatch,FieldErrors
+} from 'react-hook-form'
 import { User } from '../../../models/interfaces/user'
-import { FieldErrors } from 'react-hook-form/dist/types/errors'
 import React, { useState } from 'react'
 import { AntTextField, TextField } from '../../form/TextField'
 import { Button, Input, Space, Switch, Typography } from 'antd'
@@ -37,7 +36,7 @@ export const UserForm = ({
 
     return (
         <>
-            <Space direction='vertical'>
+            <Space orientation='vertical'>
                 <Typography>Phones</Typography>
                 <Space>
                     <Button

@@ -27,7 +27,7 @@ export const QrReaderModal = ({
 }) => {
     return (
         <AppModal
-            destroyOnClose
+            destroyOnHidden
             isModalOpen={isModalOpen}
             closeModal={() => {
                 closeModal()
@@ -61,7 +61,7 @@ export const BarcodeReaderModal = ({
 }) => {
     return (
         <AppModal
-            destroyOnClose
+            destroyOnHidden
             open={isModalOpen}
             isModalOpen={isModalOpen}
             closeModal={() => {

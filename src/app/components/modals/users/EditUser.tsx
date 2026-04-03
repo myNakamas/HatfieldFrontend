@@ -3,7 +3,7 @@ import { Controller, useForm } from 'react-hook-form'
 import React, { useContext, useEffect, useRef } from 'react'
 import { AppModal } from '../AppModal'
 import { User } from '../../../models/interfaces/user'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { EditUserSchema } from '../../../models/validators/FormValidators'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { toast } from 'react-toastify'
@@ -45,7 +45,7 @@ export const EditUser = ({
         getValues,
         setError,
         reset,
-    } = useForm<User>({ resolver: yupResolver(EditUserSchema) })
+    } = useForm<User>({ resolver: yupResolver(EditUserSchema)  as any })
     useEffect(() => {
         const defaultValue = { ...user, phones: user?.phones || [] }
         reset(defaultValue)
@@ -67,14 +67,14 @@ export const EditUser = ({
             })
     const onSelfEdit = (user: User) => {
         toast
-            .promise(updateYourProfile(user), toastUpdatePromiseTemplate('user'), toastProps)
-            .then((updatedUser) => {
+            .promise(updateYourProfile(user)            .then((updatedUser) => {
                 setLoggedUser(updatedUser)
                 closeModal()
             })
             .catch((error: AppError) => {
                 setError('root', { message: error.detail })
-            })
+            }), toastUpdatePromiseTemplate('user'), toastProps)
+
     }
 
     return (

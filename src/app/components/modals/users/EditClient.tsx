@@ -9,7 +9,7 @@ import { useQuery, useQueryClient } from 'react-query'
 import { getAllShops } from '../../../axios/http/shopRequests'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { User } from '../../../models/interfaces/user'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { ClientSchema } from '../../../models/validators/FormValidators'
 import { toast } from 'react-toastify'
 import { updateClient } from '../../../axios/http/userRequests'
@@ -45,7 +45,7 @@ export const EditClient = ({
         setError,
         reset,
     } = useForm<User>({
-        resolver: yupResolver(ClientSchema),
+        resolver: yupResolver(ClientSchema)  as any,
         defaultValues: client,
     })
     useEffect(() => {

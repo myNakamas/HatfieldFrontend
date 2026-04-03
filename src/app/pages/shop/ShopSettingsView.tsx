@@ -1,6 +1,6 @@
 import { faCheck, faClock, faQuestion, faUpload, faX } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 import {
     Anchor,
     Breadcrumb,
@@ -18,7 +18,6 @@ import {
     Typography,
 } from 'antd'
 import { AnchorLinkItemProps } from 'antd/es/anchor/Anchor'
-import ButtonGroup from 'antd/es/button/button-group'
 import TextArea from 'antd/es/input/TextArea'
 import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -55,7 +54,7 @@ export const ShopSettingsView = () => {
         reset,
         watch,
     } = useForm<Shop>({
-        resolver: yupResolver(ShopSchema),
+        resolver: yupResolver(ShopSchema) as any,
         defaultValues: shop,
     })
     useEffect(() => reset(shop), [shop])
@@ -159,7 +158,7 @@ export const ShopSettingsView = () => {
                             </div>
                             <div className='w-100 mb-1'>
                                 <Card id={'shopCol'} title={'Shop Colors'} className='w-100'>
-                                    <Space className='w-100 justify-start align-start' direction={'vertical'}>
+                                    <Space className='w-100 justify-start align-start' orientation={'vertical'}>
                                         <Space wrap>
                                             <ImageLarge isLoading={isShopImageLoading} profileImg={shopImg} />
                                             <Image />
@@ -226,8 +225,8 @@ export const ShopSettingsView = () => {
                                         render={({ field, fieldState }) => {
                                             const [preview, setPreview] = useState(false)
                                             return (
-                                                <Space direction={'vertical'} className={'w-100'}>
-                                                    <ButtonGroup>
+                                                <Space orientation={'vertical'} className={'w-100'}>
+                                                    <Space.Compact>
                                                         <Button
                                                             type={preview ? 'primary' : 'default'}
                                                             onClick={() => setPreview(true)}
@@ -240,7 +239,7 @@ export const ShopSettingsView = () => {
                                                         >
                                                             Edit
                                                         </Button>
-                                                    </ButtonGroup>
+                                                    </Space.Compact>
                                                     {preview ? (
                                                         <Card bordered>
                                                             <ReactMarkdown children={field.value} />
@@ -393,7 +392,7 @@ export const ShopSettingsView = () => {
                                         />
                                     }
                                 >
-                                    <Space direction={'vertical'}>
+                                    <Space orientation={'vertical'}>
                                         <SMSFieldDescription />
                                         <TextField
                                             disabled={!watch('shopSettingsView.smsNotificationsEnabled')}
@@ -411,14 +410,14 @@ export const ShopSettingsView = () => {
 
                         <FormError error={errors.root?.message} />
                         <Space className='flex-100 justify-between'>
-                            <Button.Group>
+                            <Space.Compact>
                                 <Button type='primary' htmlType={'submit'}>
                                     Save
                                 </Button>
                                 <Button htmlType='button' onClick={() => reset(shop)}>
                                     Reset
                                 </Button>
-                            </Button.Group>
+                            </Space.Compact>
 
                             <Button htmlType='button' onClick={() => navigate('/shops/')}>
                                 Cancel

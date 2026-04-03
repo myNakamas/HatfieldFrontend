@@ -4,7 +4,6 @@ import { Button, Card, Input, Pagination, Popover, Segmented, Select, Space, Tab
 import Paragraph from 'antd/es/typography/Paragraph'
 import dateFormat from 'dateformat'
 
-import moment from 'moment'
 import React, { useContext, useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { useSearchParams } from 'react-router-dom'
@@ -40,6 +39,11 @@ import { Shop } from '../../../models/interfaces/shop'
 import { Ticket } from '../../../models/interfaces/ticket'
 import { User } from '../../../models/interfaces/user'
 import { currencyFormat, getUserString, resetPageIfNoValues } from '../../../utils/helperFunctions'
+import duration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import dayjs from 'dayjs';
+dayjs.extend(relativeTime)
+dayjs.extend(duration)
 
 export const Tickets = () => {
     const queryClient = useQueryClient()
@@ -149,7 +153,7 @@ export const Tickets = () => {
             <Tabs
                 animated
                 defaultActiveKey='active'
-                destroyInactiveTabPane
+                destroyOnHidden 
                 items={tabs}
                 tabBarExtraContent={
                     window.innerWidth > 400 &&
@@ -199,7 +203,7 @@ const TicketsTab = ({
         <CustomSuspense isReady={!isLoading}>
             <div>
                 {data && data.content.length > 0 ? (
-                    <Space direction='vertical' className='w-100'>
+                    <Space orientation='vertical' className='w-100'>
                         {(data.content.length > 10 || view === 'list') && (
                             <Pagination
                                 hideOnSinglePage
@@ -260,14 +264,14 @@ const TicketTable = ({
     return (
         <CustomTable<Ticket>
             data={data.content.map((ticket) => {
-                const deadline = moment(ticket.deadline)
+                const deadline = dayjs(ticket.deadline)
                 return {
                     ...ticket,
                     status: <Tag color={getTicketStatusColor(ticket.status)}>{ticket.status}</Tag>,
                     createdAt: dateFormat(ticket.timestamp),
                     timeLeft: completedTicketStatuses.includes(ticket.status) ? (
                         <Tag color='green'>{dateFormat(ticket.deadline)}</Tag>
-                    ) : deadline > moment() ? (
+                    ) : deadline > dayjs() ? (
                         <Countdown {...{ deadline }} />
                     ) : (
                         <Tag color='red'>{deadline.fromNow()}</Tag>
@@ -365,8 +369,9 @@ const TicketFilters = ({
 
                 <Select<TicketStatus[], ItemPropertyView>
                     style={{ minWidth: 200, maxWidth: 300, textAlign: 'left' }}
-                    dropdownStyle={{ textAlign: 'left' }}
-                    mode={'tags'}
+            styles={{
+                popup: { listItem:{ textAlign: 'left' } },
+            }}                    mode={'tags'}
                     allowClear
                     options={TicketStatusesArray}
                     value={filter.ticketStatuses}
@@ -475,7 +480,7 @@ const TicketListItem = ({
     setSelectedTicketId: React.Dispatch<React.SetStateAction<number | undefined>>
     setCollectTicket: (ticket: Ticket) => void
 }) => {
-    const deadline = moment(ticket.deadline)
+    const deadline = dayjs(ticket.deadline)
 
     return (
         <Card
@@ -516,10 +521,10 @@ const TicketListItem = ({
                 </div>
 
                 <div>
-                    <Tag>Created {moment(ticket.timestamp).fromNow()}</Tag>
+                    <Tag>Created {dayjs(ticket.timestamp).fromNow()}</Tag>
                     {collectedTicketStatuses.includes(ticket.status) ? (
                         <Tag color='green'>{dateFormat(ticket.deadline)}</Tag>
-                    ) : deadline > moment() ? (
+                    ) : deadline > dayjs() ? (
                         <Countdown {...{ deadline }} />
                     ) : (
                         <Tag color='red'>Deadline {deadline.fromNow()}</Tag>
@@ -541,19 +546,19 @@ const TicketListItem = ({
     )
 }
 
-const Countdown = ({ deadline }: { deadline: moment.Moment }) => {
-    const [time, setTime] = useState(moment())
-    const diff = moment.duration(deadline.diff(time))
-    const countdown = moment.utc(diff.asMilliseconds()).format('HH:mm:ss')
+const Countdown = ({ deadline }: { deadline: dayjs.Dayjs }) => {
+    const [time, setTime] = useState(dayjs())
+    const diff = dayjs.duration(deadline.diff(time))
+    const countdown = dayjs(diff.asMilliseconds()).format('HH:mm:ss')
     useEffect(() => {
-        const interval = setInterval(() => setTime(moment()), 1000)
+        const interval = setInterval(() => setTime(dayjs()), 1000)
         return () => {
             clearInterval(interval)
         }
     }, [])
 
     return (
-        <Tag key={countdown} color={deadline < moment().add(30, 'minutes') ? 'orange' : 'blue'}>
+        <Tag key={countdown} color={deadline < dayjs().add(30, 'minutes') ? 'orange' : 'blue'}>
             {countdown}
         </Tag>
     )

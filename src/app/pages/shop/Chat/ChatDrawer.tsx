@@ -52,7 +52,7 @@ export const ChatDrawer = ({
                 placement={'right'}
                 closable={true}
                 styles={{ body: { padding: 0 } }}
-                width={300}
+                size={300}
                 onClose={() => setTicketDrawer(false)}
                 open={ticketDrawer}
                 extra={
@@ -64,7 +64,7 @@ export const ChatDrawer = ({
                     </CheckableTag>
                 }
             >
-                <Space direction={'vertical'} className='w-100'>
+                <Space orientation={'vertical'} className='w-100'>
                     {tickets && tickets.length > 0 ? (
                         <Menu
                             onSelect={(item) => {

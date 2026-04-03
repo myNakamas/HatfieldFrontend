@@ -76,7 +76,7 @@ export const AddTicketInvoice = ({
         watch,
     } = useForm<CreateTicketInvoice>({
         defaultValues: ticket ? defaultValue : {},
-        resolver: yupResolver(TicketInvoiceSchema),
+        resolver: yupResolver(TicketInvoiceSchema)  as any,
     })
     const { data: brands } = useQuery('brands', getAllBrands)
     const models = brands?.find((b) => b.value === watch('deviceBrand'))?.models ?? []

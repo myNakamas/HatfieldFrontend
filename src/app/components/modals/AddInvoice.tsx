@@ -81,7 +81,7 @@ export const AddInvoice = ({
         watch,
     } = useForm<CreateItemInvoice>({
         defaultValues,
-        resolver: yupResolver(NewInvoiceSchema),
+        resolver: yupResolver(NewInvoiceSchema) as any,
     })
     const { data: brands } = useQuery('brands', getAllBrands)
     const models = brands?.find((b) => b.value === watch('deviceBrand'))?.models ?? []
@@ -97,13 +97,12 @@ export const AddInvoice = ({
             itemId: item?.id,
         }
         toast
-            .promise(createInvoice(body), toastCreatePromiseTemplate('invoice'), toastProps)
-            .then((id) => {
+            .promise(createInvoice(body).then((id) => {
                 closeModal()
                 queryClient.invalidateQueries(['invoices']).then(() => {
                     openInvoicePdf(id)
                 })
-            })
+            }), toastCreatePromiseTemplate('invoice'), toastProps)
             .catch((error: AppError) => {
                 setError('root', { message: error.detail })
             })
@@ -123,10 +122,10 @@ export const AddInvoice = ({
                 }}
             />
             <form ref={formRef} className='modalForm' onSubmit={handleSubmit(saveInvoice)}>
-                <Space direction='vertical' className='w-100'>
-                    <Space.Compact direction={'vertical'} className={'w-100'}>
+                <Space orientation='vertical' className='w-100'>
+                    <Space.Compact orientation={'vertical'} className={'w-100'}>
                         <Space className={'w-100 justify-between'} wrap>
-                            <Space direction={'vertical'}>
+                            <Space orientation={'vertical'}>
                                 <Controller
                                     control={control}
                                     name={'type'}
@@ -207,9 +206,9 @@ export const AddInvoice = ({
                     </Space.Compact>
 
                     <Space wrap align={'start'}>
-                        <Space direction={'vertical'}>
+                        <Space orientation={'vertical'}>
                             <Card title={'Device Info'}>
-                                <Space direction={'vertical'}>
+                                <Space orientation={'vertical'}>
                                     <Space wrap>
                                         <Controller
                                             control={control}

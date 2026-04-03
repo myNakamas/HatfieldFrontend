@@ -133,7 +133,7 @@ const ClientsFilters = ({
             )}
             <Input
                 value={filter.phone}
-                onChange={(e) => setFilter({ ...filter, phone:!!e.currentTarget.value? e.currentTarget.value : undefined })}
+                onChange={(e) => setFilter({ ...filter, phone:e.currentTarget.value? e.currentTarget.value : undefined })}
                 placeholder={'Filter by phone'}
                 type='search'
             />

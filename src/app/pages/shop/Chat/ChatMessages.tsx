@@ -125,7 +125,7 @@ const ChatMessageRow = ({ message, sender }: { message: ChatMessage; sender?: Us
 const ChatImage = ({ url }: { url: string }) => {
     const { data: image } = useQuery(['image', url], () => getImage(url), { suspense: true, retry: false })
     return image && image.size > 0 ? (
-        <Image wrapperClassName='message-image' src={URL.createObjectURL(image)} width={300} height={300} />
+        <Image className='message-image' src={URL.createObjectURL(image)} width={300} height={300} />
     ) : (
         <Alert
             type='error'

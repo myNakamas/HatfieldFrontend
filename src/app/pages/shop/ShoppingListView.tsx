@@ -22,7 +22,7 @@ import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/
 export const ShoppingListView = () => {
     const { shopId } = useParams()
     const navigate = useNavigate()
-    let queryClient = useQueryClient()
+    const queryClient = useQueryClient()
     const [selectedItem, setSelectedItem] = useState<InventoryItem | undefined>()
     const [defectiveItems, setDefectiveItems] = useState<InventoryItem[]>([])
     const filter: InventoryFilter = { shopId: Number(shopId) }

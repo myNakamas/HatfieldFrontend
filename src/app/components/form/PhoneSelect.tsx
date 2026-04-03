@@ -87,28 +87,28 @@ export const PhoneSelect = ({
         onChange(getPhoneString(phone))
     }
     return (
-        <Space direction='vertical'>
+        <Space orientation='vertical'>
+            <Space.Compact>
+            <Select<string, PhoneCode>
+                options={data}
+                showSearch= {{filterOption:filterOptions}}
+                style={{ width: 150 }}
+                fieldNames={{ value: 'dial_code', label: 'label' }}
+                value={phone.code}
+                onChange={(newCode) => update({ ...phone, code: newCode })}
+            />
             <Input
                 placeholder={'Add phone'}
-                addonBefore={
-                    <Select<string, PhoneCode>
-                        options={data}
-                        showSearch
-                        style={{ width: 150 }}
-                        filterOption={filterOptions}
-                        fieldNames={{ value: 'dial_code', label: 'label' }}
-                        value={phone.code}
-                        onChange={(newCode) => update({ ...phone, code: newCode })}
-                    />
-                }
                 value={phone.phone}
                 onBlur={(e) => {
                     update(parsePhoneNumber(e.currentTarget.value, phone))
                     onBlur()
                 }}
                 onChange={(e) => update({ ...phone, phone: e.currentTarget.value })}
-                addonAfter={extra}
             />
+            {extra}
+            </Space.Compact>
+
             <FormError error={error} />
         </Space>
     )

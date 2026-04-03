@@ -9,7 +9,7 @@ import { ShopContext } from '../../contexts/ShopContext'
 import { PricingEvaluation, Shop } from '../../models/interfaces/shop'
 import { currencyFormat } from '../../utils/helperFunctions'
 
-export default function PriceResult(): JSX.Element {
+export default function PriceResult(): React.JSX.Element {
     const searchParams = new URLSearchParams(window.location.search)
 
     const deviceType = searchParams.get('deviceType') || ''
@@ -179,7 +179,7 @@ const NoPriceResultDetails = ({ brand, model, issue, shop }: NoPriceResultDetail
         </Button>
     </div>
 )
-function ShopDetails(): JSX.Element {
+function ShopDetails(): React.JSX.Element {
     return (
         <div className='shop-details'>
             <Typography.Title level={5}>Welwyn Hatfield Mobile Store</Typography.Title>

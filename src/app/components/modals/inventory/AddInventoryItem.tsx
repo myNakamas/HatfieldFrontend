@@ -78,7 +78,7 @@ export const AddInventoryItemInner = ({
         reset,
         resetField,
     } = useForm<CreateInventoryItem>({
-        resolver: yupResolver(AddItemInventorySchema),
+        resolver: yupResolver(AddItemInventorySchema) as any,
         defaultValues: { shopId: shop?.id, count: 1 },
     })
     const models = watch('brand')?.models ?? []
@@ -99,12 +99,12 @@ export const AddInventoryItemInner = ({
                 reset({})
                 return queryClient
                     .invalidateQueries(['shopItems'])
-                    .then(() => closeModal(value))
+                    .then(() =>closeModal(value as InventoryItem))
                     .then(() => {
                         print({
                             title: 'Print item label',
-                            content: <ItemPrintConfirmContent item={value} />,
-                            onOk: () => printItemLabel(value),
+                            content: <ItemPrintConfirmContent item={value as InventoryItem} />,
+                            onOk: () => printItemLabel(value as InventoryItem),
                         })
                     })
             })
@@ -220,7 +220,7 @@ export const AddInventoryItemInner = ({
                     </Space>
                 </Space>
                 <Space wrap align={'start'} className={'w-100 justify-between'}>
-                    <Space direction={'vertical'}>
+                    <Space orientation={'vertical'}>
                         <Space>
                             <AntTextField<CreateInventoryItem>
                                 label='Count'

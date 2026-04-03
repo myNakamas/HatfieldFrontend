@@ -32,7 +32,7 @@ export type LogType =
     | 'RESTORED_USER'
     | 'UPDATED_SHOP'
 
-export const LogType = Array(
+export const LogType = [
     'CREATED_TICKET',
     'UPDATED_TICKET',
     'STARTED_TICKET',
@@ -65,7 +65,7 @@ export const LogType = Array(
     'DELETED_USER',
     'RESTORED_USER',
     'UPDATED_SHOP'
-)
+]
 
 export const LogTypeList = LogType.map((value, index) => ({ value, id: index }))
 

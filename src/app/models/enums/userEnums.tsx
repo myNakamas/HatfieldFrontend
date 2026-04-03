@@ -3,14 +3,14 @@ import { Card, Space, Tag, TourProps } from 'antd'
 import React, { MutableRefObject } from 'react'
 
 export type Role = 'ADMIN' | 'CLIENT' | 'SALESMAN' | 'ENGINEER'
-export const UserRoles = Array('ADMIN', 'CLIENT', 'SALESMAN', 'ENGINEER')
-export const UserRolesArray: ItemPropertyView[] = Array('ADMIN', 'CLIENT', 'SALESMAN', 'ENGINEER').map(
+export const UserRoles = ['ADMIN', 'CLIENT', 'SALESMAN', 'ENGINEER']
+export const UserRolesArray: ItemPropertyView[] = ['ADMIN', 'CLIENT', 'SALESMAN', 'ENGINEER'].map(
     (value, index) => ({
         id: index,
         value,
     })
 )
-export const WorkerRolesArray: ItemPropertyView[] = Array('ADMIN', 'SALESMAN', 'ENGINEER').map((value, index) => ({
+export const WorkerRolesArray: ItemPropertyView[] = ['ADMIN', 'SALESMAN', 'ENGINEER'].map((value, index) => ({
     id: index,
     value,
 }))

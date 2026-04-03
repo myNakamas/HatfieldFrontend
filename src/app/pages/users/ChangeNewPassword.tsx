@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { SetPasswordSchema } from '../../models/validators/FormValidators'
 import { SetPassword } from '../../models/interfaces/user'
 import { TextField } from '../../components/form/TextField'
@@ -17,7 +17,7 @@ export const ChangeNewPassword = () => {
         handleSubmit,
         formState: { errors },
         setError,
-    } = useForm<SetPassword>({ resolver: yupResolver(SetPasswordSchema) })
+    } = useForm<SetPassword>({ resolver: yupResolver(SetPasswordSchema) as any })
     const navigate = useNavigate()
     const [params] = useSearchParams()
     const token = params.get('token')

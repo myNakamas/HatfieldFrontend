@@ -22,7 +22,7 @@ export const App = () => {
                 <ThemeProvider>
                     <AntApp>
                         <ToastContainer />
-                        <ErrorBoundary message="Something went wrong" description="Please try again later">
+                        <ErrorBoundary title="Something went wrong" description="Please try again later">
                             <Router />
                         </ErrorBoundary>
                     </AntApp>

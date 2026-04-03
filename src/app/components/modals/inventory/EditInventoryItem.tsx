@@ -52,7 +52,7 @@ export const EditInventoryItem = ({
         reset,
         setValue,
     } = useForm<InventoryItem>({
-        resolver: yupResolver(EditItemInventorySchema),
+        resolver: yupResolver(EditItemInventorySchema) as any,
         defaultValues: item,
     })
     const models = brands?.find((b) => b.value === watch('brand'))?.models ?? []

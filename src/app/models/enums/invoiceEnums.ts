@@ -8,11 +8,11 @@ import { faHeadset } from '@fortawesome/free-solid-svg-icons/faHeadset'
 import { faHandHoldingDollar } from '@fortawesome/free-solid-svg-icons'
 
 export type InvoiceType = 'REPAIR' | 'BUY' | 'SELL' | 'ACCESSORIES' | 'DEPOSIT'
-export const InvoiceTypes = Array('REPAIR', 'BUY', 'SELL', 'ACCESSORIES', 'DEPOSIT')
+export const InvoiceTypes = ['REPAIR', 'BUY', 'SELL', 'ACCESSORIES', 'DEPOSIT']
 export const InvoiceTypesArray = InvoiceTypes.map((value, index) => ({ value, id: index }))
 
 export type PaymentMethod = 'CASH' | 'CARD' | 'COMBINED'
-export const PaymentMethods = Array('CASH', 'CARD', 'COMBINED')
+export const PaymentMethods = ['CASH', 'CARD', 'COMBINED']
 export const PaymentMethodList = PaymentMethods.map((value, index) => ({ value, id: index }))
 export type WarrantyPeriod =
     | 'NONE'
@@ -25,7 +25,7 @@ export type WarrantyPeriod =
     | 'SIX_MONTHS'
     | 'ONE_YEAR'
     | 'TWO_YEARS'
-export const WarrantyPeriods = Array(
+export const WarrantyPeriods = [
     'NONE',
     'ONE_DAY',
     'THREE_DAYS',
@@ -36,7 +36,7 @@ export const WarrantyPeriods = Array(
     'SIX_MONTHS',
     'ONE_YEAR',
     'TWO_YEARS'
-)
+]
 export const WarrantyPeriodList = WarrantyPeriods.map((value, index) => ({ value, id: index }))
 
 export const invoiceTypeIcon = {

@@ -28,7 +28,7 @@ export const getTicketLabelImage = (ticketId: number | undefined): Promise<Blob>
 }
 export const printUserLabel = (userId: string | undefined, print: boolean) => {
     const promise = print ? postPrintUser(userId) : getPrintUser(userId)
-    toast.promise(promise, toastPrintTemplate, toastProps).then(openPdfBlob)
+    toast.promise(promise, toastPrintTemplate, toastProps).then(() => promise.then(openPdfBlob))
 }
 export const postPrintTicket = (ticketId: number | undefined): Promise<Blob> => {
     if (!ticketId) return new Promise(() => null)

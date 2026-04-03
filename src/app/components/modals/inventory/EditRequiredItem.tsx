@@ -1,4 +1,4 @@
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Collapse, Space, Switch } from 'antd'
 import FormItemLabel from 'antd/es/form/FormItemLabel'
 import { useEffect } from 'react'
@@ -30,7 +30,7 @@ export const EditRequiredItem = ({
         handleSubmit,
         formState: { errors },
     } = useForm<InventoryItem>({
-        resolver: yupResolver(EditRequiredItemSchema),
+        resolver: yupResolver(EditRequiredItemSchema)  as any,
         defaultValues: inventoryItem,
     })
     useEffect(() => {

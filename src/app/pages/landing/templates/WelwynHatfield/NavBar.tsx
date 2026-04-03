@@ -103,7 +103,7 @@ const NavBar = () => {
                 placement='right'
                 onClose={() => setDrawerVisible(false)}
                 open={drawerVisible}
-                width={280}
+                size={280}
                 styles={{
                     header: { background: '#001529', borderBottom: 'none' },
                     body: { background: '#001529', padding: 0 },

@@ -10,7 +10,7 @@ import { DesignTokenContext } from 'antd/es/theme/internal'
 import dateFormat from 'dateformat'
 import { dateMask } from '../../models/enums/appEnums'
 import { generateDaysArray } from '../../utils/helperFunctions'
-import moment from 'moment'
+import dayjs from 'dayjs'
 
 export const TicketsReport = ({ filter }: { filter: InvoiceFilter }) => {
     const navigate = useNavigate()
@@ -21,7 +21,7 @@ export const TicketsReport = ({ filter }: { filter: InvoiceFilter }) => {
     const daysArray = generateDaysArray(filter.createdAfter, filter.createdBefore)
     const reportCalendar = daysArray
         .map((day) => {
-            const match = report?.calendar.find((item) => moment(item.date).isSame(day, 'day'))
+            const match = report?.calendar.find((item) => dayjs(item.date).isSame(day, 'day'))
             return match || { created: 0, completed: 0, date: day.format('YYYY-MM-DD') }
         })
         .map(({ created, completed, date }) => ({
@@ -40,7 +40,7 @@ export const TicketsReport = ({ filter }: { filter: InvoiceFilter }) => {
                         <YAxis allowDecimals={false} />
                         <Bar dataKey={'Created tickets'} fill={token.colorPrimary} />
                         <Bar dataKey={'Completed tickets'} fill={token.colorFill} />
-                        <Tooltip<string, string>
+                        <Tooltip
                             contentStyle={{
                                 borderRadius: token.borderRadius,
                                 backgroundColor: token.colorInfo,

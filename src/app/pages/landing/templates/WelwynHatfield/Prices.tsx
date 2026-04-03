@@ -9,7 +9,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Breadcrumb, Button, Progress } from 'antd'
-import { useContext, useEffect, useState } from 'react'
+import { ReactNode, useContext, useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getPublicBrands } from '../../../../axios/http/shopRequests'
@@ -22,7 +22,7 @@ import { Brand } from '../../../../models/interfaces/shop'
 interface EvaluationTask {
     key: string
     title: string
-    content: JSX.Element
+    content: ReactNode
     subTitle: string
 }
 
@@ -32,7 +32,7 @@ export const Prices = () => {
     const selectedDeviceType = urlParams.get('type') ?? ''
     const cleanDeviceType = Object.values(deviceTypes).includes(selectedDeviceType) ? selectedDeviceType : ''
     const [info, setInfo] = useState({ deviceType: cleanDeviceType, brand: {} as Brand, model: '', issue: '' })
-    const [stepNum, setStepNum] = useState(!!cleanDeviceType ? 1 : 0)
+    const [stepNum, setStepNum] = useState(cleanDeviceType ? 1 : 0)
 
     const SetDevice = (
         <SelectDevice
@@ -304,7 +304,7 @@ const SelectDevice = ({ setDevice, isMobile, selectedDeviceType }: { setDevice: 
             title: deviceTypes.ps,
         },
         {
-            icon: <img src='/custom-icons/nintendo-switch.svg' alt='Nintendo switch' />,
+            icon: <img src='/custom-icons/fa-brands-nintendo-switch.svg' alt='Nintendo switch' />,
             title: deviceTypes.Nswitch,
         },
         {

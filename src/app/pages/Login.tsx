@@ -23,7 +23,7 @@ export const Login = () => {
         handleSubmit,
         formState: { errors },
         setError,
-    } = useForm<UsernamePassword>({ resolver: yupResolver(LoginSchema) })
+    } = useForm<UsernamePassword>({ resolver: yupResolver(LoginSchema)   as any})
 
     const onSubmit = (formValues: UsernamePassword) => {
         useLogin(formValues)

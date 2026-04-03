@@ -178,7 +178,7 @@ const UserFilters = ({
             <Input
                 value={filter.phone}
                 onChange={(e) =>
-                    setFilter({ ...filter, phone: !!e.currentTarget.value ? e.currentTarget.value : undefined })
+                    setFilter({ ...filter, phone: e.currentTarget.value ? e.currentTarget.value : undefined })
                 }
                 placeholder={'Filter by phone'}
                 type='search'
@@ -197,8 +197,9 @@ const UserFilters = ({
             />
                             <Select<ItemPropertyView[], ItemPropertyView>
                     style={{ minWidth: 200, maxWidth: 300, textAlign: 'left' }}
-                    dropdownStyle={{ textAlign: 'left' }}
-                    mode={'tags'}
+            styles={{
+                popup: { listItem:{ textAlign: 'left' } },
+            }}                    mode={'tags'}
                     allowClear
                     options={UserRolesArray}
                     value={filter.roles ? filter.roles : []}

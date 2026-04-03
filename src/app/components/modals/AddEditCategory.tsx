@@ -42,7 +42,7 @@ export const AddEditCategory = ({
         watch,
         reset,
     } = useForm<Category>({
-        resolver: yupResolver(CategorySchema),
+        resolver: yupResolver(CategorySchema) as any,
         defaultValues: defaultValue,
     })
     const properties = watch('columns') ?? []
@@ -63,8 +63,8 @@ export const AddEditCategory = ({
                         error={error as FieldError}
                         autoFocus
                     />
-                    <Space direction='vertical'>
-                        <Tooltip destroyTooltipOnHide title='Whether this property will be printed or not.'>
+                    <Space orientation='vertical'>
+                        <Tooltip destroyOnHidden title='Whether this property will be printed or not.'>
                             <Checkbox
                                 checked={column.showOnDocument ?? false}
                                 onChange={(e) => setValue(`columns.${index}.showOnDocument`, e.target.checked)}
@@ -73,7 +73,7 @@ export const AddEditCategory = ({
                             </Checkbox>
                         </Tooltip>
                         <Tooltip
-                            destroyTooltipOnHide
+                            destroyOnHidden
                             title={`To display the name of the column before the value on the label or not.`}
                         >
                             <Checkbox
@@ -109,7 +109,7 @@ export const AddEditCategory = ({
                 <form ref={formRef} className='modalForm' onSubmit={handleSubmit(onComplete)}>
                     <Divider />
                     <div className='flex-100 justify-between flex-wrap flex-gap align-start'>
-                        <Space direction='vertical'>
+                        <Space orientation='vertical'>
                             <TextField register={register('name')} error={errors.name} label={'Category name'} />
                             <Controller
                                 control={control}

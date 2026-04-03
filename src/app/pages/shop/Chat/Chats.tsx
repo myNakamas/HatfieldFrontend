@@ -62,7 +62,7 @@ export const Chats = () => {
     useEffect(() => {
         if (selectedTicket) {
             navigate({ search: 'id=' + selectedTicket.id }, { replace: true })
-            let userMessages = selectedTicket?.id ? userChats[selectedTicket.id] ?? [] : []
+            const userMessages = selectedTicket?.id ? userChats[selectedTicket.id] ?? [] : []
             const messagesByUser = [
                 ...(oldMessages?.pages.flatMap((page) => page.content) ?? []),
                 ...userMessages,

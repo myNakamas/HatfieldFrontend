@@ -19,7 +19,7 @@ export const Dashboard = () => {
     if (!isWorker()) return <></>
     return (
         <div className='mainScreen'>
-            <Space direction='vertical' className='w-100 ' wrap>
+            <Space orientation='vertical' className='w-100 ' wrap>
                 <Space wrap className='w-100 justify-between'>
                     <h2>Dashboard</h2>
                     <DashboardFilters {...{ filter, setFilter }} />

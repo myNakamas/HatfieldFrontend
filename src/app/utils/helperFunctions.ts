@@ -1,8 +1,8 @@
 import { RcFile } from 'antd/es/upload'
 import { ChatMessage } from '../models/interfaces/ticket'
-import moment from 'moment/moment'
 import { User } from '../models/interfaces/user'
 import { Page, PageRequest } from '../models/interfaces/generalModels'
+import dayjs from 'dayjs'
 
 export const capitalizeFirst = (str: string | undefined) => {
     return str?.substring(0, 1).toUpperCase().concat(str?.substring(1).toLowerCase())
@@ -26,14 +26,14 @@ export const resetPageIfNoValues = <T>(
     if (pageResponse.content.length == 0 && pageResponse.page > 1) setPage((oldVal) => ({ ...oldVal, page: 1 }))
 }
 
-export const generateDaysArray = (startDate?: string, endDate?: string): moment.Moment[] => {
-    const start = moment(startDate).startOf('day') ?? moment().startOf('month').startOf('day')
-    const end = moment(endDate).startOf('day')
+export const generateDaysArray = (startDate?: string, endDate?: string): dayjs.Dayjs[] => {
+    let start = dayjs(startDate).startOf('day') ?? dayjs().startOf('month').startOf('day')
+    const end = dayjs(endDate).startOf('day')
     const daysArray = []
 
     while (start <= end) {
-        daysArray.push(moment(start))
-        start.add(1, 'days')
+        daysArray.push(dayjs(start))
+        start = start.add(1, 'days')
     }
 
     return daysArray

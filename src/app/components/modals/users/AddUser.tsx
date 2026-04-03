@@ -1,7 +1,7 @@
 import { AppModal } from '../AppModal'
 import { User } from '../../../models/interfaces/user'
 import { Controller, useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { TextField } from '../../form/TextField'
 import { UserRolesArray } from '../../../models/enums/userEnums'
 import { FormError } from '../../form/FormError'
@@ -39,7 +39,7 @@ export const AddUser = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
         setError,
         reset,
     } = useForm<User>({
-        resolver: yupResolver(SimpleUserSchema),
+        resolver: yupResolver(SimpleUserSchema)  as any,
         defaultValues,
     })
     useEffect(() => {

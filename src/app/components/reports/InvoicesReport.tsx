@@ -7,13 +7,13 @@ import { CustomSuspense } from '../CustomSuspense'
 import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import React, { useContext, useState } from 'react'
 import { DesignTokenContext } from 'antd/es/theme/internal'
-import moment from 'moment/moment'
 import { currencyFormat, generateDaysArray } from '../../utils/helperFunctions'
 import dateFormat from 'dateformat'
 import { dateMask } from '../../models/enums/appEnums'
 import { ItemPropertyView } from '../../models/interfaces/generalModels'
 import { InvoiceType, InvoiceTypesArray } from '../../models/enums/invoiceEnums'
 import { AppSelect } from '../form/AppSelect'
+import dayjs from 'dayjs'
 
 type ChartType = 'COUNT' | 'INCOME'
 
@@ -29,7 +29,7 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
     const daysArray = generateDaysArray(filter.createdAfter, filter.createdBefore)
 
     const mergedArray = daysArray.map((day) => {
-        const match = report?.calendar.find((item) => moment(item.date).isSame(day, 'day'))
+        const match = report?.calendar.find((item) => dayjs(item.date).isSame(day, 'day'))
         return match || { count: 0, dailyIncome: 0, date: day.format('YYYY-MM-DD') }
     })
 
@@ -55,14 +55,14 @@ export const InvoicesReport = ({ filter }: { filter: TicketFilter }) => {
                         <YAxis allowDecimals={false} />
                         {chartType == 'COUNT' && <Bar dataKey={'Invoice Count'} fill={token.colorPrimary} />}
                         {chartType == 'INCOME' && <Bar dataKey={'Daily income'} fill={token.colorFill} />}
-                        <Tooltip<string, string>
+                        <Tooltip
                             contentStyle={{
                                 borderRadius: token.borderRadius,
                                 backgroundColor: token.colorInfo,
                             }}
                             itemStyle={{ color: 'white' }}
                             formatter={(value, key) => {
-                                return key === 'Daily income' ? [currencyFormat(+value), key] : [value, key]
+                                return key === 'Daily income' ? [currencyFormat(value as number), key] : [value, key]
                             }}
                         />
                         <Legend />

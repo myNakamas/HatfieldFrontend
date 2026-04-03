@@ -1,6 +1,6 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { ForgotPasswordSchema } from '../../models/validators/FormValidators'
 import { TextField } from '../../components/form/TextField'
 import { FormError } from '../../components/form/FormError'
@@ -20,7 +20,7 @@ export const ForgotPassword = () => {
         handleSubmit,
         formState: { errors },
         setError,
-    } = useForm<Username>({ resolver: yupResolver(ForgotPasswordSchema) })
+    } = useForm<Username>({ resolver: yupResolver(ForgotPasswordSchema) as any })
     const navigate = useNavigate()
     const [api, contextHolder] = useNotification()
     const onSubmit = ({ username }: Username) => {

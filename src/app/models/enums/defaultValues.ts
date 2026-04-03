@@ -1,8 +1,12 @@
 import { CreateTicket } from '../interfaces/ticket'
 import { User } from '../interfaces/user'
 import { TicketFilter } from '../interfaces/filters'
-import moment from 'moment/moment'
 import { PageRequest } from '../interfaces/generalModels'
+import duration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import dayjs from 'dayjs';
+dayjs.extend(relativeTime)
+dayjs.extend(duration)
 
 export const defaultPageSizeOptions = [5, 10, 15, 20, 50, 100]
 export const setDefaultPageSize = (pageSize: number) => {
@@ -18,8 +22,8 @@ export const defaultTicket:Partial<CreateTicket> = {
     problemExplanation: '',
     status: 'PENDING',
     deviceLocation: 'IN_THE_FRONT',
-    deadline: moment().add(1, 'hour').toDate(),
-    deadlineDuration:moment.duration({hours:1}),
+    deadline: dayjs().add(1, 'hour').toDate(),
+    deadlineDuration:dayjs.duration({hours:1}),
     withClient: true,
     accessories: undefined,
     deviceBrand: undefined,
@@ -46,6 +50,6 @@ export const getDefaultClient = (shopId?: number) => ({ ...defaultUser, role: 'C
 export const defaultStatisticsFilter = (shopId?: number) =>
     ({
         shopId: shopId,
-        createdAfter: moment().startOf('month').format('YYYY-MM-DD'),
-        createdBefore: moment().format('YYYY-MM-DD'),
+        createdAfter: dayjs().startOf('month').format('YYYY-MM-DD'),
+        createdBefore: dayjs().format('YYYY-MM-DD'),
     } as TicketFilter)

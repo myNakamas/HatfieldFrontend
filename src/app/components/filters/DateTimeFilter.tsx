@@ -1,8 +1,7 @@
 import { Filter } from '../../models/interfaces/filters'
 import { useState } from 'react'
-import moment, { Moment } from 'moment/moment'
-import generatePicker from 'antd/es/date-picker/generatePicker'
-import momentGenerateConfig from 'rc-picker/lib/generate/moment'
+import {DatePicker} from 'antd'
+import dayjs, { Dayjs } from 'dayjs'
 
 export const DateTimeFilter = ({
     filter,
@@ -18,10 +17,9 @@ export const DateTimeFilter = ({
     const before = (dataKeys?.before as keyof Filter) ?? ('to' as keyof Filter)
     const after = (dataKeys?.after as keyof Filter) ?? ('from' as keyof Filter)
 
-    const { RangePicker } = generatePicker<Moment>(momentGenerateConfig)
-    const [dates, setDates] = useState<RangeValue<Moment>>([
-        filter[after] ? moment(filter[after]) : null,
-        filter[before] ? moment(filter[before]) : null,
+    const [dates, setDates] = useState<RangeValue<Dayjs>>([
+        filter[after] ? dayjs(filter[after]) : null,
+        filter[before] ? dayjs(filter[before]) : null,
     ])
     const updateFilter = (dates: any) => {
         setFilter({
@@ -32,7 +30,7 @@ export const DateTimeFilter = ({
     }
 
     return (
-        <RangePicker
+        <DatePicker.RangePicker
             placeholder={placeholder ? [placeholder + ' after', placeholder + ' before'] : undefined}
             allowEmpty={[true, true]}
             value={dates}

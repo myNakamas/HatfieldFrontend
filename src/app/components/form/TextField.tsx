@@ -27,10 +27,13 @@ import {
     Typography,
 } from 'antd'
 import { AntFormField } from './Field'
-
 import dateFormat from 'dateformat'
-import moment, { duration, Duration, Moment } from 'moment'
-import MomentDatePicker from './MomentDatePicker'
+import duration,{Duration} from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import dayjs, { Dayjs } from 'dayjs';
+dayjs.extend(relativeTime)
+dayjs.extend(duration)
+
 
 interface TextFieldProps
     extends React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
@@ -66,14 +69,18 @@ interface AntTextFieldProps<T extends FieldValues> {
 export const AntTextField = <T extends FieldValues>({
     label,
     extra,
+    addonAfter,
     ...rest
-}: AntTextFieldProps<T> & Omit<InputProps, 'defaultValue'>) => {
+}: AntTextFieldProps<T> & Omit<InputProps, 'defaultValue'|'addonAfter'> & {addonBefore?: ReactNode, addonAfter?: ReactNode}) => {
     return (
         <Controller
             {...rest}
             render={({ field, fieldState: { error } }) => (
                 <AntFormField {...{ label, error, extra }}>
-                    <Input status={error?.message ? 'error' : undefined} {...field} {...rest} />
+                    <Space.Compact>
+                        <Input status={error?.message ? 'error' : undefined} {...field} {...rest} />
+                        {addonAfter}
+                    </Space.Compact>
                 </AntFormField>
             )}
         />
@@ -93,10 +100,10 @@ export const TaskDeadline = <T extends FieldValues>({ label, extra, setDuration,
         <Controller
             {...rest}
             render={({ field: { onChange, value: deadline }, fieldState: { error } }) => {
-                const currentDeadline = !!duration ? moment().add(duration) : moment(deadline);
-                const updateDeadline = (duration?: Duration) => {
+                const currentDeadline = duration ? dayjs().add(duration) : dayjs(deadline);
+                const updateDeadline = (duration: Duration) => {
                     setDuration(duration)
-                    onChange(moment().add(duration).toDate())
+                    onChange(dayjs().add(duration).toDate())
                 }
                 return (
                     <Collapse
@@ -105,47 +112,47 @@ export const TaskDeadline = <T extends FieldValues>({ label, extra, setDuration,
                             {
                                 label: 'Deadline',
                                 extra: (
-                                    <Tag color={currentDeadline < moment().add(30, 'minutes') ? 'red' : 'blue'}>
+                                    <Tag color={currentDeadline < dayjs().add(30, 'minutes') ? 'red' : 'blue'}>
                                         {currentDeadline?.fromNow()}
                                     </Tag>
                                 ),
                                 children: (
-                                    <Space direction='vertical'>
-                                        <MomentDatePicker
+                                    <Space orientation='vertical'>
+                                        <DatePicker
                                             onChange={(value) => {
                                                 onChange(value)
                                                 setDuration(undefined)
                                             }}
-                                            value={deadline ? moment(deadline) : undefined}
+                                            value={deadline ? dayjs(deadline) : undefined}
                                             showTime
                                         />
                                         <Space.Compact>
                                             <Button
                                                 onClick={() => {
-                                                    updateDeadline(moment.duration({ minutes: 15 }))
+                                                    updateDeadline(dayjs.duration({ minutes: 15 }))
                                                 }}
                                             >
                                                 15 minutes
                                             </Button>
-                                            <Button onClick={() => updateDeadline(moment.duration({ minutes: 20 }))}>
+                                            <Button onClick={() => updateDeadline(dayjs.duration({ minutes: 20 }))}>
                                                 20 minutes
                                             </Button>
-                                            <Button onClick={() => updateDeadline(moment.duration({ minutes: 45 }))}>
+                                            <Button onClick={() => updateDeadline(dayjs.duration({ minutes: 45 }))}>
                                                 45 minutes
                                             </Button>
                                         </Space.Compact>
                                         <Space.Compact>
-                                            <Button onClick={() => updateDeadline(moment.duration({ hour: 1 }))}>
+                                            <Button onClick={() => updateDeadline(dayjs.duration({ hours: 1 }))}>
                                                 1 hour
                                             </Button>
-                                            <Button onClick={() => updateDeadline(moment.duration({ hours: 2 }))}>
+                                            <Button onClick={() => updateDeadline(dayjs.duration({ hours: 2 }))}>
                                                 2 hours
                                             </Button>
                                             <Button
                                                 onClick={() => {
                                                     setDuration(undefined)
                                                     onChange(
-                                                        moment().add(1, 'days').hours(10).minutes(0).seconds(0).toDate()
+                                                        dayjs().add(1, 'days').hour(10).minute(0).second(0).toDate()
                                                     )
                                                 }}
                                             >
@@ -162,11 +169,11 @@ export const TaskDeadline = <T extends FieldValues>({ label, extra, setDuration,
         />
     )
 }
-const MyDatePanel = (props: { value?: Moment; onSelect: (value?: Moment) => void }) => {
+const MyDatePanel = (props: { value?: Dayjs; onSelect: (value?: Dayjs) => void }) => {
     const { value, onSelect } = props
 
     // Value
-    const startDate = React.useMemo(() => moment().date(1).month(0), [])
+    const startDate = React.useMemo(() => dayjs().date(1).month(0), [])
     const [innerValue, setInnerValue] = React.useState(value || startDate)
 
     React.useEffect(() => {

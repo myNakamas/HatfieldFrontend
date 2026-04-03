@@ -69,7 +69,7 @@ export const PricingFormModal = ({
       onCancel={onClose}
       confirmLoading={loading}
       className='prices'
-      destroyOnClose
+      destroyOnHidden
     >
       <FormProvider {...methods}>
         <form>

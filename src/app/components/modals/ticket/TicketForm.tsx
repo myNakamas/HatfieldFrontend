@@ -16,7 +16,6 @@ import {
     Tooltip,
 } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
-import moment from 'moment'
 import { useState } from 'react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { useQuery } from 'react-query'
@@ -37,6 +36,9 @@ import { getPhoneString, parsePhone } from '../../form/PhoneSelect'
 import { AntTextField, TaskDeadline } from '../../form/TextField'
 import { BarcodeReaderButton } from '../QrReaderModal'
 import { AddClient } from '../users/AddClient'
+import dayjs from 'dayjs'
+import Duration from 'dayjs/plugin/duration'
+dayjs.extend(Duration)
 
 const defaultTaskAutofill = {
     key: 'option_estimate',
@@ -85,8 +87,7 @@ export const TicketForm = ({
                 onSuccess={(user) => setValue('client', user)}
             />
             <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className='modalForm ticketForm'>
-                <Form labelWrap>
-                    <Space direction='vertical' className='w-100'>
+                    <Space orientation='vertical' className='w-100'>
                         <Row gutter={[16, 16]} justify='space-evenly' className='w-100' wrap>
                             <Col flex='auto'>
                                 <ClientForm
@@ -103,7 +104,7 @@ export const TicketForm = ({
 
                             <Col flex='auto'>
                                 <Space.Compact
-                                    direction='vertical'
+                                    orientation='vertical'
                                     className='w-100'
                                     key={ticket?.id + 'brand_model_password'}
                                 >
@@ -150,7 +151,7 @@ export const TicketForm = ({
                             </Col>
                             <Col flex={'auto'}>
                                 <Card size='small' style={{ margin: 'auto' }}>
-                                    <Space className={'col-wrap'} direction={'vertical'}>
+                                    <Space className={'col-wrap'} orientation={'vertical'}>
                                         <TicketQuickCheckBox
                                             key={'bag_' + watch('accessories')}
                                             fieldToCheck={watch('accessories')}
@@ -223,7 +224,7 @@ export const TicketForm = ({
                         </Row>
                         <Row gutter={[16, 16]} justify='space-evenly' className='w-100' wrap>
                             <Col flex='auto'>
-                                <Space.Compact direction='vertical' className='w-100'>
+                                <Space.Compact orientation='vertical' className='w-100'>
                                     <Controller
                                         control={control}
                                         name={'problemExplanation'}
@@ -264,7 +265,7 @@ export const TicketForm = ({
                             </Col>
                             <Col flex='auto'>
                                 <Card title='Payment' size='small'>
-                                    <Space.Compact direction='vertical' className='w-100'>
+                                    <Space.Compact orientation='vertical' className='w-100'>
                                         <AntTextField<CreateTicket>
                                             control={control}
                                             name='deposit'
@@ -293,7 +294,6 @@ export const TicketForm = ({
                                 {
                                     label: 'More details',
                                     forceRender: true,
-                                    destroyInactivePanel: false,
                                     children: (
                                         <Space wrap className='justify-between'>
                                             <AntTextField<CreateTicket>
@@ -366,7 +366,6 @@ export const TicketForm = ({
                             ]}
                         />
                     </Space>
-                </Form>
                 <FormError error={errors.root?.message} />
             </form>
         </>
@@ -407,7 +406,9 @@ const ClientForm = ({
         ),
         optionLabelProp: 'label',
         style: { minWidth: 200, maxWidth: 300, textAlign: 'left' },
-        dropdownStyle: { textAlign: 'left' },
+        styles: {
+            popup: { listItem:{ textAlign: 'left' } },
+        }
     }
 
     const options: LabeledUser[] =
@@ -441,7 +442,7 @@ const ClientForm = ({
             }
         >
             <Skeleton loading={!withClient} title={false}>
-                <Space direction='vertical'>
+                <Space orientation='vertical'>
                     <Select<Array<string>, LabeledUser>
                         {...props}
                         value={user?.phones ? [user.phones.join(', ')] : []}
@@ -557,7 +558,7 @@ const NotesTextArea = ({
 
 export const formatDeadline = (ticket: CreateTicket) => {
     if (ticket.deadlineDuration != undefined) {
-        ticket.deadline = moment().add(ticket.deadlineDuration).toDate()
+        ticket.deadline = dayjs().add(ticket.deadlineDuration).toDate()
         ticket.deadlineDuration = undefined
     }
     return ticket.deadline

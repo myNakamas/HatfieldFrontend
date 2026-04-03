@@ -89,7 +89,7 @@ export const ViewInventoryItem = ({
                 />
             )}
             {inventoryItem && (
-                <Space direction='vertical' style={{ width: '100%' }}>
+                <Space orientation='vertical' style={{ width: '100%' }}>
                     {openEditModal && (
                         <Button
                             className={'editModalButton'}
@@ -105,10 +105,10 @@ export const ViewInventoryItem = ({
 
                     <Space wrap align={'start'} className={'justify-between w-100'}>
                         <Card title={'Actions'}>
-                            <Space direction={'vertical'}>
+                            <Space orientation={'vertical'}>
                                 <Space>
                                     <Typography>Print the label for the item</Typography>
-                                    <Button.Group>
+                                    <Space.Compact>
                                         <Button
                                             title={
                                                 !shop?.shopSettingsView.printEnabled
@@ -131,7 +131,7 @@ export const ViewInventoryItem = ({
                                             onClick={() => previewItemLabel(inventoryItem)}
                                             icon={<FontAwesomeIcon icon={faEye} />}
                                         />
-                                    </Button.Group>
+                                    </Space.Compact>
                                 </Space>
                                 <Space>
                                     <Typography>Sell as an item</Typography>
@@ -151,7 +151,7 @@ export const ViewInventoryItem = ({
                             </Space>
                         </Card>
                         <Card size={'small'} title={'Modify item quantity'}>
-                            <Space direction={'vertical'}>
+                            <Space orientation={'vertical'}>
                                 <Space>
                                     <Typography>Mark one as damaged</Typography>
                                     <Button
@@ -188,7 +188,7 @@ export const ItemDescriptions = ({
     showCount?: boolean
 }) => {
     return (
-        <Space direction={'vertical'} className={'w-100'}>
+        <Space orientation={'vertical'} className={'w-100'}>
             <Space wrap align={'start'} className={'justify-between w-100'}>
                 <Card
                     size={'small'}
@@ -273,7 +273,7 @@ const UpdateItemCountForm = ({ item, onComplete }: { item: InventoryItem; onComp
         handleSubmit,
         formState: { errors },
         reset,
-    } = useForm<InventoryItem>({ defaultValues: item, resolver: yupResolver(UpdateItemCountSchema) })
+    } = useForm<InventoryItem>({ defaultValues: item, resolver: yupResolver(UpdateItemCountSchema)  as any })
     const updateCount = (value: InventoryItem) => {
         toast
             .promise(updateItemQuantity({ item: value }), toastUpdatePromiseTemplate('item count'), toastProps)
@@ -322,7 +322,7 @@ const SendItemToShop = ({ item }: { item: InventoryItem }) => {
         setError,
         reset,
     } = useForm<TransferItem>({
-        resolver: yupResolver(SendItemToShopSchema),
+        resolver: yupResolver(SendItemToShopSchema) as any,
     })
     const queryClient = useQueryClient()
     const submit = (formValue: TransferItem) => {
@@ -349,7 +349,7 @@ const SendItemToShop = ({ item }: { item: InventoryItem }) => {
                         key: '1',
                         label: 'Send to another shop',
                         children: (
-                            <Space direction={'vertical'}>
+                            <Space orientation={'vertical'}>
                                 <Controller
                                     control={control}
                                     name={'shopId'}

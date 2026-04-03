@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef } from 'react'
 import { AppModal } from './AppModal'
 import { Controller, useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { CreateShopSchema } from '../../models/validators/FormValidators'
 import { Shop } from '../../models/interfaces/shop'
 import { toast } from 'react-toastify'
@@ -30,7 +30,7 @@ export const AddShop = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
         formState: { errors },
         setError,
     } = useForm<Shop>({
-        resolver: yupResolver(CreateShopSchema),
+        resolver: yupResolver(CreateShopSchema) as any,
     })
     useEffect(() => {
         formRef.current?.reset()
@@ -63,7 +63,7 @@ export const AddShop = ({ isModalOpen, closeModal }: { isModalOpen: boolean; clo
                     <TextField label={'Phone number'} register={register('phone')} error={errors.phone} />
 
                     <Card id={'shopCol'} title={'Shop Colors'} className='w-100'>
-                        <Space className='w-100 justify-start align-start' direction={'vertical'}>
+                        <Space className='w-100 justify-start align-start' orientation={'vertical'}>
                             <Controller
                                 control={control}
                                 name='shopSettingsView.primaryColor'

@@ -7,7 +7,6 @@ import { ViewInventoryItem } from '../../components/modals/inventory/ViewInvento
 import { useQuery, useQueryClient } from 'react-query'
 import { changeMultipleNeed, changeNeed, getShoppingList, useGetShopItems } from '../../axios/http/shopRequests'
 import { Breadcrumb, Button, Space, Statistic, Table, Transfer } from 'antd'
-import { TransferDirection } from 'antd/es/transfer'
 import { defaultPage } from '../../models/enums/defaultValues'
 import { TableRowSelection } from 'antd/es/table/interface'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -17,6 +16,7 @@ import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft'
 import { toastProps, toastUpdatePromiseTemplate } from '../../components/modals/ToastProps'
 import { toast } from 'react-toastify'
 import { TransferKey } from 'antd/es/transfer/interface'
+import { TransferDirection } from 'antd/lib/transfer'
 
 const getInventoryItemKey = (item: InventoryItem) => String(item.id)
 const nonRequiredColumns = [

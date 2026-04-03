@@ -3,13 +3,13 @@ import { UserForm } from './UserForm'
 import { Controller, useForm } from 'react-hook-form'
 import { FormField } from '../../form/Field'
 import { FormError } from '../../form/FormError'
-import { Button, Typography } from 'antd'
+import { Button, Space, Typography } from 'antd'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { getAllShops } from '../../../axios/http/shopRequests'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { User } from '../../../models/interfaces/user'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { ClientSchema } from '../../../models/validators/FormValidators'
 import { getDefaultClient } from '../../../models/enums/defaultValues'
 import { toast } from 'react-toastify'
@@ -50,7 +50,7 @@ export const AddClient = ({
         setError,
         reset,
     } = useForm<User>({
-        resolver: yupResolver(ClientSchema),
+        resolver: yupResolver(ClientSchema)  as any,
         defaultValues: getDefaultClient(loggedUser?.shopId),
     })
     useEffect(() => {
@@ -62,8 +62,7 @@ export const AddClient = ({
     const onSaveNew = (formValue: User) => {
         const user = isAdmin() ? formValue : ({ ...formValue, shopId: loggedUser?.shopId } as User)
         return toast
-            .promise(createClient(user), toastCreatePromiseTemplate('client'), toastProps)
-            .then((user) => {
+            .promise(createClient(user)            .then((user) => {
                 setShowResponse(user)
                 queryClient.invalidateQueries(['users', 'clients']).then(() => {
                     onSuccess && onSuccess(user)
@@ -71,7 +70,8 @@ export const AddClient = ({
             })
             .catch((error: AppError) => {
                 setError('root', { message: error.detail })
-            })
+            }), toastCreatePromiseTemplate('client'), toastProps)
+
     }
 
     return (
@@ -88,7 +88,7 @@ export const AddClient = ({
                     <p>{showResponse.username}</p>
                     <h4>Password:</h4>
                     <p>{showResponse.firstPass}</p>
-                    <Button.Group>
+                    <Space.Compact>
                         <Button
                             icon={<FontAwesomeIcon icon={faPrint} />}
                             onClick={() => printUserLabel(showResponse?.userId, true)}
@@ -101,7 +101,7 @@ export const AddClient = ({
                         >
                             Preview
                         </Button>
-                    </Button.Group>
+                    </Space.Compact>
                 </Typography>
             ) : (
                 <form ref={formRef} className='modalForm' onSubmit={handleSubmit(onSaveNew)} id={'addClientForm'}>

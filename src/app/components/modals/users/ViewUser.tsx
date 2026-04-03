@@ -21,10 +21,10 @@ export const ViewUser = ({ user, closeModal }: { closeModal: () => void; user?: 
                 </Typography>
             )}
             {user ? (
-                <Space direction={'vertical'} style={{ width: '100%' }}>
+                <Space orientation={'vertical'} style={{ width: '100%' }}>
                     <UserDescription user={user} />
                     <Space>
-                        <Button.Group>
+                        <Space.Compact>
                             <Button
                                 icon={<FontAwesomeIcon icon={faPrint} />}
                                 onClick={() => printUserLabel(user.userId, true)}
@@ -37,7 +37,7 @@ export const ViewUser = ({ user, closeModal }: { closeModal: () => void; user?: 
                             >
                                 Preview
                             </Button>
-                        </Button.Group>
+                        </Space.Compact>
 
                         <Popconfirm
                             title='Ban user'

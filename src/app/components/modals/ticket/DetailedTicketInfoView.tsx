@@ -21,7 +21,6 @@ import {
     Typography,
 } from 'antd'
 import { UserDescription } from '../users/ViewUser'
-import DescriptionsItem from 'antd/lib/descriptions/Item'
 import dateFormat from 'dateformat'
 import { Deadline } from './Deadline'
 import { Log } from '../../../models/interfaces/shop'
@@ -48,7 +47,7 @@ export const DetailedTicketInfoView = ({
     }, [show])
     return (
         <AppModal title={'More details'} isModalOpen={show} closeModal={closeModal}>
-            <Space direction={'vertical'} className={'w-100'}>
+            <Space orientation={'vertical'} className={'w-100'}>
                 {ticket.client && (
                     <Collapse
                         items={[
@@ -63,20 +62,20 @@ export const DetailedTicketInfoView = ({
                 )}
 
                 <Descriptions>
-                    <DescriptionsItem label={'Created by'}>{ticket.createdBy.fullName}</DescriptionsItem>
-                    <DescriptionsItem label={'At'}>{dateFormat(ticket.timestamp)}</DescriptionsItem>
+                    <Descriptions.Item label={'Created by'}>{ticket.createdBy.fullName}</Descriptions.Item>
+                    <Descriptions.Item label={'At'}>{dateFormat(ticket.timestamp)}</Descriptions.Item>
                 </Descriptions>
                 <Descriptions title={'Device information'} bordered layout={'vertical'}>
-                    {ticket.deviceModel && <DescriptionsItem label={'Model'}>{ticket.deviceModel}</DescriptionsItem>}
-                    {ticket.deviceBrand && <DescriptionsItem label={'Brand'}>{ticket.deviceBrand}</DescriptionsItem>}
+                    {ticket.deviceModel && <Descriptions.Item label={'Model'}>{ticket.deviceModel}</Descriptions.Item>}
+                    {ticket.deviceBrand && <Descriptions.Item label={'Brand'}>{ticket.deviceBrand}</Descriptions.Item>}
                     {ticket.deviceCondition && (
-                        <DescriptionsItem label={'Condition'}>{ticket.deviceCondition}</DescriptionsItem>
+                        <Descriptions.Item label={'Condition'}>{ticket.deviceCondition}</Descriptions.Item>
                     )}
                     {ticket.devicePassword && (
-                        <DescriptionsItem label={'Password'}>{ticket.devicePassword}</DescriptionsItem>
+                        <Descriptions.Item label={'Password'}>{ticket.devicePassword}</Descriptions.Item>
                     )}
                     {ticket.accessories && (
-                        <DescriptionsItem label={'Accessories'}>{ticket.accessories}</DescriptionsItem>
+                        <Descriptions.Item label={'Accessories'}>{ticket.accessories}</Descriptions.Item>
                     )}
                 </Descriptions>
                 <div>
@@ -98,7 +97,7 @@ export const DetailedTicketInfoView = ({
 
 export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
     return (
-        <Space direction={'vertical'} className={'w-100'}>
+        <Space orientation={'vertical'} className={'w-100'}>
             <Row gutter={4} wrap justify={'space-between'} className='w-100'>
                 <Col flex='auto'>
                     <Card title={'Deadline'} size={'small'}>
@@ -139,7 +138,7 @@ export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
                     <Col>
                         <Descriptions bordered size={'small'} layout='horizontal' column={3}>
                             {ticket.deposit && (
-                                <DescriptionsItem
+                                <Descriptions.Item
                                     span={2}
                                     label={'Deposit'}
                                     children={currencyFormat(ticket.deposit)}
@@ -147,11 +146,11 @@ export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
                             )}
                             {ticket.totalPrice && (
                                 <>
-                                    <DescriptionsItem
+                                    <Descriptions.Item
                                         label={'Total price'}
                                         children={currencyFormat(ticket.totalPrice)}
                                     />
-                                    <DescriptionsItem
+                                    <Descriptions.Item
                                         label={'Left to pay'}
                                         span={2}
                                         children={currencyFormat(ticket.totalPrice - (ticket.deposit ?? 0))}
@@ -169,18 +168,18 @@ export const TicketModalDescription = ({ ticket }: { ticket: Ticket }) => {
             </Row>
             <Descriptions bordered layout={'vertical'} className={'w-100'} column={3}>
                 {ticket.customerRequest?.length > 0 && (
-                    <DescriptionsItem label={'Customer Request'} children={ticket.customerRequest} />
+                    <Descriptions.Item label={'Customer Request'} children={ticket.customerRequest} />
                 )}
                 {ticket.deviceCondition?.length > 0 && (
-                    <DescriptionsItem label={'Device condition'} children={ticket.deviceCondition} />
+                    <Descriptions.Item label={'Device condition'} children={ticket.deviceCondition} />
                 )}
                 {ticket.accessories?.length > 0 && (
-                    <DescriptionsItem label={'Accessories'} children={ticket.accessories} />
+                    <Descriptions.Item label={'Accessories'} children={ticket.accessories} />
                 )}
                 {ticket.problemExplanation && (
-                    <DescriptionsItem span={3} label={'Problem explanation'} children={ticket.problemExplanation} />
+                    <Descriptions.Item span={'filled'} label={'Problem explanation'} children={ticket.problemExplanation} />
                 )}
-                {ticket.notes?.length > 0 && <DescriptionsItem span={1} label={'Notes'} children={ticket.notes} />}
+                {ticket.notes?.length > 0 && <Descriptions.Item span={1} label={'Notes'} children={ticket.notes} />}
             </Descriptions>
         </Space>
     )
@@ -207,7 +206,7 @@ export const LogListRow = ({ log, onClick }: { log: Log; onClick?: (log: Log) =>
                 </Space>
             }
             content={
-                <Space direction='vertical'>
+                <Space orientation='vertical'>
                     <ul key={`logListItemContent${log.id}`}>
                         {logMessages.map((value, index) => {
                             return value.length == 0 ? (
